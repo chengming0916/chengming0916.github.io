@@ -1,12 +1,10 @@
 ---
-title: \[转\]Git子库 
+title: 【转载】Git子库 
 date: 2020-04-29 10:27:18
 tags:
     - Git
 ---
-[Git应用详解第十讲：Git子库：submodule与subtree]
-
-[Git应用详解第十讲：Git子库：submodule与subtree]
+原文链接:[Git应用详解第十讲：Git子库：submodule与subtree](https://www.cnblogs.com/AhuntSun-blog/p/12736934.html)
 
 一个中大型项目往往会依赖几个模块，`git`提供了子库的概念。可以将这些子模块存放在不同的仓库中，通过`submodule`或`subtree`实现仓库的嵌套。本讲为`Git`应用详解的倒数第二讲，胜利离我们不远了！
 

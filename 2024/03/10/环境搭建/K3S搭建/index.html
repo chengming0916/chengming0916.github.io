@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="安装K3S12345# master安装curl -sfL https:&#x2F;&#x2F;rancher-mirror.rancher.cn&#x2F;k3s&#x2F;k3s-install.sh | INSTALL_K3S_MIRROR&#x3D;cn INSTALL_K3S_EXEC&#x3D;&#x27;--write-kubeconfig-mode&#x3D;644&#x27; sh -#  加入其他节点curl -sfL https:&#x2F;&#x2F;get.k">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K3S搭建">
+<meta property="og:url" content="http://chengming0916.github.io/2024/03/10/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/K3S%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="安装K3S12345# master安装curl -sfL https:&#x2F;&#x2F;rancher-mirror.rancher.cn&#x2F;k3s&#x2F;k3s-install.sh | INSTALL_K3S_MIRROR&#x3D;cn INSTALL_K3S_EXEC&#x3D;&#x27;--write-kubeconfig-mode&#x3D;644&#x27; sh -#  加入其他节点curl -sfL https:&#x2F;&#x2F;get.k">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/K3S%E6%90%AD%E5%BB%BA%5Cingress-nginx-status.jpg">
+<meta property="article:published_time" content="2024-03-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-26T01:22:24.910Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="k3s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/K3S%E6%90%AD%E5%BB%BA%5Cingress-nginx-status.jpg">
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/03/10/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/K3S%E6%90%AD%E5%BB%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>K3S搭建 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/03/10/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/K3S%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          K3S搭建
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-11 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-11T00:00:00+08:00">2024-03-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-26 09:22:24" itemprop="dateModified" datetime="2024-03-26T09:22:24+08:00">2024-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" itemprop="url" rel="index"><span itemprop="name">环境搭建</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Kubernetes-Docker/" itemprop="url" rel="index"><span itemprop="name">Kubernetes/Docker</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/03/10/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/K3S%E6%90%AD%E5%BB%BA/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/03/10/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/K3S%E6%90%AD%E5%BB%BA/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="安装K3S"><a href="#安装K3S" class="headerlink" title="安装K3S"></a>安装K3S</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># master安装</span></span><br><span class="line">curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644&#x27;</span> sh -</span><br><span class="line"></span><br><span class="line"><span class="comment">#  加入其他节点</span></span><br><span class="line">curl -sfL https://get.k3s.io | K3S_URL=https://&lt;k3s-server-ip&gt;:6443 K3S_TOKEN=&lt;token&gt; |INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644&#x27;</span> sh -</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">cat</span> /var/lib/rancher/k3s/server/node-token</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.设置 kubeconfig 文件路径用于对 Kubernetes 集群的访问。</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export KUBECONFIG=/etc/rancher/k3s/k3s.yaml&quot;</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="安装管理工具Helm"><a href="#安装管理工具Helm" class="headerlink" title="安装管理工具Helm"></a>安装管理工具Helm</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#安装helm</span></span><br><span class="line">curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或通过包管理器安装</span></span><br><span class="line">curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo <span class="built_in">tee</span> /usr/share/keyrings/helm.gpg &gt; /dev/null</span><br><span class="line">sudo apt-get install apt-transport-https --<span class="built_in">yes</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb [arch=<span class="subst">$(dpkg --print-architecture)</span> signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main&quot;</span> | sudo <span class="built_in">tee</span> /etc/apt/sources.list.d/helm-stable-debian.list</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install helm</span><br><span class="line"></span><br><span class="line"><span class="comment"># ubuntu 使用snap安装</span></span><br><span class="line">sudo snap install helm --classic</span><br><span class="line"></span><br><span class="line"><span class="comment"># 离线安装</span></span><br><span class="line"><span class="comment"># 下载最新版离线安装包 https://github.com/helm/helm/releases</span></span><br><span class="line">tar xf helm-v2.11.0-linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">cp</span> linux-amd64/helm linux-amd64/tiller /usr/local/bin/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h6 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看节点相关</span></span><br><span class="line">kubectl get node --show-labels -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 k3s 集群配置文件</span></span><br><span class="line">kubectl cluster-info</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建2副本的whoami应用，默认1副本</span></span><br><span class="line">kubectl create deploy <span class="built_in">whoami</span> --image=traefik/whoami --replicas=2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看部署应用信息</span></span><br><span class="line">kubectl describe deploy <span class="built_in">whoami</span></span><br><span class="line"><span class="comment"># 监控Pod状态，通过缩容\扩容可直观看到Pod的调度状态</span></span><br><span class="line">kubectl get pods --watch</span><br><span class="line"></span><br><span class="line">kubectl scale deploy <span class="built_in">whoami</span> --replicas=5</span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求链路理解</span></span><br><span class="line">request public-ip -&gt; node-port -&gt; svc-port -&gt; pod-port -&gt; container</span><br><span class="line"></span><br><span class="line"><span class="comment"># 发布K3s内网的服务</span></span><br><span class="line">kubectl expose deploy <span class="built_in">whoami</span> --port=80</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看服务状态</span></span><br><span class="line">kubectl get svc <span class="built_in">whoami</span> -owide</span><br><span class="line">kubectl describe svc <span class="built_in">whoami</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 映射端口到宿主机</span></span><br><span class="line">kubectl expose deploy <span class="built_in">whoami</span> --<span class="built_in">type</span>=LoadBalancer --port=80 --target=8080 --external-ip 0.0.0.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清空测试</span></span><br><span class="line">kubectl delete all --all</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="配置Dashboard"><a href="#配置Dashboard" class="headerlink" title="配置Dashboard"></a>配置Dashboard</h2><h4 id="安装Dashboard"><a href="#安装Dashboard" class="headerlink" title="安装Dashboard"></a>安装Dashboard</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/</span><br><span class="line"><span class="comment">#helm会使用kubectl默认的KUBECONFIG配置，这里我们需要将KUBECONFIG换成k3s的否则会链接失败。</span></span><br><span class="line"><span class="built_in">export</span> KUBECONFIG=/etc/rancher/k3s/k3s.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment">#注意要指定端口号等信息，方便访问</span></span><br><span class="line"><span class="comment"># service.type=NodePort 默认是ClusterIP只能本机访问</span></span><br><span class="line"><span class="comment"># service.nodePort=30080 指定访问端口号</span></span><br><span class="line"><span class="comment"># replicaCount=2 2个节点</span></span><br><span class="line">helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard --<span class="built_in">set</span> replicaCount=2 --<span class="built_in">set</span> service.type=NodePort --<span class="built_in">set</span> service.nodePort=30080 --<span class="built_in">set</span> resources.limits.cpu=200m</span><br></pre></td></tr></table></figure>
+
+<p>[^第三方Dashboard]: <code>kubectl apply -f https://addons.kuboard.cn/kuboard/kuboard-v3.yaml</code></p>
+<p>用kubectl指令安装需要下载<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml">recommended.yaml</a>,由于镜像国内无法直接访问，需要修改镜像下载地址为国内源。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f recommended.yaml</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>安装存在的问题：</p>
+<ol>
+<li>镜像国内无法直接访问，需要设置docker代理，才能下载镜像</li>
+<li>dashboard的默认webui证书是自动生成的，由于时间和名称存在问题，导致谷歌和ie浏览器无法打开登录界面，经过测试Firefox可以正常打开</li>
+</ol>
+<h4 id="配置账户"><a href="#配置账户" class="headerlink" title="配置账户"></a>配置账户</h4><p>新建dashboard-admin.yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建ServiceAccount</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin-user</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment">#创建clusterRoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin-user</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">cluster-admin</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">admin-user</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br></pre></td></tr></table></figure>
+
+<p>执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f dashboard-admin.yaml</span><br></pre></td></tr></table></figure>
+
+<p>获取token</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># v1.24+</span></span><br><span class="line">sudo k3s kubectl -n kubernetes-dashboard create token admin-user</span><br><span class="line"></span><br><span class="line"><span class="comment"># v1.23 及之前的版本</span></span><br><span class="line">sudo k3s kubectl -n kubernetes-dashboard describe secret admin-user-token | grep <span class="string">&#x27;^token&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="配置远程访问"><a href="#配置远程访问" class="headerlink" title="配置远程访问"></a>配置远程访问</h4><p>使用Helm已安装的Dashboard配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kubernetes-dashboard edit service kubernetes-dashboard</span><br></pre></td></tr></table></figure>
+
+<p>修改NodePort暴露端口方式</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Please edit the object below. Lines beginning with a &#x27;#&#x27; will be ignored,</span></span><br><span class="line"><span class="comment"># and an empty file will abort the edit. If an error occurs while saving this file will be</span></span><br><span class="line"><span class="comment"># reopened with the relevant failures.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line">  <span class="attr">resourceVersion:</span> <span class="string">&quot;343478&quot;</span></span><br><span class="line">  <span class="attr">selfLink:</span> <span class="string">/api/v1/namespaces/kubernetes-dashboard/services/kubernetes-dashboard</span></span><br><span class="line">  <span class="attr">uid:</span> <span class="string">8e48f478-993d-11e7-87e0-901b0e532516</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">clusterIP:</span> <span class="number">10.100</span><span class="number">.124</span><span class="number">.90</span></span><br><span class="line">  <span class="attr">externalTrafficPolicy:</span> <span class="string">Cluster</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">443</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">8443</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">k8s-app:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line">  <span class="attr">sessionAffinity:</span> <span class="string">None</span></span><br><span class="line"><span class="bullet">-</span>  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line"><span class="string">+</span>  <span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line"><span class="attr">status:</span></span><br><span class="line">  <span class="attr">loadBalancer:</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>使用Ingress配置</p>
+<p>使用Kubectl 安装的直接修改配置文件即可。</p>
+<h2 id="常用组件"><a href="#常用组件" class="headerlink" title="常用组件"></a>常用组件</h2><h4 id="Ingress-nginx"><a href="#Ingress-nginx" class="headerlink" title="Ingress-nginx"></a>Ingress-nginx</h4><p>参考<a target="_blank" rel="noopener" href="https://kubernetes.github.io/ingress-nginx/deploy/">Installation Guide - Ingress-Nginx Controller (kubernetes.github.io)</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># helm安装</span></span><br><span class="line">helm upgrade --install ingress-nginx ingress-nginx \</span><br><span class="line">  --repo https://kubernetes.github.io/ingress-nginx \</span><br><span class="line">  --namespace ingress-nginx --create-namespace</span><br><span class="line"></span><br><span class="line"><span class="comment"># kubectl安装</span></span><br><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果镜像下载缓慢或者无法下载需要替换国内源（共3处）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">image: k8s.gcr.io/ingress-nginx/controller:v1.1.1@sha256:0bc88eb15f9e7f84e8e56c14fa5735aaa488b840983f87bd79b1054190e660de</span><br><span class="line"># 变成</span><br><span class="line">image: registry.cn-hangzhou.aliyuncs.com/google_containers/nginx-ingress-controller:v1.1.1</span><br><span class="line"></span><br><span class="line">image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1@sha256:64d8c73dca984af206adf9d6d7e46aa550362b1d7a01f3a0a91b20cc67868660</span><br><span class="line"># 变成</span><br><span class="line">image: registry.cn-hangzhou.aliyuncs.com/google_containers/kube-webhook-certgen:v1.1.1</span><br></pre></td></tr></table></figure>
+
+<p>安装完成执行<code>kubectl get all -n ingress-nginx</code>查看</p>
+<p><img src="/K3S%E6%90%AD%E5%BB%BA%5Cingress-nginx-status.jpg" alt="img"></p>
+<h4 id="Harbor-Docker-Registry"><a href="#Harbor-Docker-Registry" class="headerlink" title="Harbor(Docker Registry)"></a>Harbor(Docker Registry)</h4><p>参考<a href="K3S%E6%90%AD%E5%BB%BADEVOPS.md">K3S搭建dev ops</a></p>
+<h2 id="5-离线安装"><a href="#5-离线安装" class="headerlink" title="5. 离线安装"></a>5. 离线安装</h2><p>参考<a target="_blank" rel="noopener" href="https://docs.k3s.io/installation/airgap">Air-Gap Install | K3s</a></p>
+<h4 id="5-1-安装工具"><a href="#5-1-安装工具" class="headerlink" title="5.1 安装工具"></a>5.1 安装工具</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://dl.k8s.io/v1.26.0/kubernetes-client-linux-amd64.tar.gz</span><br><span class="line">tar -zxvf kubernetes-client-linux-amd64.tar.gz</span><br><span class="line">cp kubernetes/client/bin/kubectl /usr/local/bin/kubectl</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-2-安装K3S"><a href="#5-2-安装K3S" class="headerlink" title="5.2 安装K3S"></a>5.2 安装K3S</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拷贝k3s二进制可执行程序</span></span><br><span class="line">sudo <span class="built_in">mv</span> k3s /usr/local/bin/</span><br><span class="line">sudo <span class="built_in">chmod</span> a+x /usr/local/bin/k3s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将Image解压到相应目录下</span></span><br><span class="line">sudo <span class="built_in">cp</span> ./k3s-airgap-images-amd64.tar /var/lib/rancher/k3s/agent/images/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载安装脚本，也可通过其他方式下载并上传</span></span><br><span class="line">$ curl -sfL https://get.k3s.io &gt; install_k3s.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装K3S依赖包</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装K3S(以Worker Node为例)</span></span><br><span class="line">$ INSTALL_K3S_SKIP_DOWNLOAD=<span class="literal">true</span> K3S_URL=https://k3s-node01:6443 K3S_TOKEN=&lt;master token&gt; sh install_k3s.sh</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="5-3-私有仓库配置"><a href="#5-3-私有仓库配置" class="headerlink" title="5.3 私有仓库配置"></a>5.3 私有仓库配置</h4><p>K3S默认使用containerd作为容器运行时，并没有安装Docker；与Docker相同，访问Image Registry默认使用HTTPS，所以insecure-registry需要额外配置，因为不是Docker，无法通过&#x2F;etc&#x2F;docker&#x2F;daemon.json进行配置，这里需要在Worker Node上进行如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo vi /etc/rancher/k3s/registries.yaml</span><br><span class="line">mirrors:</span><br><span class="line">  192.168.35.100:</span><br><span class="line">    endpoint:</span><br><span class="line">      - <span class="string">&quot;http://192.168.35.100&quot;</span></span><br><span class="line">sudo systemctl restart k3s-agent</span><br></pre></td></tr></table></figure>
+
+<p>参考<a target="_blank" rel="noopener" href="https://docs.k3s.io/installation/private-registry">Private Registry Configuration | K3s</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/kubernetes/" rel="tag"># kubernetes</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/k3s/" rel="tag"># k3s</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/" rel="prev" title="解决SuperMicro主板风扇转速过低告警">
+      <i class="fa fa-chevron-left"></i> 解决SuperMicro主板风扇转速过低告警
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/03/11/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/K3S%E6%90%AD%E5%BB%BADEVOPS/" rel="next" title="基于K3S搭建 DEV OPS">
+      基于K3S搭建 DEV OPS <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85K3S"><span class="nav-number">1.</span> <span class="nav-text">安装K3S</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Helm"><span class="nav-number">2.</span> <span class="nav-text">安装管理工具Helm</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">2.0.0.0.1.</span> <span class="nav-text">常用指令</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEDashboard"><span class="nav-number">4.</span> <span class="nav-text">配置Dashboard</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Dashboard"><span class="nav-number">4.0.1.</span> <span class="nav-text">安装Dashboard</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E8%B4%A6%E6%88%B7"><span class="nav-number">4.0.2.</span> <span class="nav-text">配置账户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE"><span class="nav-number">4.0.3.</span> <span class="nav-text">配置远程访问</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">常用组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Ingress-nginx"><span class="nav-number">5.0.1.</span> <span class="nav-text">Ingress-nginx</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Harbor-Docker-Registry"><span class="nav-number">5.0.2.</span> <span class="nav-text">Harbor(Docker Registry)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85"><span class="nav-number">6.</span> <span class="nav-text">5. 离线安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7"><span class="nav-number">6.0.1.</span> <span class="nav-text">5.1 安装工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-%E5%AE%89%E8%A3%85K3S"><span class="nav-number">6.0.2.</span> <span class="nav-text">5.2 安装K3S</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-number">6.0.3.</span> <span class="nav-text">5.3 私有仓库配置</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">113</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

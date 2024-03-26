@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="配置LiveCD网络参考 Linux配置网络及SSH配置 硬盘分区格式化参考 Linux分区(Parted) 挂载文件系统挂载分区 12345678mkdir &#x2F;mnt&#x2F;gentoomount &#x2F;dev&#x2F;sdx? &#x2F;mnt&#x2F;gentoomkdir &#x2F;mnt&#x2F;gentoo&#x2F;homemount &#x2F;dev&#x2F;sdx? &#x2F;mnt&#x2F;gentoo&#x2F;homemkdir &#x2F;mnt&#x2F;gentoo&#x2F;bootmount">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gentoo安装">
+<meta property="og:url" content="http://chengming0916.github.io/2023/05/22/Linux/Gentoo%E5%AE%89%E8%A3%85/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="配置LiveCD网络参考 Linux配置网络及SSH配置 硬盘分区格式化参考 Linux分区(Parted) 挂载文件系统挂载分区 12345678mkdir &#x2F;mnt&#x2F;gentoomount &#x2F;dev&#x2F;sdx? &#x2F;mnt&#x2F;gentoomkdir &#x2F;mnt&#x2F;gentoo&#x2F;homemount &#x2F;dev&#x2F;sdx? &#x2F;mnt&#x2F;gentoo&#x2F;homemkdir &#x2F;mnt&#x2F;gentoo&#x2F;bootmount">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-05-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-26T01:22:24.886Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Gentoo">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chengming0916.github.io/2023/05/22/Linux/Gentoo%E5%AE%89%E8%A3%85/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Gentoo安装 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2023/05/22/Linux/Gentoo%E5%AE%89%E8%A3%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Gentoo安装
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-23 00:00:00" itemprop="dateCreated datePublished" datetime="2023-05-23T00:00:00+08:00">2023-05-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-26 09:22:24" itemprop="dateModified" datetime="2024-03-26T09:22:24+08:00">2024-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/05/22/Linux/Gentoo%E5%AE%89%E8%A3%85/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/05/22/Linux/Gentoo%E5%AE%89%E8%A3%85/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="配置LiveCD网络"><a href="#配置LiveCD网络" class="headerlink" title="配置LiveCD网络"></a>配置LiveCD网络</h2><p>参考 <a href="./Linux%E9%85%8D%E7%BD%AE%E7%BD%91%E7%BB%9C%E5%8F%8ASSH%E9%85%8D%E7%BD%AE.md">Linux配置网络及SSH配置</a></p>
+<h2 id="硬盘分区格式化"><a href="#硬盘分区格式化" class="headerlink" title="硬盘分区格式化"></a>硬盘分区格式化</h2><p>参考 <a href="./Linux%E5%88%86%E5%8C%BA(Parted).md">Linux分区(Parted)</a></p>
+<h2 id="挂载文件系统"><a href="#挂载文件系统" class="headerlink" title="挂载文件系统"></a>挂载文件系统</h2><p>挂载分区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /mnt/gentoo</span><br><span class="line">mount /dev/sdx? /mnt/gentoo</span><br><span class="line"><span class="built_in">mkdir</span> /mnt/gentoo/home</span><br><span class="line">mount /dev/sdx? /mnt/gentoo/home</span><br><span class="line"><span class="built_in">mkdir</span> /mnt/gentoo/boot</span><br><span class="line">mount /dev/sdx? /mnt/gentoo/boot</span><br><span class="line"><span class="built_in">mkdir</span> /mnt/gentoo/boot/efi</span><br><span class="line">mount /dev/sdx? /mnt/gentoo/boot/efi</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Chroot前配置"><a href="#Chroot前配置" class="headerlink" title="Chroot前配置"></a>Chroot前配置</h2><h4 id="1-解压缩stage3包"><a href="#1-解压缩stage3包" class="headerlink" title="1.  解压缩stage3包"></a>1.  解压缩stage3包</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /mnt/cdrom/stage3-amd64-*.tar.xz /mnt/gentoo/</span><br><span class="line"><span class="built_in">cd</span> /mnt/gentoo</span><br><span class="line">tar xpvf stage3-*.tar.bz2 --xattrs-include=<span class="string">&#x27;*.*&#x27;</span> --numeric-owner</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-挂载系统必要环境"><a href="#2-挂载系统必要环境" class="headerlink" title="2. 挂载系统必要环境"></a>2. 挂载系统必要环境</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mount --types proc /proc /mnt/gentoo/proc</span><br><span class="line">mount --rbind /sys /mnt/gentoo/sys</span><br><span class="line"><span class="comment">#mount --make-rslave /mnt/gentoo/sys (不使用systemd，所以注释掉)</span></span><br><span class="line">mount --rbind /dev /mnt/gentoo/dev</span><br><span class="line"><span class="comment">#mount --make-rslave /mnt/gentoo/dev (不使用systemd，所以注释掉)</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-复制DNS信息"><a href="#3-复制DNS信息" class="headerlink" title="3. 复制DNS信息"></a>3. 复制DNS信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> --dereference /etc/resolv.conf /mnt/gentoo/etc/</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="4-配置软件镜像源"><a href="#4-配置软件镜像源" class="headerlink" title="4. 配置软件镜像源"></a>4. 配置软件镜像源</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#选择中国源，这一步是非必须的，我提供给你的make.conf里已经有中国的所有源了</span></span><br><span class="line">mirrorselect -i -o &gt;&gt; /mnt/gentoo/etc/portage/make.conf   </span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -p -v /mnt/gentoo/etc/portage/repos.conf</span><br><span class="line"><span class="built_in">cp</span> -v /mnt/gentoo/usr/share/portage/config/repos.conf /mnt/gentoo/etc/portage/repos.conf/gentoo.conf</span><br><span class="line"></span><br><span class="line">nano -w /mnt/gentoo/etc/portage/repos.conf/gentoo.conf：    <span class="comment">#加入中国源</span></span><br><span class="line"></span><br><span class="line">sync-uri = rsync://mirrors.163.com/gentoo-portage</span><br><span class="line"><span class="comment">#sync-uri = rsync://mirrors.tuna.tsinghua.edu.cn/gentoo-portage/</span></span><br><span class="line"><span class="comment">#sync-uri = rsync://rsync.mirrors.ustc.edu.cn/gentoo-portage/</span></span><br><span class="line"><span class="comment">#sync-uri = rsync://rsync.mirrors.ustc.edu.cn/gentoo-portage/</span></span><br><span class="line"><span class="comment">#sync-uri = rsync://mirrors.yun-idc.com/gentoo-portage/</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="5-生成fstab"><a href="#5-生成fstab" class="headerlink" title="5. 生成fstab"></a>5. 生成fstab</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">genfstab -U /mnt/gentoo &gt;&gt; /mnt/gentoo/etc/fstab</span><br></pre></td></tr></table></figure>
+
+<p>生成的fstab格式如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">UUID=......      /boot/efi      vfat      noauto,defaults,noatime,<span class="built_in">umask</span>=0077                               0 2</span><br><span class="line">UUID=......      /boot          ext4      defaults,noatime,discard                                         0 2</span><br><span class="line">UUID=......      /              xfs       defaults,noatime                                                 0 1</span><br><span class="line">UUID=......      /home          xfs       noatime,discard    </span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Chroot进入新系统环境"><a href="#Chroot进入新系统环境" class="headerlink" title="Chroot进入新系统环境"></a>Chroot进入新系统环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chroot</span> /mnt/gentoo /bin/bash</span><br><span class="line"><span class="built_in">mkdir</span> -p /var/db/repos/gentoo</span><br><span class="line">env-update						</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line"><span class="built_in">export</span> PS1=<span class="string">&quot;(chroot) <span class="variable">$&#123;PS1&#125;</span>&quot;</span> <span class="comment"># 切换提示符，避免混淆</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="安装基础系统"><a href="#安装基础系统" class="headerlink" title="安装基础系统"></a>安装基础系统</h2><h4 id="1-同步stage"><a href="#1-同步stage" class="headerlink" title="1. 同步stage"></a>1. 同步stage</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">emerge-webrsync</span><br></pre></td></tr></table></figure>
+
+<p><a href="%E8%BF%99%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8D%E8%83%BD%E5%A4%9A%E6%AC%A1%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%A6%82%E6%9E%9C%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E9%9C%80%E8%A6%81%E6%89%8B%E5%8A%A8%E4%BF%AE%E6%94%B9fstab%E5%8E%BB%E6%8E%89%E9%87%8D%E5%A4%8D%E7%9A%84%E9%A1%B9%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E5%AF%BC%E8%87%B4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD%E5%BC%82%E5%B8%B8%EF%BC%8C%E7%B3%BB%E7%BB%9F%E6%97%A0%E6%B3%95%E5%90%AF%E5%8A%A8">^注意</a>: gentoo handbook上提到可以使用emerge -rsync升级软件包数据库到最近2小时的最新版，这是没有必要的，而且下载的速度会极其慢，所以不推荐这样做。单用emerge-webrsync就可以同步数据库到最近3～4天内的最新版了。</p>
+<h4 id="2-设置profile"><a href="#2-设置profile" class="headerlink" title="2. 设置profile"></a>2. 设置profile</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">eselect profile list     <span class="comment">#查看profile予设值</span></span><br><span class="line">eselect profile <span class="built_in">set</span> X    <span class="comment">#这里先保持选择默认值，即“default/linux/amd64/17.1 (stable)”</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-检测cpu指令集"><a href="#3-检测cpu指令集" class="headerlink" title="3. 检测cpu指令集"></a>3. 检测cpu指令集</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装cpuid2cpuflags</span></span><br><span class="line">emerge --ask app-portage/cpuid2cpuflags</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看CPU指令集</span></span><br><span class="line">cpuid2cpuflags   </span><br><span class="line"></span><br><span class="line"><span class="comment">#将输出值全部拷贝到/mnt/gentoo/etc/portage/make.conf中，作为 CPU_FLAGS_X86= 的值</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-安装CCache-可选，加速编译"><a href="#4-安装CCache-可选，加速编译" class="headerlink" title="4. 安装CCache(可选，加速编译)"></a>4. 安装CCache(可选，加速编译)</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask ccache </span><br><span class="line"><span class="built_in">mkdir</span> -p /var/cache/ccache</span><br><span class="line"><span class="built_in">chown</span> root:portage /var/cache/ccache -R</span><br><span class="line"><span class="built_in">chmod</span> 2775 /var/cache/ccache -R</span><br></pre></td></tr></table></figure>
+
+<p>在portage&#x2F;make.conf中添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FEATURES=<span class="string">&quot;ccache -test&quot;</span> <span class="comment"># 在USE中 $&#123;FEATURES&#125;</span></span><br><span class="line">CCACHE_DIR=<span class="string">&quot;/var/cache/ccache&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="5-安装Aria2-可选，加快包下载"><a href="#5-安装Aria2-可选，加快包下载" class="headerlink" title="5. 安装Aria2(可选，加快包下载)"></a>5. 安装Aria2(可选，加快包下载)</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask aria2</span><br></pre></td></tr></table></figure>
+
+<p>在portage&#x2F;make.conf中添加配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FETCHCOMMAND=&quot;/usr/bin/aria2c -d \$&#123;DISTDIR&#125; -o \$&#123;FILE&#125; --allow-overwrite=true --max-tries=5 --max-file-not-found=2 --max-concurrent-downloads=5 --connect-timeout=5 --timeout=5 --split=5 --min-split-size=2M --lowest-speed-limit=20K --max-connection-per-server=9 --uri-selector=feedback \$&#123;URI&#125;&quot;</span><br><span class="line">RESUMECOMMAND=&quot;$&#123;FETCHCOMMAND&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-配置编译选项"><a href="#6-配置编译选项" class="headerlink" title="6. 配置编译选项"></a>6. 配置编译选项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nano /mnt/gentoo/etc/portage/make.conf</span><br></pre></td></tr></table></figure>
+
+<p><a href="%E8%BF%99%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8D%E8%83%BD%E5%A4%9A%E6%AC%A1%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%A6%82%E6%9E%9C%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E9%9C%80%E8%A6%81%E6%89%8B%E5%8A%A8%E4%BF%AE%E6%94%B9fstab%E5%8E%BB%E6%8E%89%E9%87%8D%E5%A4%8D%E7%9A%84%E9%A1%B9%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E5%AF%BC%E8%87%B4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD%E5%BC%82%E5%B8%B8%EF%BC%8C%E7%B3%BB%E7%BB%9F%E6%97%A0%E6%B3%95%E5%90%AF%E5%8A%A8">^注意</a>: 设置编译标志 -march&#x3D;native (如果你知道自己处理器的代号，就用自己的处理器代号替换这里的native 比如我的是skylake，如果不确定就使用native)<br>[^ ]: 设置 <strong>MAKEOPTS&#x3D;”-j8”</strong> 来定义安装软件时并行编译的数量 这个数字等于你的CPU线程数（也称为逻辑CPU数）参考<a href="https://link.zhihu.com/?target=https://wiki.gentoo.org/wiki/MAKEOPTS">MAKEOPTS WiKi</a></p>
+<p>完整的配置文件如下(转自<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/122222365">Gentoo安装流程分享(step by step)，第一篇之基本系统的安装</a>，修改了下注释格式，删除不用的部分)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># These settings were set by the catalyst build script that automatically</span></span><br><span class="line"><span class="comment"># built this stage.</span></span><br><span class="line"><span class="comment"># Please consult /usr/share/portage/config/make.conf.example for a more</span></span><br><span class="line"><span class="comment"># detailed example.</span></span><br><span class="line"><span class="comment"># GCC编译配置 -O3代表优化级别,如果采用更高的-Ofast可能会导致部分软件包编译错误, </span></span><br><span class="line"><span class="comment"># -march=native代表为本机cpu进行编译,如果是交叉编译需要去掉</span></span><br><span class="line">COMMON_FLAGS=<span class="string">&quot;-march=skylake -O2 -pipe&quot;</span></span><br><span class="line">CFLAGS=<span class="string">&quot;<span class="variable">$&#123;COMMON_FLAGS&#125;</span>&quot;</span></span><br><span class="line">CXXFLAGS=<span class="string">&quot;<span class="variable">$&#123;COMMON_FLAGS&#125;</span>&quot;</span></span><br><span class="line">FCFLAGS=<span class="string">&quot;<span class="variable">$&#123;COMMON_FLAGS&#125;</span>&quot;</span></span><br><span class="line">FFLAGS=<span class="string">&quot;<span class="variable">$&#123;COMMON_FLAGS&#125;</span>&quot;</span></span><br><span class="line">CHOST=<span class="string">&quot;x86_64-pc-linux-gnu&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CPU指令集，按照自己CPU的实际情况填写 用 cpuid2cpuflags 查看</span></span><br><span class="line">CPU_FLAGS_X86=<span class="string">&quot;&quot;</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 同时编译的线程数,根据cpu线程数和内存大小/2中较小的</span></span><br><span class="line">MAKEOPTS=<span class="string">&quot;-j8&quot;</span>                </span><br><span class="line"></span><br><span class="line"><span class="comment"># <span class="doctag">NOTE:</span> This stage was built with the bindist Use flag enabled</span></span><br><span class="line">PORTDIR=<span class="string">&quot;/var/db/repos/gentoo&quot;</span></span><br><span class="line">DISTDIR=<span class="string">&quot;/var/cache/distfiles&quot;</span></span><br><span class="line">PKGDIR=<span class="string">&quot;/var/cache/binpkgs&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This sets the language of build output to English.</span></span><br><span class="line"><span class="comment"># Please keep this setting intact when reporting bugs.</span></span><br><span class="line">LC_MESSAGES=C</span><br><span class="line"></span><br><span class="line"><span class="comment"># emerge的默认选项</span></span><br><span class="line">EMERGE_DEFAULT_OPTS=<span class="string">&quot;--keep-going --with-bdeps=y --quiet --ask --verbose&quot;</span>   </span><br><span class="line"><span class="comment">#每次安装完包之后自动清理</span></span><br><span class="line">AUTO_CLEAN=<span class="string">&quot;yes&quot;</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果你更喜欢最新那这里用~amd64</span></span><br><span class="line">ACCEPT_KEYWORDS=<span class="string">&quot;amd64&quot;</span>           </span><br><span class="line"><span class="comment"># 接受所有许可证的软件</span></span><br><span class="line">ACCEPT_LICENSE=<span class="string">&quot;*&quot;</span>                </span><br><span class="line"></span><br><span class="line"><span class="comment"># 语言设置</span></span><br><span class="line">L10N=<span class="string">&quot;en-US zh-CN en zh&quot;</span> </span><br><span class="line">LINGUAS=<span class="string">&quot;en_US zh_CN en zh&quot;</span>          </span><br><span class="line"></span><br><span class="line"><span class="comment"># intel集成显卡和nvidia显卡（不使用novueau）</span></span><br><span class="line">VIDEO_CARDS=<span class="string">&quot;intel i965 iris nvidia&quot;</span>    </span><br><span class="line"><span class="comment"># intel声卡</span></span><br><span class="line">ALSA_CARDS=<span class="string">&quot;hda_intel&quot;</span></span><br><span class="line"><span class="comment"># 输入设备 非笔记本去除后面的synaptics</span></span><br><span class="line">INPUT_DEVICES=<span class="string">&quot;libinput synaptics&quot;</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置GRUB版本</span></span><br><span class="line">GRUB_PLATFORMS=<span class="string">&quot;efi-64&quot;</span>            </span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用ccache来大大提高重新编译时的速度,安装ccache后解除注释</span></span><br><span class="line"><span class="comment"># FEATURES=&quot;parallel-fetch ccache&quot;  </span></span><br><span class="line"><span class="comment"># ccache使用的目录</span></span><br><span class="line"><span class="comment"># CCACHE_DIR=&quot;/var/cache/ccache&quot;     </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用aria2提高下载速度（不设置也无大碍，设置的话一定要注意指令拼写正确）,安装aria2后解除注释</span></span><br><span class="line"><span class="comment"># FETCHCOMMAND=&quot;/usr/bin/aria2c -d \$&#123;DISTDIR&#125; -o \$&#123;FILE&#125; --allow-overwrite=true --max-tries=5 --max-file-not-found=2 --max-concurrent-downloads=5 --connect-timeout=5  --timeout=5 --split=5 --min-split-size=2M --lowest-speed-limit=20K --max-connection-per-server=9 --uri-selector=feedback \$&#123;URI&#125;&quot;</span></span><br><span class="line"><span class="comment"># RESUMECOMMAND=&quot;$&#123;FETCHCOMMAND&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># USE变量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不打算安装gnome和kde及其相关组件</span></span><br><span class="line">FUCKDE=<span class="string">&quot;-gnome -gnome-shell -gnome-keyring -nautilus -kde&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不使用systemd plymouth consolekit 只使用elogind（旧教程会使用consolekit，</span></span><br><span class="line"><span class="comment"># 事实上elogind是consolekit未来的替代品）</span></span><br><span class="line">FUCKSV=<span class="string">&quot;-bindist -mdev elogind -dhcpcd -oss -grub -plymouth -consolekit&quot;</span></span><br><span class="line"></span><br><span class="line">SOFTWARE=<span class="string">&quot;sudo -icu client git chromium openmp minizip udev blkid efi hwdb smack acpi ccache dbus policykit udisks&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 对于音频相关软件使用pulseaudio alsa jack特性</span></span><br><span class="line">AUDIO=<span class="string">&quot;alsa jack pulseaudio&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 网络相关</span></span><br><span class="line">NET=<span class="string">&quot;network networkmanager connection-sharing wifi http2&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 图形相关</span></span><br><span class="line">VIDEO=<span class="string">&quot;X vulkan layers glamor nvidia gallium&quot;</span></span><br><span class="line"></span><br><span class="line">ELSE=<span class="string">&quot;cjk emoji&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义需要的USE变量</span></span><br><span class="line">USE=<span class="string">&quot;<span class="variable">$&#123;FUCKDE&#125;</span> <span class="variable">$&#123;FUCKSV&#125;</span> <span class="variable">$&#123;SOFTWARE&#125;</span> <span class="variable">$&#123;AUDIO&#125;</span> <span class="variable">$&#123;NET&#125;</span> <span class="variable">$&#123;VIDEO&#125;</span> <span class="variable">$&#123;ELSE&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置镜像站为清华镜像站</span></span><br><span class="line">GENTOO_MIRRORS=<span class="string">&quot;https://mirrors.tuna.tsinghua.edu.cn/gentoo&quot;</span></span><br><span class="line"><span class="comment"># 备选</span></span><br><span class="line"><span class="comment"># GENTOO_MIRRORS=&quot;https://mirrors.ustc.edu.cn/gentoo/&quot;</span></span><br><span class="line"><span class="comment"># GENTOO_MIRRORS=&quot;https://mirrors.aliyun.com/gentoo/&quot;</span></span><br><span class="line"><span class="comment"># GENTOO_MIRRORS=&quot;https://mirrors.cloud.tencent.com/gentoo/&quot;</span></span><br><span class="line"><span class="comment"># GENTOO_MIRRORS=&quot;https://mirrors.huaweicloud.com/gentoo/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># emerge时用到的代理 需要代理时候自行设置</span></span><br><span class="line"><span class="comment"># http_proxy=&quot;http://127.0.0.1:8889&quot; </span></span><br><span class="line"><span class="comment"># https_proxy=&quot;http://127.0.0.1:8889&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>CPU_FLAGS设置方式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;*/* <span class="subst">$(cpuid2cpuflags)</span>&quot;</span> &gt; /etc/portage/package.use/00cpu-flags</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="7-永久禁用nouveau驱动模块"><a href="#7-永久禁用nouveau驱动模块" class="headerlink" title="7. 永久禁用nouveau驱动模块"></a>7. 永久禁用nouveau驱动模块</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">touch</span> /etc/modprobe.d/blacklist.conf</span><br><span class="line"></span><br><span class="line">nano -w /etc/modprobe.d/blacklist.conf：</span><br><span class="line">blacklist nouveau</span><br><span class="line">blacklist lbm-nouveau</span><br><span class="line">options nouveau modeset=0</span><br></pre></td></tr></table></figure>
+
+<p>即便在编译内核前就已经设置内核禁用Nouveau驱动了，但是内核安装时还是会默认把nouveau驱动作为内核模块自动加载。启用了nouveau驱动模块的内核会出现各式各样的莫名其妙的数不清的问题，所以为了避免以后出现这些问题，必须禁用nouveau模块。</p>
+<h4 id="8-编译内核"><a href="#8-编译内核" class="headerlink" title="8. 编译内核"></a>8. 编译内核</h4><p>某些驱动程序在工作之前需要在系统上安装其他固件。这通常是网络接口的情况，尤其是无线网络接口。此外，在使用开源驱动程序时，来自AMD，Nvidia和Intel等供应商的现代视频芯片通常需要外部固件文件。大多数固件都封装在<a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://packages.gentoo.org/packages/sys-kernel/linux-firmware">sys-kernel &#x2F; linux-firmware</a>中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask --quiet sys-kernel/linux-firmware</span><br></pre></td></tr></table></figure>
+
+<p>除了独立显卡硬件和网络接口之外，CPU 可能也需要固件更新。通常这种固件被称为<em>微码（microcode）</em>。有时需要更新版本的微码来修补 CPU 硬件中的不稳定性、安全问题或其他复杂的错误。</p>
+<p>AMD CPU 的微码更新在前面提到的 <a target="_blank" rel="noopener" href="https://packages.gentoo.org/packages/sys-kernel/linux-firmware">sys-kernel&#x2F;linux-firmware</a> 软件包内分发。Intel CPU 的微码可以在 <a target="_blank" rel="noopener" href="https://packages.gentoo.org/packages/sys-firmware/intel-microcode">sys-firmware&#x2F;intel-microcode</a> 包中找到，并且需要单独安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Intel CPU 执行</span></span><br><span class="line">emerge --ask sys-firmware/intel-microcode</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>安装系统时可选择安装二进制内核，系统安装完后再配置编译内核，参考 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Kernel/zh-cn">配置Linux内核 - Gentoo Wiki</a></strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装内核源码</span></span><br><span class="line">emerge --ask sys-kernel/gentoo-sources</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果安装多个版本内核时执行</span></span><br><span class="line">eselect kernel list 	<span class="comment"># 查看内核列表</span></span><br><span class="line">eselect kernel <span class="built_in">set</span> 1 	<span class="comment"># 选择内核版本</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 从源码编译内核</span></span><br><span class="line">emerge --ask sys-kernel/gentoo-kernel</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装二进制内核</span></span><br><span class="line">emerge --ask sys-kernel/gentoo-kernel-bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理旧版本的内核</span></span><br><span class="line">emerge --prune sys-kernel/gentoo-kernel sys-kernel/gentoo-kernel-bin</span><br></pre></td></tr></table></figure>
+
+<p>生成内核配置文件</p>
+<p>将genkernel的默认内核配置文件“generated-config”复制过来，里面已经设置好了绝大部分应用场景以及绝大部分硬件驱动的配置，非常方便，值得借过来使用，只需要在自己手动配置内核的时候将其加载，在其基础上做一点点轻微的修改或完全不修改都可以，对内核新手极其友好！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask sys-kernel/genkernel</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /usr/src/linux</span><br><span class="line"><span class="comment"># 以genkernel的配置文件为基础进行自定义配置</span></span><br><span class="line"><span class="built_in">cp</span> /usr/share/genkernel/arch/x86_64/generated-config /usr/src/linux/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 备份</span></span><br><span class="line"><span class="built_in">cp</span> /usr/src/linux/generated-config /usr/src/linux/generated-config.bak </span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置内核</span></span><br><span class="line">make menuconfig </span><br></pre></td></tr></table></figure>
+
+
+
+<p><a href="%E5%A6%82%E6%9E%9C%E5%87%BA%E7%8E%B0%E9%94%99%E8%AF%AF%E6%8F%90%E7%A4%BA%EF%BC%8C%E8%AF%B7%E8%BF%90%E8%A1%8C%E4%BB%A5%E4%B8%8B%E5%91%BD%E4%BB%A4%EF%BC%8C%E4%B9%8B%E5%90%8E%E5%86%8D%E9%87%8D%E5%A4%8D%E4%B8%8A%E8%BF%B0%E6%AD%A5%E9%AA%A4">^</a>: 首先先要加载（“Load”）刚才生成的genkernel默认内核配置文件“1.config”，然后在其基础上只需按需作轻微的修改即可（我是只修改了CPU架构为“Core 2&#x2F;newer Xeon”，Preemption Model：“Low-Latency Desktop”，Timer frequecy 1000hz，Timer tick handling：“tickless idle”，Cputime accounting：“Simple tick based cputime accounting”，去掉了不需要的文件系统支持，去掉了对AMD CPU的支持，禁用Nouveau驱动）。“Support for extended (non-PC) x86 platforms”这一项取消掉。 之后“Save”你的设置，并且“Exit”即可。但是这里我强烈要求你禁用Nouveau驱动！！能省掉以后很多莫名其妙的麻烦！<br><a href="%E8%BF%99%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8D%E8%83%BD%E5%A4%9A%E6%AC%A1%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%A6%82%E6%9E%9C%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E9%9C%80%E8%A6%81%E6%89%8B%E5%8A%A8%E4%BF%AE%E6%94%B9fstab%E5%8E%BB%E6%8E%89%E9%87%8D%E5%A4%8D%E7%9A%84%E9%A1%B9%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E5%AF%BC%E8%87%B4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD%E5%BC%82%E5%B8%B8%EF%BC%8C%E7%B3%BB%E7%BB%9F%E6%97%A0%E6%B3%95%E5%90%AF%E5%8A%A8">^注意</a>: 如果想在以后支持jack低延迟实时音频组件（Jack-Audio-Connection-Kit），则还需要vim 1.config，手动设置“CONFIG_CGROUPS&#x3D;y”、“CONFIG_CGROUP_SCHED&#x3D;y”、“CONFIG_RT_GROUP_SCHED&#x3D;y”，然后重新make menuconfig载入保存1.config一遍，接下来再编译内核。<br><a href="%E8%BF%99%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8D%E8%83%BD%E5%A4%9A%E6%AC%A1%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%A6%82%E6%9E%9C%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E9%9C%80%E8%A6%81%E6%89%8B%E5%8A%A8%E4%BF%AE%E6%94%B9fstab%E5%8E%BB%E6%8E%89%E9%87%8D%E5%A4%8D%E7%9A%84%E9%A1%B9%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E5%AF%BC%E8%87%B4%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8C%82%E8%BD%BD%E5%BC%82%E5%B8%B8%EF%BC%8C%E7%B3%BB%E7%BB%9F%E6%97%A0%E6%B3%95%E5%90%AF%E5%8A%A8">^注意</a>: 使用nvidia显卡闭源驱动，还需要将内核配置中“CONFIG_I2C_NVIDIA_GPU”这一项禁用，否则会和官方nvidia-drivers冲突！！！</p>
+<p>编译内核</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">make -j12 <span class="comment">#（CPU核心数根据机器cpu调整）      </span></span><br><span class="line">make modules_install</span><br><span class="line">make install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者使用genkernel编译</span></span><br><span class="line">genkernel --mountboot --install all</span><br></pre></td></tr></table></figure>
+
+
+
+<p>用dracut生成内核的initramfs，快速且方便，新手友好</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask sys-kernel/dracut</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /boot</span><br><span class="line">dracut --hostonly</span><br></pre></td></tr></table></figure>
+
+<p>或者使用genkernel生成内核的initramfs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /usr/src/linux/1.config /etc/kernels/kernel-config-&lt;内核版本号&gt;-gentoo-x86_64</span><br><span class="line">genkernel --install initramfs</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="系统环境配置"><a href="#系统环境配置" class="headerlink" title="系统环境配置"></a>系统环境配置</h2><h4 id="1-配置系统时区"><a href="#1-配置系统时区" class="headerlink" title="1. 配置系统时区"></a>1. 配置系统时区</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> /usr/share/zoneinfo</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Asia/Shanghai&quot;</span> &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决时间差8小时问题（双系统时会遇到Windows时间不对）</span></span><br><span class="line">sudo <span class="built_in">rm</span> /etc/localtime</span><br><span class="line">sudo <span class="built_in">ln</span> -sv /usr/share/zoneinfo/Universal /etc/localtime</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-配置编码"><a href="#2-配置编码" class="headerlink" title="2. 配置编码"></a>2. 配置编码</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">nano -w /etc/locale.gen 		<span class="comment">#将以下几项取消注释，如果没有手动输入</span></span><br><span class="line"></span><br><span class="line">en_US ISO-8859-1</span><br><span class="line">en_US.UTF-8 UTF-8</span><br><span class="line">zh_CN GBK </span><br><span class="line">zh_CN.UTF-8 UTF-8</span><br><span class="line"></span><br><span class="line">locale-gen 						<span class="comment"># 更新</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-设置系统locale"><a href="#3-设置系统locale" class="headerlink" title="3. 设置系统locale"></a>3. 设置系统locale</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看可用系统时区和地区配置</span></span><br><span class="line">eselect locale list  </span><br><span class="line"></span><br><span class="line"><span class="comment">#这里只能选择“en-US.utf8”！！假如设置成了中文后，整个系统的终端命令行会乱码！！！</span></span><br><span class="line">eselect locale <span class="built_in">set</span> X    </span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新环境</span></span><br><span class="line">env-update &amp;&amp; <span class="built_in">source</span> /etc/profile &amp;&amp; <span class="built_in">export</span> PS1=<span class="string">&quot;(chroot) <span class="variable">$&#123;PS1&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-配置sudo自动补全"><a href="#4-配置sudo自动补全" class="headerlink" title="4. 配置sudo自动补全"></a>4. 配置sudo自动补全</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo emerge --ask bash-completion</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 bash-completion 全局 USE 标记</span></span><br><span class="line">sudo vim /etc/protage/make.conf</span><br><span class="line">USE=<span class="string">&quot;... bash-completion&quot;</span></span><br><span class="line">sudo emerge --avuDN world</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="5-安装网络工具"><a href="#5-安装网络工具" class="headerlink" title="5. 安装网络工具"></a>5. 安装网络工具</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 无线</span></span><br><span class="line">emerge --ask net-wiress/iw</span><br><span class="line">emerge --ask net-wiress/wpa_supplicant</span><br><span class="line"></span><br><span class="line"><span class="comment"># 有线</span></span><br><span class="line">emerge --ask net-misc/netifrc <span class="comment"># openrc 自带</span></span><br><span class="line"><span class="comment"># emerge --ask net-misc/systemd-networkd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># PPPoE环境</span></span><br><span class="line">emerge --ask net-dialup/ppp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 要在引导时激活网络接口，需要将它们添加到默认运行级别</span></span><br><span class="line"><span class="comment"># 首先使用 ifconfig 查看网络接口名称</span></span><br><span class="line"><span class="built_in">cd</span> /etc/init.d/</span><br><span class="line"><span class="built_in">ln</span> -s net.lo net.eno1</span><br><span class="line">rc-update add net.eno1 default</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-安装配置networkmanager"><a href="#6-安装配置networkmanager" class="headerlink" title="6. 安装配置networkmanager"></a>6. 安装配置networkmanager</h4><p>最方便支持多种联网方式的工具是NetworkManager,基本满足所有需求，但同时它的依赖有点多。如果使用桌面换进的话建议安装。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">nano -w /etc/portage/make.conf:</span><br><span class="line">USE=“networkmanager connection-sharing dhclient policykit ppp wifi -dhcpcd”</span><br><span class="line"></span><br><span class="line">emerge net-misc/networkmanager </span><br><span class="line">emerge net-misc/dhcp</span><br><span class="line">emerge net-misc/dnsmasq</span><br><span class="line"></span><br><span class="line">nano -w /etc/dhcp/dhclient.conf：</span><br><span class="line">send host-name <span class="string">&quot;Gentoo&quot;</span>    <span class="comment">#your hostname</span></span><br><span class="line"></span><br><span class="line">nano -w /etc/NetworkManager/NetworkManager.conf</span><br><span class="line">[connectivity]</span><br><span class="line">uri=http://nmcheck.gnome.org/check_network_status.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">nano -w /etc/NetworkManager/NetworkManager.conf</span><br><span class="line">[main]</span><br><span class="line">plugins=keyfile</span><br><span class="line">dns=dnsmasq</span><br><span class="line">hostname-mode=none</span><br><span class="line"></span><br><span class="line">rc-update del dhcpcd</span><br><span class="line">rc-update add NetworkManager default</span><br><span class="line"><span class="comment"># systemctl disable dhcpcd</span></span><br><span class="line"><span class="comment"># systemctl enable networkmanager</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#gpasswd -a &lt;你的桌面使用用户名&gt; plugdev   #没有这一步，用户将不能使用networkmanager，也就不能上网。不过先跳过这一步，在设置系统用户的时候再做。</span></span><br><span class="line"></span><br><span class="line">nano -w /etc/dnsmasq.conf:</span><br><span class="line">server=114.114.114.114</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-安装必要的工具"><a href="#7-安装必要的工具" class="headerlink" title="7. 安装必要的工具"></a>7. 安装必要的工具</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 系统日志</span></span><br><span class="line">emerge --ask app-admin/sysklogd</span><br><span class="line">rc-update add sysklogd default</span><br><span class="line"><span class="comment"># systemctl enable syslogd</span></span><br><span class="line"><span class="comment"># systemctl start syslogd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 守护进程工具</span></span><br><span class="line">emerge --ask sys-process/cronie</span><br><span class="line">rc-update add cronie default</span><br><span class="line"><span class="comment"># systemctl enable cronie</span></span><br><span class="line"><span class="comment"># systemctl start cronie</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 文件索引</span></span><br><span class="line">emerge --ask sys-apps/mlocate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 电源管理</span></span><br><span class="line">emerge --ask sys-power/acpid</span><br><span class="line">rc-update add acpid default</span><br><span class="line"><span class="comment"># systemctl enable acpid</span></span><br><span class="line"><span class="comment"># systemctl start acpid</span></span><br><span class="line"></span><br><span class="line">emerge sys-power/thermald</span><br><span class="line">rc-update add thermald default</span><br><span class="line"><span class="comment"># systemctl enable thermald </span></span><br><span class="line"><span class="comment"># systemctl start thermald</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设备管理工具</span></span><br><span class="line">emerge virtual/udev</span><br><span class="line">emerge --oneshot sys-fs/eudev</span><br><span class="line">rc-update add udev sysinit</span><br><span class="line"><span class="comment"># systemctl enable udev</span></span><br><span class="line"><span class="comment"># systemctl start udev</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="8-配置系统用户"><a href="#8-配置系统用户" class="headerlink" title="8.  配置系统用户"></a>8.  配置系统用户</h4><p>安装sudo</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">emerge app-admin/sudo</span><br><span class="line"></span><br><span class="line">nano -w /etc/sudoers</span><br></pre></td></tr></table></figure>
+
+<p>把 <code>%wheel ALL=(ALL) ALL</code> 这一行去掉注释</p>
+<p>添加用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">useradd -m -G <span class="built_in">users</span>,wheel,usb,portage,usb,video,audio,cdrom,plugdev -s /bin/bash [用户名]</span><br><span class="line"><span class="built_in">chmod</span> 700 /home/[用户名] -R</span><br></pre></td></tr></table></figure>
+
+<p>设置密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置root密码</span></span><br><span class="line">passwd root</span><br><span class="line"></span><br><span class="line">passwd &#123;用户名&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="添加操作系统启动项"><a href="#添加操作系统启动项" class="headerlink" title="添加操作系统启动项"></a>添加操作系统启动项</h2><p>添加grub配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nano -w /etc/portage/make.conf:</span><br><span class="line">GRUB_PLATFORMS=<span class="string">&quot;efi-64&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>安装grub2</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask sys-boot/grub:2</span><br><span class="line">emerge --ask sys-boot/os-prober</span><br></pre></td></tr></table></figure>
+
+<p>grub安装到硬盘并生成开机启动项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Gentoo</span><br><span class="line">grub-mkconfig -o /boot/grub/grub.cfg</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -o remount,rw /sys/firmware/efi/efivarsos-prober</span><br></pre></td></tr></table></figure>
+
+<p>如果出现No space left on device，请运行以下命令，之后再重复上述步骤</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mount -t efivarfs efivarfs /sys/firmware/efi/efivars</span><br><span class="line"><span class="built_in">rm</span> /sys/firmware/efi/efivars/dump-*</span><br></pre></td></tr></table></figure>
+
+<p>grub默认配置添加自定义配置，可提高intel cpu的稳定性和性能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nano -w /etc/default/grub：</span><br><span class="line">GRUB_CMDLINE_LINUX_DEFAULT=<span class="string">&quot;intel_idle.max_cstate=0 processor.max_cstate=1&quot;</span></span><br><span class="line"></span><br><span class="line">grub-mkconfig -o /boot/grub/grub.cfg</span><br></pre></td></tr></table></figure>
+
+<h2 id="清理"><a href="#清理" class="headerlink" title="清理"></a>清理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> /stage3-*.tag.ge</span><br><span class="line"><span class="comment"># 退出chroot</span></span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载</span></span><br><span class="line">umount -lR /mnt/gentoo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">reboot</span><br><span class="line"></span><br><span class="line"><span class="comment"># 成功开机并进入系统后</span></span><br><span class="line">grub-mkconfig -o /boot/grub/grub.cfg</span><br></pre></td></tr></table></figure>
+
+<p>如果开启不正常参考挂载文件系统(不要执行分区和mkfs操作)，可重新chroot进入系统修改错误的配置。</p>
+<h2 id="桌面环境"><a href="#桌面环境" class="headerlink" title="桌面环境"></a>桌面环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">emerge --ask x11-misc/lightdm</span><br><span class="line">emerge --ask x11-wm/awesome</span><br><span class="line">emerge --ask xfce-base/xfce4-meta</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试桌面启动指令</span></span><br><span class="line">startx</span><br><span class="line">startxfce4 <span class="comment"># 启动Xfce桌面</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果不安装桌面管理器需要加入环境，登录后自动启动桌面</span></span><br><span class="line"><span class="built_in">echo</span> XSESSION=\&quot;awesome\&quot; &gt; /etc/env.d/90xsession</span><br><span class="line">env-update &amp;&amp; <span class="built_in">source</span> /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="comment"># openrc</span></span><br><span class="line">nano -w /etc/conf.d/display-manager</span><br><span class="line">DISPLAYMANAGER=<span class="string">&quot;lightdm&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置默认开机启动</span></span><br><span class="line">rc-update add display-manager default</span><br><span class="line"><span class="comment"># 设置dubs默认开机启动，虽然display-manager也会启动它，但有时候会出现奇怪的问题</span></span><br><span class="line">rc-update add dbus default</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动启动</span></span><br><span class="line">rc-service dbus start </span><br><span class="line">rc-service display-manager start</span><br><span class="line"></span><br><span class="line"><span class="comment"># systemd</span></span><br><span class="line">systemctl <span class="built_in">enable</span> lightdm.service</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="中文字体"><a href="#中文字体" class="headerlink" title="中文字体"></a>中文字体</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">media-fonts/arphicfonts</span><br><span class="line">media-fonts/noto-cjk</span><br><span class="line">media-fonts/source-han-sans</span><br><span class="line">media-fonts/wqy-microhei</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="输入法"><a href="#输入法" class="headerlink" title="输入法"></a>输入法</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 输入法主题框架</span><br><span class="line"># 其中， app-i18n/fcitx:5 是 fcitx 的主程序</span><br><span class="line"># 　　　 app-i18n/fcitx-configtool:5 是它的配置工具</span><br><span class="line"># 　　　 app-i18n/fcitx-qt:5 用于支持在 qt 程序上使用它</span><br><span class="line"># 　　　 app-i18n/fcitx-gtk:5 用于支持在 gtk 程序上使用它</span><br><span class="line">emerge -vj app-i18n/fcitx:5 app-i18n/fcitx-configtool:5 app-i18n/fcitx-qt:5 app-i18n/fcitx-gtk:5</span><br><span class="line"></span><br><span class="line"># 安装完成后再用户的~/.xsession文件内添加</span><br><span class="line">export XMODIFIERS=&quot;@im=fcitx&quot;</span><br><span class="line">export QT_IM_MODULE=fcitx</span><br><span class="line">export GTK_IM_MODULE=fcitx</span><br><span class="line">export SDL_IM_MODULE=fcitx</span><br></pre></td></tr></table></figure>
+
+<h4 id="Xfce4实用组件"><a href="#Xfce4实用组件" class="headerlink" title="Xfce4实用组件"></a>Xfce4实用组件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># Pulseaudio音量控制</span><br><span class="line">xfce-extra/xfce4-volumed-pulse</span><br><span class="line"># 蓝牙音乐播放组件</span><br><span class="line">xfce-extra/xfce4-pulseaudio-plugin</span><br><span class="line"></span><br><span class="line"># 显示所有正在运行的程序的列表，以及每个程序占用的CPU和内存消耗。 </span><br><span class="line">xfce-extra/xfce4-taskmanager</span><br><span class="line"></span><br><span class="line"># 监视和管理电源使用情况的应用程序。 这对笔记本电脑特别重要！</span><br><span class="line"># 电源管理器允许用户调节屏幕亮度，选择最大性能或节电模式，并在盖子关闭或按下按钮时设置休眠，暂停和关闭操作</span><br><span class="line">xfce-extra/xfce4-power-manager</span><br><span class="line"></span><br><span class="line"># 添加几个窗口管理器主题</span><br><span class="line">x11-themes/xfwm4-themes</span><br><span class="line"></span><br><span class="line"># 一个X11终端，比准系统更可配置和有用 xterm</span><br><span class="line">x11-terms/xfce4-terminal</span><br><span class="line"></span><br><span class="line"># Xfce的默认图形文件管理器。</span><br><span class="line">xfce-base/thunar</span><br><span class="line"></span><br><span class="line"># 允许用户从Thunar内预览某些类型的文件，例如图像和字体。</span><br><span class="line">xfce-extra/tumbler</span><br><span class="line"></span><br><span class="line"># 	manages自动挂载可移动介质和驱动器。</span><br><span class="line">xfce-extra/thunar-volman</span><br><span class="line"></span><br><span class="line"># 适合笔记本电脑用户。 它显示电池百分比，剩余时间，电源（交流或电池），风扇状态，警告，</span><br><span class="line"># 甚至可以配置为在特定功率级别执行命令。 此功能可用于在电池电量几乎耗尽时将笔记本电脑置于休眠模式。</span><br><span class="line">xfce-extra/xfce4-battery-plugin</span><br><span class="line"></span><br><span class="line"># 嵌入面板的一个小命令行。 它比打开终端运行命令更快。</span><br><span class="line">xfce-extra/xfce4-verve-plugin</span><br><span class="line"></span><br><span class="line"># 提供一种方便的方法，只需点击鼠标即可安装/etc/fstab中列出的设备。</span><br><span class="line">xfce-extra/xfce4-mount-plugin</span><br><span class="line"></span><br><span class="line"># 允许用户监视硬件传感器，例如CPU温度，风扇RPM，硬盘驱动器温度，主板电压等。</span><br><span class="line">xfce-extra/xfce4-sensors-plugin</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo emerge --ask media-video/mpv</span><br><span class="line"></span><br><span class="line"># 电子邮件客户端</span><br><span class="line">mail-client/thunderbird</span><br><span class="line"></span><br><span class="line">media-video/mplayer</span><br><span class="line"></span><br><span class="line">media-sound/exaile</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 更新</span><br><span class="line"># sudo emerge --ask --verbose --update --deep --newuse @world</span><br><span class="line">sudo emerge -avuDN @world</span><br><span class="line"></span><br><span class="line"># 合并use标记</span><br><span class="line">sudo etc-update </span><br><span class="line">-3 自动合并</span><br></pre></td></tr></table></figure>
+
+
+
+<p>参考文章</p>
+<p><a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:AMD64/zh-cn">Gentoo AMD64 Handbook - Gentoo Wiki</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Zhang_Pro/article/details/108137270">Gentoo Linux+KDE Plasma桌面安装教程</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/devilyouwei/p/6657409.html">开始使用gentoo linux——gentoo安装笔记（上）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/devilyouwei/p/6659058.html">开始使用gentoo linux——gentoo安装笔记（下）</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Gentoo/" rel="tag"># Gentoo</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/11/03/GoLang/Go-MVC%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" rel="prev" title="Go MVC框架对比">
+      <i class="fa fa-chevron-left"></i> Go MVC框架对比
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/07/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/FRP%E9%85%8D%E7%BD%AE/" rel="next" title="FRP配置">
+      FRP配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AELiveCD%E7%BD%91%E7%BB%9C"><span class="nav-number">1.</span> <span class="nav-text">配置LiveCD网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA%E6%A0%BC%E5%BC%8F%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">硬盘分区格式化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.</span> <span class="nav-text">挂载文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chroot%E5%89%8D%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">Chroot前配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%A7%A3%E5%8E%8B%E7%BC%A9stage3%E5%8C%85"><span class="nav-number">4.0.1.</span> <span class="nav-text">1.  解压缩stage3包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%8C%82%E8%BD%BD%E7%B3%BB%E7%BB%9F%E5%BF%85%E8%A6%81%E7%8E%AF%E5%A2%83"><span class="nav-number">4.0.2.</span> <span class="nav-text">2. 挂载系统必要环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%A4%8D%E5%88%B6DNS%E4%BF%A1%E6%81%AF"><span class="nav-number">4.0.3.</span> <span class="nav-text">3. 复制DNS信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%85%8D%E7%BD%AE%E8%BD%AF%E4%BB%B6%E9%95%9C%E5%83%8F%E6%BA%90"><span class="nav-number">4.0.4.</span> <span class="nav-text">4. 配置软件镜像源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E7%94%9F%E6%88%90fstab"><span class="nav-number">4.0.5.</span> <span class="nav-text">5. 生成fstab</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chroot%E8%BF%9B%E5%85%A5%E6%96%B0%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83"><span class="nav-number">5.</span> <span class="nav-text">Chroot进入新系统环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E7%B3%BB%E7%BB%9F"><span class="nav-number">6.</span> <span class="nav-text">安装基础系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%90%8C%E6%AD%A5stage"><span class="nav-number">6.0.1.</span> <span class="nav-text">1. 同步stage</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%AE%BE%E7%BD%AEprofile"><span class="nav-number">6.0.2.</span> <span class="nav-text">2. 设置profile</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%A3%80%E6%B5%8Bcpu%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">6.0.3.</span> <span class="nav-text">3. 检测cpu指令集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%AE%89%E8%A3%85CCache-%E5%8F%AF%E9%80%89%EF%BC%8C%E5%8A%A0%E9%80%9F%E7%BC%96%E8%AF%91"><span class="nav-number">6.0.4.</span> <span class="nav-text">4. 安装CCache(可选，加速编译)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%AE%89%E8%A3%85Aria2-%E5%8F%AF%E9%80%89%EF%BC%8C%E5%8A%A0%E5%BF%AB%E5%8C%85%E4%B8%8B%E8%BD%BD"><span class="nav-number">6.0.5.</span> <span class="nav-text">5. 安装Aria2(可选，加快包下载)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E9%85%8D%E7%BD%AE%E7%BC%96%E8%AF%91%E9%80%89%E9%A1%B9"><span class="nav-number">6.0.6.</span> <span class="nav-text">6. 配置编译选项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E6%B0%B8%E4%B9%85%E7%A6%81%E7%94%A8nouveau%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9D%97"><span class="nav-number">6.0.7.</span> <span class="nav-text">7. 永久禁用nouveau驱动模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8"><span class="nav-number">6.0.8.</span> <span class="nav-text">8. 编译内核</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">7.</span> <span class="nav-text">系统环境配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E9%85%8D%E7%BD%AE%E7%B3%BB%E7%BB%9F%E6%97%B6%E5%8C%BA"><span class="nav-number">7.0.1.</span> <span class="nav-text">1. 配置系统时区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E7%BC%96%E7%A0%81"><span class="nav-number">7.0.2.</span> <span class="nav-text">2. 配置编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%AE%BE%E7%BD%AE%E7%B3%BB%E7%BB%9Flocale"><span class="nav-number">7.0.3.</span> <span class="nav-text">3. 设置系统locale</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%85%8D%E7%BD%AEsudo%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">7.0.4.</span> <span class="nav-text">4. 配置sudo自动补全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E5%B7%A5%E5%85%B7"><span class="nav-number">7.0.5.</span> <span class="nav-text">5. 安装网络工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEnetworkmanager"><span class="nav-number">7.0.6.</span> <span class="nav-text">6. 安装配置networkmanager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E7%9A%84%E5%B7%A5%E5%85%B7"><span class="nav-number">7.0.7.</span> <span class="nav-text">7. 安装必要的工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-%E9%85%8D%E7%BD%AE%E7%B3%BB%E7%BB%9F%E7%94%A8%E6%88%B7"><span class="nav-number">7.0.8.</span> <span class="nav-text">8.  配置系统用户</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="nav-number">8.</span> <span class="nav-text">添加操作系统启动项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%85%E7%90%86"><span class="nav-number">9.</span> <span class="nav-text">清理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83"><span class="nav-number">10.</span> <span class="nav-text">桌面环境</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93"><span class="nav-number">10.0.1.</span> <span class="nav-text">中文字体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E6%B3%95"><span class="nav-number">10.0.2.</span> <span class="nav-text">输入法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Xfce4%E5%AE%9E%E7%94%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">10.0.3.</span> <span class="nav-text">Xfce4实用组件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6"><span class="nav-number">10.0.4.</span> <span class="nav-text">常用软件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">11.</span> <span class="nav-text">常用指令</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">113</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

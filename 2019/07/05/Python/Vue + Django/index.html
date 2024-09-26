@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="写在开头：1看这里的时候，请确保你已将熟悉JavaScript以及了解Vue的语法， Django的语法也略懂一二。如果不是很了解，请点击这里查看学习文档Vue、Django，否则下文可能有些不好理解。2文章有点长 ，因为包含了一个Index.vue页面。3第一次写长文章，所以排版很尴尬，请指正。   安装Vue环境 安装element-ui组件 使用其组件美化界面  1npm i elemen">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue + Django">
+<meta property="og:url" content="http://chengming0916.github.io/2019/07/05/Python/Vue%20+%20Django/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="写在开头：1看这里的时候，请确保你已将熟悉JavaScript以及了解Vue的语法， Django的语法也略懂一二。如果不是很了解，请点击这里查看学习文档Vue、Django，否则下文可能有些不好理解。2文章有点长 ，因为包含了一个Index.vue页面。3第一次写长文章，所以排版很尴尬，请指正。   安装Vue环境 安装element-ui组件 使用其组件美化界面  1npm i elemen">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/12026440-8ede9a6ddebc09b1.png?imageMogr2/auto-orient/strip%7CimageView2/1/w/300/h/240/format/webp">
+<meta property="article:published_time" content="2019-07-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-26T06:26:50.764Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Django">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/12026440-8ede9a6ddebc09b1.png?imageMogr2/auto-orient/strip%7CimageView2/1/w/300/h/240/format/webp">
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/07/05/Python/Vue%20+%20Django/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Vue + Django | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/07/05/Python/Vue%20+%20Django/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vue + Django
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-07-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-06T00:00:00+08:00">2019-07-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-26 14:26:50" itemprop="dateModified" datetime="2024-09-26T14:26:50+08:00">2024-09-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/07/05/Python/Vue%20+%20Django/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/07/05/Python/Vue%20+%20Django/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>写在开头：<br>1看这里的时候，请确保你已将熟悉JavaScript以及了解Vue的语法， Django的语法也略懂一二。<br>如果不是很了解，请点击这里查看学习文档<a target="_blank" rel="noopener" href="https://cn.vuejs.org/v2/guide/index.html">Vue</a>、<a target="_blank" rel="noopener" href="https://docs.djangoproject.com/en/2.1/topics/">Django</a>，否则下文可能有些不好理解。<br>2文章有点长 ，因为包含了一个Index.vue页面。<br>3第一次写长文章，所以排版很尴尬，请指正。</p>
+</blockquote>
+<ol>
+<li><a href="">安装Vue环境</a></li>
+<li>安装<a target="_blank" rel="noopener" href="http://element-cn.eleme.io/#/zh-CN/component/quickstart">element-ui</a>组件 使用其组件美化界面</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i element-ui -S ||  npm install element-ui --save</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">main.js </span><br><span class="line">    import ElementUI from &#x27;element-ui&#x27;;</span><br><span class="line">    import &#x27;element-ui/lib/theme-chalk/index.css&#x27;;</span><br><span class="line"></span><br><span class="line">    Vue.use(ElementUI)</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>安装<a target="_blank" rel="noopener" href="https://www.kancloud.cn/yunye/axios/234845">axios</a> 使用其完成前端到后端的请求</li>
+</ol>
+<blockquote>
+<p>由于axios 使用Vue.use(无效)，所以要将其绑定在Vue原型上</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install axios --save |  brew install axios --save</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import axios from &#x27;axios&#x27;</span><br><span class="line"></span><br><span class="line">axios.defaults.baseURL = &#x27;http://localhost:8000&#x27;  </span><br><span class="line"></span><br><span class="line">Vue.prototype.$axios = axios</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/d78e5392e54a">安装Django及配置环境</a></li>
+<li>配置mysql数据库，使用sqlite3的 跳过此步骤无需配置</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">settings.py</span><br><span class="line">  DATABASES = &#123;</span><br><span class="line">    &#x27;default&#x27;: &#123;  #</span><br><span class="line">        &#x27;ENGINE&#x27;: &#x27;django.db.backends.mysql&#x27;,  # 不同库有不同的殷勤</span><br><span class="line">        &#x27;NAME&#x27;: &#x27;python_use&#x27;,  # 使用的库名</span><br><span class="line">        &#x27;USER&#x27;: &#x27;root&#x27;,</span><br><span class="line">        &#x27;PASSWORD&#x27;: &#x27;&#x27;,</span><br><span class="line">        &#x27;HOST&#x27;: &#x27;127.0.0.1&#x27;,</span><br><span class="line">        &#x27;PORT&#x27;: &#x27;3306&#x27;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置完成后请查看django是否报错，不报错即连接成功</p>
+<ol start="3">
+<li>安装 <a target="_blank" rel="noopener" href="https://pypi.org/project/pip/">pip</a> 及 <a target="_blank" rel="noopener" href="https://pypi.org/project/django-cors-headers/">django-cors-headers</a></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">pip install django-cors-headers</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">settings.py</span><br><span class="line">  </span><br><span class="line">  INSTALLED_APPS = &#123;</span><br><span class="line">    ...</span><br><span class="line">    &#x27;corsheaders&#x27;,</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  MIDDLEWARE = [  </span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    &#x27;corsheaders.middleware.CorsMiddleware&#x27;,</span><br><span class="line">    &#x27;django.middleware.common.CommonMiddleware&#x27;,</span><br><span class="line">    ...</span><br><span class="line">  ]</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">  CORS_ORIGIN_ALLOW_ALL = True </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>至此，已将Vue和Django安装并配置好，接下来写一个简单的CRUD操作。<br>请确认你的整个项目目录与此类似</p>
+<p>![](Vue + Django&#x2F;2064404-d3a828d4530715b4.png)</p>
+<p>项目目录结构</p>
+<p>以下使用的目录均为此图所示</p>
+<hr>
+<ol>
+<li>配置路由</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">first/urls.py </span><br><span class="line">  urlpatterns = [</span><br><span class="line">    url(r&#x27;^admin/&#x27;, admin.site.urls),</span><br><span class="line">    url(r&#x27;&#x27;, include(&#x27;crud.urls&#x27;)),</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">crud/urls.py</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">  from django.conf.urls import url</span><br><span class="line">  from . import views</span><br><span class="line"></span><br><span class="line">  urlpatterns = [</span><br><span class="line">    url(&#x27;create/&#x27;, views.create, name = &#x27;create&#x27;),</span><br><span class="line">    url(&#x27;read&#x27;, views.read, name = &#x27;read&#x27;),</span><br><span class="line">    url(&#x27;update/&#x27;, views.update, name = &#x27;update&#x27;),</span><br><span class="line">    url(&#x27;delete/&#x27;, views.delete, name = &#x27;delete&#x27;),</span><br><span class="line">    url(&#x27;search&#x27;, views.search, name = &#x27;search&#x27;)</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建models，即在数据库中创建表</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">from django.db import models</span><br><span class="line">class Books ( models.Model ):</span><br><span class="line">  book_name = models.CharField( max_length = 255 )</span><br><span class="line">  book_price = models.DecimalField( max_digits = 5, decimal_places = 2 )</span><br><span class="line">  book_time = models.DateTimeField( &#x27;保存日期&#x27;, auto_now_add = True )</span><br></pre></td></tr></table></figure>
+
+<p>Models创建完成后运行命令 将其应用到数据库中并创建表<br>如果不懂 请返回顶部阅读Django文档</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python manage.py makemigrations</span><br><span class="line">python manage.py migrate</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>编写views.py 完成增删改查的逻辑</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 1 获取前端传递来的参数</span><br><span class="line"># 1.1 get方法发送的参数</span><br><span class="line">  request.GET[&#x27;content&#x27;]</span><br><span class="line"># 1.2 post方法发送的参数</span><br><span class="line">  obj = json.loads(request.body)</span><br><span class="line">  name = obj[&#x27;name&#x27;]</span><br><span class="line"># 2 由于使用Books.objects下的方法，获取到的数据为Query Set类型， </span><br><span class="line">#   所以需要使用serializers.serialize(&quot;json&quot;, books)</span><br><span class="line"># 将查询到的数据进行序列化，变成可读的对象。</span><br><span class="line"># 3 向前端返回处理结果</span><br><span class="line"> return HttpResponse(json.dumps(res), content_type=&quot;application/json&quot;) </span><br><span class="line"># 将res变成json字符串返回给前端。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">from __future__ import unicode_literals</span><br><span class="line">from django.shortcuts import render</span><br><span class="line">from django.http import HttpResponse</span><br><span class="line">import json</span><br><span class="line">from django.core import serializers</span><br><span class="line">from django.utils import timezone</span><br><span class="line">from crud.models import Books</span><br><span class="line"></span><br><span class="line">def search(request):</span><br><span class="line">    content = request.GET[&#x27;content&#x27;]</span><br><span class="line">    try:</span><br><span class="line">        books = serializers.serialize(&quot;json&quot;,Books.objects.filter(book_name__contains=content))</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 200,</span><br><span class="line">            &quot;data&quot;: books</span><br><span class="line">        &#125;</span><br><span class="line">        print(books)</span><br><span class="line">    except Exception,e:</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 0,</span><br><span class="line">            &quot;errMsg&quot;: e</span><br><span class="line">        &#125;</span><br><span class="line">    return HttpResponse(json.dumps(res), content_type=&quot;application/json&quot;)</span><br><span class="line"></span><br><span class="line">def create(request):</span><br><span class="line">    print(&#x27;create&#x27;)</span><br><span class="line">    obj = json.loads(request.body)</span><br><span class="line">    name = obj[&#x27;name&#x27;]</span><br><span class="line">    price = obj[&#x27;price&#x27;]</span><br><span class="line">    try:</span><br><span class="line">        book = Books(book_name=name, book_price=price, book_time=timezone.now())</span><br><span class="line">        book.save()</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 200,</span><br><span class="line">        &#125;</span><br><span class="line">    except Exception,e:</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 0,</span><br><span class="line">            &quot;errMsg&quot;: e</span><br><span class="line">        &#125;</span><br><span class="line">    return HttpResponse(json.dumps(res), content_type=&quot;application/json&quot;)</span><br><span class="line"></span><br><span class="line">def read(request):</span><br><span class="line">    print(&#x27;read&#x27;)</span><br><span class="line">    try:</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 200,</span><br><span class="line">            &quot;data&quot;: serializers.serialize(&quot;json&quot;,Books.objects.filter())</span><br><span class="line">        &#125;</span><br><span class="line">    except Exception,e:</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 0,</span><br><span class="line">            &quot;errMsg&quot;: e</span><br><span class="line">        &#125;</span><br><span class="line">    return HttpResponse(json.dumps(res), content_type=&quot;application/json&quot;)</span><br><span class="line"></span><br><span class="line">def update(request):</span><br><span class="line">    print(&#x27;update&#x27;)</span><br><span class="line">    obj = json.loads(request.body)</span><br><span class="line">    pid = obj[&#x27;id&#x27;]</span><br><span class="line">    name = obj[&#x27;name&#x27;]</span><br><span class="line">    price = obj[&#x27;price&#x27;]</span><br><span class="line">    try:</span><br><span class="line">        Books.objects.filter(id=pid).update(book_price=price, book_name=name)</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 200</span><br><span class="line">        &#125;</span><br><span class="line">    except Exception,e:</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 0,</span><br><span class="line">            &quot;errMsg&quot;: e</span><br><span class="line">        &#125;</span><br><span class="line">    return HttpResponse(json.dumps(res), content_type=&quot;application/json&quot;)</span><br><span class="line"></span><br><span class="line">def delete(request):</span><br><span class="line">    print(&#x27;delete&#x27;)</span><br><span class="line">    obj = json.loads(request.body)</span><br><span class="line">    print(obj)</span><br><span class="line">    pid = obj[&#x27;id&#x27;]</span><br><span class="line">    try:</span><br><span class="line">        Books.objects.filter(id=pid).delete()</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 200</span><br><span class="line">        &#125;</span><br><span class="line">    except Exception,e:</span><br><span class="line">        res = &#123;</span><br><span class="line">            &quot;code&quot;: 0,</span><br><span class="line">            &quot;errMsg&quot;: e</span><br><span class="line">        &#125;</span><br><span class="line">    return HttpResponse(json.dumps(res), content_type=&quot;application/json&quot;)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<ol>
+<li>配置路由</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">frontend/src/router/index.js</span><br><span class="line">  </span><br><span class="line">  import Vue from &#x27;vue&#x27;</span><br><span class="line">  import Router from &#x27;vue-router&#x27;</span><br><span class="line">  import Index from &#x27;@/components/Index&#x27;</span><br><span class="line"></span><br><span class="line">  Vue.use(Router)</span><br><span class="line"></span><br><span class="line">  export default new Router(&#123;</span><br><span class="line">    routes: [</span><br><span class="line">      &#123;</span><br><span class="line">        path: &#x27;/&#x27;,</span><br><span class="line">        name: &#x27;index&#x27;,</span><br><span class="line">        component: Index</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>编写路由中使用到的组件 与上面import所用名称和路径需要一致，请耐心看完注释。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">this.$axios.get(&#x27;/search&#x27;, &#123;</span><br><span class="line">  params: &#123;  </span><br><span class="line">     content: this.search   </span><br><span class="line">  &#125;</span><br><span class="line">&#125;).then(res =&gt; &#123;</span><br><span class="line">  console.log(res)</span><br><span class="line">&#125;)</span><br><span class="line">this.$axios.post(&#x27;/delete/&#x27;, JSON.stringify(row)).then(res =&gt; &#123;</span><br><span class="line">  </span><br><span class="line">  console.log(res)</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>以下为Index.vue的全部页面，包含增删改查的基本操作，以及更改和新增时的弹出框：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br></pre></td><td class="code"><pre><span class="line">frontend/src/components/Index.vue</span><br><span class="line">  &lt;template&gt;</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;el-button type=&quot;primary&quot; round @click=&quot;handleShowCreate&quot;&gt;增加书籍&lt;/el-button&gt;</span><br><span class="line">      &lt;el-input v-model=&quot;search&quot; placeholder=&quot;请输入内容&quot; style=&quot;width: 200px&quot;  @keyup.enter.native=&quot;handleSearch&quot;/&gt;</span><br><span class="line">      &lt;el-button type=&quot;primary&quot; round @click=&quot;handleSearch&quot;&gt;搜索&lt;/el-button&gt;</span><br><span class="line">      &lt;el-table :data=&quot;booksData&quot; height=&quot;250&quot; border style=&quot;width: 600px; margin: 40px auto;&quot;  v-loading=&quot;loading&quot;&gt;</span><br><span class="line">        &lt;el-table-column</span><br><span class="line">          prop=&quot;book_name&quot;</span><br><span class="line">          label=&quot;书名&quot;</span><br><span class="line">          align=&quot;center&quot;</span><br><span class="line">          width=&quot;200&quot;&gt;</span><br><span class="line">        &lt;/el-table-column&gt;</span><br><span class="line">        &lt;el-table-column</span><br><span class="line">          prop=&quot;book_price&quot;</span><br><span class="line">          label=&quot;价格&quot;</span><br><span class="line">          align=&quot;center&quot;</span><br><span class="line">          width=&quot;200&quot;&gt;</span><br><span class="line">        &lt;/el-table-column&gt;</span><br><span class="line">        &lt;el-table-column label=&quot;操作&quot; align=&quot;center&quot;&gt;</span><br><span class="line">          &lt;template slot-scope=&quot;scope&quot;&gt;</span><br><span class="line">            &lt;el-button</span><br><span class="line">              size=&quot;mini&quot;</span><br><span class="line">              @click=&quot;handleUpdate(scope.$index, scope.row)&quot;&gt;编辑&lt;/el-button&gt;</span><br><span class="line">            &lt;el-button</span><br><span class="line">              size=&quot;mini&quot;</span><br><span class="line">              type=&quot;danger&quot;</span><br><span class="line">              @click=&quot;handleDelete(scope.$index, scope.row)&quot;&gt;删除&lt;/el-button&gt;</span><br><span class="line">          &lt;/template&gt;</span><br><span class="line">        &lt;/el-table-column&gt;</span><br><span class="line">      &lt;/el-table&gt;</span><br><span class="line">      &lt;el-dialog title=&quot;修改书籍&quot; :visible.sync=&quot;dialogUpdateVisible&quot;&gt;</span><br><span class="line">        &lt;el-form :model=&quot;updateData&quot;&gt;</span><br><span class="line">          &lt;el-form-item label=&quot;书籍名称&quot;&gt;</span><br><span class="line">            &lt;el-input auto-complete=&quot;off&quot; v-model=&quot;updateData.name&quot;&gt;&lt;/el-input&gt;</span><br><span class="line">          &lt;/el-form-item&gt;</span><br><span class="line">          &lt;el-form-item label=&quot;书籍价格&quot;&gt;</span><br><span class="line">            &lt;el-input-number v-model=&quot;updateData.price&quot; :precision=&quot;2&quot; :step=&quot;0.01&quot; :max=&quot;9999&quot;&gt;&lt;/el-input-number&gt;</span><br><span class="line">          &lt;/el-form-item&gt;</span><br><span class="line">        &lt;/el-form&gt;</span><br><span class="line">        &lt;div slot=&quot;footer&quot; class=&quot;dialog-footer&quot;&gt;</span><br><span class="line">          &lt;el-button @click=&quot;handleCancel(&#x27;dialogUpdateVisible&#x27;)&quot;&gt;Cancel&lt;/el-button&gt;</span><br><span class="line">          &lt;el-button type=&quot;primary&quot; @click=&quot;handleConfirm(&#x27;dialogUpdateVisible&#x27;)&quot;&gt;Submit&lt;/el-button&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/el-dialog&gt;</span><br><span class="line">      &lt;el-dialog title=&quot;增加书籍&quot; :visible.sync=&quot;dialogCreateVisible&quot;&gt;</span><br><span class="line">        &lt;el-form :model=&quot;createData&quot;&gt;</span><br><span class="line">          &lt;el-form-item label=&quot;书籍名称&quot;&gt;</span><br><span class="line">            &lt;el-input auto-complete=&quot;off&quot; v-model=&quot;createData.name&quot;&gt;&lt;/el-input&gt;</span><br><span class="line">          &lt;/el-form-item&gt;</span><br><span class="line">          &lt;el-form-item label=&quot;书籍价格&quot;&gt;</span><br><span class="line">            &lt;el-input-number v-model=&quot;createData.price&quot; :precision=&quot;2&quot; :step=&quot;0.01&quot; :max=&quot;9999&quot;&gt;&lt;/el-input-number&gt;</span><br><span class="line">          &lt;/el-form-item&gt;</span><br><span class="line">        &lt;/el-form&gt;</span><br><span class="line">        &lt;div slot=&quot;footer&quot; class=&quot;dialog-footer&quot;&gt;</span><br><span class="line">          &lt;el-button @click=&quot;handleCancel(&#x27;dialogCreateVisible&#x27;)&quot;&gt;Cancel&lt;/el-button&gt;</span><br><span class="line">          &lt;el-button type=&quot;primary&quot; @click=&quot;handleCreate(&#x27;dialogCreateVisible&#x27;)&quot;&gt;Submit&lt;/el-button&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/el-dialog&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/template&gt;</span><br><span class="line"></span><br><span class="line">  &lt;script&gt;</span><br><span class="line">  export default &#123;</span><br><span class="line">    name: &#x27;index&#x27;,</span><br><span class="line">    data () &#123;</span><br><span class="line">      return &#123;</span><br><span class="line">        search: &#x27;&#x27;,</span><br><span class="line">        booksData: [],</span><br><span class="line">        oldData: &#123;&#125;,</span><br><span class="line">        updateData: &#123;&#125;,</span><br><span class="line">        createData: &#123;</span><br><span class="line">          name: &#x27;&#x27;,</span><br><span class="line">          price: 0</span><br><span class="line">        &#125;,</span><br><span class="line">        dialogUpdateVisible: false,</span><br><span class="line">        dialogCreateVisible: false,</span><br><span class="line">        loading: true</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      handleShowCreate () &#123;</span><br><span class="line">        this.dialogCreateVisible = true</span><br><span class="line">      &#125;,</span><br><span class="line">      handleCreate () &#123;</span><br><span class="line">        if (this.createData.name === &#x27;&#x27;) &#123;</span><br><span class="line">          this.$message.error(&#x27;please input book name&#x27;)</span><br><span class="line">          return</span><br><span class="line">        &#125;</span><br><span class="line">        if (this.createData.price === 0) &#123;</span><br><span class="line">          this.$message.error(&#x27;please input book price&#x27;)</span><br><span class="line">          return</span><br><span class="line">        &#125;</span><br><span class="line">        this.$axios.post(&#x27;/create/&#x27;, JSON.stringify(this.createData)).then(res =&gt; &#123;</span><br><span class="line">          if (res.data.code === 200) &#123;</span><br><span class="line">            this.$message.success(`create $&#123;this.createData.name&#125; success`)</span><br><span class="line">            this.dialogCreateVisible = false</span><br><span class="line">            this.handleRead()</span><br><span class="line">          &#125; else &#123;</span><br><span class="line">            this.$message.error(&quot;can&#x27;t read books database&quot;)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        console.log(this.createData)</span><br><span class="line">      &#125;,</span><br><span class="line">      handleRead () &#123;</span><br><span class="line">        this.booksData = []</span><br><span class="line">        this.$axios.get(&#x27;/read&#x27;).then(res =&gt; &#123;</span><br><span class="line">          this.loading = false</span><br><span class="line">          if (res.data.code === 200) &#123;</span><br><span class="line">            let books = JSON.parse(res.data.data)</span><br><span class="line">            for (let i in books) &#123;</span><br><span class="line">              books[i].fields.id = books[i].pk</span><br><span class="line">              books[i].fields.book_price = Number(books[i].fields.book_price)</span><br><span class="line">              this.booksData.push(books[i].fields)</span><br><span class="line">            &#125;</span><br><span class="line">            console.log(this.booksData)</span><br><span class="line">          &#125; else &#123;</span><br><span class="line">            this.$message.console.error(&quot;can&#x27;t read books database&quot;)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;).catch((res) =&gt; &#123;</span><br><span class="line">          console.log(res)</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;,</span><br><span class="line">      handleUpdate (index, row) &#123;</span><br><span class="line">        this.dialogUpdateVisible = true</span><br><span class="line">        this.updateData = Object.assign(&#123;&#125;, &#123;</span><br><span class="line">          id: row.id,</span><br><span class="line">          name: row.book_name,</span><br><span class="line">          price: row.book_price,</span><br><span class="line">          time: row.book_time</span><br><span class="line">        &#125;)</span><br><span class="line">        this.oldData = Object.assign(&#123;&#125;, &#123;</span><br><span class="line">          id: row.id,</span><br><span class="line">          name: row.book_name,</span><br><span class="line">          price: row.book_price,</span><br><span class="line">          time: row.book_time</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;,</span><br><span class="line">      handleDelete (index, row) &#123;</span><br><span class="line">        this.$confirm(`are you sure to delete $&#123;this.updateData.name&#125; ?`, &#x27;&#x27;, &#123;</span><br><span class="line">          confirmButtonText: &#x27;submit&#x27;,</span><br><span class="line">          cancelButtonText: &#x27;cancel&#x27;,</span><br><span class="line">          type: &#x27;warning&#x27;</span><br><span class="line">        &#125;).then(() =&gt; &#123;</span><br><span class="line">          this.$axios.post(&#x27;/delete/&#x27;, JSON.stringify(row)).then(res =&gt; &#123;</span><br><span class="line">            if (res.data.code === 200) &#123;</span><br><span class="line">              this.$message.success(`delete $&#123;this.updateData.name&#125; success`)</span><br><span class="line">              this.handleRead()</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">              this.$message.error(&quot;can&#x27;t read books database&quot;)</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;)</span><br><span class="line">        &#125;).catch(() =&gt; &#123;</span><br><span class="line">          this.$message.info(&#x27;cancel delete&#x27;)</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;,</span><br><span class="line">      handleCancel (arg) &#123;</span><br><span class="line">        this.$message.info(&#x27;cancel&#x27;)</span><br><span class="line">        this[arg] = false</span><br><span class="line">      &#125;,</span><br><span class="line">      handleConfirm (arg) &#123;</span><br><span class="line">        if (this.updateData.name === this.oldData.name &amp;&amp; this.updateData.price === this.oldData.price) &#123;</span><br><span class="line">          this.$message.error(&#x27;please update something or cancel&#x27;)</span><br><span class="line">          return</span><br><span class="line">        &#125;</span><br><span class="line">        this[arg] = false</span><br><span class="line">        this.$axios.post(&#x27;/update/&#x27;, JSON.stringify(this.updateData)).then(res =&gt; &#123;</span><br><span class="line">          if (res.data.code === 200) &#123;</span><br><span class="line">            this.$message.success(`update $&#123;this.updateData.name&#125; success`)</span><br><span class="line">            this.handleRead()</span><br><span class="line">          &#125; else &#123;</span><br><span class="line">            this.$message.error(&quot;can&#x27;t read books database&quot;)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;,</span><br><span class="line">      handleSearch () &#123;</span><br><span class="line">        this.$axios.get(&#x27;search&#x27;, &#123;</span><br><span class="line">          params: &#123;</span><br><span class="line">            content: this.search</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;).then(res =&gt; &#123;</span><br><span class="line">          if (res.data.code === 200) &#123;</span><br><span class="line">            if (res.data.data &amp;&amp; JSON.parse(res.data.data).length &gt; 0) &#123;</span><br><span class="line">              this.booksData = []</span><br><span class="line">              let books = JSON.parse(res.data.data)</span><br><span class="line">              for (let i in books) &#123;</span><br><span class="line">                let obj = &#123;</span><br><span class="line">                  id: books[i].pk,</span><br><span class="line">                  book_name: books[i].fields.book_name,</span><br><span class="line">                  book_price: Number(books[i].fields.book_price),</span><br><span class="line">                  book_time: books[i].fields.book_time</span><br><span class="line">                &#125;</span><br><span class="line">                this.booksData.push(obj)</span><br><span class="line">              &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">              this.$message.error(`can&#x27;t search contains of &#x27;$&#123;this.search&#125;&#x27; in database`)</span><br><span class="line">            &#125;</span><br><span class="line">          &#125; else &#123;</span><br><span class="line">            this.$message.error(`can&#x27;t search books in database`)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    mounted () &#123;</span><br><span class="line">      this.handleRead()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>到这里，一个增删改查基本操作的页面就写完了，如果哪里有问题可以留言指正。 git源码以上传， 没事可以star&#x2F;fork 更新将在以下附注后增加。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/RogersLei/django-vue">https://github.com/RogersLei/django-vue</a></p>
+</blockquote>
+<hr>
+<p>附注 ：</p>
+<ol>
+<li><p>Vue添加事件所用到的修饰符：</p>
+<p>![](Vue + Django&#x2F;2064404-1aa984b701bf3e11.png)</p>
+<p>Vue事件绑定修饰符</p>
+</li>
+<li><p>Django中模糊查询用到的语法：</p>
+</li>
+</ol>
+<blockquote>
+<p>YourModels.objects.filter(headline__contains&#x3D;str)<br>字段名__contains &#x2F; __icontains 忽略大小写</p>
+</blockquote>
+<p>更多精彩内容，就在简书APP</p>
+<p>“小礼物走一走，来简书关注我”</p>
+<p>还没有人赞赏，支持一下</p>
+<p>总资产23共写了2.2W字获得33个赞共22个粉丝</p>
+<h3 id="推荐阅读更多精彩内容"><a href="#推荐阅读更多精彩内容" class="headerlink" title="推荐阅读更多精彩内容"></a>推荐阅读<a target="_blank" rel="noopener" href="https://www.jianshu.com/">更多精彩内容</a></h3><ul>
+<li><p>一.前言 最近接手了一个项目，后端是django，前端是django自带的模板，用的是jinja2，写了一段时间发…</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cbd747e36ef1"><img src="https://upload-images.jianshu.io/upload_images/12026440-8ede9a6ddebc09b1.png?imageMogr2/auto-orient/strip%7CimageView2/1/w/300/h/240/format/webp"></a></p>
+</li>
+<li><p>组织文章借鉴 ——培训师的21项修炼 书籍结构：错误的案例情景重现-抛出问题，传道受业解惑也 我们假设一个场景，大…</p>
+</li>
+<li><p>每天总是忙忙碌碌，感觉时间完全不够用，更不要说是学习了，可是忙忙碌碌到最后感觉收获也很小，就像大家说的，瞎忙活。…</p>
+</li>
+<li><p>和姑姑聊起当时借钱给已故父亲治病时的场景，我依稀记得当时我和涛古，妈妈给厂里老板下跪借那三万块的场景。这辈子希望以…</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/28/Python/Python%20%E5%9F%BA%E4%BA%8EWeb%E6%A1%86%E6%9E%B6Django%20%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6Vue.js%20+%20elementUi%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" rel="prev" title="Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南_agelee的博客-CSDN博客">
+      <i class="fa fa-chevron-left"></i> Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南_agelee的博客-CSDN博客
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/12/Others/%E5%9F%BA%E4%BA%8E%20gitea%20+%20drone%20+%20docker%20%E7%9A%84%20CI%20%E6%B5%81%E7%A8%8B%E5%AE%9E%E8%B7%B5/" rel="next" title="基于 gitea + drone + docker 的 CI 流程实践">
+      基于 gitea + drone + docker 的 CI 流程实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E6%9B%B4%E5%A4%9A%E7%B2%BE%E5%BD%A9%E5%86%85%E5%AE%B9"><span class="nav-number">1.</span> <span class="nav-text">推荐阅读更多精彩内容</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">161</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">109</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

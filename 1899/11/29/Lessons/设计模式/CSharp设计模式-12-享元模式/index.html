@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、引言在软件开发过程，如果我们需要重复使用某个对象的时候，如果我们重复地使用new创建这个对象的话，这样我们在内存就需要多次地去申请内存空间了，这样可能会出现内存使用越来越多的情况，这样的问题是非常严重，然而享元模式可以解决这个问题，下面具体看看享元模式是如何去解决这个问题的。 二、享元模式的详细介绍在前面说了，享元模式可以解决上面的问题了，在介绍享元模式之前，让我们先要分析下如果去解决上面那个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSharp设计模式(12)——享元模式（Flyweight Pattern）">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-12-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、引言在软件开发过程，如果我们需要重复使用某个对象的时候，如果我们重复地使用new创建这个对象的话，这样我们在内存就需要多次地去申请内存空间了，这样可能会出现内存使用越来越多的情况，这样的问题是非常严重，然而享元模式可以解决这个问题，下面具体看看享元模式是如何去解决这个问题的。 二、享元模式的详细介绍在前面说了，享元模式可以解决上面的问题了，在介绍享元模式之前，让我们先要分析下如果去解决上面那个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images.cnblogs.com/cnblogs_com/zhenyulu/Pic86.gif">
+<meta property="article:published_time" content="1899-11-29T15:54:17.000Z">
+<meta property="article:modified_time" content="2024-10-31T10:56:34.091Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-12-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CSharp设计模式(12)——享元模式（Flyweight Pattern） | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-12-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSharp设计模式(12)——享元模式（Flyweight Pattern）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:00" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:00+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-10-31 18:56:34" itemprop="dateModified" datetime="2024-10-31T18:56:34+08:00">2024-10-31</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%AA%E6%95%B4%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">未整理</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-12-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-12-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h2><p>在软件开发过程，如果我们需要重复使用某个对象的时候，如果我们重复地使用new创建这个对象的话，这样我们在内存就需要多次地去申请内存空间了，这样可能会出现内存使用越来越多的情况，这样的问题是非常严重，然而享元模式可以解决这个问题，下面具体看看享元模式是如何去解决这个问题的。</p>
+<h2 id="二、享元模式的详细介绍"><a href="#二、享元模式的详细介绍" class="headerlink" title="二、享元模式的详细介绍"></a>二、享元模式的详细介绍</h2><p>在前面说了，享元模式可以解决上面的问题了，在介绍享元模式之前，让我们先要分析下如果去解决上面那个问题，上面的问题就是重复创建了同一个对象，如果让我们去解决这个问题肯定会这样想：“既然都是同一个对象，能不能只创建一个对象，然后下次需要创建这个对象的时候，让它直接用已经创建好了的对象就好了”，也就是说——让一个对象共享。不错，这个也是享元模式的实现精髓所在。</p>
+<h3 id="2-1-定义"><a href="#2-1-定义" class="headerlink" title="2.1 定义"></a>2.1 定义</h3><p>介绍完享元模式的精髓之后，让我们具体看看享元模式的正式定义：</p>
+<p>享元模式——运用共享技术有效地支持大量细粒度的对象。享元模式可以避免大量相似类的开销，在软件开发中如果需要生成大量细粒度的类实例来表示数据，如果这些实例除了几个参数外基本上都是相同的，这时候就可以使用享元模式来大幅度减少需要实例化类的数量。如果能把这些参数（指的这些类实例不同的参数）移动类实例外面，在方法调用时将他们传递进来，这样就可以通过共享大幅度地减少单个实例的数目。（这个也是享元模式的实现要领）,然而我们把类实例外面的参数称为享元对象的外部状态，把在享元对象内部定义称为内部状态。具体享元对象的内部状态与外部状态的定义为：</p>
+<p>内部状态：在享元对象的内部并且不会随着环境的改变而改变的共享部分</p>
+<p>外部状态：随环境改变而改变的，不可以共享的状态。</p>
+<h3 id="2-2-享元模式实现"><a href="#2-2-享元模式实现" class="headerlink" title="2.2 享元模式实现"></a>2.2 享元模式实现</h3><p>分析完享元模式的实现思路之后，相信大家实现享元模式肯定没什么问题了，下面以一个实际的应用来实现下享元模式。这个例子是：一个文本编辑器中会出现很多字面，使用享元模式去实现这个文本编辑器的话，会把每个字面做成一个享元对象。享元对象的内部状态就是这个字面，而字母在文本中的位置和字体风格等其他信息就是它的外部状态。下面就以这个例子来实现下享元模式，具体实现代码如下：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>&#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 客户端调用 &#x2F;&#x2F;&#x2F; </summary><br>    class Client<br>    { static void Main(string[] args)<br>        { &#x2F;&#x2F; 定义外部状态，例如字母的位置等信息<br>            int externalstate &#x3D; 10; &#x2F;&#x2F; 初始化享元工厂<br>            FlyweightFactory factory &#x3D; new FlyweightFactory(); &#x2F;&#x2F; 判断是否已经创建了字母A，如果已经创建就直接使用创建的对象A<br>            Flyweight fa &#x3D; factory.GetFlyweight(“A”); if (fa !&#x3D; null)<br>            { &#x2F;&#x2F; 把外部状态作为享元对象的方法调用参数<br>                fa.Operation(–externalstate);<br>            } &#x2F;&#x2F; 判断是否已经创建了字母B<br>            Flyweight fb &#x3D; factory.GetFlyweight(“B”); if (fb !&#x3D; null)<br>            {<br>                fb.Operation(--externalstate);<br>            } &#x2F;&#x2F; 判断是否已经创建了字母C<br>            Flyweight fc &#x3D; factory.GetFlyweight(“C”); if (fc !&#x3D; null)<br>            {<br>                fc.Operation(--externalstate);<br>            } &#x2F;&#x2F; 判断是否已经创建了字母D<br>            Flyweight fd&#x3D; factory.GetFlyweight(“D”); if (fd !&#x3D; null)<br>            {<br>                fd.Operation(--externalstate);<br>            } else {<br>                Console.WriteLine(“驻留池中不存在字符串D”); &#x2F;&#x2F; 这时候就需要创建一个对象并放入驻留池中<br>                ConcreteFlyweight d &#x3D; new ConcreteFlyweight(“D”);<br>                factory.flyweights.Add(“D”, d);<br>            }</p>
+<pre><code>        Console.Read();
+    &#125;
+&#125; /// &lt;summary&gt;
+/// 享元工厂，负责创建和管理享元对象 /// &lt;/summary&gt;
+public class FlyweightFactory
+&#123; // 最好使用泛型Dictionary&lt;string,Flyweighy&gt; //public Dictionary&lt;string, Flyweight&gt; flyweights = new Dictionary&lt;string, Flyweight&gt;();
+    public Hashtable flyweights = new Hashtable(); public FlyweightFactory()
+    &#123;
+        flyweights.Add(&quot;A&quot;, new ConcreteFlyweight(&quot;A&quot;));
+        flyweights.Add(&quot;B&quot;, new ConcreteFlyweight(&quot;B&quot;));
+        flyweights.Add(&quot;C&quot;, new ConcreteFlyweight(&quot;C&quot;));
+    &#125; public Flyweight GetFlyweight(string key)
+    &#123;
+</code></pre>
+<p>&#x2F;&#x2F; 更好的实现如下<br>&#x2F;&#x2F;Flyweight flyweight &#x3D; flyweights[key] as Flyweight;<br>&#x2F;&#x2F;if (flyweight &#x3D;&#x3D; null)<br>&#x2F;&#x2F;{<br>&#x2F;&#x2F; Console.WriteLine(“驻留池中不存在字符串” + key);<br>&#x2F;&#x2F; flyweight &#x3D; new ConcreteFlyweight(key);<br>&#x2F;&#x2F;}<br>&#x2F;&#x2F;return flyweight;</p>
+<p>return flyweights[key] as Flyweight;<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 抽象享元类，提供具体享元类具有的方法 &#x2F;&#x2F;&#x2F; </summary><br>    public abstract class Flyweight<br>    { public abstract void Operation(int extrinsicstate);<br>    } &#x2F;&#x2F; 具体的享元对象，这样我们不把每个字母设计成一个单独的类了，而是作为把共享的字母作为享元对象的内部状态<br>    public class ConcreteFlyweight : Flyweight<br>    { &#x2F;&#x2F; 内部状态<br>        private string intrinsicstate ; &#x2F;&#x2F; 构造函数<br>        public ConcreteFlyweight(string innerState)<br>        { this.intrinsicstate &#x3D; innerState;<br>        } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 享元类的实例方法 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="extrinsicstate">外部状态</param><br>        public override void Operation(int extrinsicstate)<br>        {<br>            Console.WriteLine(“具体实现类: intrinsicstate {0}, extrinsicstate {1}”, intrinsicstate, extrinsicstate);<br>        }<br>    }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>在享元模式的实现中，我们没有像之前一样，把一个细粒度的类实例设计成一个单独的类，而是把它作为共享对象的内部状态放在共享类的内部定义，具体的解释注释中都有了，大家可以参考注释去进一步理解享元模式。</p>
+<h3 id="2-3-享元模式的类图"><a href="#2-3-享元模式的类图" class="headerlink" title="2.3 享元模式的类图"></a>2.3 享元模式的类图</h3><p>看完享元模式的实现之后，为了帮助大家理清楚享元模式中各类之间的关系，下面给出上面实现代码中的类图，如下所示：</p>
+<p><img src="https://images.cnblogs.com/cnblogs_com/zhenyulu/Pic86.gif">（摘自<a target="_blank" rel="noopener" href="http://www.cnblogs.com/zhenyulu/articles/55793.html">http://www.cnblogs.com/zhenyulu/articles/55793.html</a>）</p>
+<p>在上图中，涉及的角色如下几种角色：</p>
+<p>抽象享元角色（Flyweight）:此角色是所有的具体享元类的基类，为这些类规定出需要实现的公共接口。那些需要外部状态的操作可以通过调用方法以参数形式传入。</p>
+<p>具体享元角色（ConcreteFlyweight）：实现抽象享元角色所规定的接口。如果有内部状态的话，可以在类内部定义。</p>
+<p>享元工厂角色（FlyweightFactory）：本角色复杂创建和管理享元角色。本角色必须保证享元对象可以被系统适当地共享，当一个客户端对象调用一个享元对象的时候，享元工厂角色检查系统中是否已经有一个符合要求的享元对象，如果已经存在，享元工厂角色就提供已存在的享元对象，如果系统中没有一个符合的享元对象的话，享元工厂角色就应当创建一个合适的享元对象。</p>
+<p>客户端角色（Client）：本角色需要存储所有享元对象的外部状态。</p>
+<p>注：上面的实现只是单纯的享元模式，同时还有复合的享元模式，由于复合享元模式较复杂，这里就不给出实现了。</p>
+<h2 id="三、享元模式的优缺点"><a href="#三、享元模式的优缺点" class="headerlink" title="三、享元模式的优缺点"></a>三、享元模式的优缺点</h2><p>分析完享元模式的实现之后，让我们继续分析下享元模式的优缺点：</p>
+<p><strong>优点：</strong></p>
+<ol>
+<li>降低了系统中对象的数量，从而降低了系统中细粒度对象给内存带来的压力。</li>
+</ol>
+<p><strong>缺点：</strong></p>
+<ol>
+<li>为了使对象可以共享，需要将一些状态外部化，这使得程序的逻辑更复杂，使系统复杂化。</li>
+<li>享元模式将享元对象的状态外部化，而读取外部状态使得运行时间稍微变长。</li>
+</ol>
+<h2 id="四、使用场景"><a href="#四、使用场景" class="headerlink" title="四、使用场景"></a>四、使用场景</h2><p>在下面所有条件都满足时，可以考虑使用享元模式：</p>
+<ul>
+<li>一个系统中有大量的对象；</li>
+<li>这些对象耗费大量的内存；</li>
+<li>这些对象中的状态大部分都可以被外部化</li>
+<li>这些对象可以按照内部状态分成很多的组，当把外部对象从对象中剔除时，每一个组都可以仅用一个对象代替</li>
+<li>软件系统不依赖这些对象的身份，</li>
+</ul>
+<p>满足上面的条件的系统可以使用享元模式。但是使用享元模式需要额外维护一个记录子系统已有的所有享元的表，而这也需要耗费资源，所以，应当在有足够多的享元实例可共享时才值得使用享元模式。</p>
+<p>注：在.NET类库中，string类的实现就使用了享元模式，更多内容可以参考字符串驻留池的介绍，同时也可以参考这个博文深入理解.NET中string类的设计——<a target="_blank" rel="noopener" href="http://www.cnblogs.com/artech/archive/2010/11/25/internedstring.html">http://www.cnblogs.com/artech/archive/2010/11/25/internedstring.html</a></p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>到这里，享元模式的介绍就结束了，享元模式主要用来解决由于大量的细粒度对象所造成的内存开销的问题，它在实际的开发中并不常用，可以作为底层的提升性能的一种手段。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-14-%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/" rel="prev" title="CSharp设计模式(14)——模板方法模式（Template Method）">
+      <i class="fa fa-chevron-left"></i> CSharp设计模式(14)——模板方法模式（Template Method）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-10-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" rel="next" title="CSharp设计模式(10)——组合模式（Composite Pattern）">
+      CSharp设计模式(10)——组合模式（Composite Pattern） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">二、享元模式的详细介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 享元模式实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%B1%BB%E5%9B%BE"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 享元模式的类图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、享元模式的优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">226</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">116</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

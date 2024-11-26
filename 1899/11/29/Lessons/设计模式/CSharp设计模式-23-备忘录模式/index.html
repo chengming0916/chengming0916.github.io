@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在上一篇博文分享了访问者模式，访问者模式的实现是把作用于某种数据结构上的操作封装到访问者中，使得操作和数据结构隔离。而今天要介绍的备忘者模式与命令模式有点相似，不同的是，命令模式保存的是发起人的具体命令（命令对应的是行为），而备忘录模式保存的是发起人的状态（而状态对应的数据结构，如属性）。下面具体来看看备忘录模式。 2.1 备忘录模式的定义 　　从字面意思就可以明白，备忘录模式就是对某个类的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSharp设计模式(23)——备忘录模式（Memento Pattern）">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-23-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在上一篇博文分享了访问者模式，访问者模式的实现是把作用于某种数据结构上的操作封装到访问者中，使得操作和数据结构隔离。而今天要介绍的备忘者模式与命令模式有点相似，不同的是，命令模式保存的是发起人的具体命令（命令对应的是行为），而备忘录模式保存的是发起人的状态（而状态对应的数据结构，如属性）。下面具体来看看备忘录模式。 2.1 备忘录模式的定义 　　从字面意思就可以明白，备忘录模式就是对某个类的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201409/201630565818864.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201409/201711471435470.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201409/201806287531986.png">
+<meta property="article:published_time" content="1899-11-29T15:54:17.000Z">
+<meta property="article:modified_time" content="2024-11-26T03:43:11.902Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog/383187/201409/201630565818864.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-23-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CSharp设计模式(23)——备忘录模式（Memento Pattern） | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-23-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSharp设计模式(23)——备忘录模式（Memento Pattern）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:00" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:00+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-11-26 11:43:11" itemprop="dateModified" datetime="2024-11-26T11:43:11+08:00">2024-11-26</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-23-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-23-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p> 　　在上一篇博文分享了访问者模式，访问者模式的实现是把作用于某种数据结构上的操作封装到访问者中，使得操作和数据结构隔离。而今天要介绍的备忘者模式与命令模式有点相似，不同的是，命令模式保存的是发起人的具体命令（命令对应的是行为），而备忘录模式保存的是发起人的状态（而状态对应的数据结构，如属性）。下面具体来看看备忘录模式。</p>
+<h2 id="2-1-备忘录模式的定义"><a href="#2-1-备忘录模式的定义" class="headerlink" title="2.1 备忘录模式的定义"></a>2.1 备忘录模式的定义</h2><p> 　　从字面意思就可以明白，备忘录模式就是对某个类的状态进行保存下来，等到需要恢复的时候，可以从备忘录中进行恢复。生活中这样的例子经常看到，如备忘电话通讯录，备份操作操作系统，备份数据库等。</p>
+<p>　　备忘录模式的具体定义是：<strong>在不破坏封装的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态，这样以后就可以把该对象恢复到原先的状态。</strong></p>
+<h2 id="2-2-备忘录模式的结构图"><a href="#2-2-备忘录模式的结构图" class="headerlink" title="2.2 备忘录模式的结构图"></a>2.2 备忘录模式的结构图</h2><p> 　　介绍完备忘录模式的定义之后，下面具体看看备忘录模式的结构图：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201409/201630565818864.png"></p>
+<p>　　备忘录模式中主要有三类角色：</p>
+<ul>
+<li><strong>发起人角色</strong>：记录当前时刻的内部状态，负责创建和恢复备忘录数据。</li>
+<li><strong>备忘录角色</strong>：负责存储发起人对象的内部状态，在进行恢复时提供给发起人需要的状态。</li>
+<li><strong>管理者角色</strong>：负责保存备忘录对象。</li>
+</ul>
+<h2 id="2-3-备忘录模式的实现"><a href="#2-3-备忘录模式的实现" class="headerlink" title="2.3 备忘录模式的实现"></a>2.3 备忘录模式的实现</h2><p> 　　下面以备份手机通讯录为例子来实现了备忘录模式，具体的实现代码如下所示：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> &#x2F;&#x2F; 联系人<br>    public class ContactPerson<br>    { public string Name { get; set; } public string MobileNum { get; set; }<br>    } &#x2F;&#x2F; 发起人<br>    public class MobileOwner<br>    { &#x2F;&#x2F; 发起人需要保存的内部状态<br>        public List<ContactPerson> ContactPersons { get; set; } public MobileOwner(List<ContactPerson> persons)<br>        {<br>            ContactPersons = persons;<br>        } &#x2F;&#x2F; 创建备忘录，将当期要保存的联系人列表导入到备忘录中<br>        public ContactMemento CreateMemento()<br>        { &#x2F;&#x2F; 这里也应该传递深拷贝，new List方式传递的是浅拷贝，<br>            &#x2F;&#x2F; 因为ContactPerson类中都是string类型,所以这里new list方式对ContactPerson对象执行了深拷贝<br>            &#x2F;&#x2F; 如果ContactPerson包括非string的引用类型就会有问题，所以这里也应该用序列化传递深拷贝<br>            return new ContactMemento(new List<ContactPerson>(this.ContactPersons));<br>        } &#x2F;&#x2F; 将备忘录中的数据备份导入到联系人列表中<br>        public void RestoreMemento(ContactMemento memento)<br>        { &#x2F;&#x2F; 下面这种方式是错误的，因为这样传递的是引用，<br>            &#x2F;&#x2F; 则删除一次可以恢复，但恢复之后再删除的话就恢复不了.<br>            &#x2F;&#x2F; 所以应该传递contactPersonBack的深拷贝，深拷贝可以使用序列化来完成<br>            this.ContactPersons &#x3D; memento.contactPersonBack;<br>        } public void Show()<br>        {<br>            Console.WriteLine(“联系人列表中有{0}个人，他们是:”, ContactPersons.Count); foreach (ContactPerson p in ContactPersons)<br>            {<br>                Console.WriteLine(“姓名: {0} 号码为: {1}”, p.Name, p.MobileNum);<br>            }<br>        }<br>    } &#x2F;&#x2F; 备忘录<br>    public class ContactMemento<br>    { &#x2F;&#x2F; 保存发起人的内部状态<br>        public List<ContactPerson> contactPersonBack; public ContactMemento(List<ContactPerson> persons)<br>        {<br>            contactPersonBack = persons;<br>        }<br>    } &#x2F;&#x2F; 管理角色<br>    public class Caretaker<br>    { public ContactMemento ContactM { get; set; }<br>    } class Program<br>    { static void Main(string[] args)<br>        {<br>            List<ContactPerson> persons &#x3D; new List<ContactPerson>()<br>            { new ContactPerson() { Name&#x3D; “Learning Hard”, MobileNum &#x3D; “123445”}, new ContactPerson() { Name &#x3D; “Tony”, MobileNum &#x3D; “234565”}, new ContactPerson() { Name &#x3D; “Jock”, MobileNum &#x3D; “231455”}<br>            };<br>            MobileOwner mobileOwner = new MobileOwner(persons);<br>            mobileOwner.Show(); &#x2F;&#x2F; 创建备忘录并保存备忘录对象<br>            Caretaker caretaker &#x3D; new Caretaker();<br>            caretaker.ContactM = mobileOwner.CreateMemento(); &#x2F;&#x2F; 更改发起人联系人列表<br>            Console.WriteLine(“-—移除最后一个联系人——–”);<br>            mobileOwner.ContactPersons.RemoveAt(2);<br>            mobileOwner.Show(); &#x2F;&#x2F; 恢复到原始状态<br>            Console.WriteLine(“-——恢复联系人列表——“);<br>            mobileOwner.RestoreMemento(caretaker.ContactM);<br>            mobileOwner.Show();</p>
+<pre><code>        Console.Read();
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>　　具体的运行结果如下图所示：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201409/201711471435470.png"></p>
+<p>　　从上图可以看出，刚开始通讯录中有3个联系人，然后移除以后一个后变成2个联系人了，最后恢复原来的联系人列表后，联系人列表中又恢复为3个联系人了。</p>
+<p>　　上面代码只是保存了一个还原点，即备忘录中只保存了3个联系人的数据，但是，如果想备份多个还原点怎么办呢？即恢复到3个人后，又想恢复到前面2个人的状态，这时候可能你会想，这样没必要啊，到时候在删除不就好了。但是如果在实际应用中，可能我们发了很多时间去创建通讯录中只有2个联系人的状态，恢复到3个人的状态后，发现这个状态时错误的，还是原来2个人的状态是正确的，难道我们又去花之前的那么多时间去重复操作吗？这显然不合理，如果就思考，能不能保存多个还原点呢？<strong>保存多个还原点其实很简单，只需要保存多个备忘录对象就可以了</strong>。具体实现代码如下所示：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>namespace MultipleMementoPattern<br>{ &#x2F;&#x2F; 联系人<br>    public class ContactPerson<br>    { public string Name { get; set; } public string MobileNum { get; set; }<br>    } &#x2F;&#x2F; 发起人<br>    public class MobileOwner<br>    { public List<ContactPerson> ContactPersons { get; set; } public MobileOwner(List<ContactPerson> persons)<br>        {<br>            ContactPersons = persons;<br>        } &#x2F;&#x2F; 创建备忘录，将当期要保存的联系人列表导入到备忘录中<br>        public ContactMemento CreateMemento()<br>        { &#x2F;&#x2F; 这里也应该传递深拷贝，new List方式传递的是浅拷贝，<br>            &#x2F;&#x2F; 因为ContactPerson类中都是string类型,所以这里new list方式对ContactPerson对象执行了深拷贝<br>            &#x2F;&#x2F; 如果ContactPerson包括非string的引用类型就会有问题，所以这里也应该用序列化传递深拷贝<br>            return new ContactMemento(new List<ContactPerson>(this.ContactPersons));<br>        } &#x2F;&#x2F; 将备忘录中的数据备份导入到联系人列表中<br>        public void RestoreMemento(ContactMemento memento)<br>        { if (memento !&#x3D; null)<br>            { &#x2F;&#x2F; 下面这种方式是错误的，因为这样传递的是引用，<br>                &#x2F;&#x2F; 则删除一次可以恢复，但恢复之后再删除的话就恢复不了.<br>                &#x2F;&#x2F; 所以应该传递contactPersonBack的深拷贝，深拷贝可以使用序列化来完成<br>                this.ContactPersons &#x3D; memento.ContactPersonBack;<br>            }<br>        } public void Show()<br>        {<br>            Console.WriteLine(“联系人列表中有{0}个人，他们是:”, ContactPersons.Count); foreach (ContactPerson p in ContactPersons)<br>            {<br>                Console.WriteLine(“姓名: {0} 号码为: {1}”, p.Name, p.MobileNum);<br>            }<br>        }<br>    } &#x2F;&#x2F; 备忘录<br>    public class ContactMemento<br>    { public List<ContactPerson> ContactPersonBack {get;set;} public ContactMemento(List<ContactPerson> persons)<br>        {<br>            ContactPersonBack = persons;<br>        }<br>    } &#x2F;&#x2F; 管理角色<br>    public class Caretaker<br>    { &#x2F;&#x2F; 使用多个备忘录来存储多个备份点<br>        public Dictionary&lt;string, ContactMemento&gt; ContactMementoDic { get; set; } public Caretaker()<br>        {<br>            ContactMementoDic = new Dictionary&lt;string, ContactMemento&gt;();<br>        }<br>    } class Program<br>    { static void Main(string[] args)<br>        {<br>            List<ContactPerson> persons &#x3D; new List<ContactPerson>()<br>            { new ContactPerson() { Name&#x3D; “Learning Hard”, MobileNum &#x3D; “123445”}, new ContactPerson() { Name &#x3D; “Tony”, MobileNum &#x3D; “234565”}, new ContactPerson() { Name &#x3D; “Jock”, MobileNum &#x3D; “231455”}<br>            };</p>
+<pre><code>        MobileOwner mobileOwner \= new MobileOwner(persons);
+        mobileOwner.Show(); // 创建备忘录并保存备忘录对象
+        Caretaker caretaker = new Caretaker();
+        caretaker.ContactMementoDic.Add(DateTime.Now.ToString(), mobileOwner.CreateMemento()); // 更改发起人联系人列表
+        Console.WriteLine(&quot;\----移除最后一个联系人--------&quot;);
+        mobileOwner.ContactPersons.RemoveAt(2);
+        mobileOwner.Show(); // 创建第二个备份
+        Thread.Sleep(1000);
+        caretaker.ContactMementoDic.Add(DateTime.Now.ToString(), mobileOwner.CreateMemento()); // 恢复到原始状态
+        Console.WriteLine(&quot;\-------恢复联系人列表,请从以下列表选择恢复的日期------&quot;); var keyCollection = caretaker.ContactMementoDic.Keys; foreach (string k in keyCollection)
+        &#123;
+            Console.WriteLine(&quot;Key = &#123;0&#125;&quot;, k);
+        &#125; while (true)
+        &#123;
+            Console.Write(&quot;请输入数字,按窗口的关闭键退出:&quot;); int index = -1; try &#123;
+                index \= Int32.Parse(Console.ReadLine());
+            &#125; catch &#123;
+                Console.WriteLine(&quot;输入的格式错误&quot;); continue;
+            &#125;
+            
+            ContactMemento contactMentor \= null; if (index &lt; keyCollection.Count &amp;&amp; caretaker.ContactMementoDic.TryGetValue(keyCollection.ElementAt(index), out contactMentor))
+            &#123;
+                mobileOwner.RestoreMemento(contactMentor);
+                mobileOwner.Show();
+            &#125; else &#123;
+                Console.WriteLine(&quot;输入的索引大于集合长度！&quot;);
+            &#125;
+        &#125;     
+    &#125;
+&#125;
+</code></pre>
+<p>}</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>　　这样就保存了多个状态，客户端可以选择恢复的状态点，具体运行结果如下所示：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201409/201806287531986.png"></p>
+<p> 　　在以下情况下可以考虑使用备忘录模式：</p>
+<ul>
+<li>如果系统需要提供回滚操作时，使用备忘录模式非常合适。例如文本编辑器的Ctrl+Z撤销操作的实现，数据库中事务操作。</li>
+</ul>
+<p> 　　备忘录模式具有以下优点：</p>
+<ul>
+<li>如果某个操作错误地破坏了数据的完整性，此时可以使用备忘录模式将数据恢复成原来正确的数据。</li>
+<li>备份的状态数据保存在发起人角色之外，这样发起人就不需要对各个备份的状态进行管理。而是由备忘录角色进行管理，而备忘录角色又是由管理者角色管理，符合单一职责原则。</li>
+</ul>
+<p>　　当然，备忘录模式也存在一定的缺点：</p>
+<ul>
+<li>在实际的系统中，可能需要维护多个备份，需要额外的资源，这样对资源的消耗比较严重。</li>
+</ul>
+<p>　　备忘录模式主要思想是——利用备忘录对象来对保存发起人的内部状态，当发起人需要恢复原来状态时，再从备忘录对象中进行获取，在实际开发过程也应用到这点，例如数据库中的事务处理。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-6-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="prev" title="CSharp设计模式-6-原型模式（Prototype Pattern）">
+      <i class="fa fa-chevron-left"></i> CSharp设计模式-6-原型模式（Prototype Pattern）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-20-%E7%AD%96%E7%95%A5%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="next" title="CSharp设计模式(20)——策略者模式（Stragety Pattern）">
+      CSharp设计模式(20)——策略者模式（Stragety Pattern） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">2.1 备忘录模式的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">2.2 备忘录模式的结构图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">2.3 备忘录模式的实现</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">227</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">118</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

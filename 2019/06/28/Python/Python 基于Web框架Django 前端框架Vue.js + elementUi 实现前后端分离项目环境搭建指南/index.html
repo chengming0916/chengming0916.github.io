@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文整合Django和Vue.js  并引入elementUi 实现前后端分离项目环境 最终的成品是设计出一个ElementUi风格的页面可以添加和显示学生信息. ![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415104816822.png) Django作为Python 三大Web框架之一,因">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南_agelee的博客-CSDN博客">
+<meta property="og:url" content="http://chengming0916.github.io/2019/06/28/Python/Python%20%E5%9F%BA%E4%BA%8EWeb%E6%A1%86%E6%9E%B6Django%20%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6Vue.js%20+%20elementUi%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="本文整合Django和Vue.js  并引入elementUi 实现前后端分离项目环境 最终的成品是设计出一个ElementUi风格的页面可以添加和显示学生信息. ![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415104816822.png) Django作为Python 三大Web框架之一,因">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2021041417083995.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FnZWxlZQ==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210414171354867.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2021041417170686.png">
+<meta property="article:published_time" content="2019-06-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-26T03:43:11.922Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Django">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/2021041417083995.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FnZWxlZQ==,size_16,color_FFFFFF,t_70">
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/06/28/Python/Python%20%E5%9F%BA%E4%BA%8EWeb%E6%A1%86%E6%9E%B6Django%20%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6Vue.js%20+%20elementUi%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南_agelee的博客-CSDN博客 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/06/28/Python/Python%20%E5%9F%BA%E4%BA%8EWeb%E6%A1%86%E6%9E%B6Django%20%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6Vue.js%20+%20elementUi%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南_agelee的博客-CSDN博客
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-29 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-29T00:00:00+08:00">2019-06-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-11-26 11:43:11" itemprop="dateModified" datetime="2024-11-26T11:43:11+08:00">2024-11-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/06/28/Python/Python%20%E5%9F%BA%E4%BA%8EWeb%E6%A1%86%E6%9E%B6Django%20%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6Vue.js%20+%20elementUi%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/06/28/Python/Python%20%E5%9F%BA%E4%BA%8EWeb%E6%A1%86%E6%9E%B6Django%20%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6Vue.js%20+%20elementUi%20%E5%AE%9E%E7%8E%B0%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文整合Django和Vue.js  并引入elementUi 实现前后端分离项目环境</p>
+<p>最终的成品是设计出一个ElementUi风格的页面可以添加和显示学生信息.</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415104816822.png)</p>
+<p>Django作为Python 三大Web框架之一,因其集成了大量的组件(例如: Models Admin Form 等等)而大受欢迎,但是他本身自带的template模板实在是有点弱.于是考虑整合Vue.js同时引入ElementUI 组件,可以更加快速高效的开发出美观实用的Web页面.</p>
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>本文版本:Python 3.5</strong></p>
+<p>安装教程: <a target="_blank" rel="noopener" href="https://www.runoob.com/python3/python3-install.html">https://www.runoob.com/python3/python3-install.html</a></p>
+<h2 id="Pycharm"><a href="#Pycharm" class="headerlink" title="Pycharm"></a>Pycharm</h2><p><strong>本文版本:2019.1.3</strong> </p>
+<p>PyCharm 2019.1.3 (Community Edition)</p>
+<p>安装教程:<a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/pycharm-windows-install.html">https://www.runoob.com/w3cnote/pycharm-windows-install.html</a></p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414104837104.png)</p>
+<h2 id="Django"><a href="#Django" class="headerlink" title="Django"></a>Django</h2><p><strong>本文版本:2.2.3</strong> </p>
+<p>安装教程:<a target="_blank" rel="noopener" href="https://www.runoob.com/django/django-install.html">https://www.runoob.com/django/django-install.html</a></p>
+<h2 id="node-js"><a href="#node-js" class="headerlink" title="node.js"></a>node.js</h2><p><strong>本文版本:10.16.3</strong></p>
+<p>安装教程:<a target="_blank" rel="noopener" href="https://www.runoob.com/nodejs/nodejs-install-setup.html">https://www.runoob.com/nodejs/nodejs-install-setup.html</a></p>
+<h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><p><strong>本文版本: 8.0.13 for Win64</strong> </p>
+<p>安装教程:<a target="_blank" rel="noopener" href="https://www.runoob.com/mysql/mysql-install.html">https://www.runoob.com/mysql/mysql-install.html</a></p>
+<p><em>本文的Pycharm为社区版,如果为专业版则字段Django项目的创建选项,创建项目将更加简单.</em></p>
+<h2 id="1-创建django项目-DjangoElementUI"><a href="#1-创建django项目-DjangoElementUI" class="headerlink" title="1.创建django项目:DjangoElementUI"></a>1.创建django项目:DjangoElementUI</h2><p>创建文件夹E:\PycharmProjects:</p>
+<p>在项目文件夹目录输入Windows 命令行如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">django-admin.py startproject DjangoElementUI</span><br></pre></td></tr></table></figure>
+
+<p>成功创建项目完成后文件夹结构如下图:</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414135547501.png)</p>
+<p>进入项目文件夹目录,在目录中输入命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py runserver 0.0.0.0:8000</span><br></pre></td></tr></table></figure>
+
+<p>看到如下提示则为项目创建成功</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414140242161.png)</p>
+<p>在浏览器输入你服务器的 ip（这里我们输入本机 IP 地址： <strong>127.0.0.1:8000</strong>） 及端口号，如果正常启动，输出结果如下：</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;2021041414041267.png)</p>
+<h2 id="2-数据库配置"><a href="#2-数据库配置" class="headerlink" title="2.数据库配置"></a>2.数据库配置</h2><p>Django 对各种数据库提供了很好的支持，包括：PostgreSQL、MySQL、SQLite、Oracle。</p>
+<p>Django 为这些数据库提供了统一的调用API。 我们可以根据自己业务需求选择不同的数据库。</p>
+<p>MySQL 是 Web 应用中最常用的数据库。</p>
+<p>本文采用MySQL</p>
+<p>第一次使用MySQL需要安装 MySQL驱动,在项目文件夹目录下执行以下命令安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pymysql</span><br></pre></td></tr></table></figure>
+
+<p>Django无法直接创建数据库(只能操作到数据表层),我们需要手工创建MySQL数据库.</p>
+<p><strong>以下通过命令行创建 MySQL 数据库:Django_ElementUI</strong></p>
+<h3 id="登录数据库"><a href="#登录数据库" class="headerlink" title="登录数据库:"></a>登录数据库:</h3><p>数据库安装文件夹bin文件夹下输入命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p </span><br></pre></td></tr></table></figure>
+
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414143607555.png)</p>
+<h3 id="创建数据库"><a href="#创建数据库" class="headerlink" title="创建数据库:"></a>创建数据库:</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create DATABASE Django_ElementUI DEFAULT CHARSET utf8;</span><br></pre></td></tr></table></figure>
+
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414143542756.png)</p>
+<h3 id="Django配置数据库"><a href="#Django配置数据库" class="headerlink" title="Django配置数据库"></a>Django配置数据库</h3><p>在项目的 settings.py 文件中找到 DATABASES 配置项，将其信息修改为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;ENGINE&#x27;: &#x27;django.db.backends.mysql&#x27;,  &#x27;NAME&#x27;: &#x27;Django_ElementUI&#x27;,  </span><br></pre></td></tr></table></figure>
+
+<p>在与 settings.py 同级目录下的 __init__.py 中引入模块和进行配置 (告诉 Django 使用 pymysql 模块连接 mysql 数据库)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pymysql.install_as_MySQLdb()</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-利用Django模型设计数据库表"><a href="#3-利用Django模型设计数据库表" class="headerlink" title="3.利用Django模型设计数据库表"></a>3.利用Django模型设计数据库表</h2><p>Django 规定，如果要使用模型，必须要创建一个 app。</p>
+<h3 id="创建Django-APP-myApp"><a href="#创建Django-APP-myApp" class="headerlink" title="创建Django APP:myApp"></a>创建Django APP:myApp</h3><p>我们使用以下命令创建一个Django app:myApp</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">django-admin.py startapp myApp</span><br></pre></td></tr></table></figure>
+
+<p>成功后的项目文件夹目录如下:</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414144728624.png)</p>
+<h3 id="设计数据库表"><a href="#设计数据库表" class="headerlink" title="设计数据库表"></a>设计数据库表</h3><p>在myApp下的models.py设计表:</p>
+<p>这里我们设计一个Student表,用来存储学生信息.</p>
+<p><strong>表字段</strong></p>
+<p><strong>字段类型</strong></p>
+<p><strong>含义</strong></p>
+<p>student_name</p>
+<p>Varchar类型</p>
+<p>学生姓名</p>
+<p>student_sex</p>
+<p>Varchar类型</p>
+<p>学生性别</p>
+<p>create_time</p>
+<p>Datetime类型</p>
+<p>创建日期时间</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from django.db import modelsclass Student(models.Model):    student_name = models.CharField(max_length=64)    student_sex = models.CharField(max_length=3)    create_time = models.DateTimeField(auto_now=True)</span><br></pre></td></tr></table></figure>
+
+<p>在 settings.py 中找到INSTALLED_APPS这一项，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;django.contrib.contenttypes&#x27;,&#x27;django.contrib.sessions&#x27;,&#x27;django.contrib.messages&#x27;,&#x27;django.contrib.staticfiles&#x27;,</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成数据库迁移文件"><a href="#生成数据库迁移文件" class="headerlink" title="生成数据库迁移文件"></a><strong>生成数据库迁移文件</strong></h3><p>在命令行中运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py makemigrations myApp</span><br></pre></td></tr></table></figure>
+
+<p>执行成功后结果:</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414151307794.png)</p>
+<h3 id="执行迁移文件来完成数据库表的创建"><a href="#执行迁移文件来完成数据库表的创建" class="headerlink" title="执行迁移文件来完成数据库表的创建"></a><strong>执行迁移文件来完成数据库表的创建</strong></h3><p>在命令行中运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py migrate myApp</span><br></pre></td></tr></table></figure>
+
+<p>执行成功后结果:</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414151425160.png)</p>
+<p>查看数据库中数据库表已经生成成功</p>
+<p>(django默认在makemigrations会为表对象创建主键id,id &#x3D; models.AutoField(primary_key&#x3D;True))</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414160015767.png)</p>
+<h2 id="4-Django创建新增和查询学生信息接口"><a href="#4-Django创建新增和查询学生信息接口" class="headerlink" title="4.Django创建新增和查询学生信息接口"></a>4.Django创建新增和查询学生信息接口</h2><p>在myApp目录下的views.py中创建两个视图函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from __future__ import unicode_literalsfrom django.http import JsonResponsefrom django.core import serializersfrom django.shortcuts import renderfrom django.views.decorators.http import require_http_methodsfrom myApp.models import Student@require_http_methods([&quot;GET&quot;])def add_student(request):        student = Student(student_name=request.GET.get(&#x27;student_name&#x27;))        response[&#x27;msg&#x27;] = &#x27;success&#x27;        response[&#x27;error_num&#x27;] = 0        response[&#x27;error_num&#x27;] = 1return JsonResponse(response)@require_http_methods([&quot;GET&quot;])def show_students(request):        students = Student.objects.filter()        response[&#x27;list&#x27;] = json.loads(serializers.serialize(&quot;json&quot;, students))        response[&#x27;msg&#x27;] = &#x27;success&#x27;        response[&#x27;error_num&#x27;] = 0        response[&#x27;error_num&#x27;] = 1return JsonResponse(response)</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-配置路由"><a href="#5-配置路由" class="headerlink" title="5.配置路由"></a>5.配置路由</h2><p>1.在myApp目录下，新增一个urls.py文件,用于创建此APP下的分支路由，把新增的两个视图函数添加到路由里面.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from django.conf.urls import url    url(r&#x27;^add_book/&#x27;, views.add_book),    url(r&#x27;^show_books/&#x27;, views.show_books),</span><br></pre></td></tr></table></figure>
+
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414162754315.png)</p>
+<p>2.把上面创建的myApp下的分支路由加到DjangoElementUI下的主路由中urls.py.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from django.contrib import adminfrom django.urls import pathfrom django.conf.urls import urlfrom django.conf.urls import include    url(r&#x27;^admin/&#x27;, admin.site.urls),    url(r&#x27;^api/&#x27;, include(urls)),</span><br></pre></td></tr></table></figure>
+
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210414163356300.png)</p>
+<p>至此Django部分已经完成,总结下我们利用Django完成了数据库的创建,并创建了两个视图函数作为接口给前端调用.</p>
+<p>1.安装vue-cli脚手架</p>
+<p>在DjangoElementUI根目录下输入命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g vue-cli</span><br></pre></td></tr></table></figure>
+
+<p>2.安装好后，新建一个前端工程目录：appfront</p>
+<p>在DjangoElementUI项目根目录下输入命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vue-init webpack appfront</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/2021041417083995.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FnZWxlZQ==,size_16,color_FFFFFF,t_70"></p>
+<p>3.进入appfront目录安装vue所需要的依赖</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20210414171354867.png"></p>
+<p>4.安装ElementUI</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i element-ui -S</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/2021041417170686.png"></p>
+<p>5.创建新vue页面</p>
+<p>在src&#x2F;component文件夹下新建一个名为Studengt.vue的组件，通过调用之前在Django上写好的api，实现添加学生和展示学生信息的功能.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;el-row display=&quot;margin-top:10px&quot;&gt;&lt;el-input v-model=&quot;input&quot; placeholder=&quot;请输入学生姓名&quot; style=&quot;display:inline-table; width: 30%; float:left&quot;&gt;&lt;/el-input&gt;&lt;el-button type=&quot;primary&quot; @click=&quot;addStudent()&quot; style=&quot;float:left; margin: 2px;&quot;&gt;新增&lt;/el-button&gt;&lt;el-table :data=&quot;studentList&quot; style=&quot;width: 100%&quot; border&gt;&lt;el-table-column prop=&quot;id&quot; label=&quot;编号&quot; min-width=&quot;100&quot;&gt;&lt;template scope=&quot;scope&quot;&gt; &#123;&#123; scope.row.pk &#125;&#125; &lt;/template&gt;&lt;el-table-column prop=&quot;student_name&quot; label=&quot;姓名&quot; min-width=&quot;100&quot;&gt;&lt;template scope=&quot;scope&quot;&gt; &#123;&#123; scope.row.fields.student_name &#125;&#125; &lt;/template&gt;&lt;el-table-column prop=&quot;student_sex&quot; label=&quot;性别&quot; min-width=&quot;100&quot;&gt;&lt;template scope=&quot;scope&quot;&gt; &#123;&#123; scope.row.fields.student_sex &#125;&#125; &lt;/template&gt;&lt;el-table-column prop=&quot;add_time&quot; label=&quot;添加时间&quot; min-width=&quot;100&quot;&gt;&lt;template scope=&quot;scope&quot;&gt; &#123;&#123; scope.row.fields.create_time &#125;&#125; &lt;/template&gt;this.$http.get(&#x27;http://127.0.0.1:8000/api/add_student?student_name=&#x27; + this.input)var res = JSON.parse(response.bodyText)if (res.error_num === 0) &#123;this.$message.error(&#x27;新增学生失败，请重试&#x27;)this.$http.get(&#x27;http://127.0.0.1:8000/api/show_students&#x27;)var res = JSON.parse(response.bodyText)if (res.error_num === 0) &#123;this.studentList = res[&#x27;list&#x27;]this.$message.error(&#x27;查询学生失败&#x27;)&lt;!-- Add &quot;scoped&quot; attribute to limit CSS to this component only --&gt;</span><br></pre></td></tr></table></figure>
+
+<p>6.配置路由</p>
+<p>appfront&#x2F;router文件夹下的index.js中增加页面路由.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import Router from &#x27;vue-router&#x27;import HelloWorld from &#x27;@/components/HelloWorld&#x27;import Student from &#x27;@/components/Student&#x27;export default new Router(&#123;</span><br></pre></td></tr></table></figure>
+
+<p>appfront文件夹下的main.js中引入ElementUI并注册.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import router from &#x27;./router&#x27;import &#x27;../node_modules/element-ui/lib/theme-chalk/index.css&#x27;import ElementUI from &#x27;element-ui&#x27;Vue.config.productionTip = false</span><br></pre></td></tr></table></figure>
+
+<p>7.打包并启动前端项目</p>
+<p> <strong>打包vue项目</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run build</span><br></pre></td></tr></table></figure>
+
+<p>启动前端项目</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run dev</span><br></pre></td></tr></table></figure>
+
+<p>出现下面信息则说明我们前端项目已经构建成功.</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415084527242.png)</p>
+<p>去浏览器访问页面地址:<a target="_blank" rel="noopener" href="http://localhost:8080/#/student">http://localhost:8080/#/student</a></p>
+<p>出现如下页面说明我们的页面已经成功.</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;2021041508564340.png)</p>
+<p>截止到目前,我们已经成功通过Django创建了一个后端服务,通过Vue.js + ElementUI 实现了前端页面的构建,但是他们运行在各自的服务器,而且前端页面还无法调用后端的接口.</p>
+<p>接下来我们需要将两个项目真正的整合到一个成一个项目.</p>
+<p>1.引入用于HTTP解析的vue-resource</p>
+<p>前端vue项目调用后端需要引入vue-resource</p>
+<p>在appfront文件下运行命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install </span><br></pre></td></tr></table></figure>
+
+<p>安装完成后在main.js中引入vue-resource</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import router from &#x27;./router&#x27;import &#x27;../node_modules/element-ui/lib/theme-chalk/index.css&#x27;import ElementUI from &#x27;element-ui&#x27;import VueResource from &#x27;vue-resource&#x27;Vue.config.productionTip = false</span><br></pre></td></tr></table></figure>
+
+<p>2.在Django层注入header</p>
+<p>为了让后端可以识别前端需求,我们须要在Django层注入header，用Django的第三方包django-cors-headers来解决跨域问题：</p>
+<p>在DjangoElementUI根目录下输入命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install django-cors-headers</span><br></pre></td></tr></table></figure>
+
+<p>在settings.py中增加相关中间件代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;django.middleware.security.SecurityMiddleware&#x27;,&#x27;django.contrib.sessions.middleware.SessionMiddleware&#x27;,&#x27;corsheaders.middleware.CorsMiddleware&#x27;,     &#x27;django.middleware.common.CommonMiddleware&#x27;,&#x27;django.middleware.csrf.CsrfViewMiddleware&#x27;,&#x27;django.contrib.auth.middleware.AuthenticationMiddleware&#x27;,&#x27;django.contrib.messages.middleware.MessageMiddleware&#x27;,&#x27;django.middleware.clickjacking.XFrameOptionsMiddleware&#x27;,CORS_ORIGIN_ALLOW_ALL = True   </span><br></pre></td></tr></table></figure>
+
+<p>3.修改Django路由</p>
+<p>这一步我们通过Django路由配置连接前后端资源.</p>
+<p>首先我们把Django的TemplateView指向我们刚才生成的前端dist文件</p>
+<p>在DjangoElementUI目录下的urls.py中增加代码:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from django.conf.urls import urlfrom django.contrib import adminfrom django.conf.urls import includefrom django.views.generic import TemplateView    url(r&#x27;^admin/&#x27;, admin.site.urls),    url(r&#x27;^api/&#x27;, include(urls)),    url( r&#x27;^vue/&#x27;, TemplateView.as_view( template_name=&quot;index.html&quot; ) )</span><br></pre></td></tr></table></figure>
+
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415091901764.png)</p>
+<p>接着修改静态资源文件路径也指向前端appfront 相关文件</p>
+<p>在DjangoElementUI目录下的setting.py中增加代码:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;BACKEND&#x27;: &#x27;django.template.backends.django.DjangoTemplates&#x27;,&#x27;DIRS&#x27;: [os.path.join(BASE_DIR, &#x27;appfront/dist&#x27;)],  &#x27;django.template.context_processors.debug&#x27;,&#x27;django.template.context_processors.request&#x27;,&#x27;django.contrib.auth.context_processors.auth&#x27;,&#x27;django.contrib.messages.context_processors.messages&#x27;,    os.path.join(BASE_DIR, &quot;appfront/dist/static&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415092345733.png)</p>
+<p>3.重新构建前端项目</p>
+<p>appfront目录下输入命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run build</span><br></pre></td></tr></table></figure>
+
+<p>重新启动Django项目</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py runserver</span><br></pre></td></tr></table></figure>
+
+<p>输入地址:<a target="_blank" rel="noopener" href="http://localhost:8000/vue/#/student">http://localhost:8000/vue/#/student</a></p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;20210415105612903.png)</p>
+<p>添加一条记录</p>
+<p>![](Python 基于Web框架Django 前端框架Vue.js + elementUi 实现前后端分离项目环境搭建指南&#x2F;202104151057325.png)</p>
+<p>至此,大功告成!</p>
+<p>此份指南在配置的过程踩过不少坑,以下是踩的印象较深的坑.</p>
+<p>1.数据库创建的过程中务必注意大小写的问题,数据库字段和Django的Models页面,View页面和Vue中的组件页面都有关联.很容易一个大小写不注意,导致整个接口无法使用.</p>
+<p>2.连接MySQL需要按照对应的包,同时需要在根目录的_ini_.py中引入pymysql</p>
+<p>3.在整个环境的搭建过程中VUE环境的搭建需要耗费较长的npm安装时间,需要耐心等待.</p>
+<p>4.前后台连接需要在前端引入vue-resource,Django需要引入django-cors-headers</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/21/Others/TestLink%E6%95%99%E7%A8%8B%EF%BC%9A%E4%B8%80%E4%BB%BD%E5%AE%8C%E6%95%B4%E6%8C%87%E5%8D%97/" rel="prev" title="TestLink教程：一份完整指南">
+      <i class="fa fa-chevron-left"></i> TestLink教程：一份完整指南
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/05/Python/Vue%20+%20Django/" rel="next" title="Vue + Django">
+      Vue + Django <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Python"><span class="nav-number">1.</span> <span class="nav-text">Python</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pycharm"><span class="nav-number">2.</span> <span class="nav-text">Pycharm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Django"><span class="nav-number">3.</span> <span class="nav-text">Django</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#node-js"><span class="nav-number">4.</span> <span class="nav-text">node.js</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL"><span class="nav-number">5.</span> <span class="nav-text">MySQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BAdjango%E9%A1%B9%E7%9B%AE-DjangoElementUI"><span class="nav-number">6.</span> <span class="nav-text">1.创建django项目:DjangoElementUI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-number">7.</span> <span class="nav-text">2.数据库配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%99%BB%E5%BD%95%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">7.1.</span> <span class="nav-text">登录数据库:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">7.2.</span> <span class="nav-text">创建数据库:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Django%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">7.3.</span> <span class="nav-text">Django配置数据库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%88%A9%E7%94%A8Django%E6%A8%A1%E5%9E%8B%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8"><span class="nav-number">8.</span> <span class="nav-text">3.利用Django模型设计数据库表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BADjango-APP-myApp"><span class="nav-number">8.1.</span> <span class="nav-text">创建Django APP:myApp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8"><span class="nav-number">8.2.</span> <span class="nav-text">设计数据库表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%81%E7%A7%BB%E6%96%87%E4%BB%B6"><span class="nav-number">8.3.</span> <span class="nav-text">生成数据库迁移文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E8%BF%81%E7%A7%BB%E6%96%87%E4%BB%B6%E6%9D%A5%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">8.4.</span> <span class="nav-text">执行迁移文件来完成数据库表的创建</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Django%E5%88%9B%E5%BB%BA%E6%96%B0%E5%A2%9E%E5%92%8C%E6%9F%A5%E8%AF%A2%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E6%8E%A5%E5%8F%A3"><span class="nav-number">9.</span> <span class="nav-text">4.Django创建新增和查询学生信息接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E9%85%8D%E7%BD%AE%E8%B7%AF%E7%94%B1"><span class="nav-number">10.</span> <span class="nav-text">5.配置路由</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">227</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">118</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

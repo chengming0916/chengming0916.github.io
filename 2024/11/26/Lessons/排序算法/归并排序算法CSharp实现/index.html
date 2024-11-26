@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="归并排序算法（C#实现） Excerpt自顶向下的归并排序：是利用递归和分而治之的技术将数据序列划分成为越来越小的半子表，再对半子表排序，最后再用递归步骤将排好序的半子表合并成为越来越大的有序序列，归并排序包括两个步骤，分别为：1）划分子表  2）合并半子表        归并排序(Merge Sort)是利用”归并”技术来进行排序。归并是指将若干个已排序的子文件合并成一个有序的文件。归并排序有两">
+<meta property="og:type" content="article">
+<meta property="og:title" content="归并排序算法CSharp实现">
+<meta property="og:url" content="http://chengming0916.github.io/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="归并排序算法（C#实现） Excerpt自顶向下的归并排序：是利用递归和分而治之的技术将数据序列划分成为越来越小的半子表，再对半子表排序，最后再用递归步骤将排好序的半子表合并成为越来越大的有序序列，归并排序包括两个步骤，分别为：1）划分子表  2）合并半子表        归并排序(Merge Sort)是利用”归并”技术来进行排序。归并是指将若干个已排序的子文件合并成一个有序的文件。归并排序有两">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20241030154812577.gif">
+<meta property="og:image" content="http://chengming0916.github.io/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20241030154812577.gif">
+<meta property="article:published_time" content="2024-11-26T03:43:11.898Z">
+<meta property="article:modified_time" content="2024-11-26T03:43:11.898Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="排序算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20241030154812577.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>归并排序算法CSharp实现 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          归并排序算法CSharp实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-11-26 11:43:11" itemprop="dateCreated datePublished" datetime="2024-11-26T11:43:11+08:00">2024-11-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">排序算法</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="归并排序算法（C-实现）"><a href="#归并排序算法（C-实现）" class="headerlink" title="归并排序算法（C#实现）"></a>归并排序算法（C#实现）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>自顶向下的归并排序：是利用递归和分而治之的技术将数据序列划分成为越来越小的半子表，再对半子表排序，最后再用递归步骤将排好序的半子表合并成为越来越大的有序序列，归并排序包括两个步骤，分别为：1）划分子表  2）合并半子表</p>
+</blockquote>
+<hr>
+<p>     归并排序(Merge Sort)是利用”归并”技术来进行排序。归并是指将若干个已排序的子文件合并成一个有序的文件。归并排序有两种方式：1): <strong>自底向上的方法</strong> 2):<strong>自顶向下的方法</strong></p>
+<p> <strong>1、 自底向上的方法</strong><br>（1） 自底向上的基本思想<br>     自底向上的基本思想是：第1趟归并排序时，将待排序的文件R[1..n]看作是n个长度为1的有序子文件，将这些子文件两两归并，若n为偶数，则得到n&#x2F;2个长度为2的有序子文件；若n为奇数，则最后一个子文件轮空(不参与归并)。故本趟归并完成后，前n&#x2F;2 - 1个有序子文件长度为2，但最后一个子文件长度仍为1；第2趟归并则是将第1趟归并所得到的n&#x2F;2个有序的子文件两两归并，如此反复，直到最后得到一个长度为n的有序文件为止。<br>     上述的每次归并操作，均是将两个有序的子文件合并成一个有序的子文件，故称其为”二路归并排序”。类似地有k(k&gt;2)路归并排序。   </p>
+<p><strong>2、自顶向下的方法(本文主要介绍此种方法，下面的文字都是对此种方法的解读)</strong></p>
+<p>（1） 自顶向下的基本思想<br>     采用分治法进行自顶向下的算法设计，形式更为简洁。<br>     自顶向下的归并排序：是利用递归和分而治之的技术将数据序列划分成为越来越小的半子表，再对半子表排序，最后再用递归步骤将排好序的半子表合并成为越来越大的有序序列，归并排序包括两个步骤，分别为：</p>
+<p>      1）划分子表</p>
+<p>      2）合并半子表</p>
+<p>（1）分治法的三个步骤<br>     设归并排序的当前区间是R[low..high]，分治法的三个步骤是：<br>①分解：将当前区间一分为二，即求分裂点<br>②求解：递归地对两个子区间R[low..mid]和R[mid+1..high]进行归并排序；<br>③组合：将已排序的两个子区间R[low..mid]和R[mid+1..high]归并为一个有序的区间R[low..high]。<br>  递归的终结条件：子区间长度为1（一个记录自然有序）。</p>
+<p><strong>如下演示递归的整个过程：</strong></p>
+<p>递归便是深度遍历（如下由左至右进行遍历）：假设有这样的一列数组{9,8,7,6,5,4,3,2,1}进行划分的顺序如下：</p>
+<p>{9,8,7,6,5,4,3,2,1} –&gt; {9,8,7,6,5}，{4,3,2,1}</p>
+<p>{9,8,7,6,5} –&gt; {9,8,7}，{6,5}</p>
+<p>                        {9,8,7} –&gt; {9,8}，{7}</p>
+<p>                                          {9,8} –&gt; {9}，{8}</p>
+<p>                        {6,5} –&gt;{6}，{5}</p>
+<p>{4,3,2,1} –&gt; {4,3}，{2,1}</p>
+<p>                      {4,3} –&gt;{4}，{3}</p>
+<p>                      {2,1} –&gt;{2}，{1}</p>
+<p>当深度划分到左右数组都只剩1个元素的时候，进行上述逆序的合并：</p>
+<p>{9}，{8} –&gt; {8,9} 然后和 {7} –&gt; {7,8,9}</p>
+<p>                                {6}，{5} –&gt; {5,6}    然后 {7,8,9}和{5,6} –&gt; {5,6,7,8,9}</p>
+<p>                                     {2}，{1} –&gt; {1,2}</p>
+<p>                                     {4}，{3} –&gt; {3,4}   然后 {1,2}和 {3,4} –&gt; {1,2,3,4}</p>
+<p>                                                                                                                         最终{5,6,7,8,9}和{1,2,3,4} –&gt; {1,2,3,4,5,6,7,8,9}</p>
+<p><strong>具体实现代码如下所示：</strong></p>
+<img src="/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20241030154812577.gif" class="" title="复制代码">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;span&gt;//&lt;/span&gt;&lt;span&gt;归并排序（目标数组，子表的起始位置，子表的终止位置）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;        &lt;span&gt;private&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; MergeSortFunction(&lt;span&gt;int&lt;/span&gt;[] array, &lt;span&gt;int&lt;/span&gt; first, &lt;span&gt;int&lt;/span&gt; last)&lt;br&gt;        &#123;&lt;br&gt;            &lt;span&gt;try&lt;/span&gt;&lt;br&gt;            &#123;&lt;br&gt;                &lt;span&gt;if&lt;/span&gt; (first &amp;lt; last)   &lt;span&gt;//&lt;/span&gt;&lt;span&gt;子表的长度大于1，则进入下面的递归处理&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &#123;&lt;br&gt;                    &lt;span&gt;int&lt;/span&gt; mid = (first + last) / &lt;span&gt;2&lt;/span&gt;;   &lt;span&gt;//&lt;/span&gt;&lt;span&gt;子表划分的位置&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    MergeSortFunction(array, first, mid);   &lt;span&gt;//&lt;/span&gt;&lt;span&gt;对划分出来的左侧子表进行递归划分&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    MergeSortFunction(array, mid + &lt;span&gt;1&lt;/span&gt;, last);    &lt;span&gt;//&lt;/span&gt;&lt;span&gt;对划分出来的右侧子表进行递归划分&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    MergeSortCore(array, first, mid, last); &lt;span&gt;//&lt;/span&gt;&lt;span&gt;对左右子表进行有序的整合（归并排序的核心部分）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &#125;&lt;br&gt;            &#125;&lt;br&gt;            &lt;span&gt;catch&lt;/span&gt; (Exception ex)&lt;br&gt;            &#123; &#125;&lt;br&gt;        &#125;&lt;br&gt;&lt;br&gt;        &lt;span&gt;//&lt;/span&gt;&lt;span&gt;归并排序的核心部分：将两个有序的左右子表（以mid区分），合并成一个有序的表&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;        &lt;span&gt;private&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; MergeSortCore(&lt;span&gt;int&lt;/span&gt;[] array, &lt;span&gt;int&lt;/span&gt; first, &lt;span&gt;int&lt;/span&gt; mid, &lt;span&gt;int&lt;/span&gt; last)&lt;br&gt;        &#123;&lt;br&gt;            &lt;span&gt;try&lt;/span&gt;&lt;br&gt;            &#123;&lt;br&gt;                &lt;span&gt;int&lt;/span&gt; indexA = first; &lt;span&gt;//&lt;/span&gt;&lt;span&gt;左侧子表的起始位置&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &lt;span&gt;int&lt;/span&gt; indexB = mid + &lt;span&gt;1&lt;/span&gt;;   &lt;span&gt;//&lt;/span&gt;&lt;span&gt;右侧子表的起始位置&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &lt;span&gt;int&lt;/span&gt;[] temp = &lt;span&gt;new&lt;/span&gt; &lt;span&gt;int&lt;/span&gt;[last + &lt;span&gt;1&lt;/span&gt;]; &lt;span&gt;//&lt;/span&gt;&lt;span&gt;声明数组（暂存左右子表的所有有序数列）：长度等于左右子表的长度之和。&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &lt;span&gt;int&lt;/span&gt; tempIndex = &lt;span&gt;0&lt;/span&gt;;&lt;br&gt;                &lt;span&gt;while&lt;/span&gt; (indexA &amp;lt;= mid &amp;amp;&amp;amp; indexB &amp;lt;= last) &lt;span&gt;//&lt;/span&gt;&lt;span&gt;进行左右子表的遍历，如果其中有一个子表遍历完，则跳出循环&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &#123;&lt;br&gt;                    &lt;span&gt;if&lt;/span&gt; (array[indexA] &amp;lt;= array[indexB]) &lt;span&gt;//&lt;/span&gt;&lt;span&gt;此时左子表的数 &amp;lt;= 右子表的数&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    &#123;&lt;br&gt;                        temp[tempIndex++] = array[indexA++];    &lt;span&gt;//&lt;/span&gt;&lt;span&gt;将左子表的数放入暂存数组中，遍历左子表下标++&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    &#125;&lt;br&gt;                    &lt;span&gt;else&lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;此时左子表的数 &amp;gt; 右子表的数&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    &#123;&lt;br&gt;                        temp[tempIndex++] = array[indexB++];    &lt;span&gt;//&lt;/span&gt;&lt;span&gt;将右子表的数放入暂存数组中，遍历右子表下标++&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                    &#125;&lt;br&gt;                &#125;&lt;br&gt;                &lt;span&gt;//&lt;/span&gt;&lt;span&gt;有一侧子表遍历完后，跳出循环，将另外一侧子表剩下的数一次放入暂存数组中（有序）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                &lt;span&gt;while&lt;/span&gt; (indexA &amp;lt;= mid)&lt;br&gt;                &#123;&lt;br&gt;                    temp[tempIndex++] = array[indexA++];&lt;br&gt;                &#125;&lt;br&gt;                &lt;span&gt;while&lt;/span&gt; (indexB &amp;lt;= last)&lt;br&gt;                &#123;&lt;br&gt;                    temp[tempIndex++] = array[indexB++];&lt;br&gt;                &#125;&lt;br&gt;&lt;br&gt;                &lt;span&gt;//&lt;/span&gt;&lt;span&gt;将暂存数组中有序的数列写入目标数组的制定位置，使进行归并的数组段有序&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;                tempIndex = &lt;span&gt;0&lt;/span&gt;;&lt;br&gt;                &lt;span&gt;for&lt;/span&gt; (&lt;span&gt;int&lt;/span&gt; i = first; i &amp;lt;= last; i++)&lt;br&gt;                &#123;&lt;br&gt;                    array[i] = temp[tempIndex++];&lt;br&gt;                &#125;&lt;br&gt;            &#125;&lt;br&gt;            &lt;span&gt;catch&lt;/span&gt; (Exception ex)&lt;br&gt;            &#123; &#125;&lt;br&gt;        &#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20241030154812577.gif" class="" title="复制代码">
+
+<p>       对于N个元素的数组来说, 如此划分需要的层数是以2为底N的对数, 每一层中, 每一个元素都要复制到结果数组中, 并复制回来, 所以复制2N次, 那么对于归并排序,它的时间复杂度为O(N*logN), 而比较次数会少得多, 最少需要N&#x2F;2次,最多为N-1次, 所以平均比较次数在两者之间. 它的主要问题还是在于在内存中需要双倍的空间.</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" rel="tag"># 排序算法</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" rel="prev" title="插入排序算法CSharp实现">
+      <i class="fa fa-chevron-left"></i> 插入排序算法CSharp实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/11/26/Lessons/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%A0%86%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" rel="next" title="堆排序算法CSharp实现">
+      堆排序算法CSharp实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%88C-%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">归并排序算法（C#实现）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">227</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">118</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="0.C#设计模式–简单工厂模式 1.C#设计模式–工厂方法模式 2.C#设计模式–抽象工厂模式 3.C#设计模式–单例模式 4.C#设计模式–建造者模式 5.C#设计模式–原型模式 6.C#设计模式–设配器模式 7.C#设计模式–装饰器模式 8.C#设计模式–代理模式 9.C#设计模式–外观模式 10.C#设计模式–桥接模式 简单介绍：　　观察者模式(Observer Pattern)是设计模式中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="观察者模式CSharp实现">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="0.C#设计模式–简单工厂模式 1.C#设计模式–工厂方法模式 2.C#设计模式–抽象工厂模式 3.C#设计模式–单例模式 4.C#设计模式–建造者模式 5.C#设计模式–原型模式 6.C#设计模式–设配器模式 7.C#设计模式–装饰器模式 8.C#设计模式–代理模式 9.C#设计模式–外观模式 10.C#设计模式–桥接模式 简单介绍：　　观察者模式(Observer Pattern)是设计模式中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523214943091-1417003234.jpg">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523220049857-289401618.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523220130763-1793865374.png">
+<meta property="article:published_time" content="1899-11-29T15:54:17.000Z">
+<meta property="article:modified_time" content="2024-12-11T11:03:03.098Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523214943091-1417003234.jpg">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>观察者模式CSharp实现 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          观察者模式CSharp实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:00" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:00+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-11 19:03:03" itemprop="dateModified" datetime="2024-12-11T19:03:03+08:00">2024-12-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6405359.html">0.C#设计模式–简单工厂模式</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6409258.html">1.C#设计模式–工厂方法模式</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6415426.html">2.C#设计模式–抽象工厂模式</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6417766.html">3.C#设计模式–单例模式</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6417781.html">4.C#设计模式–建造者模式</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6417787.html">5.C#设计模式–原型模式</a></strong></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6438533.html"><strong>6.C#设计模式–设配器模式</strong></a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6439435.html"><strong>7.C#设计模式–装饰器模式</strong></a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6475080.html"><strong>8.C#设计模式–代理模式</strong></a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6484208.html"><strong>9.C#设计模式–外观模式</strong></a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/JiYF/p/6485244.html"><strong>10.C#设计模式–桥接模式</strong></a></p>
+<h2 id="简单介绍："><a href="#简单介绍：" class="headerlink" title="简单介绍："></a>简单介绍：</h2><p>　　观察者模式(Observer Pattern)是设计模式中行为模式的一种，它解决了上述具有一对多依赖关系的对象的重用问题。此模式的参与者分为两大类，一类是被观察的目标，另一类是观察该目标的观察者们。正因为该模式是基于“一对多”的关系，所以该模式一般是应用于由一个目标对象和N个观察者对象组成（当然也可以扩展为有多个目标对象，但我们现在只讨论前者）的场合。当目标对象的状态发生改变或做出某种行为时，正在观察该目标对象的观察者们将自动地、连锁地作出相应的响应行为。</p>
+<p>模式中具有的角色</p>
+<ol>
+<li>抽象主题（Subject）：它把所有观察者对象的引用保存到一个聚集里，每个主题都可以有任何数量的观察者。抽象主题提供一个接口，可以增加和删除观察者对象。</li>
+<li>具体主题（ConcreteSubject）：将有关状态存入具体观察者对象；在具体主题内部状态改变时，给所有登记过的观察者发出通知。</li>
+<li>抽象观察者（Observer）：为所有的具体观察者定义一个接口，在得到主题通知时更新自己。</li>
+<li>具体观察者（ConcreteObserver）：实现抽象观察者角色所要求的更新接口，以便使本身的状态与主题状态协调。</li>
+</ol>
+<p>举例子：博客的例子就是一个观察者模式，比如你关注一些作者的博客，当作者有博客发布时候，你就会收到一条该作者发布的博客的消息。</p>
+<p>抽象主题：Blog 博客</p>
+<p>具体主题：MyBlog   的博客</p>
+<p>抽象观察者：IObserver  </p>
+<p>具体的观察者：Observer</p>
+<h2 id="观察者模式类图："><a href="#观察者模式类图：" class="headerlink" title="观察者模式类图："></a>观察者模式类图：</h2><p><img src="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523214943091-1417003234.jpg"></p>
+<h2 id="观察者模式C-代码举例"><a href="#观察者模式C-代码举例" class="headerlink" title="观察者模式C#代码举例"></a>观察者模式C#代码举例</h2><h3 id="订阅博客抽象类"><a href="#订阅博客抽象类" class="headerlink" title="订阅博客抽象类"></a>订阅博客抽象类</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_Observer<br> 3  * Description:<br> 4  * ClassName:    Blog<br> 5  * CLRVersion:   4.0.30319.18408<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_Observer<br> 8  * MachineName:  JIYONGFEI<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 17:08:10 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 17:08:10 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_Observer 18 { 19     &#x2F;&#x2F;&#x2F; <summary><br>20     &#x2F;&#x2F;&#x2F; 订阅博客抽象类 21     &#x2F;&#x2F;&#x2F; </summary><br>22     public abstract class Blog 23 { 24         &#x2F;&#x2F;&#x2F; <summary><br>25         &#x2F;&#x2F;&#x2F; 保存订阅者列表 26         &#x2F;&#x2F;&#x2F; </summary><br>27         private List<IObserver> observers &#x3D; new List<IObserver>(); 28<br>29         &#x2F;&#x2F;&#x2F; <summary><br>30         &#x2F;&#x2F;&#x2F; 博主名 31         &#x2F;&#x2F;&#x2F; </summary><br>32         public string BlogName { get; set; } 33<br>34         &#x2F;&#x2F;&#x2F; <summary><br>35         &#x2F;&#x2F;&#x2F; 博客标题 36         &#x2F;&#x2F;&#x2F; </summary><br>37         public string BlogTitle { get; set; } 38<br>39         &#x2F;&#x2F;&#x2F; <summary><br>40         &#x2F;&#x2F;&#x2F; 博客信息 41         &#x2F;&#x2F;&#x2F; </summary><br>42         public string BlogInfo { get; set; } 43<br>44         &#x2F;&#x2F;&#x2F; <summary><br>45         &#x2F;&#x2F;&#x2F; 博客构造函数 46         &#x2F;&#x2F;&#x2F; </summary><br>47         &#x2F;&#x2F;&#x2F; <param name="blogTitle">博客标题</param><br>48         &#x2F;&#x2F;&#x2F; <param name="blogInfo">博客信息</param><br>49         public Blog(string name,string blogTitle,string blogInfo) 50 { 51             this.BlogName &#x3D; name; 52             this.BlogTitle &#x3D; blogTitle; 53             this.BlogInfo &#x3D; blogInfo; 54 } 55<br>56         &#x2F;&#x2F;&#x2F; <summary><br>57         &#x2F;&#x2F;&#x2F; 添加一个订阅者 58         &#x2F;&#x2F;&#x2F; </summary><br>59         &#x2F;&#x2F;&#x2F; <param name="observer">具体的订阅者对象</param><br>60         public void AddObserver(IObserver observer) 61 { 62             if (observers.Contains(observer)) 63 { 64                 return; 65 } 66 observers.Add(observer); 67 } 68<br>69         &#x2F;&#x2F;&#x2F; <summary><br>70         &#x2F;&#x2F;&#x2F; 删除一个订阅者 71         &#x2F;&#x2F;&#x2F; </summary><br>72         &#x2F;&#x2F;&#x2F; <param name="observer">具体的订阅者对象</param><br>73         public void RemoveObserver(IObserver observer) 74 { 75             if (observers.Contains(observer)) 76 { 77 observers.Remove(observer); 78 } 79 } 80<br>81         &#x2F;&#x2F;&#x2F; <summary><br>82         &#x2F;&#x2F;&#x2F; 发布博客通知 83         &#x2F;&#x2F;&#x2F; </summary><br>84         public void PublishBlog() 85 { 86             &#x2F;&#x2F;遍历通知每一个订阅者<br>87             foreach (IObserver ob in observers) 88 { 89                 if (ob !&#x3D; null) 90 { 91                     ob.Receive(this); 92 } 93 } 94 } 95<br>96 } 97 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="具体的博客类"><a href="#具体的博客类" class="headerlink" title="具体的博客类"></a>具体的博客类</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_Observer<br> 3  * Description:<br> 4  * ClassName:    JiYFBlog<br> 5  * CLRVersion:   4.0.30319.18408<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_Observer<br> 8  * MachineName:  JIYONGFEI<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 17:21:23 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 17:21:23 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_Observer 18 { 19<br>20     &#x2F;&#x2F;&#x2F; <summary><br>21     &#x2F;&#x2F;&#x2F; 具体的订阅博客类 22     &#x2F;&#x2F;&#x2F; </summary><br>23     public class JiYFBlog :Blog 24 { 25         public JiYFBlog(string name,string blogTitile, string blogInfo) 26             : base(name,blogTitile,blogInfo) 27 { 28<br>29 } 30 } 31 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="订阅者接口类"><a href="#订阅者接口类" class="headerlink" title="订阅者接口类"></a>订阅者接口类</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_Observer<br> 3  * Description:<br> 4  * ClassName:    IObserver<br> 5  * CLRVersion:   4.0.30319.18408<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_Observer<br> 8  * MachineName:  JIYONGFEI<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 17:09:28 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 17:09:28 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_Observer 18 { 19     &#x2F;&#x2F;&#x2F; <summary><br>20     &#x2F;&#x2F;&#x2F; 订阅者接口 21     &#x2F;&#x2F;&#x2F; </summary><br>22     public interface IObserver 23 { 24<br>25         void Receive(Blog blog); 26 } 27 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="具体的订阅者类："><a href="#具体的订阅者类：" class="headerlink" title="具体的订阅者类："></a>具体的订阅者类：</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_Observer<br> 3  * Description:<br> 4  * ClassName:    Observer<br> 5  * CLRVersion:   4.0.30319.18408<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_Observer<br> 8  * MachineName:  JIYONGFEI<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 17:23:36 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 17:23:36 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_Observer 18 { 19     &#x2F;&#x2F;&#x2F; <summary><br>20     &#x2F;&#x2F;&#x2F; 具体的订阅者类 21     &#x2F;&#x2F;&#x2F; </summary><br>22     public class Observer :IObserver 23 { 24         &#x2F;&#x2F;&#x2F; <summary><br>25         &#x2F;&#x2F;&#x2F; 订阅者名字 26         &#x2F;&#x2F;&#x2F; </summary><br>27         private string m_Name; 28         public string Name 29 { 30             get { return m_Name; } 31             set { m_Name &#x3D; value; } 32 } 33<br>34         &#x2F;&#x2F;&#x2F; <summary><br>35         &#x2F;&#x2F;&#x2F; 订阅者构造函数 36         &#x2F;&#x2F;&#x2F; </summary><br>37         &#x2F;&#x2F;&#x2F; <param name="name">订阅者名字</param><br>38         public Observer(string name) 39 { 40             this.m_Name &#x3D; name; 41 } 42<br>43         &#x2F;&#x2F;&#x2F; <summary><br>44         &#x2F;&#x2F;&#x2F; 订阅者接受函数 45         &#x2F;&#x2F;&#x2F; </summary><br>46         &#x2F;&#x2F;&#x2F; <param name="blog"></param><br>47         public void Receive(Blog blog) 48 { 49             Console.WriteLine(“订阅者:\“{0}\“观察到了:{1}发布的一篇博客,标题为:{2},内容为:{3}”,Name,blog.BlogName,blog.BlogTitle,blog.BlogInfo); 50 } 51 } 52 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="测试代码："><a href="#测试代码：" class="headerlink" title="测试代码："></a>测试代码：</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 using System; 2 using System.Collections.Generic; 3 using System.Linq; 4 using System.Text; 5<br> 6 namespace _11DesignPattern_Observer 7 {<br> 8     class Client 9 { 10         static void Main(string[] args) 11 { 12             Console.WriteLine(“--全部订阅者–”); 13             &#x2F;&#x2F;创建一个JiYF的博客<br>14             Blog jiyfBlog &#x3D; new JiYFBlog(“JiYF笨小孩”,”丑小鸭”,”丑小鸭的故事”); 15<br>16             &#x2F;&#x2F;创建订阅者<br>17             Observer obsZhangsan &#x3D; new Observer(“张三”); 18             Observer obsLiSi &#x3D; new Observer(“李四”); 19             Observer obsWangwu &#x3D; new Observer(“王五”); 20<br>21             &#x2F;&#x2F;添加对JiYF博客的订阅者<br>22 jiyfBlog.AddObserver(obsZhangsan); 23 jiyfBlog.AddObserver(obsLiSi); 24 jiyfBlog.AddObserver(obsWangwu); 25<br>26             &#x2F;&#x2F;通知订阅者<br>27 jiyfBlog.PublishBlog(); 28<br>29             Console.WriteLine(“--移除订阅者张三–”); 30 jiyfBlog.RemoveObserver(obsZhangsan); 31 jiyfBlog.PublishBlog(); 32 Console.ReadLine(); 33 } 34 } 35 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="运行结果："><a href="#运行结果：" class="headerlink" title="运行结果："></a>运行结果：</h3><p><img src="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523220049857-289401618.png"> </p>
+<h2 id="通常在C-代码中，观察者模式一般采用委托来实现如下所示"><a href="#通常在C-代码中，观察者模式一般采用委托来实现如下所示" class="headerlink" title="通常在C#代码中，观察者模式一般采用委托来实现如下所示"></a>通常在C#代码中，观察者模式一般采用委托来实现如下所示</h2><p>委托实现观察者模式</p>
+<h3 id="抽象博客类："><a href="#抽象博客类：" class="headerlink" title="抽象博客类："></a>抽象博客类：</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_ObserverDelegateTest<br> 3  * Description:<br> 4  * ClassName:    Blog<br> 5  * CLRVersion:   4.0.30319.42000<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_ObserverDelegateTest<br> 8  * MachineName:  JIYF_PC<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 20:48:00 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 20:48:00 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_ObserverDelegateTest 18 { 19     &#x2F;&#x2F;&#x2F; <summary><br>20     &#x2F;&#x2F;&#x2F; 委托充当订阅者接口类 21     &#x2F;&#x2F;&#x2F; </summary><br>22     &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>23     public delegate void NotifyEventHandler(object sender); 24<br>25     &#x2F;&#x2F;&#x2F; <summary><br>26     &#x2F;&#x2F;&#x2F; 订阅博客基类 27     &#x2F;&#x2F;&#x2F; </summary><br>28     public class Blog 29 { 30         public NotifyEventHandler NotifyEvent; 31         &#x2F;&#x2F;&#x2F; <summary><br>32         &#x2F;&#x2F;&#x2F; 博主名 33         &#x2F;&#x2F;&#x2F; </summary><br>34         public string BlogName { get; set; } 35<br>36         &#x2F;&#x2F;&#x2F; <summary><br>37         &#x2F;&#x2F;&#x2F; 博客标题 38         &#x2F;&#x2F;&#x2F; </summary><br>39         public string BlogTitle { get; set; } 40<br>41         &#x2F;&#x2F;&#x2F; <summary><br>42         &#x2F;&#x2F;&#x2F; 博客信息 43         &#x2F;&#x2F;&#x2F; </summary><br>44         public string BlogInfo { get; set; } 45<br>46         &#x2F;&#x2F;&#x2F; <summary><br>47         &#x2F;&#x2F;&#x2F; 博客构造函数 48         &#x2F;&#x2F;&#x2F; </summary><br>49         &#x2F;&#x2F;&#x2F; <param name="blogTitle">博客标题</param><br>50         &#x2F;&#x2F;&#x2F; <param name="blogInfo">博客信息</param><br>51         public Blog(string name, string blogTitle, string blogInfo) 52 { 53             this.BlogName &#x3D; name; 54             this.BlogTitle &#x3D; blogTitle; 55             this.BlogInfo &#x3D; blogInfo; 56 } 57<br>58         &#x2F;&#x2F;&#x2F; <summary><br>59         &#x2F;&#x2F;&#x2F; 绑定订阅事件 60         &#x2F;&#x2F;&#x2F; </summary><br>61         &#x2F;&#x2F;&#x2F; <param name="ob">订阅者</param><br>62         public void AddObserver(NotifyEventHandler observer) 63 { 64             NotifyEvent +&#x3D; observer; 65 } 66<br>67         &#x2F;&#x2F;&#x2F; <summary><br>68         &#x2F;&#x2F;&#x2F; 取消绑定订阅 69         &#x2F;&#x2F;&#x2F; </summary><br>70         &#x2F;&#x2F;&#x2F; <param name="observer"></param><br>71         public void RemoteObserver(NotifyEventHandler observer) 72 { 73             NotifyEvent -&#x3D; observer; 74 } 75<br>76         &#x2F;&#x2F;&#x2F; <summary><br>77         &#x2F;&#x2F;&#x2F; 发布博客通知 78         &#x2F;&#x2F;&#x2F; </summary><br>79         public void PublishBlog() 80 { 81             if(NotifyEvent !&#x3D; null) 82 { 83                 NotifyEvent(this); 84 } 85 } 86 } 87 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="具体的博客类-1"><a href="#具体的博客类-1" class="headerlink" title="具体的博客类"></a>具体的博客类</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_ObserverDelegateTest<br> 3  * Description:<br> 4  * ClassName:    JiYFBlog<br> 5  * CLRVersion:   4.0.30319.42000<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_ObserverDelegateTest<br> 8  * MachineName:  JIYF_PC<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 20:55:58 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 20:55:58 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_ObserverDelegateTest 18 { 19     &#x2F;&#x2F;&#x2F; <summary><br>20     &#x2F;&#x2F;&#x2F; 具体的订阅博客类 21     &#x2F;&#x2F;&#x2F; </summary><br>22     public class JiYFBlog : Blog 23 { 24         public JiYFBlog(string name, string blogTitile, string blogInfo) 25             : base(name, blogTitile, blogInfo) 26 { 27<br>28 } 29 } 30 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="订阅者类"><a href="#订阅者类" class="headerlink" title="订阅者类"></a>订阅者类</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;*****************************************************<br> 2  * ProjectName:  _11DesignPattern_ObserverDelegateTest<br> 3  * Description:<br> 4  * ClassName:    Observer<br> 5  * CLRVersion:   4.0.30319.42000<br> 6  * Author:       JiYF<br> 7  * NameSpace:    _11DesignPattern_ObserverDelegateTest<br> 8  * MachineName:  JIYF_PC<br> 9 * CreateTime:   2017&#x2F;5&#x2F;23 20:56:50 10 * UpdatedTime:  2017&#x2F;5&#x2F;23 20:56:50 11 *****************************************************&#x2F;<br>12 using System; 13 using System.Collections.Generic; 14 using System.Linq; 15 using System.Text; 16<br>17 namespace _11DesignPattern_ObserverDelegateTest 18 { 19     &#x2F;&#x2F;&#x2F; <summary><br>20     &#x2F;&#x2F;&#x2F; 具体的订阅者类 21     &#x2F;&#x2F;&#x2F; </summary><br>22     public class Observer 23 { 24         &#x2F;&#x2F;&#x2F; <summary><br>25         &#x2F;&#x2F;&#x2F; 订阅者名字 26         &#x2F;&#x2F;&#x2F; </summary><br>27         private string m_Name; 28         public string Name 29 { 30             get { return m_Name; } 31             set { m_Name &#x3D; value; } 32 } 33<br>34         &#x2F;&#x2F;&#x2F; <summary><br>35         &#x2F;&#x2F;&#x2F; 订阅者构造函数 36         &#x2F;&#x2F;&#x2F; </summary><br>37         &#x2F;&#x2F;&#x2F; <param name="name">订阅者名字</param><br>38         public Observer(string name) 39 { 40             this.m_Name &#x3D; name; 41 } 42<br>43         &#x2F;&#x2F;&#x2F; <summary><br>44         &#x2F;&#x2F;&#x2F; 订阅者接受函数 45         &#x2F;&#x2F;&#x2F; </summary><br>46         &#x2F;&#x2F;&#x2F; <param name="blog"></param><br>47         public void Receive(object obj) 48 { 49             Blog blog &#x3D; obj as Blog; 50             if (blog !&#x3D; null) 51 { 52                 Console.WriteLine(“订阅者:\“{0}\“观察到了:{1}发布的一篇博客,标题为:{2},内容为:{3}”, Name, blog.BlogName, blog.BlogTitle, blog.BlogInfo); 53 } 54 } 55 } 56 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 using System; 2 using System.Collections.Generic; 3 using System.Linq; 4 using System.Text; 5<br> 6 namespace _11DesignPattern_ObserverDelegateTest 7 {<br> 8     class Client 9 { 10         static void Main(string[] args) 11 { 12             Console.WriteLine(“--全部订阅者–”); 13             &#x2F;&#x2F;创建一个JiYF的博客<br>14             Blog jiyfBlog &#x3D; new Blog(“JiYF笨小孩”,”丑小鸭”,”丑小鸭的故事”); 15<br>16             &#x2F;&#x2F;创建订阅者<br>17             Observer obsZhangsan    &#x3D; new Observer(“张三”); 18             Observer obsLiSi        &#x3D; new Observer(“李四”); 19             Observer obsWangwu      &#x3D; new Observer(“王五”); 20<br>21             &#x2F;&#x2F;添加对JiYF博客的订阅者<br>22             jiyfBlog.AddObserver(new NotifyEventHandler(obsZhangsan.Receive)); 23             jiyfBlog.AddObserver(new NotifyEventHandler(obsLiSi.Receive)); 24             jiyfBlog.AddObserver(new NotifyEventHandler(obsWangwu.Receive)); 25<br>26             &#x2F;&#x2F;&#x2F;&#x2F;通知订阅者<br>27 jiyfBlog.PublishBlog(); 28<br>29             Console.WriteLine(“-–移除订阅者张三–”); 30             jiyfBlog.RemoteObserver(new NotifyEventHandler(obsZhangsan.Receive)); 31 jiyfBlog.PublishBlog(); 32 Console.ReadLine(); 33 } 34 } 35 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="运行结果：-1"><a href="#运行结果：-1" class="headerlink" title="运行结果："></a>运行结果：</h3><p> <img src="https://images2015.cnblogs.com/blog/1070330/201705/1070330-20170523220130763-1793865374.png"></p>
+<h2 id="源代码工程文件下载"><a href="#源代码工程文件下载" class="headerlink" title="源代码工程文件下载"></a><a target="_blank" rel="noopener" href="http://files.cnblogs.com/files/JiYF/DesignPattern_Observer.zip">源代码工程文件下载</a></h2>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="prev" title="解释器模式">
+      <i class="fa fa-chevron-left"></i> 解释器模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="next" title="观察者模式">
+      观察者模式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">简单介绍：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%B1%BB%E5%9B%BE%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">观察者模式类图：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8FC-%E4%BB%A3%E7%A0%81%E4%B8%BE%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">观察者模式C#代码举例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A2%E9%98%85%E5%8D%9A%E5%AE%A2%E6%8A%BD%E8%B1%A1%E7%B1%BB"><span class="nav-number">3.1.</span> <span class="nav-text">订阅博客抽象类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E5%8D%9A%E5%AE%A2%E7%B1%BB"><span class="nav-number">3.2.</span> <span class="nav-text">具体的博客类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A2%E9%98%85%E8%80%85%E6%8E%A5%E5%8F%A3%E7%B1%BB"><span class="nav-number">3.3.</span> <span class="nav-text">订阅者接口类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E8%AE%A2%E9%98%85%E8%80%85%E7%B1%BB%EF%BC%9A"><span class="nav-number">3.4.</span> <span class="nav-text">具体的订阅者类：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-number">3.5.</span> <span class="nav-text">测试代码：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C%EF%BC%9A"><span class="nav-number">3.6.</span> <span class="nav-text">运行结果：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E5%B8%B8%E5%9C%A8C-%E4%BB%A3%E7%A0%81%E4%B8%AD%EF%BC%8C%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E4%B8%80%E8%88%AC%E9%87%87%E7%94%A8%E5%A7%94%E6%89%98%E6%9D%A5%E5%AE%9E%E7%8E%B0%E5%A6%82%E4%B8%8B%E6%89%80%E7%A4%BA"><span class="nav-number">4.</span> <span class="nav-text">通常在C#代码中，观察者模式一般采用委托来实现如下所示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E5%8D%9A%E5%AE%A2%E7%B1%BB%EF%BC%9A"><span class="nav-number">4.1.</span> <span class="nav-text">抽象博客类：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E5%8D%9A%E5%AE%A2%E7%B1%BB-1"><span class="nav-number">4.2.</span> <span class="nav-text">具体的博客类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A2%E9%98%85%E8%80%85%E7%B1%BB"><span class="nav-number">4.3.</span> <span class="nav-text">订阅者类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="nav-number">4.4.</span> <span class="nav-text">测试代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C%EF%BC%9A-1"><span class="nav-number">4.5.</span> <span class="nav-text">运行结果：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E4%BB%A3%E7%A0%81%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="nav-number">5.</span> <span class="nav-text">源代码工程文件下载</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">230</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">124</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

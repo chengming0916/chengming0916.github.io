@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="目录  1. 持续集成介绍 1.1 概念 1.2 持续集成的好处 2. GitLab持续集成（CI） 2.1 简介 2.2 GitLab简单原理图 2.3 GitLab持续集成所需环境 2.4 需要了解知识 3. 搭建GitLab持续集成环境（NET版） 3.1 环境搭建 3.1.1 基础环境搭建 3.1.2 Git安装 3.1.3 NuGet安装 3.2 相关配置 3.2.1 Git环境变量配置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GitLab CI持续集成配置方案">
+<meta property="og:url" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="目录  1. 持续集成介绍 1.1 概念 1.2 持续集成的好处 2. GitLab持续集成（CI） 2.1 简介 2.2 GitLab简单原理图 2.3 GitLab持续集成所需环境 2.4 需要了解知识 3. 搭建GitLab持续集成环境（NET版） 3.1 环境搭建 3.1.1 基础环境搭建 3.1.2 Git安装 3.1.3 NuGet安装 3.2 相关配置 3.2.1 Git环境变量配置">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091328153-1166068465.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091330122-955897410.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091331653-1117984705.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091333543-1354819150.jpg">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091334840-1240327930.jpg">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091335997-2075847659.jpg">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091337606-2051412443.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091339981-2121141415.jpg">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091342747-1952386186.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091347637-1514795443.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091349903-2132370694.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091351168-959874973.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091352778-466834372.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091354512-916500249.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091356637-825901022.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091358856-8296113.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091401403-1329226610.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091402997-253648272.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091405653-463661387.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091407262-704605918.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091408012-492159967.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091409372-2100336167.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091410793-566593450.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091411575-1555572183.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091412653-1336620083.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091414231-150906643.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091415825-1773921179.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091417184-1604743269.png">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/248387/201608/248387-20160804091418856-1925773437.png">
+<meta property="og:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091420043-512859353.png">
+<meta property="article:published_time" content="2019-05-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-12-11T11:03:03.098Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091328153-1166068465.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>GitLab CI持续集成配置方案 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GitLab CI持续集成配置方案
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-01 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-01T00:00:00+08:00">2019-06-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-11 19:03:03" itemprop="dateModified" datetime="2024-12-11T19:03:03+08:00">2024-12-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index"><span itemprop="name">Others</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>目录</strong></p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009342">1. 持续集成介绍</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009343">1.1 概念</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009344">1.2 持续集成的好处</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009345">2. GitLab持续集成（CI）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009346">2.1 简介</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009347">2.2 GitLab简单原理图</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009348">2.3 GitLab持续集成所需环境</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009349">2.4 需要了解知识</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009350">3. 搭建GitLab持续集成环境（NET版）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009351">3.1 环境搭建</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009352">3.1.1 基础环境搭建</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009353">3.1.2 Git安装</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009354">3.1.3 NuGet安装</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009355">3.2 相关配置</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009356">3.2.1 Git环境变量配置</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009357">3.2.2 PowerShell调用测试</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009358">3.2.3 GitLab-Runner下载</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009359">3.3 GitLab查看项目的Runners</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009360">3.4 构建GitLab-Runner服务</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009361">3.4.1 介绍</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009362">3.4.2 下载软件（没下载的请下载）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009363">3.4.3 注册信息</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009364">3.4.4 开启gitlab-runner服务</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009365">3.4.5 修改协议config.toml文件（重要）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009366">3.5 构建.gitlab-ci.yml脚本</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009367">3.6 完成配置</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009368">4. 常见问题解决</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009369">4.1 GitLab出现Pending卡住</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009370">4.2 GitLab CI乱码问题</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009371">4.3 明明错误，但Build成功</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/newP/p/5735366.html#_Toc458009372">4.4 .gitlab-ci.yml脚本错误</a></p>
+<hr>
+<p><strong>1.</strong> <strong>持续集成介绍</strong></p>
+<hr>
+<p><strong>1.1 概念</strong></p>
+<blockquote>
+<p>持续集成是一种软件开发实践，即团队开发成员经常集成它们的工作，通过每个成员每天至少集成一次，也就意味着每天可能会发生多次集成。每次集成都通过自动化的构建（包括编译，发布，自动化测试）来验证，从而尽早地发现集成错误。</p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091328153-1166068465.png" class="" title="image image">
+
+<p><strong>1.2 持续集成的好处</strong></p>
+<blockquote>
+<p><strong>（<strong><strong>1</strong></strong>）快速发现错误。</strong>每完成一点更新，就集成到主干，可以快速发现错误，定位错误也比较容易。</p>
+<p><strong>（<strong><strong>2</strong></strong>）防止分支大幅偏离主干。</strong>如果不是经常集成，主干又在不断更新，会导致以后集成的难度变大，甚至难以集成。</p>
+</blockquote>
+<p><strong>2.</strong> <strong>GitLab****持续集成（CI）</strong></p>
+<hr>
+<p><strong>2.1 简介</strong></p>
+<blockquote>
+<p>在GitLab 8.0+提供了持续集成的功能，在GitLab中有个Runners的概念。</p>
+<p>Runner一共有三种类型</p>
+<ol>
+<li><p>本地Runner</p>
+</li>
+<li><p>普通的服务器上的Runner</p>
+</li>
+<li><p>基于Docker的Runner</p>
+</li>
+</ol>
+</blockquote>
+<p><strong>2.2 GitLab****简单原理图</strong></p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091330122-955897410.png" class="" title="image image">
+
+<blockquote>
+<p>本文只介绍GitLab对NET进行持续集成</p>
+</blockquote>
+<p><strong>2.3 GitLab****持续集成所需环境</strong></p>
+<blockquote>
+<p><strong>开发环境：</strong>VS2015、Git</p>
+<p><strong>GitLab****服务器环境：</strong>GitLab 8.0+</p>
+<p><strong>Runner-CI****服务器：</strong>window、Git、Msbuild、Nuget、PowerShell、GitLab-Runner</p>
+</blockquote>
+<p><strong>2.4 需要了解知识</strong></p>
+<blockquote>
+<p>Git操作、GitLab、Msbuild&amp;Nuget命令行、Powershell命令行</p>
+</blockquote>
+<p><strong>3.</strong> <strong>搭建GitLab持续集成环境（NET版）</strong></p>
+<hr>
+<p><strong>3.1 环境搭建</strong></p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091331653-1117984705.png" class="" title="image image">
+
+<p><strong>3.1.1 基础环境****搭建</strong></p>
+<blockquote>
+<p>找一台电脑（服务器最好）系统安装为window 7（x64，改成英文版最好），并且机子安装了.net framework4.0运行环境（里面要有MsBuild）</p>
+</blockquote>
+<p><strong>3.1.2 Git****安装</strong></p>
+<blockquote>
+<p>安装Git，下载地址 <a target="_blank" rel="noopener" href="https://git-scm.com/download/win">https://git-scm.com/download/win</a></p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091333543-1354819150.jpg" class="" title="image005 image005">
+
+<p><strong>3.1.3 NuGet****安装</strong></p>
+<blockquote>
+<p>安装NuGet.exe，下载地址：<a target="_blank" rel="noopener" href="http://nuget.codeplex.com/downloads/get/669083">http://nuget.codeplex.com/downloads/get/669083</a></p>
+</blockquote>
+<p><strong>3.2 相关配置</strong></p>
+<p><strong>3.2.1 Git****环境变量配置</strong></p>
+<blockquote>
+<p>计算机右键—&gt;属性里单击选择—&gt;环境变量</p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091334840-1240327930.jpg" class="" title="image010 image010">
+
+<blockquote>
+<p>Git 目录下的 bin（如 C:\Program Files (x86)\Git\bin）添加到 PATH 环境变量。</p>
+<p>如下图：选择 PATH编辑，将 bin 的路径（C:\Program Files (x86)\Git\bin）添加到变量值</p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091335997-2075847659.jpg" class="" title="image012 image012">
+
+<p><strong>详细配置参考方法（二选一即可）</strong></p>
+<p>【手动配置环境变量】</p>
+<p><a target="_blank" rel="noopener" href="http://jingyan.baidu.com/article/fec4bce271601ff2618d8be3.html">http://jingyan.baidu.com/article/fec4bce271601ff2618d8be3.html</a></p>
+<p>【Git安装自动配置环境变量】</p>
+<p><a target="_blank" rel="noopener" href="http://jingyan.baidu.com/article/9f7e7ec0b17cac6f2815548d.html">http://jingyan.baidu.com/article/9f7e7ec0b17cac6f2815548d.html</a></p>
+</blockquote>
+<p><strong>3.2.2 PowerShell****调用测试</strong></p>
+<blockquote>
+<p>PowerShell是调用方式（GitLab提供很多种方式），本文只针对PowerShell方式进行演示。PowerShell可以理解为就是cmd的升级版。</p>
+<p>打开PowerShell，测试Git、MsBuild、NuGet命令行能否在PowerShell中使用（如果不想测试，请继续往下看）。</p>
+</blockquote>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091337606-2051412443.png" class="" title="image014 image014"></strong></p>
+<blockquote>
+<p>举例：</p>
+<p>测试Git</p>
+</blockquote>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091339981-2121141415.jpg" class="" title="image017 image017"></strong></p>
+<p><strong>3.2.3 GitLab-Runner****下载</strong></p>
+<blockquote>
+<p>首先，下载gitlab-ci-multi-runner-windows-amd64，并将其放到C:\CI</p>
+<p>下载地址：</p>
+<p><a target="_blank" rel="noopener" href="https://gitlab-ci-multi-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-ci-multi-runner-windows-amd64.exe">https://gitlab-ci-multi-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-ci-multi-runner-windows-amd64.exe</a></p>
+</blockquote>
+<p><strong>3.3 GitLab****查看项目的Runners</strong></p>
+<blockquote>
+<p>点击一个项目-&gt;Settings-&gt;Runners, 得到<strong>Url****地址①</strong>和<strong>registration token****②</strong></p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091342747-1952386186.png" class="" title="image018 image018">
+
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091347637-1514795443.png" class="" title="image020 image020">
+
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091349903-2132370694.png" class="" title="image022 image022">
+
+<p><strong>3.4 构建GitLab-Runner服务</strong></p>
+<p><strong>3.4.1 介绍</strong></p>
+<blockquote>
+<p>基础环境已经搭建完成，如何将这台计算机真正变成一台Runner-CI服务器，我们需要详细介绍一下。</p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091351168-959874973.png" class="" title="image image">
+
+<p><strong>3.4.2 下载软件（没下载的请下载）</strong></p>
+<blockquote>
+<p>首先，下载gitlab-ci-multi-runner-windows-amd64，并将其放到 D:\CI_Test</p>
+<p>下载地址：</p>
+<p><a target="_blank" rel="noopener" href="https://gitlab-ci-multi-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-ci-multi-runner-windows-amd64.exe">https://gitlab-ci-multi-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-ci-multi-runner-windows-amd64.exe</a></p>
+</blockquote>
+<p><strong>3.4.3 注册信息</strong></p>
+<blockquote>
+<p>运行cmd命令（以管理员身份打开cmd）</p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091352778-466834372.png" class="" title="image026 image026">
+
+<blockquote>
+<p>输入命令为:</p>
+<p>cd \</p>
+<p>cd ci</p>
+<p>gitlab-ci-multi-runner-windows-amd64.exe register</p>
+</blockquote>
+<blockquote>
+<p>根据提示，填写</p>
+<ol>
+<li><p>GitLab-&gt;Runners的<strong>Url地址①</strong></p>
+</li>
+<li><p>GitLab-&gt;Runners的<strong>registration token②</strong></p>
+</li>
+<li><p>runner名称，这个随便写</p>
+</li>
+<li><p>分支名，master</p>
+</li>
+<li><p>协议方式，shell</p>
+</li>
+</ol>
+<p>如下图填写信息红色部分</p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091354512-916500249.png" class="" title="image028 image028">
+</blockquote>
+<p><strong>3.4.4 开启gitlab-runner服务</strong></p>
+<blockquote>
+<p>输入开启命令，并检查window服务中和GitLab-&gt;Runners中是否开启成功</p>
+<p>gitlab-ci-multi-runner-windows-amd64.exe install</p>
+<p>gitlab-ci-multi-runner-windows-amd64.exe start</p>
+</blockquote>
+<p>[<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091356637-825901022.png" class="" title="image030 image030"></p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091358856-8296113.png" class="" title="image032 image032">
+
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091401403-1329226610.png" class="" title="image034 image034">
+
+<p><strong>3.4.5 修改协议config.toml文件（重要）</strong></p>
+<blockquote>
+<p>注册成功后，在文件夹中找到config.toml，在[[runners]]后面添加**shell &#x3D; “powershell”**节点</p>
+</blockquote>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091402997-253648272.png" class="" title="image036 image036"></strong></p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091405653-463661387.png" class="" title="image038 image038">
+
+<p><strong>3.5 构建.gitlab-ci.yml脚本</strong></p>
+<blockquote>
+<p><strong>【.gitlab-ci.yml内容为】</strong></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>stages: - build</p>
+<p>job:</p>
+<p>stage: build</p>
+<p>script: - echo “Restoring NuGet Packages…” </p>
+<ul>
+<li><p>C:\test\nuget.exe restore “ConsoleApplication1.sln” </p>
+</li>
+<li><p>echo “Solution Build…”</p>
+</li>
+<li><p>C:\Windows\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe &#x2F;p:Configuration&#x3D;Debug &#x2F;p:Platform&#x3D;”Any CPU” &#x2F;consoleloggerparameters:ErrorsOnly &#x2F;maxcpucount &#x2F;nologo &#x2F;property:Configuration&#x3D;Release &#x2F;verbosity:quiet “ConsoleApplication1.sln” tags:</p>
+</li>
+</ul>
+<p>except: - tags</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>下图红框中的命令，只要将路径修改为”ConsoleApplication1.sln”的实际路径就能直接从Powershell中运行。<strong>注意：</strong>如果报错”ConsoleApplication1.sln”找不到可以尝试变为”src&#x2F;ConsoleApplication1.sln”</p>
+</blockquote>
+<blockquote>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091407262-704605918.png" class="" title="image040 image040"></strong></p>
+</blockquote>
+<p><strong>3.6 完成配置</strong></p>
+<blockquote>
+<p>提交代码测试</p>
+<p>成功：<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091408012-492159967.png" class="" title="image042 image042">点击查看成功日志</p>
+<p>失败：<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091409372-2100336167.png" class="" title="image044 image044">点击查看错误日志</p>
+<p>编译中：<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091410793-566593450.png" class="" title="image046 image046">点击查看编译中的日志</p>
+<p>.gitlab-ci.yml脚本错误：<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091411575-1555572183.png" class="" title="image048 image048">，点击跳转到.gitlab-ci.yml验证页面</p>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091412653-1336620083.png" class="" title="image050 image050"></strong></p>
+</blockquote>
+<p><strong>4.</strong> <strong>常见问题解决</strong></p>
+<hr>
+<p><strong>4.1 GitLab****出现Pending卡住</strong></p>
+<blockquote>
+<p>请检查Runner-CI服务器的GitLab-Runner服务是否安装成功，Runners中的<strong>Url地址①</strong>是否正确。</p>
+</blockquote>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091414231-150906643.png" class="" title="image052 image052"></strong></p>
+<p><strong>4.2 GitLab CI****乱码问题</strong></p>
+<blockquote>
+<p>GitLab返回信息乱码，一般是因为GitLab不能识别中文，一般乱码是PowerShell返回的中文，把PowerShell脚本独立运行看看是否报错。所以推荐window搞成英文版的，要是哪位大侠知道GitLab怎么识别中文麻烦分享下哈。</p>
+</blockquote>
+<p><strong>4.3 明明错误，但Build成功</strong></p>
+<blockquote>
+<p>错误截图如下，请检查Git环境变量是否配置，PowerShell脚本是否独立为一个文件</p>
+</blockquote>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091415825-1773921179.png" class="" title="image image">
+
+<p><strong>4.4 .gitlab-ci.yml****脚本错误</strong></p>
+<blockquote>
+<p>点击Lint，进行脚本验证，参考资料<a target="_blank" rel="noopener" href="http://docs.gitlab.com/ee/ci/yaml/README.html">http://docs.gitlab.com/ee/ci/yaml/README.html</a></p>
+<p><strong>注意</strong></p>
+</blockquote>
+<p><strong><img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091417184-1604743269.png" class="" title="image056 image056"></strong></p>
+<p> <strong><img src="https://images2015.cnblogs.com/blog/248387/201608/248387-20160804091418856-1925773437.png" alt="image058" title="image058"></strong> </p>
+<img src="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/248387-20160804091420043-512859353.png" class="" title="image060 image060">
+
+<p><strong>感谢</strong></p>
+<hr>
+<h3 id="劈荆斩棘：Gitlab-部署-CI-持续集成-感谢这篇文章让我少走了很多弯路"><a href="#劈荆斩棘：Gitlab-部署-CI-持续集成-感谢这篇文章让我少走了很多弯路" class="headerlink" title="劈荆斩棘：Gitlab 部署 CI 持续集成  感谢这篇文章让我少走了很多弯路"></a><a target="_blank" rel="noopener" href="http://www.cnblogs.com/xishuai/p/gitlab-ci.html">劈荆斩棘：Gitlab 部署 CI 持续集成</a>  感谢这篇文章让我少走了很多弯路</h3>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/05/24/Others/Gitea%20+%20Jenkins%20%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA%E5%89%8D%E7%AB%AF%E9%A1%B9%E7%9B%AE%E5%B9%B6%E9%83%A8%E7%BD%B2%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="prev" title="Gitea + Jenkins 自动构建前端项目并部署到服务器">
+      <i class="fa fa-chevron-left"></i> Gitea + Jenkins 自动构建前端项目并部署到服务器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/06/07/Others/gitlab+gerrit+sonar+jenkins+idea%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE/" rel="next" title="gitlab+gerrit+sonar+jenkins+idea集成配置">
+      gitlab+gerrit+sonar+jenkins+idea集成配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%88%E8%8D%86%E6%96%A9%E6%A3%98%EF%BC%9AGitlab-%E9%83%A8%E7%BD%B2-CI-%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90-%E6%84%9F%E8%B0%A2%E8%BF%99%E7%AF%87%E6%96%87%E7%AB%A0%E8%AE%A9%E6%88%91%E5%B0%91%E8%B5%B0%E4%BA%86%E5%BE%88%E5%A4%9A%E5%BC%AF%E8%B7%AF"><span class="nav-number">1.</span> <span class="nav-text">劈荆斩棘：Gitlab 部署 CI 持续集成  感谢这篇文章让我少走了很多弯路</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">230</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">124</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

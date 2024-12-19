@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、引言在上一专题中介绍了工厂方法模式，工厂方法模式是为了克服简单工厂模式的缺点而设计出来的,简单工厂模式的工厂类随着产品类的增加需要增加额外的代码），而工厂方法模式每个具体工厂类只完成单个实例的创建,所以它具有很好的可扩展性。但是在现实生活中，一个工厂只创建单个产品这样的例子很少，因为现在的工厂都多元化了，一个工厂创建一系列的产品，如果我们要设计这样的系统时，工厂方法模式显然在这里不适用，然后抽">
+<meta property="og:type" content="article">
+<meta property="og:title" content="抽象工厂模式CSharp实现">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、引言在上一专题中介绍了工厂方法模式，工厂方法模式是为了克服简单工厂模式的缺点而设计出来的,简单工厂模式的工厂类随着产品类的增加需要增加额外的代码），而工厂方法模式每个具体工厂类只完成单个实例的创建,所以它具有很好的可扩展性。但是在现实生活中，一个工厂只创建单个产品这样的例子很少，因为现在的工厂都多元化了，一个工厂创建一系列的产品，如果我们要设计这样的系统时，工厂方法模式显然在这里不适用，然后抽">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201309/16125435-c0fb194f19b64d209bbcac340aeeeaec.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="1899-11-29T15:55:00.000Z">
+<meta property="article:modified_time" content="2024-12-19T07:15:48.244Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>抽象工厂模式CSharp实现 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          抽象工厂模式CSharp实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:43" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:43+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-19 15:15:48" itemprop="dateModified" datetime="2024-12-19T15:15:48+08:00">2024-12-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h2><p>在上一专题中介绍了<a target="_blank" rel="noopener" href="http://www.cnblogs.com/zhili/p/FactoryMethod.html">工厂方法模式</a>，工厂方法模式是为了克服简单工厂模式的缺点而设计出来的,简单工厂模式的工厂类随着产品类的增加需要增加额外的代码），而工厂方法模式每个具体工厂类只完成单个实例的创建,所以它具有很好的可扩展性。但是在现实生活中，一个工厂只创建单个产品这样的例子很少，因为现在的工厂都多元化了，一个工厂创建一系列的产品，如果我们要设计这样的系统时，工厂方法模式显然在这里不适用，然后抽象工厂模式却可以很好地解决一系列产品创建的问题,这是本专题所要介绍的内容。</p>
+<h2 id="二、抽象工厂详细介绍"><a href="#二、抽象工厂详细介绍" class="headerlink" title="二、抽象工厂详细介绍"></a>二、抽象工厂详细介绍</h2><p>这里首先以一个生活中抽象工厂的例子来实现一个抽象工厂，然后再给出抽象工厂的定义和UML图来帮助大家更好地掌握抽象工厂模式，同时大家在理解的时候，可以对照抽象工厂生活中例子的实现和它的定义来加深抽象工厂的UML图理解。</p>
+<h3 id="2-1-抽象工厂的具体实现"><a href="#2-1-抽象工厂的具体实现" class="headerlink" title="2.1 抽象工厂的具体实现"></a>2.1 抽象工厂的具体实现</h3><p>下面就以生活中 “<strong>绝味</strong>” 连锁店的例子来实现一个抽象工厂模式。例如，绝味鸭脖想在江西南昌和上海开分店，但是由于当地人的口味不一样，在南昌的所有绝味的东西会做的辣一点，而上海不喜欢吃辣的，所以上海的所有绝味的东西都不会做的像南昌的那样辣，然而这点不同导致南昌绝味工厂和上海的绝味工厂生成所有绝味的产品都不同，也就是某个具体工厂需要负责一系列产品(指的是绝味所有食物)的创建工作，下面就具体看看如何使用抽象工厂模式来实现这种情况。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 &#x2F;&#x2F;&#x2F; <summary><br> 2     &#x2F;&#x2F;&#x2F; 下面以绝味鸭脖连锁店为例子演示下抽象工厂模式 3     &#x2F;&#x2F;&#x2F; 因为每个地方的喜欢的口味不一样，有些地方喜欢辣点的，有些地方喜欢吃不辣点 4     &#x2F;&#x2F;&#x2F; 客户端调用 5     &#x2F;&#x2F;&#x2F; </summary><br> 6     class Client 7     {<br> 8         static void Main(string[] args)<br> 9         {<br> 10             &#x2F;&#x2F; 南昌工厂制作南昌的鸭脖和鸭架<br> 11             AbstractFactory nanChangFactory &#x3D; new NanChangFactory(); 12             YaBo nanChangYabo &#x3D; nanChangFactory.CreateYaBo(); 13             nanChangYabo.Print();<br> 14             YaJia nanChangYajia&#x3D; nanChangFactory.CreateYaJia(); 15             nanChangYajia.Print();<br> 16<br> 17             &#x2F;&#x2F; 上海工厂制作上海的鸭脖和鸭架<br> 18             AbstractFactory shangHaiFactory &#x3D; new ShangHaiFactory(); 19             shangHaiFactory.CreateYaBo().Print();<br> 20             shangHaiFactory.CreateYaJia().Print();<br> 21<br> 22             Console.Read();<br> 23         }<br> 24     }<br> 25<br> 26     &#x2F;&#x2F;&#x2F; <summary><br> 27     &#x2F;&#x2F;&#x2F; 抽象工厂类，提供创建两个不同地方的鸭架和鸭脖的接口 28     &#x2F;&#x2F;&#x2F; </summary><br> 29     public abstract class AbstractFactory 30     {<br> 31         &#x2F;&#x2F; 抽象工厂提供创建一系列产品的接口，这里作为例子，只给出了绝味中鸭脖和鸭架的创建接口<br> 32         public abstract YaBo CreateYaBo(); 33         public abstract YaJia CreateYaJia(); 34     }<br> 35<br> 36     &#x2F;&#x2F;&#x2F; <summary><br> 37     &#x2F;&#x2F;&#x2F; 南昌绝味工厂负责制作南昌的鸭脖和鸭架 38     &#x2F;&#x2F;&#x2F; </summary><br> 39     public class NanChangFactory : AbstractFactory 40     {<br> 41         &#x2F;&#x2F; 制作南昌鸭脖<br> 42         public override YaBo CreateYaBo() 43         {<br> 44             return new NanChangYaBo(); 45         }<br> 46         &#x2F;&#x2F; 制作南昌鸭架<br> 47         public override YaJia CreateYaJia() 48         {<br> 49             return new NanChangYaJia(); 50         }<br> 51     }<br> 52<br> 53     &#x2F;&#x2F;&#x2F; <summary><br> 54     &#x2F;&#x2F;&#x2F; 上海绝味工厂负责制作上海的鸭脖和鸭架 55     &#x2F;&#x2F;&#x2F; </summary><br> 56     public class ShangHaiFactory : AbstractFactory 57     {<br> 58         &#x2F;&#x2F; 制作上海鸭脖<br> 59         public override YaBo CreateYaBo() 60         {<br> 61             return new ShangHaiYaBo(); 62         }<br> 63         &#x2F;&#x2F; 制作上海鸭架<br> 64         public override YaJia CreateYaJia() 65         {<br> 66             return new ShangHaiYaJia(); 67         }<br> 68     }<br> 69<br> 70     &#x2F;&#x2F;&#x2F; <summary><br> 71     &#x2F;&#x2F;&#x2F; 鸭脖抽象类，供每个地方的鸭脖类继承 72     &#x2F;&#x2F;&#x2F; </summary><br> 73     public abstract class YaBo 74     {<br> 75         &#x2F;&#x2F;&#x2F; <summary><br> 76         &#x2F;&#x2F;&#x2F; 打印方法，用于输出信息 77         &#x2F;&#x2F;&#x2F; </summary><br> 78         public abstract void Print(); 79     }<br> 80<br> 81     &#x2F;&#x2F;&#x2F; <summary><br> 82     &#x2F;&#x2F;&#x2F; 鸭架抽象类，供每个地方的鸭架类继承 83     &#x2F;&#x2F;&#x2F; </summary><br> 84     public abstract class YaJia 85     {<br> 86         &#x2F;&#x2F;&#x2F; <summary><br> 87         &#x2F;&#x2F;&#x2F; 打印方法，用于输出信息 88         &#x2F;&#x2F;&#x2F; </summary><br> 89         public abstract void Print(); 90     }<br> 91<br> 92     &#x2F;&#x2F;&#x2F; <summary><br> 93     &#x2F;&#x2F;&#x2F; 南昌的鸭脖类，因为江西人喜欢吃辣的，所以南昌的鸭脖稍微会比上海做的辣 94     &#x2F;&#x2F;&#x2F; </summary><br> 95     public class NanChangYaBo : YaBo 96     {<br> 97         public override void Print() 98         {<br> 99             Console.WriteLine(“南昌的鸭脖”); 100 } 101 } 102<br>103     &#x2F;&#x2F;&#x2F; <summary><br>104     &#x2F;&#x2F;&#x2F; 上海的鸭脖没有南昌的鸭脖做的辣 105     &#x2F;&#x2F;&#x2F; </summary><br>106     public class ShangHaiYaBo : YaBo 107 { 108         public override void Print() 109 { 110             Console.WriteLine(“上海的鸭脖”); 111 } 112 } 113<br>114     &#x2F;&#x2F;&#x2F; <summary><br>115     &#x2F;&#x2F;&#x2F; 南昌的鸭架 116     &#x2F;&#x2F;&#x2F; </summary><br>117     public class NanChangYaJia : YaJia 118 { 119         public override void Print() 120 { 121             Console.WriteLine(“南昌的鸭架子”); 122 } 123 } 124<br>125     &#x2F;&#x2F;&#x2F; <summary><br>126     &#x2F;&#x2F;&#x2F; 上海的鸭架 127     &#x2F;&#x2F;&#x2F; </summary><br>128     public class ShangHaiYaJia : YaJia 129 { 130         public override void Print() 131 { 132             Console.WriteLine(“上海的鸭架子”); 133 } 134     }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="2-2-抽象工厂模式的定义和类图"><a href="#2-2-抽象工厂模式的定义和类图" class="headerlink" title="2.2 抽象工厂模式的定义和类图"></a>2.2 抽象工厂模式的定义和类图</h3><p>上面代码中都有详细的注释，这里就不再解释上面的代码了，下面就具体看看抽象工厂模式的定义吧（理解定义可以参考上面的实现来加深理解）：</p>
+<p><strong>抽象工厂模式：提供一个创建产品的接口来负责创建相关或依赖的对象，而不具体明确指定具体类</strong></p>
+<p>抽象工厂允许客户使用抽象的接口来创建一组相关产品，而不需要知道或关心实际生产出的具体产品是什么。这样客户就可以从具体产品中被解耦。下面通过抽象工模式的类图来了解各个类中之间的关系：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201309/16125435-c0fb194f19b64d209bbcac340aeeeaec.png"></p>
+<h3 id="2-3-抽象工厂应对需求变更"><a href="#2-3-抽象工厂应对需求变更" class="headerlink" title="2.3 抽象工厂应对需求变更"></a>2.3 抽象工厂应对需求变更</h3><p>看完上面抽象工厂的实现之后，如果 “绝味”公司又想在湖南开一家分店怎么办呢？ 因为湖南人喜欢吃麻辣的，下面就具体看看应用了抽象工厂模式的系统是如何应对这种需求的。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 如果绝味又想开一家湖南的分店时，因为湖南喜欢吃麻的 &#x2F;&#x2F;&#x2F; 所以这是有需要有一家湖南的工厂专门制作 &#x2F;&#x2F;&#x2F; </summary><br>    public class HuNanFactory : AbstractFactory<br>    { &#x2F;&#x2F; 制作湖南鸭脖<br>        public override YaBo CreateYaBo()<br>        { return new HuNanYaBo();<br>        } &#x2F;&#x2F; 制作湖南鸭架<br>        public override YaJia CreateYaJia()<br>        { return new HuNanYajia();<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 湖南的鸭脖 &#x2F;&#x2F;&#x2F; </summary><br>    public class HuNanYaBo : YaBo<br>    { public override void Print()<br>        {<br>            Console.WriteLine(“湖南的鸭脖”);<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 湖南的鸭架 &#x2F;&#x2F;&#x2F; </summary><br>    public class HuNanYajia : YaJia<br>    { public override void Print()<br>        {<br>            Console.WriteLine(“湖南的鸭架子”);<br>        }<br>    }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>此时，只需要添加三个类：一个是湖南具体工厂类，负责创建湖南口味的鸭脖和鸭架，另外两个类是具有湖南口味的鸭脖类和鸭架类。从上面代码看出，抽象工厂对于系列产品的变化支持 “开放——封闭”原则（指的是要求系统对扩展开放，对修改封闭），扩展起来非常简便，但是，抽象工厂对于添加新产品这种情况就不支持”开放——封闭 “原则，这也是抽象工厂的缺点所在，这点会在第四部分详细介绍。</p>
+<h2 id="三、抽象工厂的分析"><a href="#三、抽象工厂的分析" class="headerlink" title="三、抽象工厂的分析"></a>三、抽象工厂的分析</h2><p>抽象工厂模式将具体产品的创建延迟到具体工厂的子类中，这样将对象的创建封装起来，可以减少客户端与具体产品类之间的依赖，从而使系统耦合度低，这样更有利于后期的维护和扩展，这真是抽象工厂模式的优点所在，然后抽象模式同时也存在不足的地方。下面就具体看下抽象工厂的缺点（缺点其实在前面的介绍中以已经涉及了）：</p>
+<p><strong>抽象工厂模式很难支持新种类产品的变化。这是因为抽象工厂接口中已经确定了可以被创建的产品集合，如果需要添加新产品，此时就必须去修改抽象工厂的接口，这样就涉及到抽象工厂类的以及所有子类的改变，这样也就违背了“开发——封闭”原则。</strong></p>
+<p>知道了抽象工厂的优缺点之后，也就能很好地把握什么情况下考虑使用抽象工厂模式了，下面就具体看看使用抽象工厂模式的系统应该符合那几个前提：</p>
+<ul>
+<li>一个系统不要求依赖产品类实例如何被创建、组合和表达的表达，这点也是所有工厂模式应用的前提。</li>
+<li>这个系统有多个系列产品，而系统中只消费其中某一系列产品</li>
+<li>系统要求提供一个产品类的库，所有产品以同样的接口出现，客户端不需要依赖具体实现。</li>
+</ul>
+<h2 id="四、-NET中抽象工厂模式实现"><a href="#四、-NET中抽象工厂模式实现" class="headerlink" title="四、.NET中抽象工厂模式实现"></a>四、.NET中抽象工厂模式实现</h2><p>抽象工厂模式在实际中的应用也是相当频繁的，然而在我们.NET类库中也存在应用抽象工厂模式的类，这个类就是<strong>System.Data.Common.DbProviderFactory</strong>，这个类位于System.Data.dll程序集中,该类扮演抽象工厂模式中抽象工厂的角色，我们可以用reflector反编译工具查看该类的实现：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>&#x2F;&#x2F;&#x2F; 扮演抽象工厂的角色<br>&#x2F;&#x2F;&#x2F; 创建连接数据库时所需要的对象集合，<br>&#x2F;&#x2F;&#x2F; 这个对象集合包括有 DbConnection对象（这个是抽象产品类,如绝味例子中的YaBo类）、DbCommand类、DbDataAdapter类，针对不同的具体工厂都需要实现该抽象类中方法，public abstract class DbProviderFactory<br>{ &#x2F;&#x2F; 提供了创建具体产品的接口方法<br>    protected DbProviderFactory(); public virtual DbCommand CreateCommand(); public virtual DbCommandBuilder CreateCommandBuilder(); public virtual DbConnection CreateConnection(); public virtual DbConnectionStringBuilder CreateConnectionStringBuilder(); public virtual DbDataAdapter CreateDataAdapter(); public virtual DbDataSourceEnumerator CreateDataSourceEnumerator(); public virtual DbParameter CreateParameter(); public virtual CodeAccessPermission CreatePermission(PermissionState state);<br>}</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><strong>DbProviderFactory</strong>类是一个抽象工厂类，该类提供了创建数据库连接时所需要的对象集合的接口，实际创建的工作在其子类工厂中进行，微软使用的是SQL Server数据库，因此提供了连接SQL Server数据的具体工厂实现，具体代码可以用反编译工具查看，具体代码如下：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>&#x2F;&#x2F;&#x2F; 扮演着具体工厂的角色，用来创建连接SQL Server数据所需要的对象<br>public sealed class SqlClientFactory : DbProviderFactory, IServiceProvider<br>{ &#x2F;&#x2F; Fields<br>    public static readonly SqlClientFactory Instance &#x3D; new SqlClientFactory(); &#x2F;&#x2F; 构造函数<br>    private SqlClientFactory()<br>    {<br>    } &#x2F;&#x2F; 重写抽象工厂中的方法<br>    public override DbCommand CreateCommand()<br>    { &#x2F;&#x2F; 创建具体产品<br>        return new SqlCommand();<br>    } public override DbCommandBuilder CreateCommandBuilder()<br>    { return new SqlCommandBuilder();<br>    } public override DbConnection CreateConnection()<br>    { return new SqlConnection();<br>    } public override DbConnectionStringBuilder CreateConnectionStringBuilder()<br>    { return new SqlConnectionStringBuilder();<br>    } public override DbDataAdapter CreateDataAdapter()<br>    { return new SqlDataAdapter();<br>    } public override DbDataSourceEnumerator CreateDataSourceEnumerator()<br>    { return SqlDataSourceEnumerator.Instance;<br>    } public override DbParameter CreateParameter()<br>    { return new SqlParameter();<br>    } public override CodeAccessPermission CreatePermission(PermissionState state)<br>    { return new SqlClientPermission(state);<br>    }<br>}</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>因为微软只给出了连接SQL Server的具体工厂的实现，我们也可以自定义连接Oracle、MySql的具体工厂的实现。</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>到这里，抽象工厂模式的介绍就结束，在下一专题就将为大家介绍建造模式。</p>
+<p>程序源码：<a target="_blank" rel="noopener" href="http://files.cnblogs.com/zhili/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F.rar">抽象工厂模式实现</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" rel="prev" title="享元模式">
+      <i class="fa fa-chevron-left"></i> 享元模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" rel="next" title="单例模式CSharp实现">
+      单例模式CSharp实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">二、抽象工厂详细介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E7%9A%84%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 抽象工厂的具体实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E7%B1%BB%E5%9B%BE"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 抽象工厂模式的定义和类图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E5%BA%94%E5%AF%B9%E9%9C%80%E6%B1%82%E5%8F%98%E6%9B%B4"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 抽象工厂应对需求变更</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E7%9A%84%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">三、抽象工厂的分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-NET%E4%B8%AD%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">四、.NET中抽象工厂模式实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">233</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

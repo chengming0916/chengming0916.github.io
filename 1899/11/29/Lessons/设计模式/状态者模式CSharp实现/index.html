@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在上一篇文章介绍到可以使用状态者模式和观察者模式来解决中介者模式存在的问题，在本文中将首先通过一个银行账户的例子来解释状态者模式，通过这个例子使大家可以对状态者模式有一个清楚的认识，接着，再使用状态者模式来解决上一篇文章中提出的问题。 　　每个对象都有其对应的状态，而每个状态又对应一些相应的行为，如果某个对象有多个状态时，那么就会对应很多的行为。那么对这些状态的判断和根据状态完成的行为，就会导">
+<meta property="og:type" content="article">
+<meta property="og:title" content="状态者模式CSharp实现">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在上一篇文章介绍到可以使用状态者模式和观察者模式来解决中介者模式存在的问题，在本文中将首先通过一个银行账户的例子来解释状态者模式，通过这个例子使大家可以对状态者模式有一个清楚的认识，接着，再使用状态者模式来解决上一篇文章中提出的问题。 　　每个对象都有其对应的状态，而每个状态又对应一些相应的行为，如果某个对象有多个状态时，那么就会对应很多的行为。那么对这些状态的判断和根据状态完成的行为，就会导">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201409/141930505598567.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201409/141946092625899.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="article:published_time" content="1899-11-29T15:54:17.000Z">
+<meta property="article:modified_time" content="2025-05-30T02:09:34.156Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog/383187/201409/141930505598567.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>状态者模式CSharp实现 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          状态者模式CSharp实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:00" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:00+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-05-30 10:09:34" itemprop="dateModified" datetime="2025-05-30T10:09:34+08:00">2025-05-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>　　在上一篇文章介绍到可以使用状态者模式和观察者模式来解决中介者模式存在的问题，在本文中将首先通过一个银行账户的例子来解释状态者模式，通过这个例子使大家可以对状态者模式有一个清楚的认识，接着，再使用状态者模式来解决上一篇文章中提出的问题。</p>
+<p>　　每个对象都有其对应的状态，而每个状态又对应一些相应的行为，如果某个对象有多个状态时，那么就会对应很多的行为。那么对这些状态的判断和根据状态完成的行为，就会导致多重条件语句，并且如果添加一种新的状态时，需要更改之前现有的代码。这样的设计显然违背了开闭原则。状态模式正是用来解决这样的问题的。状态模式将每种状态对应的行为抽象出来成为单独新的对象，这样状态的变化不再依赖于对象内部的行为。</p>
+<h2 id="2-1-状态者模式的定义"><a href="#2-1-状态者模式的定义" class="headerlink" title="2.1 状态者模式的定义"></a>2.1 状态者模式的定义</h2><p>　　上面对状态模式做了一个简单的介绍，这里给出状态模式的定义。</p>
+<p>　　状态模式——允许一个对象在其内部状态改变时自动改变其行为，对象看起来就像是改变了它的类。</p>
+<h2 id="2-2-状态者模式的结构"><a href="#2-2-状态者模式的结构" class="headerlink" title="2.2 状态者模式的结构"></a>2.2 状态者模式的结构</h2><p>　　既然状态者模式是对已有对象的状态进行抽象，则自然就有抽象状态者类和具体状态者类，而原来已有对象需要保存抽象状态者类的引用，通过调用抽象状态者的行为来改变已有对象的行为。经过上面的分析，状态者模式的结构图也就很容易理解了，具体结构图如下图示。</p>
+<p>　　<img src="https://images0.cnblogs.com/blog/383187/201409/141930505598567.png"></p>
+<p>　　从上图可知，状态者模式涉及以下三个角色：</p>
+<ul>
+<li>Account类：维护一个State类的一个实例，该实例标识着当前对象的状态。</li>
+<li>State类：抽象状态类，定义了一个具体状态类需要实现的行为约定。</li>
+<li>SilveStater、GoldState和RedState类：具体状态类，实现抽象状态类的每个行为。</li>
+</ul>
+<h2 id="2-3-状态者模式的实现"><a href="#2-3-状态者模式的实现" class="headerlink" title="2.3 状态者模式的实现"></a>2.3 状态者模式的实现</h2><p>　　下面，就以银行账户的状态来实现下状态者模式。银行账户根据余额可分为RedState、SilverState和GoldState。这些状态分别代表透支账号，新开账户和标准账户。账号余额在【-100.0，0.0】范围表示处于RedState状态，账号余额在【0.0 ， 1000.0】范围表示处于SilverState，账号在【1000.0， 100000.0】范围表示处于GoldState状态。下面以这样的一个场景实现下状态者模式，具体实现代码如下所示：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 namespace StatePatternSample 2 {<br> 3     public class Account 4     {<br> 5         public State State {get;set;}<br> 6         public string Owner { get; set; }<br> 7         public Account(string owner) 8         {<br> 9             this.Owner &#x3D; owner; 10             this.State &#x3D; new SilverState(0.0, this);<br> 11         }<br> 12<br> 13         public double Balance { get {return State.Balance; }} &#x2F;&#x2F; 余额 14         &#x2F;&#x2F; 存钱<br> 15         public void Deposit(double amount) 16         {<br> 17             State.Deposit(amount);<br> 18             Console.WriteLine(“存款金额为 {0:C}——“, amount);<br> 19             Console.WriteLine(“账户余额为 &#x3D;:{0:C}”, this.Balance);<br> 20             Console.WriteLine(“账户状态为: {0}”, this.State.GetType().Name);<br> 21             Console.WriteLine();<br> 22         }<br> 23<br> 24         &#x2F;&#x2F; 取钱<br> 25         public void Withdraw(double amount) 26         {<br> 27             State.Withdraw(amount);<br> 28              Console.WriteLine(“取款金额为 {0:C}——“,amount);<br> 29             Console.WriteLine(“账户余额为 &#x3D;:{0:C}”, this.Balance);<br> 30             Console.WriteLine(“账户状态为: {0}”, this.State.GetType().Name);<br> 31             Console.WriteLine();<br> 32         }<br> 33<br> 34         &#x2F;&#x2F; 获得利息<br> 35         public void PayInterest() 36         {<br> 37             State.PayInterest();<br> 38             Console.WriteLine(“Interest Paid — “);<br> 39             Console.WriteLine(“账户余额为 &#x3D;:{0:C}”, this.Balance);<br> 40             Console.WriteLine(“账户状态为: {0}”, this.State.GetType().Name);<br> 41             Console.WriteLine();<br> 42         }<br> 43     }<br> 44<br> 45     &#x2F;&#x2F; 抽象状态类<br> 46     public abstract class State 47     {<br> 48         &#x2F;&#x2F; Properties<br> 49         public Account Account { get; set; }<br> 50         public double Balance { get; set; } &#x2F;&#x2F; 余额<br> 51         public double Interest { get; set; } &#x2F;&#x2F; 利率<br> 52         public double LowerLimit { get; set; } &#x2F;&#x2F; 下限<br> 53         public double UpperLimit { get; set; } &#x2F;&#x2F; 上限<br> 54<br> 55         public abstract void Deposit(double amount); &#x2F;&#x2F; 存款<br> 56         public abstract void Withdraw(double amount); &#x2F;&#x2F; 取钱<br> 57         public abstract void PayInterest(); &#x2F;&#x2F; 获得的利息<br> 58     }<br> 59<br> 60     &#x2F;&#x2F; Red State意味着Account透支了<br> 61     public class RedState : State 62     {<br> 63         public RedState(State state) 64         {<br> 65             &#x2F;&#x2F; Initialize<br> 66             this.Balance &#x3D; state.Balance; 67             this.Account &#x3D; state.Account; 68             Interest &#x3D; 0.00;<br> 69             LowerLimit &#x3D; -100.00;<br> 70             UpperLimit &#x3D; 0.00;<br> 71         }<br> 72<br> 73         &#x2F;&#x2F; 存款<br> 74         public override void Deposit(double amount) 75         {<br> 76             Balance +&#x3D; amount; 77             StateChangeCheck();<br> 78         }<br> 79         &#x2F;&#x2F; 取钱<br> 80         public override void Withdraw(double amount) 81         {<br> 82             Console.WriteLine(“没有钱可以取了！”);<br> 83         }<br> 84<br> 85         public override void PayInterest() 86         {<br> 87             &#x2F;&#x2F; 没有利息<br> 88         }<br> 89<br> 90         private void StateChangeCheck() 91         {<br> 92             if (Balance &gt; UpperLimit) 93             {<br> 94                 Account.State &#x3D; new SilverState(this);<br> 95             }<br> 96         }<br> 97     }<br> 98<br> 99     &#x2F;&#x2F; Silver State意味着没有利息得<br>100     public class SilverState :State 101 { 102         public SilverState(State state) 103             : this(state.Balance, state.Account) 104 { 105 } 106<br>107         public SilverState(double balance, Account account) 108 { 109             this.Balance &#x3D; balance; 110             this.Account &#x3D; account; 111             Interest &#x3D; 0.00; 112             LowerLimit &#x3D; 0.00; 113             UpperLimit &#x3D; 1000.00; 114 } 115<br>116         public override void Deposit(double amount) 117 { 118             Balance +&#x3D; amount; 119 StateChangeCheck(); 120 } 121         public override void Withdraw(double amount) 122 { 123             Balance -&#x3D; amount; 124 StateChangeCheck(); 125 } 126<br>127         public override void PayInterest() 128 { 129             Balance +&#x3D; Interest * Balance; 130 StateChangeCheck(); 131 } 132<br>133         private void StateChangeCheck() 134 { 135             if (Balance &lt; LowerLimit) 136 { 137                 Account.State &#x3D; new RedState(this); 138 } 139             else if (Balance &gt; UpperLimit) 140 { 141                 Account.State &#x3D; new GoldState(this); 142 } 143 } 144 } 145<br>146     &#x2F;&#x2F; Gold State意味着有利息状态<br>147     public class GoldState : State 148 { 149         public GoldState(State state) 150 { 151             this.Balance &#x3D; state.Balance; 152             this.Account &#x3D; state.Account; 153             Interest &#x3D; 0.05; 154             LowerLimit &#x3D; 1000.00; 155             UpperLimit &#x3D; 1000000.00; 156 } 157         &#x2F;&#x2F; 存钱<br>158         public override void Deposit(double amount) 159 { 160             Balance +&#x3D; amount; 161 StateChangeCheck(); 162 } 163         &#x2F;&#x2F; 取钱<br>164         public override void Withdraw(double amount) 165 { 166             Balance -&#x3D; amount; 167 StateChangeCheck(); 168 } 169         public override void PayInterest() 170 { 171             Balance +&#x3D; Interest * Balance; 172 StateChangeCheck(); 173 } 174<br>175         private void StateChangeCheck() 176 { 177             if (Balance &lt; 0.0) 178 { 179                 Account.State &#x3D; new RedState(this); 180 } 181             else if (Balance &lt; LowerLimit) 182 { 183                 Account.State &#x3D; new SilverState(this); 184 } 185 } 186 } 187<br>188     class App 189 { 190         static void Main(string[] args) 191 { 192             &#x2F;&#x2F; 开一个新的账户<br>193             Account account &#x3D; new Account(“Learning Hard”); 194<br>195             &#x2F;&#x2F; 进行交易 196             &#x2F;&#x2F; 存钱<br>197             account.Deposit(1000.0); 198             account.Deposit(200.0); 199             account.Deposit(600.0); 200<br>201             &#x2F;&#x2F; 付利息<br>202 account.PayInterest(); 203<br>204             &#x2F;&#x2F; 取钱<br>205             account.Withdraw(2000.00); 206             account.Withdraw(500.00); 207<br>208             &#x2F;&#x2F; 等待用户输入<br>209 Console.ReadKey(); 210 } 211 } 212 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>　　上面代码的运行结果如下图所示：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201409/141946092625899.png"></p>
+<p>　　从上图可以发现，进行存取款交易，会影响到Account内部的状态，由于状态的改变，从而影响到Account类行为的改变，而且这些操作都是发生在运行时的。</p>
+<p>　　在上一篇博文中，我曾介绍到中介者模式存在的问题，详细的问题描述可以参考<a target="_blank" rel="noopener" href="http://www.cnblogs.com/zhili/p/MediatorPattern.html">上一篇博文</a>。下面利用观察者模式和状态者模式来完善中介者模式，具体的实现代码如下所示：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p> 1  &#x2F;&#x2F; 抽象牌友类<br> 2     public abstract class AbstractCardPartner 3     {<br> 4         public int MoneyCount { get; set; }<br> 5<br> 6         public AbstractCardPartner() 7         {<br> 8             MoneyCount &#x3D; 0;<br> 9         }<br> 10<br> 11         public abstract void ChangeCount(int Count, AbstractMediator mediator); 12     }<br> 13<br> 14     &#x2F;&#x2F; 牌友A类<br> 15     public class ParterA : AbstractCardPartner 16     {<br> 17         &#x2F;&#x2F; 依赖与抽象中介者对象<br> 18         public override void ChangeCount(int Count, AbstractMediator mediator) 19         {<br> 20             mediator.ChangeCount(Count);<br> 21         }<br> 22     }<br> 23<br> 24     &#x2F;&#x2F; 牌友B类<br> 25     public class ParterB : AbstractCardPartner 26     {<br> 27         &#x2F;&#x2F; 依赖与抽象中介者对象<br> 28         public override void ChangeCount(int Count, AbstractMediator mediator) 29         {<br> 30             mediator.ChangeCount(Count);<br> 31         }<br> 32     }<br> 33<br> 34     &#x2F;&#x2F; 抽象状态类<br> 35     public abstract class State 36     {<br> 37         protected AbstractMediator meditor; 38         public abstract void ChangeCount(int count); 39     }<br> 40<br> 41     &#x2F;&#x2F; A赢状态类<br> 42     public class AWinState : State 43     {<br> 44         public AWinState(AbstractMediator concretemediator) 45         {<br> 46             this.meditor &#x3D; concretemediator; 47         }<br> 48<br> 49         public override void ChangeCount(int count) 50         {<br> 51             foreach (AbstractCardPartner p in meditor.list) 52             {<br> 53                 ParterA a &#x3D; p as ParterA; 54                 &#x2F;&#x2F;<br> 55                 if (a !&#x3D; null)<br> 56                 {<br> 57                     a.MoneyCount +&#x3D; count; 58                 }<br> 59                 else<br> 60                 {<br> 61                     p.MoneyCount -&#x3D; count; 62                 }<br> 63             }<br> 64         }<br> 65     }<br> 66<br> 67     &#x2F;&#x2F; B赢状态类<br> 68     public class BWinState : State 69     {<br> 70         public BWinState(AbstractMediator concretemediator) 71         {<br> 72             this.meditor &#x3D; concretemediator; 73         }<br> 74<br> 75         public override void ChangeCount(int count) 76         {<br> 77             foreach (AbstractCardPartner p in meditor.list) 78             {<br> 79                 ParterB b &#x3D; p as ParterB; 80                 &#x2F;&#x2F; 如果集合对象中时B对象，则对B的钱添加<br> 81                 if (b !&#x3D; null)<br> 82                 {<br> 83                     b.MoneyCount +&#x3D; count; 84                 }<br> 85                 else<br> 86                 {<br> 87                     p.MoneyCount -&#x3D; count; 88                 }<br> 89             }<br> 90         }<br> 91     }<br> 92<br> 93     &#x2F;&#x2F; 初始化状态类<br> 94     public class InitState : State 95     {<br> 96         public InitState() 97         {<br> 98             Console.WriteLine(“游戏才刚刚开始,暂时还有玩家胜出”);<br> 99 } 100<br>101         public override void ChangeCount(int count) 102 { 103             &#x2F;&#x2F;<br>104             return; 105 } 106 } 107<br>108     &#x2F;&#x2F; 抽象中介者类<br>109     public abstract class AbstractMediator 110 { 111         public List<AbstractCardPartner> list &#x3D; new List<AbstractCardPartner>(); 112<br>113         public State State { get; set; } 114<br>115         public AbstractMediator(State state) 116 { 117             this.State &#x3D; state; 118 } 119<br>120         public void Enter(AbstractCardPartner partner) 121 { 122 list.Add(partner); 123 } 124<br>125         public void Exit(AbstractCardPartner partner) 126 { 127 list.Remove(partner); 128 } 129<br>130         public void ChangeCount(int count) 131 { 132 State.ChangeCount(count); 133 } 134 } 135<br>136     &#x2F;&#x2F; 具体中介者类<br>137     public class MediatorPater : AbstractMediator 138 { 139         public MediatorPater(State initState) 140             : base(initState) 141 { } 142 } 143<br>144     class Program 145 { 146         static void Main(string[] args) 147 { 148             AbstractCardPartner A &#x3D; new ParterA(); 149             AbstractCardPartner B &#x3D; new ParterB(); 150             &#x2F;&#x2F; 初始钱<br>151             A.MoneyCount &#x3D; 20; 152             B.MoneyCount &#x3D; 20; 153<br>154             AbstractMediator mediator &#x3D; new MediatorPater(new InitState()); 155<br>156             &#x2F;&#x2F; A,B玩家进入平台进行游戏<br>157 mediator.Enter(A); 158 mediator.Enter(B); 159<br>160             &#x2F;&#x2F; A赢了<br>161             mediator.State &#x3D; new AWinState(mediator); 162             mediator.ChangeCount(5); 163             Console.WriteLine(“A 现在的钱是：{0}”, A.MoneyCount);&#x2F;&#x2F; 应该是25<br>164             Console.WriteLine(“B 现在的钱是：{0}”, B.MoneyCount); &#x2F;&#x2F; 应该是15 165<br>166             &#x2F;&#x2F; B 赢了<br>167             mediator.State &#x3D; new BWinState(mediator); 168             mediator.ChangeCount(10); 169             Console.WriteLine(“A 现在的钱是：{0}”, A.MoneyCount);&#x2F;&#x2F; 应该是25<br>170             Console.WriteLine(“B 现在的钱是：{0}”, B.MoneyCount); &#x2F;&#x2F; 应该是15<br>171 Console.Read(); 172 } 173     }</p>
+<p>View Code</p>
+<p> 　　在以下情况下可以考虑使用状态者模式。</p>
+<ul>
+<li>当一个对象状态转换的条件表达式过于复杂时可以使用状态者模式。把状态的判断逻辑转移到表示不同状态的一系列类中，可以把复杂的判断逻辑简单化。</li>
+<li>当一个对象行为取决于它的状态，并且它需要在运行时刻根据状态改变它的行为时，就可以考虑使用状态者模式。</li>
+</ul>
+<p> 　　状态者模式的主要优点是：</p>
+<ul>
+<li>将状态判断逻辑每个状态类里面，可以简化判断的逻辑。</li>
+<li>当有新的状态出现时，可以通过添加新的状态类来进行扩展，扩展性好。</li>
+</ul>
+<p>　　状态者模式的主要缺点是：</p>
+<ul>
+<li>如果状态过多的话，会导致有非常多的状态类，加大了开销。</li>
+</ul>
+<p>　　状态者模式是对对象状态的抽象，从而把对象中对状态复杂的判断逻辑已到各个状态类里面，从而简化逻辑判断。在下一篇文章将分享我对策略模式的理解。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" rel="prev" title="简单工厂模式CSharp实现">
+      <i class="fa fa-chevron-left"></i> 简单工厂模式CSharp实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/" rel="next" title="状态模式">
+      状态模式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">2.1 状态者模式的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">2.2 状态者模式的结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">2.3 状态者模式的实现</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">250</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">144</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

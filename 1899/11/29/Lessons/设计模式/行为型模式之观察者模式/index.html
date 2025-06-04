@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在现实世界中，许多对象并不是独立存在的，其中一个对象的行为发生改变可能会导致一个或者多个其他对象的行为也发生改变。例如，某种商品的物价上涨时会导致部分商家高兴，而消费者伤心。 在软件世界也是这样，例如，事件模型中的事件源与事件处理者。所有这些，如果用观察者模式来实现就非常方便。 观察者（Observer）模式的定义：指多个对象间存在一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都">
+<meta property="og:type" content="article">
+<meta property="og:title" content="行为型模式之观察者模式">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在现实世界中，许多对象并不是独立存在的，其中一个对象的行为发生改变可能会导致一个或者多个其他对象的行为也发生改变。例如，某种商品的物价上涨时会导致部分商家高兴，而消费者伤心。 在软件世界也是这样，例如，事件模型中的事件源与事件处理者。所有这些，如果用观察者模式来实现就非常方便。 观察者（Observer）模式的定义：指多个对象间存在一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2020.cnblogs.com/blog/1495663/202009/1495663-20200907155209017-1957382497.png">
+<meta property="article:published_time" content="1899-11-29T15:55:00.000Z">
+<meta property="article:modified_time" content="2025-06-04T10:18:39.510Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img2020.cnblogs.com/blog/1495663/202009/1495663-20200907155209017-1957382497.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>行为型模式之观察者模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          行为型模式之观察者模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:43" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:43+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-06-04 18:18:39" itemprop="dateModified" datetime="2025-06-04T18:18:39+08:00">2025-06-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在现实世界中，许多对象并不是独立存在的，其中一个对象的行为发生改变可能会导致一个或者多个其他对象的行为也发生改变。例如，某种商品的物价上涨时会导致部分商家高兴，而消费者伤心。</p>
+<p>在软件世界也是这样，例如，事件模型中的事件源与事件处理者。所有这些，如果用观察者模式来实现就非常方便。</p>
+<p><strong>观察者（Observer）模式</strong>的定义：指多个对象间存在一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。这种模式有时<strong>又称作发布-订阅模式、模型-视图模式</strong>，它是对象行为型模式。</p>
+<p><strong>观察者模式是一种对象行为型模式</strong>，其主要优点如下：</p>
+<ul>
+<li>降低了目标与观察者之间的耦合关系，<strong>两者之间是抽象耦合关系</strong>。</li>
+<li>目标与观察者之间<strong>建立了一套触发机制</strong>。</li>
+</ul>
+<p>它的主要缺点如下：</p>
+<ul>
+<li>目标与观察者之间的依赖关系并没有完全解除，而且<strong>有可能出现循环引用</strong>。</li>
+<li><strong>当观察者对象很多时，通知的发布会花费很多时间</strong>，影响程序的效率。</li>
+</ul>
+<p>实现观察者模式时<strong>要注意具体目标对象和具体观察者对象之间不能直接调用</strong>，否则将使两者之间紧密耦合起来，这违反了面向对象的设计原则。</p>
+<h2 id="模式的结构"><a href="#模式的结构" class="headerlink" title="模式的结构#"></a>模式的结构<a target="_blank" rel="noopener" href="https://www.cnblogs.com/timefiles/p/ObserverPattern.html#%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84">#</a></h2><p>观察者模式的主要角色如下：</p>
+<ul>
+<li><strong>抽象主题（Subject）角色</strong>：也叫抽象目标类，它<strong>提供了一个用于保存观察者对象的聚集类和增加、删除观察者对象的方法，以及通知所有观察者的抽象方法</strong>。</li>
+<li><strong>具体主题（Concrete Subject）角色</strong>：也叫具体目标类，它<strong>实现抽象目标中的通知方法</strong>，当具体主题的内部状态发生改变时，通知所有注册过的观察者对象。</li>
+<li><strong>抽象观察者（Observer）角色</strong>：它是一个抽象类或接口，它<strong>包含了一个更新自己的抽象方法</strong>，当接到具体主题的更改通知时被调用。</li>
+<li><strong>具体观察者（Concrete Observer）角色</strong>：实现抽象观察者中定义的抽象方法，以便在得到目标的更改通知时更新自身的状态。</li>
+</ul>
+<p>观察者模式的结构图如图所示：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/1495663/202009/1495663-20200907155209017-1957382497.png"><img src="https://img2020.cnblogs.com/blog/1495663/202009/1495663-20200907155209017-1957382497.png"></a></p>
+<h2 id="模式的实现"><a href="#模式的实现" class="headerlink" title="模式的实现#"></a>模式的实现<a target="_blank" rel="noopener" href="https://www.cnblogs.com/timefiles/p/ObserverPattern.html#%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0">#</a></h2><p>观察者模式的实现代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">class Program</span><br><span class="line">&#123;</span><br><span class="line">    static void Main(string[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Subject subject=new ConcreteSubject();</span><br><span class="line">        IObserver obs1=new ConcreteObserver1();</span><br><span class="line">        IObserver obs2=new ConcreteObserver2();</span><br><span class="line">        subject.Add(obs1);</span><br><span class="line">        subject.Add(obs2);</span><br><span class="line">        subject.NotifyObserver();</span><br><span class="line">        Console.Read();        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public abstract class Subject</span><br><span class="line">&#123;</span><br><span class="line">    protected List&lt;IObserver&gt; observers=new List&lt;IObserver&gt;();   </span><br><span class="line">    </span><br><span class="line">    public void Add(IObserver observer)</span><br><span class="line">    &#123;</span><br><span class="line">        observers.Add(observer);</span><br><span class="line">    &#125;    </span><br><span class="line">    </span><br><span class="line">    public void Remove(IObserver observer)</span><br><span class="line">    &#123;</span><br><span class="line">        observers.Remove(observer);</span><br><span class="line">    &#125;   </span><br><span class="line">    public abstract void NotifyObserver(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class ConcreteSubject : Subject</span><br><span class="line">&#123;</span><br><span class="line">    public override  void NotifyObserver()</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;具体目标发生改变...&quot;);</span><br><span class="line">        Console.WriteLine(&quot;--------------&quot;);       </span><br><span class="line">       </span><br><span class="line">        foreach (var obs in observers)</span><br><span class="line">    &#123;</span><br><span class="line">            obs.Response(); </span><br><span class="line">    &#125;        </span><br><span class="line">    &#125;          </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public interface IObserver</span><br><span class="line">&#123;</span><br><span class="line">    void Response(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class ConcreteObserver1 : IObserver</span><br><span class="line">&#123;</span><br><span class="line">    public void Response()</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;具体观察者1作出反应！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class ConcreteObserver2 : IObserver</span><br><span class="line">&#123;</span><br><span class="line">    public void Response()</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;具体观察者2作出反应！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">具体目标发生改变...</span><br><span class="line">--------------</span><br><span class="line">具体观察者1作出反应！</span><br><span class="line">具体观察者2作出反应！</span><br></pre></td></tr></table></figure>
+
+<p>通过前面的分析与应用实例可知观察者模式适合以下几种情形：</p>
+<ul>
+<li>对象间存在一对多关系，一个对象的状态发生改变会影响其他对象。</li>
+<li>当一个抽象模型有两个方面，其中一个方面依赖于另一方面时，可将这二者封装在独立的对象中以使它们可以各自独立地改变和复用。</li>
+</ul>
+<p><strong>在.net环境下，其运行时库为开发者提供了IObservable和 IObserver接口，用于实现观察者模式软件设计</strong>。另外，<strong>ObservableCollection</strong> 类表示一个动态数据集合，它可在添加、删除项目或刷新整个列表时提供通知。</p>
+<blockquote>
+<ul>
+<li><strong>提供者</strong>或主题，是将通知发送给观察者的对象。 <strong>提供程序是实现IObservable 接口的类或结构</strong>。 提供者<strong>必须实现单个方法IObservable .Subscribe</strong>，该方法由希望从提供者接收通知的<strong>观察者调用</strong>。</li>
+<li><strong>观察者</strong>，即从提供程序接收通知的对象。 <strong>观察者是实现 IObserver 接口的类或结构</strong>。 观察者<strong>必须实现以下三个方法</strong>，这三个方法<strong>均由提供程序调用</strong>：<br><strong>IObserver.OnNext</strong>，它向观察者提供新信息或当前信息。<br><strong>IObserver.OnError</strong>，它通知观察者已发生错误。<br><strong>IObserver.OnCompleted</strong>，它指示提供程序已完成发送通知。</li>
+<li>允许提供程序跟踪观察者的一种机制。 通常情况下，<strong>提供程序使用容器对象（如 List 对象）来保存对已订阅通知的 IObserver 实现的引用</strong>。 将存储容器用于此目的使提供程序能够处理零到无限数量的观察者。 未定义观察者接收通知的顺序；<strong>提供程序可以随意使用任何方法来确定顺序</strong>。</li>
+<li><strong>IDisposable 实现</strong>，它使提供程序在能够通知完成时<strong>删除观察者</strong>。 观察者从 Subscribe 方法接收对 IDisposable 实现的引用，因此它们还可以调用 IDisposable.Dispose 方法，以便在提供程序已完成发送通知之前<strong>取消订阅</strong>。</li>
+<li><strong>包含提供程序发送到其观察者的数据的对象。 此对象的类型对应 IObservable 和 IObserver 接口的泛型类型参数</strong>。 尽管此对象可与 IObservable 实现相同，但<strong>通常情况下，它是一个单独的类型</strong>。</li>
+</ul>
+</blockquote>
+<p><em>注：在 Java 中，通过 java.util.Observable 类和 java.util.Observer 接口定义了观察者模式，只要实现它们的子类就可以编写观察者模式实例。</em></p>
+<p>下面的示例演示观察者设计模式，实现定位系统实时通知当前经纬度坐标，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br></pre></td><td class="code"><pre><span class="line">class Program</span><br><span class="line">&#123;    </span><br><span class="line">    static void Main(string[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        </span><br><span class="line">        LocationTracker provider = new LocationTracker();</span><br><span class="line">        LocationReporter reporter1 = new LocationReporter(&quot;FixedGPS&quot;);</span><br><span class="line">        reporter1.Subscribe(provider);</span><br><span class="line">        LocationReporter reporter2 = new LocationReporter(&quot;MobileGPS&quot;);</span><br><span class="line">        reporter2.Subscribe(provider);</span><br><span class="line"></span><br><span class="line">        provider.TrackLocation(new Location(47.6456, -122.1312));</span><br><span class="line">        reporter1.Unsubscribe();</span><br><span class="line">        provider.TrackLocation(new Location(47.6677, -122.1199));</span><br><span class="line">        provider.TrackLocation(null);</span><br><span class="line">        provider.EndTransmission();</span><br><span class="line"></span><br><span class="line">        Console.Read();        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public struct Location</span><br><span class="line">&#123;</span><br><span class="line">    double lat, lon;</span><br><span class="line"></span><br><span class="line">    public Location(double latitude, double longitude)</span><br><span class="line">    &#123;</span><br><span class="line">        this.lat = latitude;</span><br><span class="line">        this.lon = longitude;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    public double Latitude</span><br><span class="line">    &#123; get &#123; return this.lat; &#125; &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    public double Longitude</span><br><span class="line">    &#123; get &#123; return this.lon; &#125; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class LocationReporter : IObserver&lt;Location&gt;</span><br><span class="line">&#123;</span><br><span class="line">    private IDisposable unsubscriber;</span><br><span class="line">    private string instName;</span><br><span class="line"></span><br><span class="line">    public LocationReporter(string name)</span><br><span class="line">    &#123;</span><br><span class="line">        this.instName = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public string Name</span><br><span class="line">    &#123; get &#123; return this.instName; &#125; &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    public virtual void Subscribe(IObservable&lt;Location&gt; provider)</span><br><span class="line">    &#123;</span><br><span class="line">        if (provider != null)</span><br><span class="line">            unsubscriber = provider.Subscribe(this);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public virtual void OnCompleted()</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;位置跟踪器已将数据传输到 &#123;0&#125;&quot;, this.Name);</span><br><span class="line">        this.Unsubscribe();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public virtual void OnError(Exception e)</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;&#123;0&#125;: 无法确定位置&quot;, this.Name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public virtual void OnNext(Location value)</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(&quot;&#123;2&#125;: 当前位置是 &#123;0&#125;, &#123;1&#125;&quot;, value.Latitude, value.Longitude, this.Name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    public virtual void Unsubscribe()</span><br><span class="line">    &#123;</span><br><span class="line">        unsubscriber.Dispose();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class LocationTracker : IObservable&lt;Location&gt;</span><br><span class="line">&#123;</span><br><span class="line">    public LocationTracker()</span><br><span class="line">    &#123;</span><br><span class="line">        observers = new List&lt;IObserver&lt;Location&gt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private List&lt;IObserver&lt;Location&gt;&gt; observers;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    public IDisposable Subscribe(IObserver&lt;Location&gt; observer)</span><br><span class="line">    &#123;</span><br><span class="line">        if (!observers.Contains(observer))</span><br><span class="line">            observers.Add(observer);</span><br><span class="line">        return new Unsubscriber(observers, observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    private class Unsubscriber : IDisposable</span><br><span class="line">    &#123;</span><br><span class="line">        private List&lt;IObserver&lt;Location&gt;&gt; _observers;</span><br><span class="line">        private IObserver&lt;Location&gt; _observer;</span><br><span class="line"></span><br><span class="line">        public Unsubscriber(List&lt;IObserver&lt;Location&gt;&gt; observers, IObserver&lt;Location&gt; observer)</span><br><span class="line">        &#123;</span><br><span class="line">            this._observers = observers;</span><br><span class="line">            this._observer = observer;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public void Dispose()</span><br><span class="line">        &#123;</span><br><span class="line">            if (_observer != null &amp;&amp; _observers.Contains(_observer))</span><br><span class="line">                _observers.Remove(_observer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void TrackLocation(Nullable&lt;Location&gt; loc)</span><br><span class="line">    &#123;</span><br><span class="line">        foreach (var observer in observers)</span><br><span class="line">        &#123;</span><br><span class="line">            if (!loc.HasValue)</span><br><span class="line">                observer.OnError(new LocationUnknownException());</span><br><span class="line">            else</span><br><span class="line">                observer.OnNext(loc.Value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void EndTransmission()</span><br><span class="line">    &#123;</span><br><span class="line">        foreach (var observer in observers.ToArray()) </span><br><span class="line">        &#123;</span><br><span class="line">            if (observers.Contains(observer)) </span><br><span class="line">                observer.OnCompleted();</span><br><span class="line">        &#125; </span><br><span class="line">        observers.Clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class LocationUnknownException : Exception</span><br><span class="line">&#123;</span><br><span class="line">    internal LocationUnknownException()</span><br><span class="line">    &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FixedGPS：当前位置是47.6456，-122.1312</span><br><span class="line">MobileGPS：当前位置是47.6456，-122.1312</span><br><span class="line">MobileGPS：当前位置是47.6677，-122.1199</span><br><span class="line">MobileGPS：无法确定位置位置</span><br><span class="line">跟踪器已将数据传输到MobileGPS</span><br></pre></td></tr></table></figure>
+
+<p>参考资料：<br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/standard/events/observer-design-pattern">观察者设计模式——MSDN</a><br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netframework-4.8">ObservableCollection 类——MSDN</a><br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.iobservable-1?view=netframework-4.8">IObservable 接口——MSDN</a><br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.iobserver-1?view=netframework-4.8">IObserver 接口——MSDN</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="prev" title="解释器模式">
+      <i class="fa fa-chevron-left"></i> 解释器模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" rel="next" title="行为型模式之策略模式">
+      行为型模式之策略模式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">模式的结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">模式的实现</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">251</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">144</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

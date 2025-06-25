@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、引言　　这个系列也是自己对设计模式的一些学习笔记,希望对一些初学设计模式的人有所帮助的,在上一个专题中介绍了单例模式,在这个专题中继续为大家介绍一个比较容易理解的模式——简单工厂模式。 二、简单工厂模式的介绍　　说到简单工厂，自然的第一个疑问当然就是什么是简单工厂模式了？ 在现实生活中工厂是负责生产产品的,同样在设计模式中,简单工厂模式我们也可以理解为负责生产对象的一个类, 我们平常编程中，当">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单工厂模式CSharp实现">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、引言　　这个系列也是自己对设计模式的一些学习笔记,希望对一些初学设计模式的人有所帮助的,在上一个专题中介绍了单例模式,在这个专题中继续为大家介绍一个比较容易理解的模式——简单工厂模式。 二、简单工厂模式的介绍　　说到简单工厂，自然的第一个疑问当然就是什么是简单工厂模式了？ 在现实生活中工厂是负责生产产品的,同样在设计模式中,简单工厂模式我们也可以理解为负责生产对象的一个类, 我们平常编程中，当">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201309/05170314-a7f4c3e70df3420fa5408c7ccca265d9.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201309/05173548-27a5da55b8434859adb53f386f9c3932.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="1899-11-29T15:54:17.000Z">
+<meta property="article:modified_time" content="2025-06-25T06:36:30.342Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>简单工厂模式CSharp实现 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          简单工厂模式CSharp实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:00" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:00+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-06-25 14:36:30" itemprop="dateModified" datetime="2025-06-25T14:36:30+08:00">2025-06-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h2><p>　　这个系列也是自己对设计模式的一些学习笔记,希望对一些初学设计模式的人有所帮助的,在上一个专题中介绍了单例模式,在这个专题中继续为大家介绍一个比较容易理解的模式——简单工厂模式。</p>
+<h2 id="二、简单工厂模式的介绍"><a href="#二、简单工厂模式的介绍" class="headerlink" title="二、简单工厂模式的介绍"></a>二、简单工厂模式的介绍</h2><p>　　说到简单工厂，自然的第一个疑问当然就是什么是简单工厂模式了？ 在现实生活中工厂是负责生产产品的,同样在设计模式中,简单工厂模式我们也可以理解为负责<strong>生产对象的一个类,</strong> 我们平常编程中，当使用”new”关键字创建一个对象时，此时该类就依赖与这个对象，也就是他们之间的耦合度高，当需求变化时，我们就不得不去修改此类的源码，此时我们可以运用面向对象（OO）的很重要的原则去解决这一的问题，该原则就是——<strong>封装改变，既然要封装改变，自然也就要找到改变的代码，然后把改变的代码用类来封装</strong>，这样的一种思路也就是我们简单工厂模式的实现方式了。下面通过一个现实生活中的例子来引出简单工厂模式。</p>
+<p>　　在外面打工的人，免不了要经常在外面吃饭，当然我们也可以自己在家做饭吃，但是自己做饭吃麻烦，因为又要自己买菜，然而，出去吃饭就完全没有这些麻烦的，我们只需要到餐馆点菜就可以了，买菜的事情就交给餐馆做就可以了，这里餐馆就充当简单工厂的角色，下面让我们看看现实生活中的例子用代码是怎样来表现的。</p>
+<p>自己做饭的情况：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 自己做饭的情况 &#x2F;&#x2F;&#x2F; 没有简单工厂之前，客户想吃什么菜只能自己炒的 &#x2F;&#x2F;&#x2F; </summary><br>    public class Customer<br>    { &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 烧菜方法 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="type"></param><br>        &#x2F;&#x2F;&#x2F; <returns></returns><br>        public static Food Cook(string type)<br>        {<br>            Food food = null; &#x2F;&#x2F; 客户A说：我想吃西红柿炒蛋怎么办？ &#x2F;&#x2F; 客户B说：那你就自己烧啊 &#x2F;&#x2F; 客户A说： 好吧，那就自己做吧<br>            if (type.Equals(“西红柿炒蛋”))<br>            {<br>                food = new TomatoScrambledEggs();<br>            } &#x2F;&#x2F; 我又想吃土豆肉丝, 这个还是得自己做 &#x2F;&#x2F; 我觉得自己做好累哦，如果能有人帮我做就好了？<br>            else if (type.Equals(“土豆肉丝”))<br>            {<br>                food = new ShreddedPorkWithPotatoes();<br>            } return food;<br>        } static void Main(string[] args)<br>        { &#x2F;&#x2F; 做西红柿炒蛋<br>            Food food1 &#x3D; Cook(“西红柿炒蛋”);<br>            food1.Print();</p>
+<pre><code>        Food food2 \= Cook(&quot;土豆肉丝&quot;);
+        food2.Print();
+
+        Console.Read();
+    &#125;
+&#125; /// &lt;summary&gt;
+/// 菜抽象类 /// &lt;/summary&gt;
+public abstract class Food
+&#123; // 输出点了什么菜
+    public abstract void Print();
+&#125; /// &lt;summary&gt;
+/// 西红柿炒鸡蛋这道菜 /// &lt;/summary&gt;
+public class TomatoScrambledEggs : Food
+&#123; public override void Print()
+    &#123;
+        Console.WriteLine(&quot;一份西红柿炒蛋！&quot;);
+    &#125;
+&#125; /// &lt;summary&gt;
+/// 土豆肉丝这道菜 /// &lt;/summary&gt;
+public class ShreddedPorkWithPotatoes : Food
+&#123; public override void Print()
+    &#123;
+        Console.WriteLine(&quot;一份土豆肉丝&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>　　自己做饭，如果我们想吃别的菜时，此时就需要去买这种菜和洗菜这些繁琐的操作，有了餐馆（也就是简单工厂）之后，我们就可以把这些操作交给餐馆去做，此时消费者（也就是我们）对菜（也就是具体对象）的依赖关系从直接变成的间接的，这样就是实现了面向对象的另一个原则——<strong>降低对象之间的耦合度，</strong>下面就具体看看有了餐馆之后的实现代码（即简单工厂的实现）：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>&#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 顾客充当客户端，负责调用简单工厂来生产对象 &#x2F;&#x2F;&#x2F; 即客户点菜，厨师（相当于简单工厂）负责烧菜(生产的对象) &#x2F;&#x2F;&#x2F; </summary><br>    class Customer<br>    { static void Main(string[] args)<br>        { &#x2F;&#x2F; 客户想点一个西红柿炒蛋<br>            Food food1 &#x3D; FoodSimpleFactory.CreateFood(“西红柿炒蛋”);<br>            food1.Print(); &#x2F;&#x2F; 客户想点一个土豆肉丝<br>            Food food2 &#x3D; FoodSimpleFactory.CreateFood(“土豆肉丝”);<br>            food2.Print();</p>
+<pre><code>        Console.Read();
+    &#125;
+&#125; /// &lt;summary&gt;
+/// 菜抽象类 /// &lt;/summary&gt;
+public abstract class Food
+&#123; // 输出点了什么菜
+    public abstract void Print();
+&#125; /// &lt;summary&gt;
+/// 西红柿炒鸡蛋这道菜 /// &lt;/summary&gt;
+public class TomatoScrambledEggs : Food
+&#123; public override void Print()
+    &#123;
+        Console.WriteLine(&quot;一份西红柿炒蛋！&quot;);
+    &#125;
+&#125; /// &lt;summary&gt;
+/// 土豆肉丝这道菜 /// &lt;/summary&gt;
+public class ShreddedPorkWithPotatoes : Food
+&#123; public override void Print()
+    &#123;
+        Console.WriteLine(&quot;一份土豆肉丝&quot;);
+    &#125;
+&#125; /// &lt;summary&gt;
+/// 简单工厂类, 负责 炒菜 /// &lt;/summary&gt;
+public class FoodSimpleFactory
+&#123; public static Food CreateFood(string type)
+    &#123;
+        Food food \= null; if (type.Equals(&quot;土豆肉丝&quot;))
+        &#123;
+            food\= new ShreddedPorkWithPotatoes();
+        &#125; else if (type.Equals(&quot;西红柿炒蛋&quot;))
+        &#123;
+            food\= new TomatoScrambledEggs();
+        &#125; return food;
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h2 id="三、优点与缺点"><a href="#三、优点与缺点" class="headerlink" title="三、优点与缺点"></a>三、优点与缺点</h2><p>　　看完简单工厂模式的实现之后，你和你的小伙伴们肯定会有这样的疑惑（因为我学习的时候也有）——这样我们只是把变化移到了工厂类中罢了，好像没有变化的问题，因为如果客户想吃其他菜时，此时我们<strong>还是需要修改工厂类中的方法</strong>（也就是多加case语句，没应用简单工厂模式之前，修改的是客户类）。我首先要说：你和你的小伙伴很对，<strong>这个就是简单工厂模式的缺点所在</strong>（这个缺点后面介绍的工厂方法可以很好地解决），然而，简单工厂模式与之前的实现也有它的优点：</p>
+<ul>
+<li>简单工厂模式解决了客户端直接依赖于具体对象的问题，客户端可以消除直接创建对象的责任，而仅仅是消费产品。简单工厂模式实现了对责任的分割。</li>
+<li>简单工厂模式也起到了代码复用的作用，因为之前的实现（自己做饭的情况）中，换了一个人同样要去在自己的类中实现做菜的方法，然后有了简单工厂之后，去餐馆吃饭的所有人都不用那么麻烦了，只需要负责消费就可以了。此时简单工厂的烧菜方法就让所有客户共用了。（同时这点也是简单工厂方法的缺点——因为工厂类集中了所有产品创建逻辑，一旦不能正常工作，整个系统都会受到影响，也没什么不好理解的，就如<strong>事物都有两面性一样道理</strong>）</li>
+</ul>
+<p>虽然上面已经介绍了简单工厂模式的缺点，下面还是总结下简单工厂模式的缺点：</p>
+<ul>
+<li>工厂类集中了所有产品创建逻辑，一旦不能正常工作，整个系统都会受到影响（通俗地意思就是：一旦餐馆没饭或者关门了，很多不愿意做饭的人就没饭吃了）</li>
+<li>系统扩展困难，一旦添加新产品就不得不修改工厂逻辑，这样就会造成工厂逻辑过于复杂。</li>
+</ul>
+<p>了解了简单工厂模式之后的优缺点之后，我们之后就可以知道简单工厂的应用场景了：</p>
+<ul>
+<li>当工厂类负责创建的对象比较少时可以考虑使用简单工厂模式（）</li>
+<li>客户如果只知道传入工厂类的参数，对于如何创建对象的逻辑不关心时可以考虑使用简单工厂模式</li>
+</ul>
+<h2 id="四、简单工厂模式UML图"><a href="#四、简单工厂模式UML图" class="headerlink" title="四、简单工厂模式UML图"></a>四、简单工厂模式UML图</h2><p>简单工厂模式又叫静态方法模式（因为工厂类都定义了一个静态方法），由一个工厂类根据传入的参数决定创建出哪一种产品类的实例（通俗点表达：通过客户下的订单来负责烧那种菜）。简单工厂模式的UML图如下：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201309/05170314-a7f4c3e70df3420fa5408c7ccca265d9.png"></p>
+<h2 id="五、-NET中简单工厂模式的实现"><a href="#五、-NET中简单工厂模式的实现" class="headerlink" title="五、.NET中简单工厂模式的实现"></a>五、.NET中简单工厂模式的实现</h2><p>　　介绍完了简单工厂模式之后，我学习的时候就像：.NET类库中是否有实现了简单工厂模式的类呢？后面确实有，.NET中<a target="_blank" rel="noopener" href="http://msdn.microsoft.com/zh-cn/library/system.text.encoding.aspx">System.Text.Encoding</a>类就实现了简单工厂模式，该类中的**<a target="_blank" rel="noopener" href="http://msdn.microsoft.com/zh-cn/library/wzsz3bk3.aspx">GetEncoding</a>(int codepage)<strong>就是工厂方法</strong>，**具体的代码可以通过Reflector反编译工具进行查看，下面我也贴出该方法中部分代码：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>public static Encoding GetEncoding(int codepage)<br>{<br>    Encoding unicode = null; if (encodings !&#x3D; null)<br>    {<br>        unicode = (Encoding) encodings[codepage];<br>    } if (unicode &#x3D;&#x3D; null)<br>    { object obj2; bool lockTaken &#x3D; false; try {<br>            Monitor.Enter(obj2 = InternalSyncObject, ref lockTaken); if (encodings &#x3D;&#x3D; null)<br>            {<br>                encodings = new Hashtable();<br>            }<br>            unicode = (Encoding) encodings[codepage]; if (unicode !&#x3D; null)<br>            { return unicode;<br>            } switch (codepage)<br>            { case 0:<br>                    unicode = Default; break; case 1: case 2: case 3: case 0x2a: throw new ArgumentException(Environment.GetResourceString(“Argument_CodepageNotSupported”, new object[] { codepage }), “codepage”); case 0x4b0:<br>                    unicode = Unicode; break; case 0x4b1:<br>                    unicode = BigEndianUnicode; break; case 0x6faf:<br>                    unicode = Latin1; break; case 0xfde9:<br>                    unicode = UTF8; break; case 0x4e4:<br>                    unicode = new SBCSCodePageEncoding(codepage); break; case 0x4e9f:<br>                    unicode = ASCII; break; default:<br>                    unicode = GetEncodingCodePage(codepage); if (unicode &#x3D;&#x3D; null)<br>                    {<br>                        unicode = GetEncodingRare(codepage);<br>                    } break;<br>            }<br>            encodings.Add(codepage, unicode); return unicode;</p>
+<pre><code>    &#125;
+</code></pre>
+<p>} </p>
+<p>View Code</p>
+<p>.NET 中Encoding的UML图为：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201309/05173548-27a5da55b8434859adb53f386f9c3932.png"></p>
+<p><strong>Encoding</strong>类中实现的简单工厂模式是简单工厂模式的一种演变，此时简单工厂类由抽象产品角色扮演，然而.NET中Encoding类是如何解决简单工厂模式中存在的问题的呢（即如果新添加一种编码怎么办）？在GetEncoding方法里的switch函数有如下代码：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> switch (codepage)<br>     {<br>          ……. default:<br>                    unicode = GetEncodingCodePage(codepage); if (unicode &#x3D;&#x3D; null)<br>                    {<br>                        unicode = <strong>GetEncodingRare</strong>(codepage); &#x2F;&#x2F;当编码很少见时<br> } break;<br>           ……<br>      }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>　　在GetEncodingRare方法里有一些不常用编码的实例化代码，微软正式通过这个方法来解决新增加一种编码的问题。（其实也就是列出所有可能的编码情况），微软之所以以这样的方式来解决这个问题，可能是由于现在编码已经稳定了，添加新编码的可能性比较低，所以在.NET 4.5仍然未改动这部分代码。</p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>到这里，简单工厂模式的介绍都到这里了，后面将介绍工厂方法模式来解决简单工厂模式中存在的问题。</p>
+<p>本专题中的全部源码：<a target="_blank" rel="noopener" href="http://files.cnblogs.com/zhili/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F.rar">简单工厂模式源码</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" rel="prev" title="组合模式">
+      <i class="fa fa-chevron-left"></i> 组合模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E8%80%85%E6%A8%A1%E5%BC%8FCSharp%E5%AE%9E%E7%8E%B0/" rel="next" title="状态者模式CSharp实现">
+      状态者模式CSharp实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">二、简单工厂模式的介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BC%98%E7%82%B9%E4%B8%8E%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、优点与缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8FUML%E5%9B%BE"><span class="nav-number">4.</span> <span class="nav-text">四、简单工厂模式UML图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81-NET%E4%B8%AD%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.</span> <span class="nav-text">五、.NET中简单工厂模式的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">252</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">145</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

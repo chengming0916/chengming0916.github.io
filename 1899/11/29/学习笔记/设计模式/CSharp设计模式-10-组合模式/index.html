@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、引言在软件开发过程中，我们经常会遇到处理简单对象和复合对象的情况，例如对操作系统中目录的处理就是这样的一个例子，因为目录可以包括单独的文件，也可以包括文件夹，文件夹又是由文件组成的，由于简单对象和复合对象在功能上区别，导致在操作过程中必须区分简单对象和复合对象，这样就会导致客户调用带来不必要的麻烦，然而作为客户，它们希望能够始终一致地对待简单对象和复合对象。然而组合模式就是解决这样的问题。下面">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSharp设计模式(10)——组合模式（Composite Pattern）">
+<meta property="og:url" content="http://chengming0916.github.io/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-10-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、引言在软件开发过程中，我们经常会遇到处理简单对象和复合对象的情况，例如对操作系统中目录的处理就是这样的一个例子，因为目录可以包括单独的文件，也可以包括文件夹，文件夹又是由文件组成的，由于简单对象和复合对象在功能上区别，导致在操作过程中必须区分简单对象和复合对象，这样就会导致客户调用带来不必要的麻烦，然而作为客户，它们希望能够始终一致地对待简单对象和复合对象。然而组合模式就是解决这样的问题。下面">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201310/21132831-30f99887dec34fadb21282f0158f72b8.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/383187/201310/21132847-48c4cdf839c84cbeb4ea42d323587e21.png">
+<meta property="article:published_time" content="1899-11-29T15:55:00.000Z">
+<meta property="article:modified_time" content="2025-07-04T11:04:20.551Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-10-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CSharp设计模式(10)——组合模式（Composite Pattern） | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-10-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSharp设计模式(10)——组合模式（Composite Pattern）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：1899-11-30 00:00:43" itemprop="dateCreated datePublished" datetime="1899-11-30T00:00:43+08:05">1899-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-04 19:04:20" itemprop="dateModified" datetime="2025-07-04T19:04:20+08:00">2025-07-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/" itemprop="url" rel="index"><span itemprop="name">Lessons</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lessons/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-10-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-10-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h2><p>在软件开发过程中，我们经常会遇到处理简单对象和复合对象的情况，例如对操作系统中目录的处理就是这样的一个例子，因为目录可以包括单独的文件，也可以包括文件夹，文件夹又是由文件组成的，由于简单对象和复合对象在功能上区别，导致在操作过程中必须区分简单对象和复合对象，这样就会导致客户调用带来不必要的麻烦，然而作为客户，它们希望能够始终一致地对待简单对象和复合对象。然而组合模式就是解决这样的问题。下面让我们看看组合模式是怎样解决这个问题的。</p>
+<h2 id="二、组合模式的详细介绍"><a href="#二、组合模式的详细介绍" class="headerlink" title="二、组合模式的详细介绍"></a>二、组合模式的详细介绍</h2><h3 id="2-1-组合模式的定义"><a href="#2-1-组合模式的定义" class="headerlink" title="2.1 组合模式的定义"></a>2.1 组合模式的定义</h3><p>组合模式允许你将对象组合成树形结构来表现”部分-整体“的层次结构，使得客户以一致的方式处理单个对象以及对象的组合。下面我们用绘制的例子来详细介绍组合模式，图形可以由一些基本图形元素组成（如直线，圆等），也可以由一些复杂图形组成（由基本图形元素组合而成），为了使客户对基本图形和复杂图形的调用保持一致，我们使用组合模式来达到整个目的。</p>
+<p>组合模式实现的最关键的地方是——简单对象和复合对象必须实现相同的接口。这就是组合模式能够将组合对象和简单对象进行一致处理的原因。</p>
+<h3 id="2-2-组合模式的实现"><a href="#2-2-组合模式的实现" class="headerlink" title="2.2 组合模式的实现"></a>2.2 组合模式的实现</h3><p>介绍完组合模式的定义之后，让我们以图形的例子来实现组合模式，具体代码如下：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> &#x2F;&#x2F; 通过一些简单图形以及一些复杂图形构建图形树来演示组合模式 &#x2F;&#x2F; 客户端调用<br>    class Client<br>    { static void Main(string[] args)<br>        {<br>            ComplexGraphics complexGraphics = new ComplexGraphics(“一个复杂图形和两条线段组成的复杂图形”);<br>            complexGraphics.Add(new Line(“线段A”));<br>            ComplexGraphics CompositeCG = new ComplexGraphics(“一个圆和一条线组成的复杂图形”);<br>            CompositeCG.Add(new Circle(“圆”));<br>            CompositeCG.Add(new Circle(“线段B”));<br>            complexGraphics.Add(CompositeCG);<br>            Line l = new Line(“线段C”);<br>            complexGraphics.Add(l); &#x2F;&#x2F; 显示复杂图形的画法<br>            Console.WriteLine(“复杂图形的绘制如下：”);<br>            Console.WriteLine(“-——————–”);<br>            complexGraphics.Draw();<br>            Console.WriteLine(“复杂图形绘制完成”);<br>            Console.WriteLine(“-——————–”);<br>            Console.WriteLine(); &#x2F;&#x2F; 移除一个组件再显示复杂图形的画法<br> complexGraphics.Remove(l);<br>            Console.WriteLine(“移除线段C后，复杂图形的绘制如下：”);<br>            Console.WriteLine(“-——————–”);<br>            complexGraphics.Draw();<br>            Console.WriteLine(“复杂图形绘制完成”);<br>            Console.WriteLine(“-——————–”);<br>            Console.Read();<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 图形抽象类， &#x2F;&#x2F;&#x2F; </summary><br>    public abstract class Graphics<br>    { public string Name { get; set; } public Graphics(string name)<br>        { this.Name &#x3D; name;<br>        } public abstract void Draw(); public abstract void Add(Graphics g); public abstract void Remove(Graphics g);<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 简单图形类——线 &#x2F;&#x2F;&#x2F; </summary><br>    public class Line : Graphics<br>    { public Line(string name)<br>            : base(name)<br>        { } &#x2F;&#x2F; 重写父类抽象方法<br>        public override void Draw()<br>        {<br>            Console.WriteLine(“画 “ + Name);<br>        } &#x2F;&#x2F; 因为简单图形在添加或移除其他图形，所以简单图形Add或Remove方法没有任何意义 &#x2F;&#x2F; 如果客户端调用了简单图形的Add或Remove方法将会在运行时抛出异常 &#x2F;&#x2F; 我们可以在客户端捕获该类移除并处理<br>        public override void Add(Graphics g)<br>        { throw new Exception(“不能向简单图形Line添加其他图形”);<br>        } public override void Remove(Graphics g)<br>        { throw new Exception(“不能向简单图形Line移除其他图形”);<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 简单图形类——圆 &#x2F;&#x2F;&#x2F; </summary><br>    public class Circle : Graphics<br>    { public Circle(string name)<br>            : base(name)<br>        { } &#x2F;&#x2F; 重写父类抽象方法<br>        public override void Draw()<br>        {<br>            Console.WriteLine(“画 “ + Name);<br>        } public override void Add(Graphics g)<br>        { throw new Exception(“不能向简单图形Circle添加其他图形”);<br>        } public override void Remove(Graphics g)<br>        { throw new Exception(“不能向简单图形Circle移除其他图形”);<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 复杂图形，由一些简单图形组成,这里假设该复杂图形由一个圆两条线组成的复杂图形 &#x2F;&#x2F;&#x2F; </summary><br>    public class ComplexGraphics : Graphics<br>    { private List<Graphics> complexGraphicsList &#x3D; new List<Graphics>(); public ComplexGraphics(string name)<br>            : base(name)<br>        { } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 复杂图形的画法 &#x2F;&#x2F;&#x2F; </summary><br>        public override void Draw()<br>        { foreach (Graphics g in complexGraphicsList)<br>            {<br>                g.Draw();<br>            }<br>        } public override void Add(Graphics g)<br>        {<br>            complexGraphicsList.Add(g);<br>        } public override void Remove(Graphics g)<br>        {<br>            complexGraphicsList.Remove(g);<br>        }<br>    }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>由于基本图形对象不存在Add和Remove方法，上面实现中直接通过抛出一个异常的方式来解决这样的问题的，但是我们想以一种更安全的方式来解决——因为基本图形根本不存在这样的方法，我们是不是可以移除这些方法呢？为了移除这些方法，我们就不得不修改Graphics接口，我们把管理子对象的方法声明放在复合图形对象里面，这样简单对象Line、Circle使用这些方法时在编译时就会出错，这样的一种实现方式我们称为安全式的组合模式，然而上面的实现方式称为透明式的组合模式，下面让我们看看安全式的组合模式又是怎样实现的，具体实现代码如下：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>&#x2F;&#x2F;&#x2F; 安全式的组合模式 &#x2F;&#x2F;&#x2F; 此方式实现的组合模式把管理子对象的方法声明在树枝构件ComplexGraphics类中 &#x2F;&#x2F;&#x2F; 这样如果叶子节点Line、Circle使用了Add或Remove方法时，就能在编译期间出现错误 &#x2F;&#x2F;&#x2F; 但这种方式虽然解决了透明式组合模式的问题，但是它使得叶子节点和树枝构件具有不一样的接口。 &#x2F;&#x2F;&#x2F; 所以这两种方式实现的组合模式各有优缺点，具体使用哪个，可以根据问题的实际情况而定<br>    class Client<br>    { static void Main(string[] args)<br>        {<br>            ComplexGraphics complexGraphics = new ComplexGraphics(“一个复杂图形和两条线段组成的复杂图形”);<br>            complexGraphics.Add(new Line(“线段A”));<br>            ComplexGraphics CompositeCG = new ComplexGraphics(“一个圆和一条线组成的复杂图形”);<br>            CompositeCG.Add(new Circle(“圆”));<br>            CompositeCG.Add(new Circle(“线段B”));<br>            complexGraphics.Add(CompositeCG);<br>            Line l = new Line(“线段C”);<br>            complexGraphics.Add(l); &#x2F;&#x2F; 显示复杂图形的画法<br>            Console.WriteLine(“复杂图形的绘制如下：”);<br>            Console.WriteLine(“-——————–”);<br>            complexGraphics.Draw();<br>            Console.WriteLine(“复杂图形绘制完成”);<br>            Console.WriteLine(“-——————–”);<br>            Console.WriteLine(); &#x2F;&#x2F; 移除一个组件再显示复杂图形的画法<br> complexGraphics.Remove(l);<br>            Console.WriteLine(“移除线段C后，复杂图形的绘制如下：”);<br>            Console.WriteLine(“-——————–”);<br>            complexGraphics.Draw();<br>            Console.WriteLine(“复杂图形绘制完成”);<br>            Console.WriteLine(“-——————–”);<br>            Console.Read();<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 图形抽象类， &#x2F;&#x2F;&#x2F; </summary><br>    public abstract class Graphics<br>    { public string Name { get; set; } public Graphics(string name)<br>        { this.Name &#x3D; name;<br>        } public abstract void Draw(); &#x2F;&#x2F; 移除了Add和Remove方法 &#x2F;&#x2F; 把管理子对象的方法放到了ComplexGraphics类中进行管理 &#x2F;&#x2F; 因为这些方法只在复杂图形中才有意义<br> } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 简单图形类——线 &#x2F;&#x2F;&#x2F; </summary><br>    public class Line : Graphics<br>    { public Line(string name)<br>            : base(name)<br>        { } &#x2F;&#x2F; 重写父类抽象方法<br>        public override void Draw()<br>        {<br>            Console.WriteLine(“画 “ + Name);<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 简单图形类——圆 &#x2F;&#x2F;&#x2F; </summary><br>    public class Circle : Graphics<br>    { public Circle(string name)<br>            : base(name)<br>        { } &#x2F;&#x2F; 重写父类抽象方法<br>        public override void Draw()<br>        {<br>            Console.WriteLine(“画 “ + Name);<br>        }<br>    } &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; 复杂图形，由一些简单图形组成,这里假设该复杂图形由一个圆两条线组成的复杂图形 &#x2F;&#x2F;&#x2F; </summary><br>    public class ComplexGraphics : Graphics<br>    { private List<Graphics> complexGraphicsList &#x3D; new List<Graphics>(); public ComplexGraphics(string name)<br>            : base(name)<br>        { } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 复杂图形的画法 &#x2F;&#x2F;&#x2F; </summary><br>        public override void Draw()<br>        { foreach (Graphics g in complexGraphicsList)<br>            {<br>                g.Draw();<br>            }<br>        } public void Add(Graphics g)<br>        {<br>            complexGraphicsList.Add(g);<br>        } public void Remove(Graphics g)<br>        {<br>            complexGraphicsList.Remove(g);<br>        }<br>    }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="2-3-组合模式的类图"><a href="#2-3-组合模式的类图" class="headerlink" title="2.3 组合模式的类图"></a>2.3 组合模式的类图</h3><p>看完了上面两者方式的实现之后，让我们具体看看组合模式的类图来理清楚组合模式中类之间的关系。</p>
+<p>透明式的组合模式类图：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201310/21132831-30f99887dec34fadb21282f0158f72b8.png"></p>
+<p>安全式组合模式的类图：</p>
+<p><img src="https://images0.cnblogs.com/blog/383187/201310/21132847-48c4cdf839c84cbeb4ea42d323587e21.png"></p>
+<p>组合模式中涉及到三个角色：</p>
+<ul>
+<li><strong>抽象构件（Component）角色</strong>：这是一个抽象角色，上面实现中<strong>Graphics</strong>充当这个角色，它给参加组合的对象定义出了公共的接口及默认行为，可以用来管理所有的子对象（在透明式的组合模式是这样的）。在安全式的组合模式里，构件角色并不定义出管理子对象的方法，这一定义由树枝结构对象给出。</li>
+<li><strong>树叶构件（Leaf）角色</strong>：树叶对象时没有下级子对象的对象，上面实现中<strong>Line和Circle</strong>充当这个角色，定义出参加组合的原始对象的行为</li>
+<li><strong>树枝构件（Composite）角色</strong>：代表参加组合的有下级子对象的对象，上面实现中<strong>ComplexGraphics</strong>充当这个角色，树枝对象给出所有管理子对象的方法实现，如Add、Remove等。</li>
+</ul>
+<h2 id="三、组合模式的优缺点"><a href="#三、组合模式的优缺点" class="headerlink" title="三、组合模式的优缺点"></a>三、组合模式的优缺点</h2><p><strong>优点：</strong></p>
+<ol>
+<li>组合模式使得客户端代码可以一致地处理对象和对象容器，无需关系处理的单个对象，还是组合的对象容器。</li>
+<li>将”客户代码与复杂的对象容器结构“解耦。</li>
+<li>可以更容易地往组合对象中加入新的构件。</li>
+</ol>
+<p><strong>缺点：</strong>使得设计更加复杂。客户端需要花更多时间理清类之间的层次关系。（这个是几乎所有设计模式所面临的问题）。</p>
+<p><strong>注意的问题：</strong></p>
+<ol>
+<li>有时候系统需要遍历一个树枝结构的子构件很多次，这时候可以考虑把遍历子构件的结构存储在父构件里面作为缓存。</li>
+<li>客户端尽量不要直接调用树叶类中的方法（在我上面实现就是这样的，创建的是一个树枝的具体对象，应该使用<strong>Graphics</strong> complexGraphics &#x3D; new ComplexGraphics(“一个复杂图形和两条线段组成的复杂图形”);），而是借用其父类（Graphics）的多态性完成调用，这样可以增加代码的复用性。</li>
+</ol>
+<h2 id="四、组合模式的使用场景"><a href="#四、组合模式的使用场景" class="headerlink" title="四、组合模式的使用场景"></a>四、组合模式的使用场景</h2><p>在以下情况下应该考虑使用组合模式：</p>
+<ol>
+<li>需要表示一个对象整体或部分的层次结构。</li>
+<li>希望用户忽略组合对象与单个对象的不同，用户将统一地使用组合结构中的所有对象。</li>
+</ol>
+<h2 id="五、组合模式在-NET中的应用"><a href="#五、组合模式在-NET中的应用" class="headerlink" title="五、组合模式在.NET中的应用"></a>五、组合模式在.NET中的应用</h2><p>组合模式在.NET 中最典型的应用就是应用与WinForms和Web的开发中，在.NET类库中，都为这两个平台提供了很多现有的控件，然而System.Windows.Forms.dll中System.Windows.Forms.Control类就应用了组合模式，因为控件包括Label、TextBox等这样的简单控件，同时也包括GroupBox、DataGrid这样复合的控件，每个控件都需要调用<a target="_blank" rel="noopener" href="http://msdn.microsoft.com/zh-cn/library/vstudio/system.windows.forms.control.onpaint.aspx">OnPaint</a>方法来进行控件显示，为了表示这种对象之间整体与部分的层次结构，微软把Control类的实现应用了组合模式（确切地说应用了透明式的组合模式）。</p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>到这里组合模式的介绍就结束了，组合模式解耦了客户程序与复杂元素内部结构，从而使客户程序可以向处理简单元素一样来处理复杂元素。</p>
+<p>本文中所有源码：<a target="_blank" rel="noopener" href="http://files.cnblogs.com/zhili/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.rar">设计模式之组合模式</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/CSharp%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-12-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" rel="prev" title="CSharp设计模式(12)——享元模式（Flyweight Pattern）">
+      <i class="fa fa-chevron-left"></i> CSharp设计模式(12)——享元模式（Flyweight Pattern）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/1899/11/29/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E5%B0%8F%E7%BB%93/" rel="next" title="CSharp排序算法小结">
+      CSharp排序算法小结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">二、组合模式的详细介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 组合模式的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 组合模式的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%B1%BB%E5%9B%BE"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 组合模式的类图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、组合模式的优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、组合模式的使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%E5%9C%A8-NET%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">五、组合模式在.NET中的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">145</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="这篇文章延续上一篇 《win10下docker-compose搭建gitlab+gerrit+sonar+jenkins持续集成环境》，上一篇我们搭建好了持续集成的环境，这篇文章介绍如何将这些工具结合起来，把每个环节打通。下一篇我们会使用集成环境做安卓开发实战。 idea和Android SDK的下载安装使用不是本文的重点，我假设各位都是成熟的安卓开发人员并且已经搭建好了基于idea的安卓开发环境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gitlab+gerrit+sonar+jenkins+idea集成配置">
+<meta property="og:url" content="http://chengming0916.github.io/2019/06/07/Others/gitlab+gerrit+sonar+jenkins+idea%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="这篇文章延续上一篇 《win10下docker-compose搭建gitlab+gerrit+sonar+jenkins持续集成环境》，上一篇我们搭建好了持续集成的环境，这篇文章介绍如何将这些工具结合起来，把每个环节打通。下一篇我们会使用集成环境做安卓开发实战。 idea和Android SDK的下载安装使用不是本文的重点，我假设各位都是成熟的安卓开发人员并且已经搭建好了基于idea的安卓开发环境">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200320112532224.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2020030513091127.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305133616669.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305133747594.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/202003051314131.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200307130520170.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2020030513510417.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305135554798.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305140131321.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305140352404.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305140935213.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305165145257.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305165954217.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305183116366.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200311154306902.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/202003071225313.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200305181207710.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200307115857286.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200311213859781.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312122619730.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312143853393.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312145011811.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312145044571.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312145300865.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312145436972.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312163647375.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312171310913.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200312171450712.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200313110600220.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200313133824501.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200313131543774.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200313133735892.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200314123321215.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2020031314521367.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200313145334956.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200313150633520.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2019-06-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-04T11:04:19.727Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200320112532224.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70">
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/06/07/Others/gitlab+gerrit+sonar+jenkins+idea%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>gitlab+gerrit+sonar+jenkins+idea集成配置 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/06/07/Others/gitlab+gerrit+sonar+jenkins+idea%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gitlab+gerrit+sonar+jenkins+idea集成配置
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-08 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-08T00:00:00+08:00">2019-06-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-04 19:04:19" itemprop="dateModified" datetime="2025-07-04T19:04:19+08:00">2025-07-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index"><span itemprop="name">Others</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/06/07/Others/gitlab+gerrit+sonar+jenkins+idea%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/06/07/Others/gitlab+gerrit+sonar+jenkins+idea%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这篇文章延续上一篇 <a target="_blank" rel="noopener" href="https://blog.csdn.net/zhonglunshun/article/details/104659356">《win10下docker-compose搭建gitlab+gerrit+sonar+jenkins持续集成环境》</a>，上一篇我们搭建好了持续集成的环境，这篇文章介绍如何将这些工具结合起来，把每个环节打通。下一篇我们会使用集成环境做安卓开发实战。</p>
+<p>idea和Android SDK的下载安装使用不是本文的重点，我假设各位都是成熟的安卓开发人员并且已经搭建好了基于idea的安卓开发环境（菜鸟一般不需要了解敏捷开发）。</p>
+<p>我们回过头来看一下这张集成图 ，这里面没有把sonarqube画出来，因为sonarqube是可以和Jenkins进行集成的，这在后面我们会慢慢提到。<br><img src="https://img-blog.csdnimg.cn/20200320112532224.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>使用浏览器打开gitlab网址，我这里是<code>localhost:10080</code>，首次打开需要修改密码。修改成功后我们就可以登录了，这个时候用的管理员账号。<br><img src="https://img-blog.csdnimg.cn/2020030513091127.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="注册开发机账号"><a href="#注册开发机账号" class="headerlink" title="注册开发机账号"></a>注册开发机账号</h2><p>Step1:gitlab配置<br>我们还需要gitlab上注册一个普通账号，叫develop01，具体如下，点击注册他会自动登录，这个developer01就像我们普通的开发者，再window下做开发，因此我需要为这位开发者配置对应的ssh信息。<br>由于windows下已经安装了git，因此直接打开<code>C:\Users\Administrator\.ssh</code>,复制出里面的内容，粘贴到gitlab该用户设置的ssh配置上(由于我本地机器配置的qq邮箱只好用自己的qq邮箱)<br><img src="https://img-blog.csdnimg.cn/20200305133616669.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">然后点击增加密钥，就配置好了；<br><img src="https://img-blog.csdnimg.cn/20200305133747594.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step2：开发机配置<br><strong>如果你的开发机没有配置多个git账户可以略过这一步</strong>；如果你的开发机git配置了多个用户，需要先把生成的ssh添加进来，否则会出现如下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ git clone ssh://git@localhost:10022/dev-group/ci-test-project.git</span><br><span class="line">Cloning into &#x27;ci-test-project&#x27;...</span><br><span class="line">The authenticity of host &#x27;[localhost]:10022 ([::1]:10022)&#x27; can&#x27;t be established.</span><br><span class="line">ECDSA key fingerprint is SHA256:XMNZCD1uHPib/WU/4OziotP557y/jefwmhoVCmjkKK8.</span><br><span class="line">Are you sure you want to continue connecting (yes/no/[fingerprint])? n</span><br><span class="line">Please type &#x27;yes&#x27;, &#x27;no&#x27; or the fingerprint:</span><br><span class="line">Host key verification failed.</span><br><span class="line">fatal: Could not read from remote repository.</span><br><span class="line"></span><br><span class="line">Please make sure you have the correct access rights</span><br><span class="line">and the repository exists.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>解决方法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-agent bash</span><br><span class="line"> ssh-add ~/.ssh/id_rsa</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建gitlab项目"><a href="#创建gitlab项目" class="headerlink" title="创建gitlab项目"></a>创建gitlab项目</h2><p>我们假定管理员账号是技术总监，那么技术总监需要创建一个软件项目。<br>登陆进去我们进入到主页面，点击创建项目-&gt;私有项目-&gt;填写项目信息-&gt;完成。这个时候跳转到创建成功页面，并提示我们需要配置ssh key。<br><img src="https://img-blog.csdnimg.cn/202003051314131.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>由于我们的代码首先需要通过gerrit审核才能合并到gitlab，因此，我们需要添加一个gerrit的用户。原理很简单，就是使用gerrit服务器生成一个gerrit的sshkey，配置到gitlab上，这样gerrit所在的服务器等同于gitlab的客户机，就可以通过gerrit服务器向gitlab推送代码了。</p>
+<p>要拿到docker中gerrit容器的ssh信息，需要进入该容器，使用<code>docker exec -it xxx /bin/bash</code>或者直接在docker的gerrit容器上点击cli按钮。进入控制台；<br><img src="https://img-blog.csdnimg.cn/20200307130520170.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>Step1：确认gerrit容器是否已经配置了git</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">fatal: unable to read config file &#x27;/root/.gitconfig&#x27;: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>发现没有配置，我们来配置一下。<br>我们知道配置git需要两个信息：username和email，因此我们需要登录gitlab的管理员账号查看对应的邮箱。为了方便区别我把邮箱修改成了<code>gerrit@example.com</code>;<br><img src="https://img-blog.csdnimg.cn/2020030513510417.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step2: 我们回到gerrit容器中，使用ssh-keygen命令生成ssh信息（三次回车）,然后使用cat命令打印ssh信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">sh-4.2$ ssh-keygen -t rsa -C gerrit@example.com</span><br><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter file in which to save the key (/var/gerrit/.ssh/id_rsa):</span><br><span class="line">Created directory &#x27;/var/gerrit/.ssh&#x27;.</span><br><span class="line">Enter passphrase (empty for no passphrase):</span><br><span class="line">Enter same passphrase again:</span><br><span class="line">Your identification has been saved in /var/gerrit/.ssh/id_rsa.</span><br><span class="line">Your public key has been saved in /var/gerrit/.ssh/id_rsa.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line">SHA256:yhrSuWAlFyK2IC0NOwIjczbLSceobmUSZpW8IJlsH24 gerrit@example.com</span><br><span class="line">The key&#x27;s randomart image is:</span><br><span class="line">+---[RSA 2048]----+</span><br><span class="line">|BoB+o            |</span><br><span class="line">|*^.O.            |</span><br><span class="line">|&amp;o% +            |</span><br><span class="line">|*=.E .           |</span><br><span class="line">|..* o   S        |</span><br><span class="line">| o = o .         |</span><br><span class="line">|. + + o          |</span><br><span class="line">| . o +           |</span><br><span class="line">|    o            |</span><br><span class="line">+----[SHA256]-----+</span><br><span class="line">sh-4.2$ cat /var/gerrit/.ssh/id_rsa.pub</span><br><span class="line">ssh-rsa ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDs/u6ZEU0ES1niaGpD7PbDnQMkDpjf0YW0XR9sYgHbawL+F4OBjc3wJ2xHjOLQNZHPpt/yIuSYWphGpSJmrWZ6YwiKQEV0BJIf2ttNn5qSz9ds9riE6eCCn2hJu/mIh2f1+DK3xF7lryzUAYhO8c0Mb1WAxD3xp69A+jKGvMvx6/AaZvjIm4fiQv/0JZ05nX9p6oqyYVO9XE25i5eJ9erJrLVeUx8wgxpfWROcH27Yt1YOMcj50m5pGbjp997tUO+r+jUEdhcpilW8GPyvV9eW+69xEbRKeCsDmBPKr3G5Gjn/iVeZSeH7tj/YJOU5Y281yJd6XL21uvHSh+o8zvv9 gerrit@example.com</span><br></pre></td></tr></table></figure>
+
+<p>然后和前面一样，在gitlab端配置管理员账户的ssh信息(为了方便辨识，我把原本为root的用户名改成了gerrit)，用户信息也更新成了<a href="mailto:&#x67;&#x65;&#x72;&#x72;&#105;&#116;&#64;&#x65;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#x6d;">&#x67;&#x65;&#x72;&#x72;&#105;&#116;&#64;&#x65;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#x6d;</a>；<br><img src="https://img-blog.csdnimg.cn/20200305135554798.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step3：创建开发组<br>接下来就是创建一个开发组。<br><img src="https://img-blog.csdnimg.cn/20200305140131321.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>Step4：创建组内项目<br>创建好开发组之后会跳出一个页面，我们继续点击新建项目，项目名称就叫ci-test-project吧。<br><img src="https://img-blog.csdnimg.cn/20200305140352404.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step5 ：把developer01拉入小组<br>点击群组-&gt;dev-group-&gt;成员-&gt;搜索成员并添加为报告者(repoter)-&gt;添加到群组；<br><img src="https://img-blog.csdnimg.cn/20200305140935213.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step6：测试创建的项目<br>由于我们刚刚在添加开发机的时候角色赋予的是repoter，它是没有提交权限的，我们来验证一下；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ git clone ssh://git@localhost:10022/dev-group/ci-test-project.git</span><br><span class="line">$ cd ci-test-project/</span><br><span class="line">$ touch testfile.txt</span><br><span class="line">$ git add testfile.txt</span><br><span class="line">$ git commit -m &#x27;add testfile&#x27;</span><br><span class="line">$ git push</span><br><span class="line"></span><br><span class="line">GitLab: You are not allowed to push code to this project.</span><br><span class="line">fatal: Could not read from remote repository.</span><br><span class="line">Please make sure you have the correct access rights</span><br><span class="line">and the repository exists.</span><br></pre></td></tr></table></figure>
+
+<p>嗯，被拒绝了，成功了。因为普通用户没有直接push的权限。需要先review到gerrit上进行审核并commit后，才能更新到代码中心仓库里。</p>
+<blockquote>
+<ol>
+<li>页面上写的是<code>git clone git@localhost:dev-group/ci-test-project.git</code><br>但是我这里使用docker做了端口映射，因此需要写出上面这种形式</li>
+<li>如果你在clone的时候发现执行不了，试试在C:&#x2F;docker&#x2F;gitlab&#x2F;etc&#x2F;gitlab.rb文件开头加上：<br><code>gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10022</code></li>
+</ol>
+</blockquote>
+<p>我们通过在本地创建一个文件，使用push指令测试该用户是否正常，如果push被拒绝说明配置正常。</p>
+<p>问题1：一直卡在git clone。control+c之后提示没有权限访问这个项目。这是一个笼统的回答，要看真正问题出现在哪里，需要看日志，那么日志就放在安装目录的log文件夹下面：“C:\Docker\gitlab\log\sshd”。<br>打开current文件，在最下面我们会看到错误日志，我这里是权限开得太大了；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br><span class="line">2020-03-12_02:47:17.13033 Permissions 0755 for &#x27;/etc/gitlab/ssh_host_ed25519_key&#x27; are too open.</span><br><span class="line">2020-03-12_02:47:17.13100 It is required that your private key files are NOT accessible by others.</span><br><span class="line">2020-03-12_02:47:17.13210 This private key will be ignored.</span><br><span class="line">2020-03-12_02:47:17.13268 key_load_private: bad permissions</span><br><span class="line">2020-03-12_02:47:17.13334 Could not load host key: /etc/gitlab/ssh_host_ed25519_key</span><br><span class="line">2020-03-12_02:47:17.13429 Bad protocol version identification &#x27;HEAD / HTTP/1.1&#x27; from 172.18.0.1 port 45886</span><br></pre></td></tr></table></figure>
+
+<p>知道原因就很简单了，我们找到<code>/etc/gitlab/ssh_host_ed25519_key</code>然后把他的权限修改成0771就可以了。如果修改之后权限没有变化就可能是你的key保存在了windows机器上，我的办法就是重新安装了gitlab然后把key保存在了容器里面。（其实windows下我们只需要留一个宿主机和容器通讯的文件夹就可以了，因为权限问题很肉疼的）。</p>
+<p>我们知道Gerrit有好几种认证方式，常见的OAuth（Gitlab的OAuth和Github的OAuth），Http，Ldap，openID。我们这里使用的是Ldap方式(安装gerrit镜像的时候同时自动安装了)，Ldap在管理用户信息上还是蛮好用的。</p>
+<p>Step1：使用ldap创建一个Gerrit账号（上一篇文章有介绍，这里不再赘述）；注意邮箱要和gitlab的管理员邮箱保持一致。</p>
+<blockquote>
+<p>参数为:<br>Given Name: Gerrit<br>Last Name: Admin<br>Common Name: Gerrit Admin<br>User ID: gerrit<br>Email: <a href="mailto:&#x67;&#x65;&#x72;&#x72;&#x69;&#116;&#x40;&#x65;&#x78;&#x61;&#109;&#112;&#x6c;&#x65;&#x2e;&#99;&#x6f;&#x6d;">&#x67;&#x65;&#x72;&#x72;&#x69;&#116;&#x40;&#x65;&#x78;&#x61;&#109;&#112;&#x6c;&#x65;&#x2e;&#99;&#x6f;&#x6d;</a><br>Password: 12345678</p>
+</blockquote>
+<p>Step2：使用该账号登录Gerrit，网址是<code>http://localhost:20080/</code>；<br>Step3：登陆后点击右上角用户-&gt;Setting-&gt;SSH Keys配置sshkey，值为Gitlab上配置的管理员（Gerrit）的SSH；<br><img src="https://img-blog.csdnimg.cn/20200305165145257.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step4：采用同样方法为开发人员develop01在gerrit上注册账号，并配置对应的ssh key（开发机上的ssh key，与gitlab用户对应）；</p>
+<p><img src="https://img-blog.csdnimg.cn/20200305165954217.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>Step5：以同样的方式为jenkins创建账号，参数为:</p>
+<blockquote>
+<p>Given Name: Jenkins<br>Last Name: Admin<br>Common Name: Jenkins Admin<br>User ID: jenkins<br>Email: <a href="mailto:&#106;&#x65;&#x6e;&#x6b;&#105;&#x6e;&#115;&#64;&#101;&#120;&#97;&#x6d;&#112;&#108;&#101;&#x2e;&#x63;&#111;&#x6d;">&#106;&#x65;&#x6e;&#x6b;&#105;&#x6e;&#115;&#64;&#101;&#120;&#97;&#x6d;&#112;&#108;&#101;&#x2e;&#x63;&#111;&#x6d;</a><br>Password: 12345678</p>
+</blockquote>
+<p>到这个时候，ldap上有三个账号可以登录gerrit了：<br><img src="https://img-blog.csdnimg.cn/20200305183116366.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step6：进入Jenkins所在的服务器，生成jenkins的ssh并设置到gerrit对应账户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -C jenkins@example.com</span><br><span class="line">Generating public/private rsa key pair.</span><br><span class="line">...</span><br><span class="line">$ cat /var/jenkins_home/.ssh/id_rsa.pub</span><br><span class="line">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNK8+nl9XptdAedHl3r4zuvmdzUhMjySuHhTMi7kI/wkq8uiX+xNfP9vsCuo/xio4icr9BC6nJFMUNlI8amhH+ub9RJmsQPdHjPT5rAiYxmLjhKng8WY2pznnvhsqflN+DBnPvuekDvnynkt7gngHkf4b/SowWlVzVn4S3msrJ5zxcy0vU1oPG8xoDA4kQc4HfgxApzeZsePe2JPcwcXlDmvgtPHul1xiXCwkpmsM7Vd/xQSY7O4cZdt25qfuL7HprovCdhVEJuScd4AENOLK6NUiHwkkCGA0vkB+mpi/2Zq41jXvfH2v+6gipAPDZjt+a3aUJ7mUisCiYtl7dZO+9 jenkins@example.com</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：<strong>这里一定要写密码，我的密码是11111111（8个1）</strong></p>
+</blockquote>
+<p>Step7：将Jenkins添加到Non-Interactive Users 用户组<br>使用管理员账号登陆gerrit-&gt;BROWSE-&gt;Groups &gt; Non-Interactive Users &gt; members-&gt;Add your jenkins user。</p>
+<p>Step8：手动添加Verified标签功能(已经有了就跳过这一步)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sh-4.2$ git init cfg; cd cfg</span><br><span class="line">sh-4.2$ git config --global user.name &#x27;gerrit&#x27;</span><br><span class="line">sh-4.2$ git config --global user.email &#x27;gerrit@example.com&#x27;</span><br><span class="line">sh-4.2$ git remote add origin ssh://gerrit@localhost:29418/All-Projects</span><br><span class="line">sh-4.2$ git pull origin refs/meta/config</span><br><span class="line">sh-4.2$ vi project.config</span><br><span class="line">[label &quot;Verified&quot;]</span><br><span class="line">    function = MaxWithBlock</span><br><span class="line">    value = -1 Fails</span><br><span class="line">    value = 0 No score</span><br><span class="line">    value = +1 Verified</span><br><span class="line">sh-4.2$ git commit -a -m &#x27;Updated permissions&#x27;</span><br><span class="line">sh-4.2$ git push origin HEAD:refs/meta/config</span><br><span class="line">sh-4.2$ rm -rf cfg</span><br><span class="line">sh-4.2$ rm -rf cfg</span><br></pre></td></tr></table></figure>
+
+<p>以上方法也可以在本地使用push的方式完成修改。然后就可以看到这个标签了；<br><img src="https://img-blog.csdnimg.cn/20200311154306902.png" alt="在这里插入图片描述"></p>
+<p>Step9：配置All-Projects权限<br>Browe-&gt;Repositories-&gt;All-Projects-&gt;Access-&gt; Edit,往下拉，找到<code>Reference: refs/*</code>在下面有一个输入框，在输入框输入non会出现<code>Non-Interactive Users</code>点击add，就给这个用户组添加了该特性权限。<br>然后以同样的方法在<code>Reference: refs/heads/*</code>下面的Label Code-Review把<code>Non-Interactive Users</code>加上去,值为-1, +1 ；<br>同样的Label Verified也添加<code>Non-Interactive Users</code>设置为-1, +1 ；</p>
+<p>因为我的gerrit版本是3.0，在2.7+的版本上还需要额外配置Stream Events的权限，位于Global Capabilities的节点下，点击保存，完毕；<br><img src="https://img-blog.csdnimg.cn/202003071225313.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>Step1：安装插件<br>使用管理员账户登录jenkins后，点击我们需要安装Gerrit Trigger插件和Git plugin插件；<br>“系统管理”-&gt;拖到下面“插件管理”-&gt;”可选插件”-&gt;Filter搜索-&gt;输入Gerrit Trigger安装，然后输入Git plugin，也安装。勾选安装完成后重启。jenkins会自动重启，我们等待他重启完成。</p>
+<p>重启完成我们登录之后，我们可以在<code>插件管理</code>中看到Gerrit Jenkins：<br><img src="https://img-blog.csdnimg.cn/20200305181207710.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">Step2：配置Gerrit Trigger<br>点击插件-&gt;点击左侧的”New Server”-&gt;在”Add New Server”一栏输入名字，我这里是”check4Gerrit”-&gt;勾选”Gerrit Server with Default Configurations”-&gt;点击”OK”；</p>
+<p>然后进行”Gerrit Connection Setting”，<br><img src="https://img-blog.csdnimg.cn/20200307115857286.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">我们看到顶上有一排黄色的警告，意思就是没有安装event-log，我参考<a target="_blank" rel="noopener" href="https://wangmingjun.com/2018/03/09/%E7%94%A8%E4%BA%8E-jenkins-%E4%B8%8E-gerrit-%E9%80%9A%E4%BF%A1%E7%9A%84-events-log-jar-%E6%8F%92%E4%BB%B6%E4%B8%8B%E8%BD%BD/">这篇文章</a>搞了一个，把这个jar放在gerrit的plugins文件夹里面。如上所示，信息填写完毕之后，点击右侧的test Connection,提示success表示配置成功；</p>
+<p>我这里的信息是：</p>
+<blockquote>
+<p>Name：check4Gerrit<br>Hostname：192.168.31.189<br>Frontend URL：<a target="_blank" rel="noopener" href="http://192.168.31.189:20080/">http://192.168.31.189:20080</a><br>SSH Port：29418<br>Username：jenkins<br>E-mail：<a href="mailto:&#x6a;&#x65;&#110;&#107;&#x69;&#x6e;&#115;&#64;&#x65;&#x78;&#x61;&#109;&#112;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;">&#x6a;&#x65;&#110;&#107;&#x69;&#x6e;&#115;&#64;&#x65;&#x78;&#x61;&#109;&#112;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#x6d;</a><br>SSH Keyfile：&#x2F;var&#x2F;jenkins_home&#x2F;.ssh&#x2F;id_rsa<br>SSH Keyfile Password：11111111</p>
+</blockquote>
+<p>在这一步我卡了很久，一直没成功，最后是把给ssh设置了密码，并且把ip地址改成了宿主机的局域网ip，然后才看到期盼已久的success。最终这里会变成蓝色；<br><img src="https://img-blog.csdnimg.cn/20200311213859781.png" alt="在这里插入图片描述"></p>
+<h2 id="添加review命令"><a href="#添加review命令" class="headerlink" title="添加review命令"></a>添加review命令</h2><p>虽然我们配置dev01客户机没有push权限，但是我们会让他有git review的权限，不过这里我们需要配置一下才可以。我们需要在项目里面添加一个 .gitreview来支持git review。目前只有管理员组才具备提交权限，也就是gerrit账号。因此我们需要用gerrit账号把代码下过来并添加.gitreview文件。</p>
+<p>以root方式进入gerrit所在的容器；不加–user root进入的非root账号。由于我之前创建的sshkey在非root用户的.ssh目录下，因此我只是用root用户创建了一个开发权限的文件夹就退出切换成了非root用户；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it --user root gerrit /bin/bash </span><br><span class="line">[root@fba3f1d5f6f6 /]</span><br><span class="line">[root@fba3f1d5f6f6 opt]</span><br><span class="line">[root@fba3f1d5f6f6 opt]</span><br><span class="line">[root@fba3f1d5f6f6 /]</span><br><span class="line">PS C:\Docker\gerrit&gt; docker exec -it  gerrit /bin/bash</span><br><span class="line">bash-4.2$ cd opt/testCode/</span><br><span class="line">bash-4.2$ git clone ssh://git@192.168.31.189:10022/dev-group/ci-test-project.git</span><br><span class="line">Cloning into &#x27;ci-test-project&#x27;...</span><br><span class="line">The authenticity of host &#x27;[192.168.31.189]:10022 ([192.168.31.189]:10022)&#x27; can&#x27;t be established.</span><br><span class="line">ECDSA key fingerprint is SHA256:B/IihaaLfGY0ZW7CtBhfCFvp9Nh2lZtMNAB51gjQWb0.</span><br><span class="line">ECDSA key fingerprint is MD5:ec:8d:ae:bc:f3:5a:6a:36:c3:18:3d:75:46:97:e0:90.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added &#x27;[192.168.31.189]:10022&#x27; (ECDSA) to the list of known hosts.</span><br><span class="line">remote: Counting objects: 3, done</span><br></pre></td></tr></table></figure>
+
+<p>然后我们添加.gitreview，.gitreview的内容如下（192.168.31.189是宿主机的ip）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[gerrit]</span><br><span class="line">host=192.168.31.189</span><br><span class="line">port=29418</span><br><span class="line">project=ci-test-project.git</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">bash-4.2$ cd ci-test-project/</span><br><span class="line">bash-4.2$ vi .gitreview</span><br><span class="line">bash-4.2$ git add .gitreview</span><br><span class="line">bash-4.2$ git config --global user.name &#x27;gerrit&#x27;</span><br><span class="line">bash-4.2$ git config --global user.email &#x27;gerrit@example.com&#x27;</span><br><span class="line">bash-4.2$ git commit .gitreview -m &#x27;add .gitreview file by gerrit.&#x27;</span><br><span class="line">[master 9b7dc37] add .gitreview file by gerrit.</span><br><span class="line"> 1 file changed, 4 insertions(+)</span><br><span class="line"> create mode 100644 .gitreview</span><br><span class="line">bash-4.2$ git push origin master</span><br><span class="line">Counting objects: 4, done.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">Compressing objects: 100% (3/3), done.</span><br><span class="line">Writing objects: 100% (3/3), 343 bytes | 0 bytes/s, done.</span><br><span class="line">Total 3 (delta 0), reused 0 (delta 0)</span><br><span class="line">To ssh://git@192.168.31.189:10022/dev-group/ci-test-project.git</span><br><span class="line">   4ef534d..9b7dc37  master -&gt; master</span><br></pre></td></tr></table></figure>
+
+<p>以同样的方法添加.testr.conf 文件（由于下面的Python 代码我使用了 testr，需要先在Jenkins容器内安装 testr 命令yum -y install epel-release-&gt;yum -y install python-pip-&gt;pip install testrepository，否则会编译不过），.testr.conf 文件内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[DEFAULT]</span><br><span class="line">test_command=OS_STDOUT_CAPTURE=1</span><br><span class="line">OS_STDERR_CAPTURE=1</span><br><span class="line">OS_TEST_TIMEOUT=60</span><br><span class="line">$&#123;PYTHON:-python&#125; -m subunit.run discover -t ./ ./ $LISTOPT $IDOPTION</span><br><span class="line">test_id_option=--load-list $IDFILE</span><br><span class="line">test_list_option=-list</span><br></pre></td></tr></table></figure>
+
+<p>然后我们把它提交到版本仓库；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">bash-4.2$ vi .testr.conf</span><br><span class="line">bash-4.2$ git add .testr.conf</span><br><span class="line">bash-4.2$ git commit .testr.conf -m &#x27;add .testr.conf file by gerrit&#x27;</span><br><span class="line">[master 54a8810] add .testr.conf file by gerrit</span><br><span class="line"> 1 file changed, 7 insertions(+)</span><br><span class="line"> create mode 100644 .testr.conf</span><br><span class="line">bash-4.2$ git push origin master</span><br><span class="line">Counting objects: 4, done.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">Compressing objects: 100% (3/3), done.</span><br><span class="line">Writing objects: 100% (3/3), 480 bytes | 0 bytes/s, done.</span><br><span class="line">Total 3 (delta 0), reused 0 (delta 0)</span><br><span class="line">To ssh://git@192.168.31.189:10022/dev-group/ci-test-project.git</span><br><span class="line">   9b7dc37..54a8810  master -&gt; master</span><br></pre></td></tr></table></figure>
+
+<p>这个时候我们回到gitlab就能看到我们提交的这两个文件了。<br><img src="https://img-blog.csdnimg.cn/20200312122619730.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="同步gerrit和Gitlab项目文件"><a href="#同步gerrit和Gitlab项目文件" class="headerlink" title="同步gerrit和Gitlab项目文件"></a>同步gerrit和Gitlab项目文件</h2><p>到目前为止，gerrit上面并没有和gitlab同步的项目，我们需要把gerrit和gitlab关联起来，也就是说必须在gerrit上创建相同的项目，并有相同的仓库文件；</p>
+<p>有两种方式创建项目，一种是登录gerrit的管理页面在Repo点击create new，还有一种是在gerrit容器中使用命令<code>ssh-gerrit gerrit create-project ci-test-project</code> （后一种方式可以创建空的项目）；</p>
+<p>接下来我们要使用gerrit上的管理员账户clone –bare Gitlab上的仓库到 Gerrit ，由于我gerrit的管理员和gitlab的管理员都是gerrit且有相同的ssh key，因此我不需要担心两个弄混导致的同步问题；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sh-4.2$ cd /var/gerrit/git/</span><br><span class="line">sh-4.2$ ls</span><br><span class="line">All-Projects.git  All-Users.git  ci-test-project.git</span><br><span class="line">sh-4.2$ rm -rf ci-test-project.git/</span><br><span class="line">sh-4.2$ git clone --bare ssh://git@192.168.31.189:10022/dev-group/ci-test-project.git</span><br><span class="line">Cloning into bare repository &#x27;ci-test-project.git&#x27;...</span><br><span class="line">remote: Counting objects: 12, done.</span><br><span class="line">remote: Compressing objects: 100% (10/10), done.</span><br><span class="line">remote: Total 12 (delta 1), reused 0 (delta 0)</span><br><span class="line">Receiving objects: 100% (12/12), done.</span><br><span class="line">Resolving deltas: 100% (1/1), done.</span><br><span class="line">sh-4.2$ cd ci-test-project.git/</span><br><span class="line">sh-4.2$ ls</span><br><span class="line">HEAD  branches  config  description  hooks  info  objects  packed-refs  refs</span><br></pre></td></tr></table></figure>
+
+<p>这个时候gerrit的ci项目下的文件就和gitlab一毛一样的了。</p>
+<h2 id="gerrit和Gitlab项目联动"><a href="#gerrit和Gitlab项目联动" class="headerlink" title="gerrit和Gitlab项目联动"></a>gerrit和Gitlab项目联动</h2><p>现在只是在gerrit上复制了gitlab的文件，还没有实现真正的联动。我们还不能把gerrit上审核的代码提交到gitlab。我们要的效果是gerrit上的ci上的仓库已发生变化就立马同步到gitlab上去。这个时候就需要使用插件做触发器啦，这个插件叫做Replication ，gerrit默认自带了这个插件，因此我们需要配置这个插件。</p>
+<p>修改 &#x2F;var&#x2F;gerrit&#x2F;etc&#x2F;replication.config，如果修改的是C:\Docker\gerrit\etc\replication.config。确认一下replication.config文件访问权限为600，否则后面会报错。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[remote &quot;ci-test-project&quot;]</span><br><span class="line">projects = ci-test-project</span><br><span class="line">url = ssh://git@192.168.31.189:10022/dev-group/ci-test-project.git</span><br><span class="line">push = +refs/heads/*:refs/heads/*</span><br><span class="line">push = +refs/tags/*:refs/tags/*</span><br><span class="line">push = +refs/changes/*:refs/changes/*</span><br><span class="line">threads = 3</span><br></pre></td></tr></table></figure>
+
+<p>然后设置gerrit用户的 ~&#x2F;.ssh&#x2F;config</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Host 192.168.31.189:</span><br><span class="line">       IdentityFile ~/.ssh/id_rsa</span><br><span class="line">       PreferredAuthentications publickey</span><br></pre></td></tr></table></figure>
+
+<p>在known_hosts中给192.168.31.189添加rsa密钥(如果你的端口号不是22就需要把-p 端口号加上，我这里是10022，所以需要加上)；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sh-4.2$ vi ~/.ssh/known_hosts</span><br><span class="line">sh-4.2$ sh -c &quot;ssh-keyscan -p 10022 -t rsa 192.168.31.189 &gt;&gt; /var/gerrit/.ssh/known_hosts&quot;</span><br><span class="line">sh-4.2$ sh -c &quot;ssh-keygen -H -f ~/.ssh/known_hosts&quot; </span><br></pre></td></tr></table></figure>
+
+<p>到这里，项目复制就完成了，如果需要复制多个项目，则在 replication.config 中添加多个 [remote ….] 字段即可。</p>
+<h2 id="安装必要插件"><a href="#安装必要插件" class="headerlink" title="安装必要插件"></a>安装必要插件</h2><p>登陆jenkins，“系统管理”-&gt;“管理插件”-&gt;“可选插件”-&gt;选择Git Pluin插件进行安装。（我的可选中心在安装中文插件后一直菊花疼，最终我从<a target="_blank" rel="noopener" href="https://plugins.jenkins.io/">插件中心</a>手动下载了一个安装）。<br>安装Git插件是为了创建项目的时候能够支持git触发，否则是没办法做联动的。Git插件长这样，别下错了。<br><img src="https://img-blog.csdnimg.cn/20200312143853393.png" alt="在这里插入图片描述"></p>
+<h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><p>Git插件安装成功后，我们在jenkins上添加一个和gitlab同名的项目。jenkins-&gt;新建任务-&gt;填入名字ci-test-project，勾选构建自由风格-&gt;确定到下一页-&gt;源码管理选择Git-&gt;填入如下字段：</p>
+<blockquote>
+<p>源码管理：Git<br>Repository URL：<a target="_blank" rel="noopener" href="http://192.168.31.189:20080/ci-test-project%EF%BC%88%E5%92%8Cgerrit%E4%BB%93%E5%BA%93http%E5%9C%B0%E5%9D%80%E5%AF%B9%E5%BA%94%EF%BC%89">http://192.168.31.189:20080/ci-test-project（和gerrit仓库http地址对应）</a><br>Branches to build：origin&#x2F;$GERRIT_BRANCH<br>构建触发器：Gerrit event</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/20200312145011811.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/20200312145044571.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/20200312145300865.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>这个时候我们配置好了，在主界面上会看到这个任务。<br><img src="https://img-blog.csdnimg.cn/20200312145436972.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">接下来就是做联调测试了。</p>
+<p>测试流程如下：<br>我们在开发机上使用developer01账号增加一个文件，并将文件提交到gerrit的<code>HEAD:refs/for/master</code>分支上。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ git clone &quot;ssh://developer01@localhost:29418/ci-test-project&quot; &amp;&amp; scp -p -P 29418 developer01@localhost:hooks/commit-msg &quot;ci-test-project/.git/hooks/&quot;</span><br><span class="line">$ cd ci-test-project/</span><br><span class="line">$ touch test.txt</span><br><span class="line">$ git add test.txt</span><br><span class="line">$ git commit -m &#x27;test&#x27;</span><br><span class="line">$ git push origin HEAD:refs/for/master</span><br></pre></td></tr></table></figure>
+
+<p>然后我们会在gerrit上看到这条记录，<br><img src="https://img-blog.csdnimg.cn/20200312163647375.png" alt="在这里插入图片描述">我们会看到jenkins已经verfiled而且是+1，其实是因为代码一提交就会触发jenkins使用构建脚本构建这个代码，构建成功就会+1。于是我点击了codereview+2；<img src="https://img-blog.csdnimg.cn/20200312171310913.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>然后说明可以提交了，于是乎我点击submit。状态变成了merged。而且我们能在merged一栏可以看到：<br><img src="https://img-blog.csdnimg.cn/20200312171450712.png" alt="在这里插入图片描述">进到Gitlab项目查看，发现代码已经同步过来了。（最开始由于在做gerrit和Gitlab项目联动的时候没有添加端口号导致折腾了半天没有通，看gerrit的repulic日志才发现这个问题）。<br><img src="https://img-blog.csdnimg.cn/20200313110600220.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">然后我们在Jenkins中也会看到编译成功了。蓝色表示成功，红色表示失败。天气图标表示多云，意思是又存在不成功的，但是总体ok（Jenkins还真是人性化）；<br><img src="https://img-blog.csdnimg.cn/20200313133824501.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="安卓开发环境"><a href="#安卓开发环境" class="headerlink" title="安卓开发环境"></a>安卓开发环境</h2><p>windows的android sdk和Linux下的还是有一定区别的，因此建议在windows和linux下下载相同的sdk环境。为了确保版本一致，我都下载了r23的，linux的sdk下载戳<a target="_blank" rel="noopener" href="https://www.androiddevtools.cn/">这里</a>。linux安装sdk使用如下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">android list sdk --all</span><br><span class="line">android update sdk -u -a -t 序号</span><br></pre></td></tr></table></figure>
+
+<p>window的sdk配置比较简单，麻烦的是linux，因为要解决被墙的问题，这里我提供一种代理的方式，比如我们使用list sdk ，在中间–proxy一下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./android list sdk --proxy-host mirrors.neusoft.edu.cn --proxy-port 80 -s --all</span><br></pre></td></tr></table></figure>
+
+<p>然后再Android studio中创建了一个工程，把这个工程的内容移到了之前使用developer01账号从gerrit克隆下来的项目ci-test-project中。再次使用android Studio打开，运行，安装到手机，确定项目代码是可以编译成功的。<br><img src="https://img-blog.csdnimg.cn/20200313131543774.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="Jenkins配Android-SDK"><a href="#Jenkins配Android-SDK" class="headerlink" title="Jenkins配Android SDK"></a>Jenkins配Android SDK</h2><p>点击Jenkins的系统管理-&gt;系统配置-&gt;找到全局属性-&gt;勾选环境变量-&gt;按如下方式添加ANDROID_HOME后保存。<br><img src="https://img-blog.csdnimg.cn/20200313133735892.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="配置gradle"><a href="#配置gradle" class="headerlink" title="配置gradle"></a>配置gradle</h2><p>首先要安装gradle插件，如果你已经安装好了，可以跳过这一步。Gradle的插件名字就叫做Gradle，大家注意辨别，这里就不然贴图介绍怎么安装了（gradle安装经常失败我最终不得不使用<a target="_blank" rel="noopener" href="https://plugins.jenkins.io/ui/search?sort=relevance&categories=&labels=misc&view=Tiles&page=1&query=workflow-cps">离线安装</a>一个个把依赖安装上了）。</p>
+<p>点击系统管理-&gt;全局工具配置-&gt;配置Git；JDK；Gradle，最后保存；由于Jenkins自带jdk1.8所以我这里不需要配置。在Jenkins容器中使用java -version知道是否已经安装了java；Git也不需要配置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ java -version</span><br><span class="line">openjdk version &quot;1.8.0_242&quot;</span><br><span class="line">OpenJDK Runtime Environment (build 1.8.0_242-b08)</span><br><span class="line">OpenJDK 64-Bit Server VM (build 25.242-b08, mixed mode)</span><br><span class="line"></span><br><span class="line">$ git --version</span><br><span class="line">git version 2.11.0</span><br></pre></td></tr></table></figure>
+
+<p>那么我们配置一下gradle，我们在gradle一栏新增安装，需要注意的是gradle的版本需要和android 项目代码的gradle保持一致。我项目代码中gradle版本为4.10.1，因此安装的时候也需要选择对应版本。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">distributionBase=GRADLE_USER_HOME</span><br><span class="line">distributionUrl=https\:</span><br><span class="line">distributionPath=wrapper/dists</span><br><span class="line">zipStorePath=wrapper/dists</span><br><span class="line">zipStoreBase=GRADLE_USER_HOME</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20200314123321215.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<blockquote>
+<p>Tasks:<code>--stacktrace build</code><br>Root Build script:<code>$&#123;WORKSPACE&#125;</code><br>Build File:<code>$&#123;WORKSPACE&#125;\build.gradle</code></p>
+</blockquote>
+<h2 id="创建Apk构建任务"><a href="#创建Apk构建任务" class="headerlink" title="创建Apk构建任务"></a>创建Apk构建任务</h2><p>由于我们在前面已经构建了一个ci-test-project，因此这里我们只需要在那个构建上修改一下，添加gradle构建。<br>找到<code>添加构建步骤</code> 选择 <code>Invoke Gradle script</code>，选择gradle版本-&gt;保存。<br>![在这里插入图片描述](<a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/20200313144720523.png?x-oss-process=image/watermark,type%5C_ZmFuZ3poZW5naGVpdGk,shadow%5C_10,text%5C_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size%5C_16,color%5C_FFFFFF,t%5C_70">https://img-blog.csdnimg.cn/20200313144720523.png?x-oss-process=image/watermark,type\_ZmFuZ3poZW5naGVpdGk,shadow\_10,text\_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size\_16,color\_FFFFFF,t\_70</a></p>
+<h2 id="提交代码，通过审核触发构建"><a href="#提交代码，通过审核触发构建" class="headerlink" title="提交代码，通过审核触发构建"></a>提交代码，通过审核触发构建</h2><p>前面我们虽然把代码写好了，带式还没有提交上去，这个时候我们来提交一下。<br><img src="https://img-blog.csdnimg.cn/2020031314521367.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">我们点进来发现Jenkins已经verfied+1了。转到Jenkins发现已经构建成功。<br><img src="https://img-blog.csdnimg.cn/20200313145334956.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述">我们在gerrit上把这个提交merged（注意要等待verfied+1也就是jenkins构建成功才能submit）,我公共构建了一个错误，我们发现是不能够submit的。<br><img src="https://img-blog.csdnimg.cn/20200313150633520.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25nbHVuc2h1bg==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="获取编译结果"><a href="#获取编译结果" class="headerlink" title="获取编译结果"></a>获取编译结果</h2><p>然后我们需要设置用于存档的结果文件，我们这里是一个apk文件，需要修改构建配置如下 (对应你android studio编译后的apk输出目录).我这里是<code>myapplication/build/outputs/*.apk</code><br>${WORKSPACE}\app\build\outputs\apk\app-debug.apk</p>
+<hr>
+<p>赠人玫瑰手留余香，帮忙点个赞吧。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/05/31/Others/GitLab%20CI%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/" rel="prev" title="GitLab CI持续集成配置方案">
+      <i class="fa fa-chevron-left"></i> GitLab CI持续集成配置方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/06/14/Others/Jenkins%20-%20%E9%9B%86%E6%88%90SonarQube/" rel="next" title="Jenkins集成SonarQube">
+      Jenkins集成SonarQube <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E5%BC%80%E5%8F%91%E6%9C%BA%E8%B4%A6%E5%8F%B7"><span class="nav-number">1.</span> <span class="nav-text">注册开发机账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAgitlab%E9%A1%B9%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">创建gitlab项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0review%E5%91%BD%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">添加review命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5gerrit%E5%92%8CGitlab%E9%A1%B9%E7%9B%AE%E6%96%87%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">同步gerrit和Gitlab项目文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gerrit%E5%92%8CGitlab%E9%A1%B9%E7%9B%AE%E8%81%94%E5%8A%A8"><span class="nav-number">5.</span> <span class="nav-text">gerrit和Gitlab项目联动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E6%8F%92%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">安装必要插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="nav-number">7.</span> <span class="nav-text">创建项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83"><span class="nav-number">8.</span> <span class="nav-text">安卓开发环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jenkins%E9%85%8DAndroid-SDK"><span class="nav-number">9.</span> <span class="nav-text">Jenkins配Android SDK</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEgradle"><span class="nav-number">10.</span> <span class="nav-text">配置gradle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAApk%E6%9E%84%E5%BB%BA%E4%BB%BB%E5%8A%A1"><span class="nav-number">11.</span> <span class="nav-text">创建Apk构建任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E4%BA%A4%E4%BB%A3%E7%A0%81%EF%BC%8C%E9%80%9A%E8%BF%87%E5%AE%A1%E6%A0%B8%E8%A7%A6%E5%8F%91%E6%9E%84%E5%BB%BA"><span class="nav-number">12.</span> <span class="nav-text">提交代码，通过审核触发构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E7%BC%96%E8%AF%91%E7%BB%93%E6%9E%9C"><span class="nav-number">13.</span> <span class="nav-text">获取编译结果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">145</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

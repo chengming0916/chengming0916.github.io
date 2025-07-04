@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一、先来看一篇转载文章《在 VS2015 中使用 Qt4》 http:&#x2F;&#x2F;tangzx.qiniudn.com&#x2F;post-0111-qt4-vs2015.html 最早的原文，看不到了 https:&#x2F;&#x2F;github.com&#x2F;district10&#x2F;qt4-vs2015x64 原作者的github，里面的东东都下载不了了 二、firecat本人的教程 0、Qt官方 Qt4.8.7官方源码下载 http">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译Qt 4.8.7源码">
+<meta property="og:url" content="http://chengming0916.github.io/2017/06/09/C/%E7%BC%96%E8%AF%91Qt%204.8.7%E6%BA%90%E7%A0%81/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、先来看一篇转载文章《在 VS2015 中使用 Qt4》 http:&#x2F;&#x2F;tangzx.qiniudn.com&#x2F;post-0111-qt4-vs2015.html 最早的原文，看不到了 https:&#x2F;&#x2F;github.com&#x2F;district10&#x2F;qt4-vs2015x64 原作者的github，里面的东东都下载不了了 二、firecat本人的教程 0、Qt官方 Qt4.8.7官方源码下载 http">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200309185435327.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpYmFpbmV1MjAwNA==,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2017-06-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-04T11:04:19.675Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Qt源码编译">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200309185435327.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpYmFpbmV1MjAwNA==,size_16,color_FFFFFF,t_70">
+
+<link rel="canonical" href="http://chengming0916.github.io/2017/06/09/C/%E7%BC%96%E8%AF%91Qt%204.8.7%E6%BA%90%E7%A0%81/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>编译Qt 4.8.7源码 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2017/06/09/C/%E7%BC%96%E8%AF%91Qt%204.8.7%E6%BA%90%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          编译Qt 4.8.7源码
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-06-10 00:00:00" itemprop="dateCreated datePublished" datetime="2017-06-10T00:00:00+08:00">2017-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-04 19:04:19" itemprop="dateModified" datetime="2025-07-04T19:04:19+08:00">2025-07-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2017/06/09/C/%E7%BC%96%E8%AF%91Qt%204.8.7%E6%BA%90%E7%A0%81/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2017/06/09/C/%E7%BC%96%E8%AF%91Qt%204.8.7%E6%BA%90%E7%A0%81/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一、先来看一篇转载文章《<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e2bf0dd962d9">在 VS2015 中使用 Qt4</a>》</p>
+<p><a target="_blank" rel="noopener" href="http://tangzx.qiniudn.com/post-0111-qt4-vs2015.html">http://tangzx.qiniudn.com/post-0111-qt4-vs2015.html</a> 最早的原文，看不到了</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/district10/qt4-vs2015x64">https://github.com/district10/qt4-vs2015x64</a> 原作者的github，里面的东东都下载不了了</p>
+<p>二、firecat本人的教程</p>
+<p>0、Qt官方</p>
+<p>Qt4.8.7官方源码下载</p>
+<p><a target="_blank" rel="noopener" href="https://download.qt.io/new_archive/qt/4.8/4.8.7/">https://download.qt.io/new_archive&#x2F;qt&#x2F;4.8&#x2F;4.8.7&#x2F;</a></p>
+<p>官网的exe只提供了MSVC2010，没有更高版本的。高版本需要自己下载源码编译。</p>
+<p>源码里面的配置文件已经提供了MSVC 2015的编译选项，\qt-everywhere-opensource-src-4.8.7\mkspecs\win32-msvc2015</p>
+<p>参照官方提供的编译文档一步一步执行即可；但是配置文件里没有提供MSVC 2017的编译选项。</p>
+<p>官方编译的文档</p>
+<p><a target="_blank" rel="noopener" href="https://doc.qt.io/archives/qt-4.8/installation.html">https://doc.qt.io/archives/qt-4.8/installation.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.qt.io/archives/qt-4.8/configure-options.html">https://doc.qt.io/archives/qt-4.8/configure-options.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.qt.io/archives/qt-4.8/install-win.html">https://doc.qt.io/archives/qt-4.8/install-win.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.qt.io/archives/qt-4.8/install-mac.html">https://doc.qt.io/archives/qt-4.8/install-mac.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.qt.io/qt-5/build-sources.html">https://doc.qt.io/qt-5/build-sources.html</a></p>
+<p>1、Qt 4.8.7+MSVC 2017</p>
+<p>推荐使用第三方提供的源码，它已经是修改好的，里面含有MSVC 2017编译选项，可以编译。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/scharsig/Qt">https://github.com/scharsig/Qt</a> Qt4.8.7+MSVC2017源码</p>
+<p><a target="_blank" rel="noopener" href="https://forum.qt.io/topic/91623/building-qt-4-8-7-with-visual-studio-2017">https://forum.qt.io/topic/91623/building-qt-4-8-7-with-visual-studio-2017</a> Qt4.8.7+MSVC2017论坛</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/sandym/qt-patches">https://github.com/sandym/qt-patches</a> 仅供参考，编译补丁</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Homebrew/formula-patches/tree/master/qt">https://github.com/Homebrew/formula-patches/tree/master/qt</a> 仅供参考，编译补丁</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/BartVandewoestyne/qt_4_8_7_with_vs2017_patch">https://github.com/BartVandewoestyne/qt_4_8_7_with_vs2017_patch</a> 仅供参考，编译补丁</p>
+<p>完整的编译过程：</p>
+<p>下载第三方源码<a target="_blank" rel="noopener" href="https://github.com/scharsig/Qt/tree/master/qt-4.8.7-vs2017">https://github.com/scharsig/Qt/tree/master/qt-4.8.7-vs2017</a> 然后解压</p>
+<p>-–step1—</p>
+<p>Windows桌面-开始-程序-Visual Studio 2017-Visual Studio Tools-VC-x86 Native Tools Command Prompt for VS 2017</p>
+<p>-–step2—</p>
+<p>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise&gt;cd F:\Qt\setup-exe\4.8.7\Qt-master\qt-4.8.7-vs2017</p>
+<p>-–step3—</p>
+<p>F:\Qt\setup-exe\4.8.7\Qt-master\qt-4.8.7-vs2017&gt;configure -help</p>
+<p>-–step4—</p>
+<p>F:\Qt\setup-exe\4.8.7\Qt-master\qt-4.8.7-vs2017&gt;<br>configure -make nmake -debug-and-release -opensource -confirm-license -platform win32-msvc2017 -prefix F:\Qt\Qt4.8.7-msvc2017 -nomake examples -nomake tests</p>
+<p>如果不想编译这么多功能模块，可以精简为：</p>
+<p>configure -make nmake -debug-and-release -opensource -confirm-license -platform win32-msvc2017 -prefix F:\Qt\Qt4.8.7-msvc2017 \<br>  -no-qt3support -no-multimedia \<br>  -no-audio-backend -no-phonon -no-phonon-backend -no-libtiff \<br>  -no-libmng -no-dbus -no-nis -nomake examples -nomake tests</p>
+<pre><code> -release              Compile and link Qt with debugging turned off. -debug                Compile and link Qt with debugging turned on. -nomake tests         Disable building of tests to speed up compilation -nomake examples      Disable building of examples to speed up compilation -confirm-license      Automatically acknowledge the LGPL 2.1 license.
+</code></pre>
+<p>-–step5—</p>
+<p>F:\Qt\setup-exe\4.8.7\Qt-master\qt-4.8.7-vs2017&gt;nmake</p>
+<p>-–step6—</p>
+<p>F:\Qt\setup-exe\4.8.7\Qt-master\qt-4.8.7-vs2017&gt;nmake install</p>
+<p>-–step7—</p>
+<p>添加到Qt Creator</p>
+<p><img src="https://img-blog.csdnimg.cn/20200309185435327.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpYmFpbmV1MjAwNA==,size_16,color_FFFFFF,t_70"></p>
+<p>-–step8—</p>
+<p>新建项目测试，Qt Creator+Qt4.8.7+MSVC2017编译项目时，如果报错：</p>
+<blockquote>
+<p>intermediate\moc\moc_rs_actionzoompan.cpp:-1: error: C1041: 无法打开程序数据库“F:\CADCAM\QCAD\src\build-LibreCAD-v1.0.4-qt4-Desktop_Qt_4_8_7_MSVC2017_32bit-Debug\librecad\vc140.pdb”；如果要将多个 CL.EXE 写入同一个 .PDB 文件，请使用 &#x2F;FS</p>
+</blockquote>
+<p>解决办法：</p>
+<p>在Qt Creator的项目文件，即.pro文件中，可以通过QMAKE_CXXFLAGS来给MSVC编译器传递编译开关。</p>
+<p>QMAKE_CXXFLAGS +&#x3D; &#x2F;FS</p>
+<pre><code>win32-msvc*:QMAKE_CXXFLAGS += /wd&quot;4819&quot; QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO -= -Zc:strictStrings 
+</code></pre>
+<p>MSVC 2017编译器常见错误的解决：</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/c-cpp-build-errors?view=vs-2017">https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/c-cpp-build-errors?view=vs-2017</a></p>
+<p>2、Mac OS+Qt 4.8.7</p>
+<p>笔者的Mac OS版本是MacOS-10.15-Catalina，高版本的OS和Clang已经不再支持Qt官方发布的Qt4了。</p>
+<p>解决办法可以参见我的另一篇博文：<a target="_blank" rel="noopener" href="https://blog.csdn.net/libaineu2004/article/details/104740623">https://blog.csdn.net/libaineu2004/article/details/104740623</a></p>
+<p><a target="_blank" rel="noopener" href="https://trac.macports.org/ticket/58651">https://trac.macports.org/ticket/58651</a> mac下编译qt4遇到问题</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/macports/macports-ports/tree/master/aqua/qt4-mac">https://github.com/macports/macports-ports/tree/master/aqua/qt4-mac</a> mac编译补丁</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Qt%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" rel="tag"># Qt源码编译</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/03/10/Git/Git%E8%A7%A3%E5%86%B3%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81/" rel="prev" title="Git解决中文乱码">
+      <i class="fa fa-chevron-left"></i> Git解决中文乱码
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/12/29/DotNet/Vsiual%20Studio%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%89%88%E6%9C%AC%E5%8F%B7%E7%9A%84%E4%B8%80%E7%A7%8D%E6%96%B9%E6%B3%95/" rel="next" title="Vsiual Studio自动生成版本号的一种方法">
+      Vsiual Studio自动生成版本号的一种方法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">145</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对比说明 &#x2F;文件系统 TFS FastDFS MogileFS MooseFS GlusterFS Ceph 开发语言 C++ C Perl C C C++ 开源协议 GPL V2 GPL V3 GPL GPL V3 GPL V3 LGPL 数据存储方式 块 文件&#x2F;Trunk 文件 块 文件&#x2F;块 对象&#x2F;文件&#x2F;块 集群节点通信协议 私有协议（TCP）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式文件系统">
+<meta property="og:url" content="http://chengming0916.github.io/2022/07/27/Others/%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B1%87%E6%80%BB/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="对比说明 &#x2F;文件系统 TFS FastDFS MogileFS MooseFS GlusterFS Ceph 开发语言 C++ C Perl C C C++ 开源协议 GPL V2 GPL V3 GPL GPL V3 GPL V3 LGPL 数据存储方式 块 文件&#x2F;Trunk 文件 块 文件&#x2F;块 对象&#x2F;文件&#x2F;块 集群节点通信协议 私有协议（TCP）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="blob:https://i.cnblogs.com/a5bcbe72-aa26-4364-9d07-1df260612c34">
+<meta property="og:image" content="blob:https://i.cnblogs.com/98f73b45-fd82-43be-9cc9-7bde4dc22c26">
+<meta property="og:image" content="blob:https://i.cnblogs.com/ade8c237-062e-4f4e-86ad-bf067ea68e37">
+<meta property="og:image" content="blob:https://i.cnblogs.com/3551337f-e4e3-48bb-8a09-c0d0e9d6a5be">
+<meta property="og:image" content="http://img.blog.csdn.net/20140110134544890">
+<meta property="og:image" content="http://img.blog.csdn.net/20150228172431495?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanVuZWZzaA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20150228172623877?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanVuZWZzaA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20150228172639199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanVuZWZzaA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img.alicdn.com/imgextra/i3/643819937/TB2Hb_ecUlnpuFjSZFjXXXTaVXa_!!643819937.jpg">
+<meta property="article:published_time" content="2022-07-27T08:54:52.000Z">
+<meta property="article:modified_time" content="2025-07-11T00:50:07.254Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="blob:https://i.cnblogs.com/a5bcbe72-aa26-4364-9d07-1df260612c34">
+
+<link rel="canonical" href="http://chengming0916.github.io/2022/07/27/Others/%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B1%87%E6%80%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>分布式文件系统 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@gmail.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2022/07/27/Others/%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B1%87%E6%80%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          分布式文件系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-27 16:54:52" itemprop="dateCreated datePublished" datetime="2022-07-27T16:54:52+08:00">2022-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-11 08:50:07" itemprop="dateModified" datetime="2025-07-11T08:50:07+08:00">2025-07-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Others/" itemprop="url" rel="index"><span itemprop="name">Others</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/07/27/Others/%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B1%87%E6%80%BB/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/07/27/Others/%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B1%87%E6%80%BB/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>对比说明</p>
+<p>&#x2F;文件系统</p>
+<p>TFS</p>
+<p>FastDFS</p>
+<p>MogileFS</p>
+<p>MooseFS</p>
+<p>GlusterFS</p>
+<p>Ceph</p>
+<p>开发语言</p>
+<p>C++</p>
+<p>C</p>
+<p>Perl</p>
+<p>C</p>
+<p>C</p>
+<p>C++</p>
+<p>开源协议</p>
+<p>GPL V2</p>
+<p>GPL V3</p>
+<p>GPL</p>
+<p>GPL V3</p>
+<p>GPL V3</p>
+<p>LGPL</p>
+<p>数据存储方式</p>
+<p>块</p>
+<p>文件&#x2F;Trunk</p>
+<p>文件</p>
+<p>块</p>
+<p>文件&#x2F;块</p>
+<p>对象&#x2F;文件&#x2F;块</p>
+<p>集群节点通信协议</p>
+<p>私有协议（TCP）</p>
+<p>私有协议（TCP）</p>
+<p>HTTP</p>
+<p>私有协议（TCP）</p>
+<p>私有协议（TCP）&#x2F; RDAM(远程直接访问内存)</p>
+<p>私有协议（TCP）</p>
+<p>专用元数据存储点</p>
+<p>占用NS</p>
+<p>无</p>
+<p>占用DB</p>
+<p>占用MFS</p>
+<p>无</p>
+<p>占用MDS</p>
+<p>在线扩容</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>冗余备份</p>
+<p>支持</p>
+<p>支持</p>
+<p>-</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>单点故障</p>
+<p>存在</p>
+<p>不存在</p>
+<p>存在</p>
+<p>存在</p>
+<p>不存在</p>
+<p>存在</p>
+<p>跨集群同步</p>
+<p>支持</p>
+<p>部分支持</p>
+<p>-</p>
+<p>-</p>
+<p>支持</p>
+<p>不适用</p>
+<p>易用性</p>
+<p>安装复杂，官方文档少</p>
+<p>安装简单，社区相对活跃</p>
+<p>-</p>
+<p>安装简单，官方文档多</p>
+<p>安装简单，官方文档专业化</p>
+<p>安装简单，官方文档专业化</p>
+<p>适用场景</p>
+<p>跨集群的小文件</p>
+<p>单集群的中小文件</p>
+<p>-</p>
+<p>单集群的大中文件</p>
+<p>跨集群云存储</p>
+<p>单集群的大中小文件</p>
+<p>开源协议说明</p>
+<p>GPL:不允许修改后和衍生的代码做为闭源的商业软件发布和销售，修改后该软件产品必须也采用GPL协议；</p>
+<p>GPL V2：修改文本的整体就必须按照GPL流通，不仅该修改文本的源码必须向社 会公开，而且对于这种修改文本的流通不准许附加修改者自己作出的限制;</p>
+<p>GPL V3：要求用户公布修改的源代码，还要求公布相关硬件;LGPL：更宽松的GPL</p>
+<p>TFS（Taobao File System）是由淘宝开发的一个分布式文件系统，其内部经过特殊的优化处理，适用于海量的小文件存储，目前已经对外开源；</p>
+<p>TFS采用自有的文件系统格式存储，因此需要专用的API接口去访问，目前官方提供的客户端版本有：C++&#x2F;JAVA&#x2F;PHP。</p>
+<p><img src="blob:https://i.cnblogs.com/a5bcbe72-aa26-4364-9d07-1df260612c34"></p>
+<ul>
+<li>特性</li>
+</ul>
+<p>1）在TFS文件系统中，NameServer负责管理文件元数据，通过HA机制实现主备热切换，由于所有元数据都是在内存中，其处理效率非常高效，系统架构也非常简单，管理也很方便；</p>
+<p>2）TFS的DataServer作为分部署数据存储节点，同时也具备负载均衡和冗余备份的功能，由于采用自有的文件系统，对小文件会采取合并策略，减少数据碎片，从而提升IO性能；</p>
+<p>3）TFS将元数据信息（BlockID、FileID）直接映射至文件名中，这一设计大大降低了存储元数据的内存空间；</p>
+<ul>
+<li>优点</li>
+</ul>
+<p>1）针对小文件量身定做，随机IO性能比较高；</p>
+<p>2）支持在线扩容机制，增强系统的可扩展性；</p>
+<p>3）实现了软RAID，增强系统的并发处理能力及数据容错恢复能力；</p>
+<p>4）支持主备热倒换，提升系统的可用性；</p>
+<p>5）支持主从集群部署，其中从集群主要提供读&#x2F;备功能；</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）TFS只对小文件做优化，不适合大文件的存储；</p>
+<p>2）不支持POSIX通用接口访问，通用性较低；</p>
+<p>3）不支持自定义目录结构，及文件权限控制；</p>
+<p>4）通过API下载，存在单点的性能瓶颈；</p>
+<p>5）官方文档非常少，学习成本高；</p>
+<ul>
+<li>应用场景</li>
+</ul>
+<p>1）多集群部署的应用</p>
+<p>2）存储后基本不做改动</p>
+<p>3）海量小型文件</p>
+<p>根据目前官方提供的材料，对单个集群节点，存储节点在1000台以内可以良好工作，如存储节点扩大可能会出现NameServer的性能瓶颈，目前淘宝线上部署容量已达到1800TB规模（2009年数据）</p>
+<ul>
+<li>安装及使用</li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/junefsh/article/details/43987811">安装指导</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/junefsh/article/details/43987829">TFS_配置使用</a></li>
+</ul>
+<p> 参考</p>
+<p>FastDFS</p>
+<p><img src="blob:https://i.cnblogs.com/98f73b45-fd82-43be-9cc9-7bde4dc22c26"></p>
+<p>FastDFS是国人开发的一款分布式文件系统，目前社区比较活跃。如上图所示系统中存在三种节点：Client、Tracker、Storage，在底层存储上通过逻辑的分组概念，使得通过在同组内配置多个Storage，从而实现软RAID10,提升并发IO的性能、简单负载均衡及数据的冗余备份；同时通过线性的添加新的逻辑存储组，从容实现存储容量的线性扩容。</p>
+<p>文件下载上，除了支持通过API方式，目前还提供了apache和nginx的插件支持，同时也可以不使用对应的插件，直接以Web静态资源方式对外提供下载。</p>
+<p>目前FastDFS(V4.x)代码量大概6w多行，内部的网络模型使用比较成熟的libevent三方库，具备高并发的处理能力。</p>
+<ul>
+<li>特性</li>
+</ul>
+<p>1）在上述介绍中Tracker服务器是整个系统的核心枢纽，其完成了访问调度（负载均衡），监控管理Storage服务器，由此可见Tracker的作用至关重要，也就增加了系统的单点故障，为此FastDFS支持多个备用的Tracker，虽然实际测试发现备用Tracker运行不是非常完美，但还是能保证系统可用。</p>
+<p>2）在文件同步上，只有同组的Storage才做同步，由文件所在的源Storage服务器push至其它Storage服务器，目前同步是采用Binlog方式实现，由于目前底层对同步后的文件不做正确性校验，因此这种同步方式仅适用单个集群点的局部内部网络，如果在公网上使用，肯定会出现损坏文件的情况，需要自行添加文件校验机制。</p>
+<p>3）支持主从文件，非常适合存在关联关系的图片，在存储方式上，FastDFS在主从文件ID上做取巧，完成了关联关系的存储。</p>
+<ul>
+<li>优点</li>
+</ul>
+<p>1）系统无需支持POSIX(可移植操作系统)，降低了系统的复杂度，处理效率更高</p>
+<p>2）支持在线扩容机制，增强系统的可扩展性</p>
+<p>3）实现了软RAID，增强系统的并发处理能力及数据容错恢复能力</p>
+<p>4）支持主从文件，支持自定义扩展名</p>
+<p>5）主备Tracker服务，增强系统的可用性</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）不支持断点续传，对大文件将是噩梦（FastDFS不适合大文件存储）</p>
+<p>2）不支持POSIX通用接口访问，通用性较低</p>
+<p>3）对跨公网的文件同步，存在较大延迟，需要应用做相应的容错策略</p>
+<p>4）同步机制不支持文件正确性校验，降低了系统的可用性</p>
+<p>5）通过API下载，存在单点的性能瓶颈</p>
+<ul>
+<li>应用场景</li>
+</ul>
+<p>1）单集群部署的应用</p>
+<p>2）存储后基本不做改动</p>
+<p>3）小中型文件根据</p>
+<p>目前官方提供的材料，现有的使用FastDFS系统存储容量已经达到900T，物理机器已经达到100台（50个组）</p>
+<ul>
+<li>参考</li>
+</ul>
+<p>MooseFS</p>
+<p>MooseFS是一个高可用的故障容错分布式文件系统，它支持通过FUSE方式将文件挂载操作，同时其提供的web管理界面非常方便查看当前的文件存储状态。</p>
+<ul>
+<li>特性</li>
+</ul>
+<p>1）从下图中我们可以看到MooseFS文件系统由四部分组成：Managing Server 、Data Server 、Metadata Backup Server 及Client</p>
+<p>2）其中所有的元数据都是由Managing Server管理，为了提高整个系统的可用性，Metadata Backup Server记录文件元数据操作日志，用于数据的及时恢复</p>
+<p>3）Data Server可以分布式部署，存储的数据是以块的方式分布至各存储节点的，因此提升了系统的整体性能，同时Data Server提供了冗余备份的能力，提升系统的可靠性</p>
+<p>4）Client通过FUSE方式挂载，提供了类似POSIX的访问方式，从而降低了Client端的开发难度，增强系统的通用性</p>
+<p><img src="blob:https://i.cnblogs.com/ade8c237-062e-4f4e-86ad-bf067ea68e37"></p>
+<ul>
+<li>元数据服务器（master）:负责各个数据存储服务器的管理，文件读写调度，文件空间回收以及恢复</li>
+<li>元数据日志服务器（metalogger）:负责备份master服务器的变化日志文件，以便于在master server出问题的时候接替其进行工作</li>
+<li>数据存储服务器（chunkserver）:数据实际存储的地方，由多个物理服务器组成，负责连接管理服务器，听从管理服务器调度，提供存储空间，并为客户提供数据传输；多节点拷贝;在数据存储目录，看不见实际的数据</li>
+</ul>
+<p><img src="blob:https://i.cnblogs.com/3551337f-e4e3-48bb-8a09-c0d0e9d6a5be"></p>
+<ul>
+<li>优点</li>
+</ul>
+<p>1）部署安装非常简单，管理方便</p>
+<p>2）支持在线扩容机制，增强系统的可扩展性</p>
+<p>3）实现了软RAID，增强系统的 并发处理能力及数据容错恢复能力</p>
+<p>4）数据恢复比较容易，增强系统的可用性5）有回收站功能，方便业务定制</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）存在单点性能瓶颈及单点故障</p>
+<p>2）MFS Master节点很消耗内存</p>
+<p>3）对于小于64KB的文件，存储利用率较低</p>
+<ul>
+<li><p>应用场景</p>
+</li>
+<li><p>参考</p>
+</li>
+</ul>
+<p>GlusterFS</p>
+<p>GlusterFS是Red Hat旗下的一款开源分布式文件系统，它具备高扩展、高可用及高性能等特性，由于其无元数据服务器的设计，使其真正实现了线性的扩展能力，使存储总容量可 轻松达到PB级别，支持数千客户端并发访问；对跨集群，其强大的Geo-Replication可以实现集群间数据镜像，而且是支持链式复制，这非常适用 于垮集群的应用场景</p>
+<ul>
+<li>特性</li>
+</ul>
+<p>1）目前GlusterFS支持FUSE方式挂载，可以通过标准的NFS&#x2F;SMB&#x2F;CIFS协议像访问本体文件一样访问文件系统，同时其也支持HTTP&#x2F;FTP&#x2F;GlusterFS访问，同时最新版本支持接入Amazon的AWS系统</p>
+<p>2）GlusterFS系统通过基于SSH的命令行管理界面，可以远程添加、删除存储节点，也可以监控当前存储节点的使用状态</p>
+<p>3）GlusterFS支持集群节点中存储虚拟卷的扩容动态扩容；同时在分布式冗余模式下，具备自愈管理功能，在Geo冗余模式下，文件支持断点续传、异步传输及增量传送等特点</p>
+<ul>
+<li>优点</li>
+</ul>
+<p>1）系统支持POSIX(可移植操作系统)，支持FUSE挂载通过多种协议访问，通用性比较高</p>
+<p>2）支持在线扩容机制，增强系统的可扩展性</p>
+<p>3）实现了软RAID，增强系统的 并发处理能力及数据容错恢复能力</p>
+<p>4）强大的命令行管理，降低学习、部署成本</p>
+<p>5）支持整个集群镜像拷贝，方便根据业务压力，增加集群节点</p>
+<p>6）官方资料文档专业化，该文件系统由Red Hat企业级做维护，版本质量有保障</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）通用性越强，其跨越的层次就越多，影响其IO处理效率</p>
+<p>2）频繁读写下，会产生垃圾文件，占用磁盘空间</p>
+<ul>
+<li>应用场景</li>
+</ul>
+<p>1）多集群部署的应用</p>
+<p>2）中大型文件根据目前官方提供的材料，现有的使用GlusterFS系统存储容量可轻松达到PB</p>
+<ul>
+<li>术语：</li>
+</ul>
+<p>brick：分配到卷上的文件系统块；</p>
+<p>client：挂载卷，并对外提供服务；</p>
+<p>server：实际文件存储的地方；</p>
+<p>subvolume：被转换过的文件系统块；</p>
+<p>volume：最终转换后的文件系统卷。</p>
+<ul>
+<li>参考</li>
+</ul>
+<p>Ceph是一个可以按对象&#x2F;块&#x2F;文件方式存储的开源分布式文件系统，其设计之初，就将单点故障作为首先要解决的问题，因此该系统具备高可用性、高性能及可 扩展等特点。该文件系统支持目前还处于试验阶段的高性能文件系统BTRFS(B-Tree文件系统)，同时支持按OSD方式存储，因此其性能是很卓越的， 因为该系统处于试商用阶段，需谨慎引入到生产环境</p>
+<ul>
+<li>特性</li>
+</ul>
+<p>1）Ceph底层存储是基于RADOS（可靠的、自动的分布式对象存储），它提供了LIBRADOS&#x2F;RADOSGW&#x2F;RBD&#x2F;CEPH FS方式访问底层的存储系统，如下图所示</p>
+<p>2）通过FUSE，Ceph支持类似的POSIX访问方式；Ceph分布式系统中最关键的MDS节点是可以部署多台，无单点故障的问题，且处理性能大大提升</p>
+<p>3）Ceph通过使用CRUSH算法动态完成文件inode number到object number的转换，从而避免再存储文件metadata信息，增强系统的灵活性</p>
+<ul>
+<li>优点</li>
+</ul>
+<p>1）支持对象存储（OSD）集群，通过CRUSH算法，完成文件动态定位， 处理效率更高</p>
+<p>2）支持通过FUSE方式挂载，降低客户端的开发成本，通用性高</p>
+<p>3）支持分布式的MDS&#x2F;MON，无单点故障</p>
+<p>4）强大的容错处理和自愈能力5）支持在线扩容和冗余备份，增强系统的可靠性</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）目前处于试验阶段，系统稳定性有待考究</p>
+<ul>
+<li>应用场景</li>
+</ul>
+<p>1）全网分布式部署的应用</p>
+<p>2）对实时性、可靠性要求比较高官方宣传，存储容量可轻松达到PB级别</p>
+<ul>
+<li><p>参考</p>
+</li>
+<li><p>开发语言：perl</p>
+</li>
+<li><p>开源协议：GPL</p>
+</li>
+<li><p>依赖数据库</p>
+</li>
+<li><p>Trackers(控制中心):负责读写数据库，作为代理复制storage间同步的数据</p>
+</li>
+<li><p>Database:存储源数据（默认mysql）</p>
+</li>
+<li><p>Storage:文件存储</p>
+</li>
+<li><p>除了API，可以通过与nginx集成，对外提供下载服务</p>
+</li>
+<li><p>参考</p>
+</li>
+</ul>
+<p> 其它参考</p>
+<p>1、MooseFS</p>
+<p>支持FUSE，相对比较轻量级，对master服务器有单点依赖，用perl编写，性能相对较差，国内用的人比较多，易用，稳定，对小文件很高效。<br>+ 支持文件元信息<br>+ mfsmount 很好用<br>+ 编译依赖少，文档全，默认配置很好<br>+ mfshdd.cfg 加 * 的条目会被转移到其它 chunk server，以便此 chunk server 安全退出<br>+ 不要求 chunk server 使用的文件系统格式以及容量一致<br>+ 开发很活跃<br>+ 可以以非 root 用户身份运行<br>+ 可以在线扩容<br>+ 支持回收站<br>+ 支持快照<br>- master server 存在单点故障<br>- master server 很耗内存<br>测试性能还不错。吞吐量在15MB&#x2F;秒以上</p>
+<p>2、MogileFS<br>Key-Value型元文件系统，不支持FUSE，应用程序访问它时需要API，主要用在web领域处理海量小图片，效率相比mooseFS高很多，据说对于 Web 2.0 应用存储图片啥的很好。<br>不适合做通用文件系统，适合存储静态只读小文件，比如图片<br>网上说这个是性能最高的， 不过是perl编写的代码， 对外提供API来进行使用， 搭建相对比较复杂一点， 因为需要安装很多依赖的第三方perl包，另外还要安装MySQL数据库来支持。<br>安装完毕后， 服务器端起来了， 客户端有Java， PHP, PERL, RUBY 等开发的， 我需要的是要支持 FUSE 的， 但是这个分布式的文件系统，对FUSE的支持需要安装一个PERL与C通信的模块， 这个模块死活编译不过去， 最后无法测试成功，无奈只能有时间了继续研究。</p>
+<p>3、GlusterFS<br>支持FUSE，比mooseFS庞大，感觉广告宣传做的比产品本身好。<br>+ 无单点故障问题<br>+ 支持回收站<br>+ 模块化堆叠式架构<br>- 对文件系统格式有要求，ext3&#x2F;ext4&#x2F;zfs 被正式支持，xfs&#x2F;jfs 可能可以，reiserfs 经测试可以<br>- 需要以 root 用户身份运行（用了 trusted xattr，mount 时加 user_xattr 选项是没用的，官方说法是glusterfsd 需要创建不同属主的文件，所以必需 root 权限)<br>- 不能在线扩容(不 umount 时增加存储节点)，计划在 3.1 里实现<br>- 分布存储以文件为单位，条带化分布存储不成熟<br>网上说glusterfs比较不错， 稳定，适合大型应用， 关键是没有单点故障依赖，C语言的代码， 支持FUSE，于是下载安装研究。 安装配置还算简单，启动后进行测试。<br>开始感觉确实不错，很爽。 后来用压力测试工具对其吞吐量进行测试 ， 发现性能不能满足我们的生产需求，不知道是哪里的配置问题，<br>我们测试的都是大文件的读操作和大文件的写操作， 吞吐量在 5MB&#x2F;秒左右， 显然不能满足要求。但是没有找到具体的瓶颈，毕竟程序是别人写的，要查瓶颈也不容易。<br>关于 glusterfs的详细的资料， 可以看这位弟兄的文章， 他做的比较深入 。<br><a target="_blank" rel="noopener" href="http://zhoubo.sinaapp.com/?cat=22">http://zhoubo.sinaapp.com/?cat=22</a></p>
+<p>4、GFS2<br><a target="_blank" rel="noopener" href="http://sourceware.org/cluster/wiki/DRBD/_Cookbook">http://sourceware.org/cluster/wiki/DRBD\_Cookbook</a><br><a target="_blank" rel="noopener" href="http://www.smop.co.uk/blog/index.php/2008/02/11/gfs-goodgrief-wheres-the-documentation-file-system/">http://www.smop.co.uk/blog/index.php/2008/02/11/gfs-goodgrief-wheres-the-documentation-file-system/</a><br><a target="_blank" rel="noopener" href="http://wiki.debian.org/kristian/_jerpetjoen">http://wiki.debian.org/kristian\_jerpetjoen</a><br><a target="_blank" rel="noopener" href="http://longvnit.com/blog/?p=941">http://longvnit.com/blog/?p=941</a><br><a target="_blank" rel="noopener" href="http://blog.chinaunix.net/u1/53728/showart/_1073271.html">http://blog.chinaunix.net/u1/53728/showart\_1073271.html</a> (基于红帽RHEL5U2 GFS2+ISCSI+XEN+Cluster 的高可性解决方案)<br><a target="_blank" rel="noopener" href="http://www.yubo.org/blog/?p=27">http://www.yubo.org/blog/?p=27</a> (iscsi+clvm+gfs2+xen+Cluster)<br><a target="_blank" rel="noopener" href="http://linux.chinaunix.net/bbs/thread-777867-1-1.html">http://linux.chinaunix.net/bbs/thread-777867-1-1.html</a><br>并不是 distributed file system, 而是 shared disk cluster file system，需要某种机制在机器<br>之间共享磁盘，以及加锁机制，因此需要 drbd&#x2F;iscsi&#x2F;clvm&#x2F;ddraid&#x2F;gnbd 做磁盘共享，以及 dlm 做锁管理)<br>- 依赖 Red Hat Cluster Suite (Debian: aptitude install redhat-cluster-suite， 图形配置工具包<br>system-config-cluster, system-config-lvm)<br>- 适合不超过约 30 个节点左右的小型集群，规模越大，dlm 的开销越大，默认配置 8 个节点</p>
+<p>5、OCFS2<br>GFS 的 Oracle 翻版，据说性能比 GFS2 好 (Debian: aptitude install ocfs2-tools, 图形配置工具包 ocfs2console)<br>不支持 ACL、flock，只是为了 Oracle database 设计</p>
+<p>6、OpenAFS&#x2F;Coda<br>是很有特色的东西。<br>+ 成熟稳定<br>+ 开发活跃，支持 Unix&#x2F;Linux&#x2F;MacOS X&#x2F;Windows<br>- 性能不够好</p>
+<p>7、ceph<br>支持FUSE，客户端已经进入了Linux-2.6.34内核，也就是说可以像ext3&#x2F;rasierFS一样，选择ceph为文件系统。彻底的分布式，没有单点依赖，用C编写，性能较好。基于不成熟的btrfs，其本身也非常不成熟<br>　　网上搜索了一些资料， 说 ceph 性能最高，C++编写的代码，支持Fuse，并且没有单点故障依赖， 于是下载安装， 由于 ceph 使用 btrfs 文件系统， 而btrfs 文件系统需要 Linux 2.6.34 以上的内核才支持， 显然我使用的 RHEL5 的内核还不支持 btrfs文件系统， 于是下载最新的内核进行升级， 搞了2天没有升级成功， 编译一次都要耗费1个多小时才能完成，最后发现最新版的 ubuntu 系统支持btrfs文件系统， 于是安装 ubuntu 的虚拟机，btrfs 文件系统搞定了， 但是启动ceph的相关进程出错， 无法启动成功。所以谈不上对其进行过测试。<br>CEPH中使用了一个比较先进的算法 crush算法， 据翻译出来，为分布式基于对象的存储系统设计了一个可升级的伪随机的数据分布函数，它能够有效地管理数据对象和存储设备，而不需要通过一个中心目录。由于大系统都是动态的，CRUSH被设计成为一个当把不需要的数据迁移最小化时，能方便的增加或移除存储设备。这个算法提供了一个大范围的不同种类的数据复制和可靠性机制，以及根据用户自定义的策略来分配数据，这种策略迫使数据复制从故障领域分离出来。<br>另外CEPH使用的文件系统为btrfs， 这个文件系统具有很多先进的特性， 为下一代Linux使用的文件系统。<br>BTRFS最终可能会给ZFS等带来更多威胁，它具有在线碎片整理功能(只有固态盘有这项功能)、Copy-On-Write技术、数据压缩、镜像、数据条带和快照等等。<br>　　另外，BTRFS在数据存储方面比ext更完善。它包括一些逻辑卷管理和RAID硬件功能，可以对内部元数据和用户数据进行检验和，同时内嵌了快照功能。ext4也可以实现以上一些功能，但是需要与文件系统和逻辑卷管理器进行通信。</p>
+<p>8、Lustre<br>Oracle公司的企业级产品，非常庞大，对内核和ext3深度依赖<br>复杂，高效，适合大型集群。<br>* 适合大型集群<br>+ 很高性能<br>+ 支持动态扩展<br>- 需要对内核打补丁，深度依赖 Linux 内核和 ext3 文件系统<br>这个东西连下载地址都没有了。。。。。</p>
+<p>9、PVFS2<br><a target="_blank" rel="noopener" href="http://blog.csdn.net/yfw418/archive/2007/07/06/1680930.aspx">http://blog.csdn.net/yfw418/archive/2007/07/06/1680930.aspx</a><br>搭配定制应用会很好，据说曙光的并行文件系统就是基于 PVFS。　　</p>
+<p>10、fastDFS：国人在mogileFS的基础上进行改进的key-value型文件系统，同样不支持FUSE，提供比mogileFS更好的性能。<br>* 高性能<br>- 没有锁机制，不符合 POSIX 语意，需要应用的配合，不适合做通用文件系统<br>(See pvfs2-guide chaper 5: PVFS2 User APIs and Semantics)<br>- 静态配置，不能动态扩展<br>网上说是“国人在mogileFS的基础上进行改进的key-value型文件系统，同样不支持FUSE，提供比mogileFS更好的性能”， 这不是扯蛋吗 ？ Mogilefs 是perl写的， 如果 fastDFS是在 mogilefs 的基础上改进的话， 应该也是perl写的， 但是下载了fastDFS的代码后， 人家都是C的代码， 怎么可能是在mogilefs的基础上改进呢 ？看了一下fastDFS具体的结构，准确的说应该是“借鉴了MogileFS的思路”，而不能说“在MogileFS的基础上改进”。</p>
+<p>我安装了一下， 安装还算简单， 不支持fuse， 上传文件后会生成一个http的下载地址， 通过http的方式进行下载。这种方式显然不适合我想要的生产环境。</p>
+<p>下面是一个网友写的 FastFDS和MogileFS的对比文章， 感觉比较客观真实， 所以在这里给大家转帖一下。<br>FastDFS设计时借鉴了MogileFS的一些思路。FastDFS是一个完善的分布式文件存储系统，通过客户端API对文件进行读写。可以说，MogileFS的所有功能特性FastDFS都具备，MogileFS网址：<a target="_blank" rel="noopener" href="http://www.danga.com/mogilefs/%E3%80%82">http://www.danga.com/mogilefs/。</a><br>另外，相对于MogileFS，FastDFS具有如下特点和优势：<br>a. FastDFS完善程度较高，不需要二次开发即可直接使用；<br>b. 和MogileFS相比，FastDFS裁减了跟踪用的数据库，只有两个角色：tracker和storage。FastDFS的架构既简化了系统，同时也消除了性能瓶颈；<br>c. 在系统中增加任何角色的服务器都很容易：增加tracker服务器时，只需要修改storage和client的配置文件（增加一行tracker配置）；增加storage服务器时，通常不需要修改任何配置文件，系统会自动将该卷中已有文件复制到该服务器；<br>d. FastDFS比MogileFS更高效。表现在如下几个方面：<br>1）参见上面的第2点，FastDFS和MogileFS相比，没有文件索引数据库，FastDFS整体性能更高；<br>2）从采用的开发语言上看，FastDFS比MogileFS更底层、更高效。FastDFS用C语言编写，代码量不到2万行，没有依赖其他开源软件或程序包，安装和部署特别简洁；而MogileFS用perl编写；<br>3）FastDFS直接使用socket通信方式，相对于MogileFS的HTTP方式，效率更高。并且FastDFS使用sendfile传输文件，采用了内存零拷贝，系统开销更小，文件传输效率更高。<br>e. FastDFS有着详细的设计和使用文档，而MogileFS的文档相对比较缺乏。<br>f. FastDFS的日志记录非常详细，系统运行时发生的任何错误信息都会记录到日志文件中，当出现问题时方便管理员定位错误所在。<br>g. FastDFS还对文件附加属性（即meta data，如文件大小、图片宽度、高度等）进行存取，应用不需要使用数据库来存储这些信息。<br>h. FastDFS从V1.14开始支持相同文件内容只保存一份，这样可以节省存储空间，提高文件访问性能。</p>
+<p>11、Coda<br>* 从服务器复制文件到本地，文件读写是本地操作因此很高效<br>* 文件关闭后发送到服务器<br>+ 支持离线操作，连线后再同步到服务器上<br>- 缓存基于文件，不是基于数据块，打开文件时需要等待从服务器缓存到本地完毕<br>- 并发写有版本冲突问题<br>- 并发读有极大的延迟，需要等某个 client 关闭文件，比如不适合 tail -f some.log<br>- 研究项目，不够成熟，使用不广</p>
+<p>12、Hadoop HDFS<br>本地写缓存，够一定大小 (64 MB) 时传给服务器<br>不适合通用文件系统</p>
+<p>13、FastDFS<br>- 只能通过 API 使用，不支持 fuse</p>
+<p>14、NFS<br>　　老牌网络文件系统，具体不了解，反正NFS最近几年没发展，肯定不能用。</p>
+<p>15、dCache<br>依赖 PostgreSQL</p>
+<p>16、xtreemfs<br>* 服务端是 Java 实现的<br>- 性能不高</p>
+<p>17、CloudStore (KosmosFS)<br>+ 被 Hadoop 作为分布式文件系统后端之一<br>- 不支持文件元信息<br>- kfs_fuse 太慢，不可用<br>- 编译依赖多，文档落后，脚本简陋<br>- 开发不活跃</p>
+<p>18、NFSv4 Referrals<br>+ 简单<br>- 没有负载均衡，容错</p>
+<p>19、NFSv4.1 pNFS<br>- 没有普及</p>
+<p>20、spNFS<br>* pNFS 在 Linux 上的一个实现<br>Ceph (<a target="_blank" rel="noopener" href="http://ceph.newdream.net/">http://ceph.newdream.net/</a>)<br>- 开发初期，不稳定<br>- 依赖 btrfs</p>
+<p>21、GFarm<br><a target="_blank" rel="noopener" href="http://datafarm.apgrid.org/software/">http://datafarm.apgrid.org/software/</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/rickiyeat/article/details/53895987">各种分布式文件系统简介及适用场景 - Lovnx - CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/jackliu16/article/details/83155531">分布式文件系统MFS、Ceph、GlusterFS、Lustre的比较 - JackLiu16的博客 - CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="http://stor.51cto.com/art/201710/554259.htm">大规模分布式存储系统-分布式文件系统 - 51CTO.COM</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/feidaorenjian/article/details/79065247">https://blog.csdn.net/feidaorenjian/article/details/79065247</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/xyw591238/article/details/51441282">https://blog.csdn.net/xyw591238/article/details/51441282</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/prepared/article/details/72491036">https://blog.csdn.net/prepared/article/details/72491036</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ffm83/article/details/42672121">https://blog.csdn.net/ffm83/article/details/42672121</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/0b75b721dab4">https://www.jianshu.com/p/0b75b721dab4</a></p>
+<p>对比说明</p>
+<p>&#x2F;文件系统</p>
+<p>TFS</p>
+<p>FastDFS</p>
+<p>MogileFS</p>
+<p>MooseFS</p>
+<p>GlusterFS</p>
+<p>Ceph</p>
+<p>开发语言</p>
+<p>C++</p>
+<p>C</p>
+<p>Perl</p>
+<p>C</p>
+<p>C</p>
+<p>C++</p>
+<p>开源协议</p>
+<p>GPL V2</p>
+<p>GPL V3</p>
+<p>GPL</p>
+<p>GPL V3</p>
+<p>GPL V3</p>
+<p>LGPL</p>
+<p>数据存储方式</p>
+<p>块</p>
+<p>文件&#x2F;Trunk</p>
+<p>文件</p>
+<p>块</p>
+<p>文件&#x2F;块</p>
+<p>对象&#x2F;文件&#x2F;块</p>
+<p>集群节点通信协议</p>
+<p>私有协议（TCP）</p>
+<p>私有协议（TCP）</p>
+<p>HTTP</p>
+<p>私有协议（TCP）</p>
+<p>私有协议（TCP）&#x2F; RDAM(远程直接访问内存)</p>
+<p>私有协议（TCP）</p>
+<p>专用元数据存储点</p>
+<p>占用NS</p>
+<p>无</p>
+<p>占用DB</p>
+<p>占用MFS</p>
+<p>无</p>
+<p>占用MDS</p>
+<p>在线扩容</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>冗余备份</p>
+<p>支持</p>
+<p>支持</p>
+<p>-</p>
+<p>支持</p>
+<p>支持</p>
+<p>支持</p>
+<p>单点故障</p>
+<p>存在</p>
+<p>不存在</p>
+<p>存在</p>
+<p>存在</p>
+<p>不存在</p>
+<p>存在</p>
+<p>跨集群同步</p>
+<p>支持</p>
+<p>部分支持</p>
+<p>-</p>
+<p>-</p>
+<p>支持</p>
+<p>不适用</p>
+<p>易用性</p>
+<p>安装复杂，官方文档少</p>
+<p>安装简单，社区相对活跃</p>
+<p>-</p>
+<p>安装简单，官方文档多</p>
+<p>安装简单，官方文档专业化</p>
+<p>安装简单，官方文档专业化</p>
+<p>适用场景</p>
+<p>跨集群的小文件</p>
+<p>单集群的中小文件</p>
+<p>-</p>
+<p>单集群的大中文件</p>
+<p>跨集群云存储</p>
+<p>单集群的大中小文件</p>
+<p>开源协议说明</p>
+<p>GPL:不允许修改后和衍生的代码做为闭源的商业软件发布和销售，修改后该软件产品必须也采用GPL协议；<br>GPL V2：修改文本的整体就必须按照GPL流通，不仅该修改文本的源码必须向社 会公开，而且对于这种修改文本的流通不准许附加修改者自己作出的限制;<br>GPL V3：要求用户公布修改的源代码，还要求公布相关硬件;LGPL：更宽松的GPL</p>
+<p>TFS（Taobao File System）是由淘宝开发的一个分布式文件系统，其内部经过特殊的优化处理，适用于海量的小文件存储，目前已经对外开源；</p>
+<p>TFS采用自有的文件系统格式存储，因此需要专用的API接口去访问，目前官方提供的客户端版本有：C++&#x2F;JAVA&#x2F;PHP。</p>
+<p><img src="http://img.blog.csdn.net/20140110134544890"></p>
+<ul>
+<li>特性</li>
+</ul>
+<p>1）在TFS文件系统中，NameServer负责管理文件元数据，通过HA机制实现主备热切换，由于所有元数据都是在内存中，其处理效率非常高效，系统架构也非常简单，管理也很方便；<br>2）TFS的DataServer作为分部署数据存储节点，同时也具备负载均衡和冗余备份的功能，由于采用自有的文件系统，对小文件会采取合并策略，减少数据碎片，从而提升IO性能；<br>3）TFS将元数据信息（BlockID、FileID）直接映射至文件名中，这一设计大大降低了存储元数据的内存空间；</p>
+<ul>
+<li>优点</li>
+</ul>
+<p>1）针对小文件量身定做，随机IO性能比较高；<br>2）支持在线扩容机制，增强系统的可扩展性；<br>3）实现了软RAID，增强系统的并发处理能力及数据容错恢复能力；<br>4）支持主备热倒换，提升系统的可用性；<br>5）支持主从集群部署，其中从集群主要提供读&#x2F;备功能；</p>
+<ul>
+<li>缺点</li>
+</ul>
+<p>1）TFS只对小文件做优化，不适合大文件的存储；<br>2）不支持POSIX通用接口访问，通用性较低；<br>3）不支持自定义目录结构，及文件权限控制；<br>4）通过API下载，存在单点的性能瓶颈；<br>5）官方文档非常少，学习成本高；</p>
+<ul>
+<li>应用场景</li>
+</ul>
+<p>1）多集群部署的应用<br>2）存储后基本不做改动<br>3）海量小型文件<br>根据目前官方提供的材料，对单个集群节点，存储节点在1000台以内可以良好工作，如存储节点扩大可能会出现NameServer的性能瓶颈，目前淘宝线上部署容量已达到1800TB规模（2009年数据）</p>
+<ul>
+<li><p>安装及使用</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://blog.csdn.net/junefsh/article/details/43987811">安装指导</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://blog.csdn.net/junefsh/article/details/43987829">TFS_配置使用</a></p>
+</li>
+</ul>
+<p> <strong>源代码路径</strong>：<a target="_blank" rel="noopener" href="http://code.taobao.org/p/tfs/src/">http://code.taobao.org/p/tfs/src/</a></p>
+<p> <strong>参考</strong></p>
+<p> <strong><a target="_blank" rel="noopener" href="http://rdc.taobao.com/blog/cs/?p=128">http://rdc.taobao.com/blog/cs/?p=128</a></strong></p>
+<p> <strong><a target="_blank" rel="noopener" href="http://elf8848.iteye.com/blog/1724423">http://elf8848.iteye.com/blog/1724423</a></strong></p>
+<p> <strong><a target="_blank" rel="noopener" href="http://baike.baidu.com/view/1030880.htm">http://baike.baidu.com/view/1030880.htm</a></strong></p>
+<p> <strong><a target="_blank" rel="noopener" href="http://blog.yunnotes.net/index.php/install_document_for_tfs/">http://blog.yunnotes.net/index.php/install_document_for_tfs&#x2F;</a></strong></p>
+<p><strong>FastDFS</strong></p>
+<p><img src="http://img.blog.csdn.net/20150228172431495?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanVuZWZzaA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<p>FastDFS是国人开发的一款分布式文件系统，目前社区比较活跃。如上图所示系统中存在三种节点：Client、Tracker、Storage，在底层存储上通过逻辑的分组概念，使得通过在同组内配置多个Storage，从而实现软RAID10,提升并发IO的性能、简单负载均衡及数据的冗余备份；同时通过线性的添加新的逻辑存储组，从容实现存储容量的线性扩容。</p>
+<p>文件下载上，除了支持通过API方式，目前还提供了apache和nginx的插件支持，同时也可以不使用对应的插件，直接以Web静态资源方式对外提供下载。</p>
+<p>目前FastDFS(V4.x)代码量大概6w多行，内部的网络模型使用比较成熟的libevent三方库，具备高并发的处理能力。</p>
+<ul>
+<li><strong>特性</strong></li>
+</ul>
+<p>1）在上述介绍中Tracker服务器是整个系统的核心枢纽，其完成了访问调度（负载均衡），监控管理Storage服务器，由此可见Tracker的作用至关重要，也就增加了系统的单点故障，为此FastDFS支持多个备用的Tracker，虽然实际测试发现备用Tracker运行不是非常完美，但还是能保证系统可用。<br>2）在文件同步上，只有同组的Storage才做同步，由文件所在的源Storage服务器push至其它Storage服务器，目前同步是采用Binlog方式实现，由于目前底层对同步后的文件不做正确性校验，因此这种同步方式仅适用单个集群点的局部内部网络，如果在公网上使用，肯定会出现损坏文件的情况，需要自行添加文件校验机制。<br>3）支持主从文件，非常适合存在关联关系的图片，在存储方式上，FastDFS在主从文件ID上做取巧，完成了关联关系的存储。</p>
+<ul>
+<li><strong>优点</strong></li>
+</ul>
+<p>1）系统无需支持POSIX(可移植操作系统)，降低了系统的复杂度，处理效率更高<br>2）支持在线扩容机制，增强系统的可扩展性<br>3）实现了软RAID，增强系统的并发处理能力及数据容错恢复能力<br>4）支持主从文件，支持自定义扩展名<br>5）主备Tracker服务，增强系统的可用性</p>
+<ul>
+<li><strong>缺点</strong></li>
+</ul>
+<p>1）不支持断点续传，对大文件将是噩梦（FastDFS不适合大文件存储）<br>2）不支持POSIX通用接口访问，通用性较低<br>3）对跨公网的文件同步，存在较大延迟，需要应用做相应的容错策略<br>4）同步机制不支持文件正确性校验，降低了系统的可用性<br>5）通过API下载，存在单点的性能瓶颈</p>
+<ul>
+<li><strong>应用场景</strong></li>
+</ul>
+<p>1）单集群部署的应用<br>2）存储后基本不做改动<br>3）小中型文件根据<br>目前官方提供的材料，现有的使用FastDFS系统存储容量已经达到900T，物理机器已经达到100台（50个组）</p>
+<p> <a target="_blank" rel="noopener" href="http://blog.csdn.net/junefsh/article/details/43987863">安装指导_FastDFS</a></p>
+<p> <strong>源码路径：</strong><a target="_blank" rel="noopener" href="https://github.com/happyfish100/fastdfs">https://github.com/happyfish100/fastdfs</a></p>
+<ul>
+<li><strong>参考</strong></li>
+</ul>
+<p> <a target="_blank" rel="noopener" href="https://code.google.com/p/fastdfs/">https://code.google.com/p/fastdfs/</a> </p>
+<p> <a target="_blank" rel="noopener" href="http://bbs.chinaunix.net/forum-240-1.html">http://bbs.chinaunix.net/forum-240-1.html</a></p>
+<p> <a target="_blank" rel="noopener" href="http://portal.ucweb.local/docz/spec/platform/datastore/fastdfs">http://portal.ucweb.local/docz/spec/platform/datastore/fastdfs</a></p>
+<p><strong>MooseFS</strong></p>
+<p>MooseFS是一个高可用的故障容错分布式文件系统，它支持通过FUSE方式将文件挂载操作，同时其提供的web管理界面非常方便查看当前的文件存储状态。</p>
+<ul>
+<li><strong>特性</strong></li>
+</ul>
+<p>1）从下图中我们可以看到MooseFS文件系统由四部分组成：Managing Server 、Data Server 、Metadata Backup Server 及Client<br>2）其中所有的元数据都是由Managing Server管理，为了提高整个系统的可用性，Metadata Backup Server记录文件元数据操作日志，用于数据的及时恢复<br>3）Data Server可以分布式部署，存储的数据是以块的方式分布至各存储节点的，因此提升了系统的整体性能，同时Data Server提供了冗余备份的能力，提升系统的可靠性<br>4）Client通过FUSE方式挂载，提供了类似POSIX的访问方式，从而降低了Client端的开发难度，增强系统的通用性</p>
+<p><img src="http://img.blog.csdn.net/20150228172623877?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanVuZWZzaA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<ul>
+<li><p>元数据服务器（master）:负责各个数据存储服务器的管理，文件读写调度，文件空间回收以及恢复</p>
+</li>
+<li><p>元数据日志服务器（metalogger）:负责备份master服务器的变化日志文件，以便于在master server出问题的时候接替其进行工作</p>
+</li>
+<li><p>数据存储服务器（chunkserver）:数据实际存储的地方，由多个物理服务器组成，负责连接管理服务器，听从管理服务器调度，提供存储空间，并为客户提供数据传输；多节点拷贝;在数据存储目录，看不见实际的数据</p>
+</li>
+</ul>
+<p><img src="http://img.blog.csdn.net/20150228172639199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanVuZWZzaA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<ul>
+<li><strong>优点</strong></li>
+</ul>
+<p>1）部署安装非常简单，管理方便<br>2）支持在线扩容机制，增强系统的可扩展性<br>3）实现了软RAID，增强系统的 并发处理能力及数据容错恢复能力<br>4）数据恢复比较容易，增强系统的可用性5）有回收站功能，方便业务定制</p>
+<ul>
+<li><strong>缺点</strong></li>
+</ul>
+<p>1）存在单点性能瓶颈及单点故障<br>2）MFS Master节点很消耗内存<br>3）对于小于64KB的文件，存储利用率较低</p>
+<ul>
+<li><strong>应用场景</strong></li>
+</ul>
+<p>1）单集群部署的应用<br>2）中、大型文件</p>
+<ul>
+<li>参考</li>
+</ul>
+<p> <a target="_blank" rel="noopener" href="http://portal.ucweb.local/docz/spec/platform/datastore/moosefsh">http://portal.ucweb.local/docz/spec/platform/datastore/moosefsh</a> </p>
+<p> <a target="_blank" rel="noopener" href="http://www.moosefs.org/">http://www.moosefs.org/</a> </p>
+<p> <a target="_blank" rel="noopener" href="http://sourceforge.net/projects/moosefs/?source=directory">http://sourceforge.net/projects/moosefs/?source=directory</a></p>
+<p><strong>GlusterFS</strong></p>
+<p>GlusterFS是Red Hat旗下的一款开源分布式文件系统，它具备高扩展、高可用及高性能等特性，由于其无元数据服务器的设计，使其真正实现了线性的扩展能力，使存储总容量可 轻松达到PB级别，支持数千客户端并发访问；对跨集群，其强大的Geo-Replication可以实现集群间数据镜像，而且是支持链式复制，这非常适用 于垮集群的应用场景</p>
+<ul>
+<li><strong>特性</strong></li>
+</ul>
+<p>1）目前GlusterFS支持FUSE方式挂载，可以通过标准的NFS&#x2F;SMB&#x2F;CIFS协议像访问本体文件一样访问文件系统，同时其也支持HTTP&#x2F;FTP&#x2F;GlusterFS访问，同时最新版本支持接入Amazon的AWS系统<br>2）GlusterFS系统通过基于SSH的命令行管理界面，可以远程添加、删除存储节点，也可以监控当前存储节点的使用状态<br>3）GlusterFS支持集群节点中存储虚拟卷的扩容动态扩容；同时在分布式冗余模式下，具备自愈管理功能，在Geo冗余模式下，文件支持断点续传、异步传输及增量传送等特点</p>
+<p><a target="_blank" rel="noopener" href="https://img.alicdn.com/imgextra/i3/643819937/TB2Hb_ecUlnpuFjSZFjXXXTaVXa_!!643819937.jpg"><img src="https://img.alicdn.com/imgextra/i3/643819937/TB2Hb_ecUlnpuFjSZFjXXXTaVXa_!!643819937.jpg" alt="Yuyj GlusterFS.png"></a></p>
+<ul>
+<li><strong>优点</strong></li>
+</ul>
+<p>1）系统支持POSIX(可移植操作系统)，支持FUSE挂载通过多种协议访问，通用性比较高<br>2）支持在线扩容机制，增强系统的可扩展性<br>3）实现了软RAID，增强系统的 并发处理能力及数据容错恢复能力<br>4）强大的命令行管理，降低学习、部署成本<br>5）支持整个集群镜像拷贝，方便根据业务压力，增加集群节点<br>6）官方资料文档专业化，该文件系统由Red Hat企业级做维护，版本质量有保障</p>
+<ul>
+<li><strong>缺点</strong></li>
+</ul>
+<p>1）通用性越强，其跨越的层次就越多，影响其IO处理效率<br>2）频繁读写下，会产生垃圾文件，占用磁盘空间</p>
+<ul>
+<li><strong>应用场景</strong></li>
+</ul>
+<p>1）多集群部署的应用<br>2）中大型文件根据目前官方提供的材料，现有的使用GlusterFS系统存储容量可轻松达到PB</p>
+<ul>
+<li><strong>术语：</strong></li>
+</ul>
+<p>brick：分配到卷上的文件系统块；<br>client：挂载卷，并对外提供服务；<br>server：实际文件存储的地方；<br>subvolume：被转换过的文件系统块；<br>volume：最终转换后的文件系统卷。</p>
+<ul>
+<li><strong>参考</strong></li>
+</ul>
+<p>  <a target="_blank" rel="noopener" href="http://www.gluster.org/">http://www.gluster.org/</a></p>
+<p>  <a target="_blank" rel="noopener" href="http://www.gluster.org/wp-content/uploads/2012/05/Gluster_File_System-3.3.0-Administration_Guide-en-US.pdf">http://www.gluster.org/wp-content/uploads/2012/05/Gluster_File_System-3.3.0-Administration_Guide-en-US.pdf</a></p>
+<p>  <a target="_blank" rel="noopener" href="http://blog.csdn.net/liuben/article/details/6284551">http://blog.csdn.net/liuben/article/details/6284551</a></p>
+<h2 id="Ceph"><a href="#Ceph" class="headerlink" title="Ceph"></a><strong>Ceph</strong></h2><p>Ceph是一个可以按对象&#x2F;块&#x2F;文件方式存储的开源分布式文件系统，其设计之初，就将单点故障作为首先要解决的问题，因此该系统具备高可用性、高性能及可 扩展等特点。该文件系统支持目前还处于试验阶段的高性能文件系统BTRFS(B-Tree文件系统)，同时支持按OSD方式存储，因此其性能是很卓越的， 因为该系统处于试商用阶段，需谨慎引入到生产环境</p>
+<ul>
+<li><strong>特性</strong></li>
+</ul>
+<p>1）Ceph底层存储是基于RADOS（可靠的、自动的分布式对象存储），它提供了LIBRADOS&#x2F;RADOSGW&#x2F;RBD&#x2F;CEPH FS方式访问底层的存储系统，如下图所示<br>2）通过FUSE，Ceph支持类似的POSIX访问方式；Ceph分布式系统中最关键的MDS节点是可以部署多台，无单点故障的问题，且处理性能大大提升<br>3）Ceph通过使用CRUSH算法动态完成文件inode number到object number的转换，从而避免再存储文件metadata信息，增强系统的灵活性</p>
+<ul>
+<li><strong>优点</strong></li>
+</ul>
+<p>1）支持对象存储（OSD）集群，通过CRUSH算法，完成文件动态定位， 处理效率更高<br>2）支持通过FUSE方式挂载，降低客户端的开发成本，通用性高<br>3）支持分布式的MDS&#x2F;MON，无单点故障<br>4）强大的容错处理和自愈能力5）支持在线扩容和冗余备份，增强系统的可靠性</p>
+<ul>
+<li><strong>缺点</strong></li>
+</ul>
+<p>1）目前处于试验阶段，系统稳定性有待考究</p>
+<ul>
+<li><strong>应用场景</strong></li>
+</ul>
+<p>1）全网分布式部署的应用<br>2）对实时性、可靠性要求比较高官方宣传，存储容量可轻松达到PB级别</p>
+<p> <strong>源码路径：</strong><a target="_blank" rel="noopener" href="https://github.com/ceph/ceph">https://github.com/ceph/ceph</a></p>
+<ul>
+<li><strong>参考</strong></li>
+</ul>
+<p>  <a target="_blank" rel="noopener" href="http://ceph.com/">http://ceph.com/</a></p>
+<h2 id="MogileFS"><a href="#MogileFS" class="headerlink" title="MogileFS"></a><strong>MogileFS</strong></h2><ul>
+<li><p>开发语言：perl</p>
+</li>
+<li><p>开源协议：GPL</p>
+</li>
+<li><p>依赖数据库</p>
+</li>
+<li><p>Trackers(控制中心):负责读写数据库，作为代理复制storage间同步的数据</p>
+</li>
+<li><p>Database:存储源数据（默认mysql）</p>
+</li>
+<li><p>Storage:文件存储</p>
+</li>
+<li><p>除了API，可以通过与nginx集成，对外提供下载服务</p>
+</li>
+</ul>
+<p> <strong>源码路径：</strong><a target="_blank" rel="noopener" href="https://github.com/mogilefs">https://github.com/mogilefs</a></p>
+<ul>
+<li><strong>参考</strong></li>
+</ul>
+<p> <a target="_blank" rel="noopener" href="https://code.google.com/p/mogilefs/wiki/Start?tm=6">https://code.google.com/p/mogilefs/wiki/Start?tm=6</a></p>
+<p> <strong>其它参考</strong></p>
+<p> <a target="_blank" rel="noopener" href="http://blog.csdn.net/qiangweiloveforever/ariticle/details/7566779">http://blog.csdn.net/qiangweiloveforever/ariticle/details/7566779</a></p>
+<p> <a target="_blank" rel="noopener" href="http://weiruoyu.blog.51cto.com/951650/786607">http://weiruoyu.blog.51cto.com/951650/786607</a> </p>
+<p> <a target="_blank" rel="noopener" href="http://m.blog.csdn.net/blog/junefsh/18079733">http://m.blog.csdn.net/blog/junefsh/18079733</a></p>
+<blockquote>
+<p>转载请标明本文来源：<a target="_blank" rel="noopener" href="http://www.cnblogs.com/yswenli/p/7234579.html">http://www.cnblogs.com/yswenli/p/7234579.html</a><br>更多内容欢迎我的的github：<a target="_blank" rel="noopener" href="https://github.com/yswenli/APM" title="https://github.com/yswenli/APM">https://github.com/yswenli</a><br>如果发现本文有什么问题和任何建议，也随时欢迎交流~</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/27/Others/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A8%E8%B5%84%E6%96%99%E6%B1%87%E6%80%BB/" rel="prev" title="机器学习/深度学习入门资料汇总">
+      <i class="fa fa-chevron-left"></i> 机器学习/深度学习入门资料汇总
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/27/Kubernetes/Kubernetes/" rel="next" title="Kubernetes">
+      Kubernetes <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph"><span class="nav-number">1.</span> <span class="nav-text">Ceph</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MogileFS"><span class="nav-number">2.</span> <span class="nav-text">MogileFS</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">148</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

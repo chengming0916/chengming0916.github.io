@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%89%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Interpreter%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201801/1048776-20180108133321191-127249853.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201801/1048776-20180108133321191-127249853.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%89%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Interpreter%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%89%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Interpreter%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%89%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Interpreter%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%89%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Interpreter%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a></p>
+<p>24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>   今天我们开始讲“行为型”设计模式的第十一个模式，也是面向对象设计模式的最后一个模式，先要说明一下，其实这个模式不是最后一个模式（按Gof的排序来讲），为什么把它放在最后呢？因为我们在业务系统中写一个解释器的机会并不是很多，实践比较少，理解和应用该模式就有些困难，所以就放在最后来说。该模式就是【解释器模式】，英文名称是：Interpreter Pattern。按老规矩，先从名称上来看看这个模式，个人的最初理解“解释器”和Google的中英翻译功能类似。如果有一天你去国外旅游去了，比如去美国吧，美国人是讲英语的，我们是讲汉语的，如果英语听不懂，讲不好，估计沟通就完蛋了，不能沟通，估计玩的就很难尽兴了，因为有很多景点的解说你可能不明白（没有中文翻译的情况下，一般情况会有的）。所以我们需要一个软件，可以把中英文互译，那彼此就可以更好的理解对方的意思，我感觉翻译软件也可以称得上是解释器，把你不懂的解释成你能理解的。我们写代码，需要编译器把我们写的代码编译成机器可以理解的机器语言，从这方面来讲，C#的编译器也是一种解释器。  </p>
+<p><strong>二、解释器模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>   在软件构建过程中，如果某一特定领域的问题比较复杂，类似的模式不断重复出现，如果使用普通的编程方式来实现将面临非常频繁的变化。在这种情况下，将特定领域的问题表达为某种语法规则下的句子，然后构建一个解释器来解释这样的句子，从而达到解决问题的目的。  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>   给定一个语言，定义它的文法的一种表示，并定义一种解释器，这个解释器使用该表示来解释语言中的句子。　　　　　　                                ——《设计模式》GoF  </p>
+<p><strong>2.3、结构图（Structure）</strong>  </p>
+<p>       <img src="http://images2017.cnblogs.com/blog/1048776/201801/1048776-20180108133321191-127249853.png">  </p>
+<p><strong>2.4、模式的组成</strong><br>    <br>    可以看出，在解释器模式的结构图有以下角色：<br> <br>    **（1）、抽象表达式(AbstractExpression)**：定义解释器的接口，约定解释器的解释操作。其中的Interpret接口，正如其名字那样，它是专门用来解释该解释器所要实现的功能。  </p>
+<p>    **（2）、终结符表达式(Terminal Expression)**：实现了抽象表达式角色所要求的接口，主要是一个interpret()方法；文法中的每一个终结符都有一个具体终结表达式与之相对应。比如有一个简单的公式R&#x3D;R1+R2，在里面R1和R2就是终结符，对应的解析R1和R2的解释器就是终结符表达式。  </p>
+<p>    **（3）、非终结符表达式(Nonterminal Expression)**：文法中的每一条规则都需要一个具体的非终结符表达式，非终结符表达式一般是文法中的运算符或者其他关键字，比如公式R&#x3D;R1+R2中，“+”就是非终结符，解析“+”的解释器就是一个非终结符表达式。  </p>
+<p>    **（4）、环境角色(Context)**：这个角色的任务一般是用来存放文法中各个终结符所对应的具体值，比如R&#x3D;R1+R2，我们给R1赋值100，给R2赋值200。这些信息需要存放到环境角色中，很多情况下我们使用Map来充当环境角色就足够了。  </p>
+<p>    <strong>（5）、客户端（Client）：</strong>指的是使用解释器的客户端，通常在这里将按照语言的语法做的表达式转换成使用解释器对象描述的抽象语法树，然后调用解释操作。  </p>
+<p><strong>2.5、解释器模式的代码实现</strong>  </p>
+<p>    在很多场合都需要把数字转换成中文，我们就可以使用解释器来实现该功能，把给定的数字解释成符合语法规范的汉字表示法。实现代码如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  1 namespace InterpreterPattern  2 {<br>  3     &#x2F;&#x2F; 抽象表达式<br>  4     public abstract class Expression  5     {<br>  6         protected Dictionary&lt;string, int&gt; table &#x3D; new Dictionary&lt;string, int&gt;(9);<br>  7<br>  8         protected Expression()  9         {<br> 10             table.Add(“一”, 1);<br> 11             table.Add(“二”, 2);<br> 12             table.Add(“三”, 3);<br> 13             table.Add(“四”, 4);<br> 14             table.Add(“五”, 5);<br> 15             table.Add(“六”, 6);<br> 16             table.Add(“七”, 7);<br> 17             table.Add(“八”, 8);<br> 18             table.Add(“九”, 9);<br> 19         }<br> 20<br> 21         public virtual void Interpreter(Context context) 22         {<br> 23             if (context.Statement.Length &#x3D;&#x3D; 0)<br> 24             {<br> 25                 return;<br> 26             }<br> 27<br> 28             foreach (string key in table.Keys) 29             {<br> 30                 int value &#x3D; table[key]; 31<br> 32                 if (context.Statement.EndsWith(key + GetPostFix())) 33                 {<br> 34                     context.Data +&#x3D; value * this.Multiplier();<br> 35                     context.Statement &#x3D; context.Statement.Substring(0, context.Statement.Length - this.GetLength());<br> 36                 }<br> 37                 if (context.Statement.EndsWith(“零”))<br> 38                 {<br> 39                     context.Statement &#x3D; context.Statement.Substring(0, context.Statement.Length - 1);<br> 40                 }<br> 41             }<br> 42         }<br> 43<br> 44         public abstract string GetPostFix(); 45<br> 46         public abstract int Multiplier(); 47<br> 48         &#x2F;&#x2F;这个可以通用，但是对于个位数字例外，所以用虚方法<br> 49         public virtual int GetLength() 50         {<br> 51             return this.GetPostFix().Length + 1;<br> 52         }<br> 53     }<br> 54<br> 55     &#x2F;&#x2F;个位表达式<br> 56     public sealed class GeExpression : Expression 57     {<br> 58         public override string GetPostFix() 59         {<br> 60             return “”;<br> 61         }<br> 62<br> 63         public override int Multiplier() 64         {<br> 65             return 1;<br> 66         }<br> 67<br> 68         public override int GetLength() 69         {<br> 70             return 1;<br> 71         }<br> 72     }<br> 73<br> 74     &#x2F;&#x2F;十位表达式<br> 75     public sealed class ShiExpression : Expression 76     {<br> 77         public override string GetPostFix() 78         {<br> 79             return “十”;<br> 80         }<br> 81<br> 82         public override int Multiplier() 83         {<br> 84             return 10;<br> 85         }<br> 86     }<br> 87<br> 88     &#x2F;&#x2F;百位表达式<br> 89     public sealed class BaiExpression : Expression 90     {<br> 91         public override string GetPostFix() 92         {<br> 93             return “百”;<br> 94         }<br> 95<br> 96         public override int Multiplier() 97         {<br> 98             return 100;<br> 99 }<br>100 }<br>101<br>102     &#x2F;&#x2F;千位表达式<br>103     public sealed class QianExpression : Expression<br>104 {<br>105         public override string GetPostFix()<br>106 {<br>107             return “千”;<br>108 }<br>109<br>110         public override int Multiplier()<br>111 {<br>112             return 1000;<br>113 }<br>114 }<br>115<br>116     &#x2F;&#x2F;万位表达式<br>117     public sealed class WanExpression : Expression<br>118 {<br>119         public override string GetPostFix()<br>120 {<br>121             return “万”;<br>122 }<br>123<br>124         public override int Multiplier()<br>125 {<br>126             return 10000;<br>127 }<br>128<br>129         public override void Interpreter(Context context)<br>130 {<br>131             if (context.Statement.Length &#x3D;&#x3D; 0)<br>132 {<br>133                 return;<br>134 }<br>135<br>136             ArrayList tree &#x3D; new ArrayList();<br>137<br>138             tree.Add(new GeExpression());<br>139             tree.Add(new ShiExpression());<br>140             tree.Add(new BaiExpression());<br>141             tree.Add(new QianExpression());<br>142<br>143             foreach (string key in table.Keys)<br>144 {<br>145                 if (context.Statement.EndsWith(GetPostFix()))<br>146 {<br>147                     int temp &#x3D; context.Data;<br>148                     context.Data &#x3D; 0;<br>149<br>150                     context.Statement &#x3D; context.Statement.Substring(0, context.Statement.Length - this.GetLength());<br>151<br>152                     foreach (Expression exp in tree)<br>153 {<br>154 exp.Interpreter(context);<br>155 }<br>156                     context.Data &#x3D; temp + context.Data * this.Multiplier();<br>157 }<br>158 }<br>159 }<br>160 }<br>161<br>162     &#x2F;&#x2F;亿位表达式<br>163     public sealed class YiExpression : Expression<br>164 {<br>165         public override string GetPostFix()<br>166 {<br>167             return “亿”;<br>168 }<br>169<br>170         public override int Multiplier()<br>171 {<br>172             return 100000000;<br>173 }<br>174<br>175         public override void Interpreter(Context context)<br>176 {<br>177             ArrayList tree &#x3D; new ArrayList();<br>178<br>179             tree.Add(new GeExpression());<br>180             tree.Add(new ShiExpression());<br>181             tree.Add(new BaiExpression());<br>182             tree.Add(new QianExpression());<br>183<br>184             foreach (string key in table.Keys)<br>185 {<br>186                 if (context.Statement.EndsWith(GetPostFix()))<br>187 {<br>188                     int temp &#x3D; context.Data;<br>189                     context.Data &#x3D; 0;<br>190                     context.Statement &#x3D; context.Statement.Substring(0, context.Statement.Length - this.GetLength());<br>191<br>192                     foreach (Expression exp in tree)<br>193 {<br>194 exp.Interpreter(context);<br>195 }<br>196                     context.Data &#x3D; temp + context.Data * this.Multiplier();<br>197 }<br>198 }<br>199 }<br>200 }<br>201<br>202     &#x2F;&#x2F;环境上下文<br>203     public sealed class Context<br>204 {<br>205         private string _statement;<br>206         private int _data;<br>207<br>208         public Context(string statement)<br>209 {<br>210             this._statement &#x3D; statement;<br>211 }<br>212<br>213         public string Statement<br>214 {<br>215             get { return this._statement; }<br>216             set { this._statement &#x3D; value; }<br>217 }<br>218<br>219         public int Data<br>220 {<br>221             get { return this._data; }<br>222             set { this._data &#x3D; value; }<br>223 }<br>224 }<br>225<br>226     class Program<br>227 {<br>228         static void Main(string[] args)<br>229 {<br>230             string roman &#x3D; “五亿七千三百零二万六千四百五十二”;<br>231             &#x2F;&#x2F;分解：((五)亿)((七千)(三百)(零)(二)万)<br>232             &#x2F;&#x2F;((六千)(四百)(五十)(二))<br>233<br>234             Context context &#x3D; new Context(roman);<br>235             ArrayList tree &#x3D; new ArrayList();<br>236<br>237             tree.Add(new GeExpression());<br>238             tree.Add(new ShiExpression());<br>239             tree.Add(new BaiExpression());<br>240             tree.Add(new QianExpression());<br>241             tree.Add(new WanExpression());<br>242             tree.Add(new YiExpression());<br>243<br>244             foreach (Expression exp in tree)<br>245 {<br>246 exp.Interpreter(context);<br>247 }<br>248<br>249 Console.Write(context.Data);<br>250<br>251 Console.Read();<br>252 }<br>253 }<br>254 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p><strong>三、解释器模式的实现要点：</strong>  </p>
+<p>       使用Interpreter模式来表示文法规则，从而可以使用面向对象技巧方便地“扩展”文法。  </p>
+<p>　　Interpreter模式比较适合简单的文法表示，对于复杂的文法表示，Interpreter模式会产生比较大的类层次结构，需要求助于语法分析生成器这样的标准工具。  </p>
+<p>    <strong>（1）、解释器模式的主要优点有：</strong>  </p>
+<p>        1】、易于改变和扩展文法。  </p>
+<p>        2】、每一条文法规则都可以表示为一个类，因此可以方便地实现一个简单的语言。  </p>
+<p>        3】、实现文法较为容易。在抽象语法树中每一个表达式节点类的实现方式都是相似的，这些类的代码编写都不会特别复杂，还可以通过一些工具自动生成节点类代码。  </p>
+<p>        4】、增加新的解释表达式较为方便。如果用户需要增加新的解释表达式只需要对应增加一个新的终结符表达式或非终结符表达式类，原有表达式类代码无须修改，符合“开闭原则”  </p>
+<p>　<strong>（2）、解释器模式的主要缺点有：</strong>  </p>
+<p>        1】、对于复杂文法难以维护。在解释器模式中，每一条规则至少需要定义一个类，因此如果一个语言包含太多文法规则，类的个数将会急剧增加，导致系统难以管理和维护，此时可以考虑使用语法分析程序等方式来取代解释器模式。  </p>
+<p>        2】、执行效率较低。由于在解释器模式中使用了大量的循环和递归调用，因此在解释较为复杂的句子时其速度很慢，而且代码的调试过程也比较麻烦。  </p>
+<p>    <strong>（3）、在下面的情况下可以考虑使用解释器模式：</strong>  </p>
+<p>        Interpreter模式的应用场合是Interpreter模式应用中的难点，只有满足“业务规则频繁变化，且类似的模式不断重复出现，并且容易抽象为语法规则的问题”才适合使用Interpreter模式。  </p>
+<p>        1】、当一个语言需要解释执行，并可以将该语言中的句子表示为一个抽象语法树的时候，可以考虑使用解释器模式（如XML文档解释、正则表达式等领域）  </p>
+<p>        2】、一些重复出现的问题可以用一种简单的语言来进行表达。  </p>
+<p>        3】、一个语言的文法较为简单.  </p>
+<p>        4】、当执行效率不是关键和主要关心的问题时可考虑解释器模式（注：高效的解释器通常不是通过直接解释抽象语法树来实现的，而是需要将它们转换成其他形式，使用解释器模式的执行效率并不高。）  </p>
+<p><strong>四、.NET 解释器模式的实现</strong>  </p>
+<p>     正则表达式就是一个典型的解释器。ASP.NET中，把aspx文件转化为dll时，会对html语言进行处理，这个处理过程也包含了解释器的模式在里面。Interpreter模式其实有Composite模式的影子，但它们解决的问题是不一样的。  </p>
+<p><strong>五、总结</strong>  </p>
+<p>    今天就写到这里了，23种设计模式都写完了，有时间了，再写一篇文章，为这个系列做一个总结，同时也做一个设计模式的目录，方便大家浏览和学习。解释器模式可以和其他模式混合使用，具体的使用方法和解决的问题我列出了一个表，大家好好了解一下，或许对大家有些帮助。列表如下：  </p>
+<p>     <strong>（1）解释器和组合模式</strong>  </p>
+<p>          这两种可以组合使用，一般非终结符解释器相当于组合模式中的组合对象，终结符解释器相当于叶子对象。  </p>
+<p>     <strong>（2）解释器模式和迭代器模式</strong>  </p>
+<p>          由于解释器模式通常使用组合模式来实现，因此在遍历整个对象结构时，可以使用迭代器模式。  </p>
+<p>     <strong>（3）解释器模式和享元模式</strong>  </p>
+<p>          在使用解释器模式的时候，可能会造成多个细粒度对象，如各式各样的终结符解释器，而这些终结符解释器对不同的表达式来说是一样的，是可以共用的，因此可以引入享元模式来共享这些对象。  </p>
+<p>     <strong>（4）解释器模式和访问者模式</strong>  </p>
+<p>         在解释器模式中，语法规则和解释器对象是有对应关系的。语法规则的变动意味着功能的变化。自然会导致使用不同的解释器对象；而且一个语法规由可以被不同的解释器解释执行。因此在构建抽象语法树的时候，如果每个节点所对应的解释器对象是固定的，这意味着该节点对应的功能是固定的，那么就不得不根据需要来构建不同的抽象语法树。为了让构建的抽象语法树较为通用，那就要求解释器的功能不要那么固定，要能很方便地改变解释器的功能，这个时候就变成了如何能够很方便地更改树形结构中节点对象的功能了，访问者模式可以很好的实现这个功能。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">https://www.cnblogs.com/PatrickLiu/p/8242238.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%BA%8C%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F%EF%BC%88Memento%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%9B%9B%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Builder%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

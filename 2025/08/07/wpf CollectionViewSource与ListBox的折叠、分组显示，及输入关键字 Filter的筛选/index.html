@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在wpf中虽然ObservableCollection作为ListBox的Itemsource，很好，很强大！但是CollectionViewSource与ListBox才是天作之合！ wpf中ListBox支持分组显示，CollectionViewSource.GroupDescriptions为其实现了分组。废话不多说，下面上ListBox分组显示的Demo代码： XAML:  &amp;l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/wpf%20CollectionViewSource%E4%B8%8EListBox%E7%9A%84%E6%8A%98%E5%8F%A0%E3%80%81%E5%88%86%E7%BB%84%E6%98%BE%E7%A4%BA%EF%BC%8C%E5%8F%8A%E8%BE%93%E5%85%A5%E5%85%B3%E9%94%AE%E5%AD%97%20Filter%E7%9A%84%E7%AD%9B%E9%80%89/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在wpf中虽然ObservableCollection作为ListBox的Itemsource，很好，很强大！但是CollectionViewSource与ListBox才是天作之合！ wpf中ListBox支持分组显示，CollectionViewSource.GroupDescriptions为其实现了分组。废话不多说，下面上ListBox分组显示的Demo代码： XAML:  &amp;l">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/485370/201503/302245186074814.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/485370/201503/302246411397366.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/485370/201503/302247498736502.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/485370/201503/302248392642779.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.947Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.947Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/wpf%20CollectionViewSource%E4%B8%8EListBox%E7%9A%84%E6%8A%98%E5%8F%A0%E3%80%81%E5%88%86%E7%BB%84%E6%98%BE%E7%A4%BA%EF%BC%8C%E5%8F%8A%E8%BE%93%E5%85%A5%E5%85%B3%E9%94%AE%E5%AD%97%20Filter%E7%9A%84%E7%AD%9B%E9%80%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/wpf%20CollectionViewSource%E4%B8%8EListBox%E7%9A%84%E6%8A%98%E5%8F%A0%E3%80%81%E5%88%86%E7%BB%84%E6%98%BE%E7%A4%BA%EF%BC%8C%E5%8F%8A%E8%BE%93%E5%85%A5%E5%85%B3%E9%94%AE%E5%AD%97%20Filter%E7%9A%84%E7%AD%9B%E9%80%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/wpf%20CollectionViewSource%E4%B8%8EListBox%E7%9A%84%E6%8A%98%E5%8F%A0%E3%80%81%E5%88%86%E7%BB%84%E6%98%BE%E7%A4%BA%EF%BC%8C%E5%8F%8A%E8%BE%93%E5%85%A5%E5%85%B3%E9%94%AE%E5%AD%97%20Filter%E7%9A%84%E7%AD%9B%E9%80%89/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/wpf%20CollectionViewSource%E4%B8%8EListBox%E7%9A%84%E6%8A%98%E5%8F%A0%E3%80%81%E5%88%86%E7%BB%84%E6%98%BE%E7%A4%BA%EF%BC%8C%E5%8F%8A%E8%BE%93%E5%85%A5%E5%85%B3%E9%94%AE%E5%AD%97%20Filter%E7%9A%84%E7%AD%9B%E9%80%89/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<hr>
+<p>   在wpf中虽然ObservableCollection<T>作为ListBox的Itemsource，很好，很强大！但是CollectionViewSource与ListBox才是天作之合！</p>
+<p>wpf中ListBox支持分组显示，CollectionViewSource.GroupDescriptions为其实现了分组。废话不多说，下面上ListBox分组显示的Demo代码：</p>
+<p>XAML:</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>&lt;Window x:Class=“WpfListGroup.MainWindow” xmlns=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml/presentation">http://schemas.microsoft.com/winfx/2006/xaml/presentation</a>“ xmlns:x=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml">http://schemas.microsoft.com/winfx/2006/xaml</a>“ xmlns:scm=“clr-namespace:System.ComponentModel;assembly&#x3D;WindowsBase” xmlns:Microsoft_Windows_Themes=“clr-namespace:Microsoft.Windows.Themes;assembly&#x3D;PresentationFramework.Aero” Title=“MainWindow” Height=“450” Width=“525”&gt;<br>    &lt;Window.Resources&gt;<br>        &lt;CollectionViewSource x:Key=“employeeCollectionViewSource” Filter=“employeeCollectionViewSource_Filter”&gt;<br>            &lt;CollectionViewSource.SortDescriptions&gt;<br>                <!--排序描述\--><br>                &lt;scm:SortDescription PropertyName=“Num”&#x2F;&gt;<br>            &lt;&#x2F;CollectionViewSource.SortDescriptions&gt;<br>            &lt;CollectionViewSource.GroupDescriptions&gt;<br>                <!--分组描述\--><br>                &lt;PropertyGroupDescription PropertyName=“Title”&#x2F;&gt;<br>            &lt;&#x2F;CollectionViewSource.GroupDescriptions&gt;<br>        &lt;&#x2F;CollectionViewSource&gt;</p>
+<pre><code>    &lt;Style x:Key\=&quot;ButtonFocusVisual&quot;\&gt;
+        &lt;Setter Property\=&quot;Control.Template&quot;\&gt;
+            &lt;Setter.Value\&gt;
+                &lt;ControlTemplate\&gt;
+                    &lt;Rectangle Margin\=&quot;2&quot; SnapsToDevicePixels\=&quot;true&quot; Stroke\=&quot;&#123;DynamicResource &#123;x:Static SystemColors.ControlTextBrushKey&#125;&#125;&quot; StrokeThickness\=&quot;1&quot; StrokeDashArray\=&quot;1 2&quot;/&gt;
+                &lt;/ControlTemplate\&gt;
+            &lt;/Setter.Value\&gt;
+        &lt;/Setter\&gt;
+    &lt;/Style\&gt;
+    &lt;LinearGradientBrush x:Key\=&quot;ButtonNormalBackground&quot; EndPoint\=&quot;0,1&quot; StartPoint\=&quot;0,0&quot;\&gt;
+        &lt;GradientStop Color\=&quot;#F3F3F3&quot; Offset\=&quot;0&quot;/&gt;
+        &lt;GradientStop Color\=&quot;#EBEBEB&quot; Offset\=&quot;0.5&quot;/&gt;
+        &lt;GradientStop Color\=&quot;#DDDDDD&quot; Offset\=&quot;0.5&quot;/&gt;
+        &lt;GradientStop Color\=&quot;#CDCDCD&quot; Offset\=&quot;1&quot;/&gt;
+    &lt;/LinearGradientBrush\&gt;
+    &lt;SolidColorBrush x:Key\=&quot;ButtonNormalBorder&quot; Color\=&quot;#FF707070&quot;/&gt;
+    &lt;Style x:Key\=&quot;nocheckedButtonStyle&quot; TargetType\=&quot;&#123;x:Type Button&#125;&quot;\&gt;
+        &lt;Setter Property\=&quot;FocusVisualStyle&quot; Value\=&quot;&#123;StaticResource ButtonFocusVisual&#125;&quot;/&gt;
+        &lt;Setter Property\=&quot;Background&quot; Value\=&quot;&#123;StaticResource ButtonNormalBackground&#125;&quot;/&gt;
+        &lt;Setter Property\=&quot;BorderBrush&quot; Value\=&quot;&#123;StaticResource ButtonNormalBorder&#125;&quot;/&gt;
+        &lt;Setter Property\=&quot;BorderThickness&quot; Value\=&quot;1&quot;/&gt;
+        &lt;Setter Property\=&quot;Foreground&quot; Value\=&quot;&#123;DynamicResource &#123;x:Static SystemColors.ControlTextBrushKey&#125;&#125;&quot;/&gt;
+        &lt;Setter Property\=&quot;HorizontalContentAlignment&quot; Value\=&quot;Center&quot;/&gt;
+        &lt;Setter Property\=&quot;VerticalContentAlignment&quot; Value\=&quot;Center&quot;/&gt;
+        &lt;Setter Property\=&quot;Padding&quot; Value\=&quot;1&quot;/&gt;
+        &lt;Setter Property\=&quot;Template&quot;\&gt;
+            &lt;Setter.Value\&gt;
+                &lt;ControlTemplate TargetType\=&quot;&#123;x:Type Button&#125;&quot;\&gt;
+                    &lt;Grid Width\=&quot;29.72&quot;\&gt;
+                        &lt;VisualStateManager.VisualStateGroups\&gt;
+                            &lt;VisualStateGroup x:Name\=&quot;CommonStates&quot;\&gt;
+                                &lt;VisualState x:Name\=&quot;Normal&quot;/&gt;
+                                &lt;VisualState x:Name\=&quot;MouseOver&quot;\&gt;
+                                    &lt;Storyboard\&gt;
+                                        &lt;DoubleAnimationUsingKeyFrames Storyboard.TargetProperty\=&quot;(UIElement.RenderTransform).(TransformGroup.Children)\[2\].(RotateTransform.Angle)&quot; Storyboard.TargetName\=&quot;contentPresenter&quot;\&gt;
+                                            &lt;EasingDoubleKeyFrame KeyTime\=&quot;0&quot; Value\=&quot;0&quot;/&gt;
+                                            &lt;EasingDoubleKeyFrame KeyTime\=&quot;0:0:0.5&quot; Value\=&quot;90&quot;/&gt;
+                                        &lt;/DoubleAnimationUsingKeyFrames\&gt;
+                                        &lt;ColorAnimationUsingKeyFrames Storyboard.TargetProperty\=&quot;(Shape.Fill).(SolidColorBrush.Color)&quot; Storyboard.TargetName\=&quot;ellipse&quot;\&gt;
+                                            &lt;EasingColorKeyFrame KeyTime\=&quot;0&quot; Value\=&quot;#FF2CA50B&quot;/&gt;
+                                        &lt;/ColorAnimationUsingKeyFrames\&gt;
+                                    &lt;/Storyboard\&gt;
+                                &lt;/VisualState\&gt;
+                                &lt;VisualState x:Name\=&quot;Pressed&quot;/&gt;
+                                &lt;VisualState x:Name\=&quot;Disabled&quot;/&gt;
+                            &lt;/VisualStateGroup\&gt;
+                            &lt;VisualStateGroup x:Name\=&quot;FocusStates&quot;\&gt;
+                                &lt;VisualState x:Name\=&quot;Unfocused&quot;/&gt;
+                                &lt;VisualState x:Name\=&quot;Focused&quot;/&gt;
+                            &lt;/VisualStateGroup\&gt;
+                            &lt;VisualStateGroup x:Name\=&quot;ValidationStates&quot;\&gt;
+                                &lt;VisualState x:Name\=&quot;Valid&quot;/&gt;
+                                &lt;VisualState x:Name\=&quot;InvalidFocused&quot;/&gt;
+                                &lt;VisualState x:Name\=&quot;InvalidUnfocused&quot;/&gt;
+                            &lt;/VisualStateGroup\&gt;
+                        &lt;/VisualStateManager.VisualStateGroups\&gt;
+                        &lt;Ellipse x:Name\=&quot;ellipse&quot; Fill\=&quot;#FF75AB80&quot; Margin\=&quot;0&quot; Stroke\=&quot;&#123;x:Null&#125;&quot; VerticalAlignment\=&quot;Stretch&quot; Width\=&quot;16&quot; Height\=&quot;16&quot;/&gt;
+                        &lt;Microsoft\_Windows\_Themes:ButtonChrome x:Name\=&quot;Chrome&quot; SnapsToDevicePixels\=&quot;true&quot;  \&gt;
+                            &lt;ContentPresenter x:Name\=&quot;contentPresenter&quot; HorizontalAlignment\=&quot;&#123;TemplateBinding HorizontalContentAlignment&#125;&quot; Margin\=&quot;&#123;TemplateBinding Padding&#125;&quot; RecognizesAccessKey\=&quot;True&quot; SnapsToDevicePixels\=&quot;&#123;TemplateBinding SnapsToDevicePixels&#125;&quot; VerticalAlignment\=&quot;&#123;TemplateBinding VerticalContentAlignment&#125;&quot; RenderTransformOrigin\=&quot;0.5,0.5&quot;\&gt;
+                                &lt;ContentPresenter.RenderTransform\&gt;
+                                    &lt;TransformGroup\&gt;
+                                        &lt;ScaleTransform/&gt;
+                                        &lt;SkewTransform/&gt;
+                                        &lt;RotateTransform/&gt;
+                                        &lt;TranslateTransform/&gt;
+                                    &lt;/TransformGroup\&gt;
+                                &lt;/ContentPresenter.RenderTransform\&gt;
+                            &lt;/ContentPresenter\&gt;
+                        &lt;/Microsoft\_Windows\_Themes:ButtonChrome\&gt;
+                    &lt;/Grid\&gt;
+                    &lt;ControlTemplate.Triggers\&gt;
+                        &lt;Trigger Property\=&quot;IsEnabled&quot; Value\=&quot;false&quot;/&gt;
+                    &lt;/ControlTemplate.Triggers\&gt;
+                &lt;/ControlTemplate\&gt;
+            &lt;/Setter.Value\&gt;
+        &lt;/Setter\&gt;
+    &lt;/Style\&gt;
+&lt;/Window.Resources\&gt;
+&lt;Grid\&gt;
+    &lt;Grid.RowDefinitions\&gt;
+        &lt;RowDefinition Height\=&quot;25&quot;/&gt;
+        &lt;RowDefinition/&gt;
+    &lt;/Grid.RowDefinitions\&gt;
+    &lt;Grid.ColumnDefinitions\&gt;
+        &lt;ColumnDefinition Width\=&quot;150&quot;/&gt;
+        &lt;ColumnDefinition/&gt;
+    &lt;/Grid.ColumnDefinitions\&gt;
+    &lt;DockPanel Grid.Row\=&quot;0&quot; LastChildFill\=&quot;True&quot; \&gt;
+        &lt;TextBlock VerticalAlignment\=&quot;Center&quot; DockPanel.Dock\=&quot;Left&quot; Text\=&quot;搜索:&quot;/&gt;
+        &lt;Button Content\=&quot;  ×  &quot; VerticalAlignment\=&quot;Center&quot; DockPanel.Dock\=&quot;Right&quot; Background\=&quot;White&quot; BorderBrush\=&quot;&#123;x:Null&#125;&quot; Margin\=&quot;0&quot; Style\=&quot;&#123;DynamicResource nocheckedButtonStyle&#125;&quot; HorizontalAlignment\=&quot;Right&quot; FontFamily\=&quot;Forte&quot; Foreground\=&quot;White&quot; ToolTip\=&quot;清空&quot; Click\=&quot;btnClearKeyword\_Click&quot;/&gt;
+        &lt;TextBox x:Name\=&quot;txtEmployeeKeyword&quot; VerticalAlignment\=&quot;Center&quot; TextChanged\=&quot;txtEmployeeKeyword\_TextChanged&quot; /&gt;
+    &lt;/DockPanel\&gt;
+    &lt;ScrollViewer x:Name\=&quot;scv1&quot; Grid.Row\=&quot;1&quot; VerticalScrollBarVisibility\=&quot;Auto&quot; HorizontalScrollBarVisibility\=&quot;Auto&quot;\&gt;
+        &lt;ListBox x:Name\=&quot;lbx1&quot; SelectionMode\=&quot;Extended&quot; ItemsSource\=&quot;&#123;Binding Source=&#123;StaticResource ResourceKey=employeeCollectionViewSource&#125;&#125;&quot;\&gt;
+            &lt;!--分组样式\--&gt;
+            &lt;ListBox.GroupStyle\&gt;
+                &lt;GroupStyle\&gt;
+                    &lt;GroupStyle.ContainerStyle\&gt;
+                        &lt;Style TargetType\=&quot;&#123;x:Type GroupItem&#125;&quot;\&gt;
+                            &lt;Setter Property\=&quot;Template&quot;\&gt;
+                                &lt;Setter.Value\&gt;
+                                    &lt;ControlTemplate TargetType\=&quot;&#123;x:Type GroupItem&#125;&quot;\&gt;
+                                        &lt;Expander\&gt;
+                                            &lt;Expander.Header\&gt;
+                                                &lt;Grid\&gt;
+                                                    &lt;Grid.ColumnDefinitions\&gt;
+                                                        &lt;ColumnDefinition Width\=&quot;Auto&quot;/&gt;
+                                                        &lt;ColumnDefinition/&gt;
+                                                    &lt;/Grid.ColumnDefinitions\&gt;
+                                                    &lt;Grid.RowDefinitions\&gt;
+                                                        &lt;RowDefinition/&gt;
+                                                    &lt;/Grid.RowDefinitions\&gt;
+                                                    &lt;StackPanel Orientation\=&quot;Horizontal&quot; Margin\=&quot;0,0,10,0&quot;\&gt;
+                                                        &lt;!--分组的组名\--&gt;
+                                                        &lt;TextBlock Text\=&quot;&#123;Binding Path=Name&#125;&quot; FontWeight\=&quot;Bold&quot; /&gt;
+                                                        &lt;!--该分组元素(员工)的总和数\--&gt;
+                                                        &lt;TextBlock FontWeight\=&quot;Bold&quot; Text\=&quot;&#123;Binding Path=ItemCount, StringFormat=(共&#123;0&#125;条)&#125;&quot;/&gt;
+                                                    &lt;/StackPanel\&gt;
+                                                    &lt;Line Grid.Column\=&quot;1&quot; SnapsToDevicePixels\=&quot;true&quot; X1\=&quot;0&quot; X2\=&quot;1&quot; Stretch\=&quot;Fill&quot; StrokeThickness\=&quot;1&quot;/&gt;
+                                                &lt;/Grid\&gt;
+                                            &lt;/Expander.Header\&gt;
+                                            &lt;ItemsPresenter /&gt;
+                                        &lt;/Expander\&gt;
+                                    &lt;/ControlTemplate\&gt;
+                                &lt;/Setter.Value\&gt;
+                            &lt;/Setter\&gt;
+                        &lt;/Style\&gt;
+                    &lt;/GroupStyle.ContainerStyle\&gt;
+                &lt;/GroupStyle\&gt;
+            &lt;/ListBox.GroupStyle\&gt;
+            &lt;!--右键菜单\--&gt;
+            &lt;ListBox.ContextMenu\&gt;
+                &lt;ContextMenu\&gt;
+                    &lt;MenuItem Header\=&quot;Show&quot; Click\=&quot;MenuItem\_Click&quot;/&gt;
+                &lt;/ContextMenu\&gt;
+            &lt;/ListBox.ContextMenu\&gt;
+            &lt;!--“没有”绑定ListBox.ItemTemplate，是因为在Employee类重写了ToString()方法\--&gt;
+        &lt;/ListBox\&gt;
+    &lt;/ScrollViewer\&gt;
+    &lt;ScrollViewer x:Name\=&quot;scv2&quot; Grid.Row\=&quot;1&quot; VerticalScrollBarVisibility\=&quot;Auto&quot; HorizontalScrollBarVisibility\=&quot;Auto&quot; Visibility\=&quot;Collapsed&quot;\&gt;
+        &lt;ListBox Name\=&quot;lbx2&quot; ItemsSource\=&quot;&#123;Binding Source=&#123;StaticResource employeeCollectionViewSource&#125;&#125;&quot; SelectionMode\=&quot;Extended&quot;\&gt;   &lt;!--按Ctrl键可多选\--&gt;
+            &lt;ListBox.ContextMenu\&gt;
+                &lt;ContextMenu\&gt;
+                    &lt;!--右键菜单\--&gt;
+                    &lt;MenuItem Header\=&quot;Show&quot; Click\=&quot;MenuItem\_Click&quot;/&gt;
+                &lt;/ContextMenu\&gt;
+            &lt;/ListBox.ContextMenu\&gt;
+        &lt;/ListBox\&gt;
+    &lt;/ScrollViewer\&gt;
+&lt;/Grid\&gt;
+</code></pre>
+<p>&lt;&#x2F;Window&gt;</p>
+<p>View Code</p>
+<p>C#:</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>using System; using System.Collections.Generic; using System.Linq; using System.Text; using System.Windows; using System.Windows.Controls; using System.Windows.Data; using System.Windows.Documents; using System.Windows.Input; using System.Windows.Media; using System.Windows.Media.Imaging; using System.Windows.Navigation; using System.Windows.Shapes; using System.ComponentModel; using System.Collections.ObjectModel; namespace WpfListGroup<br>{ &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; MainWindow.xaml 的交互逻辑 &#x2F;&#x2F;&#x2F; </summary><br>    public partial class MainWindow : Window<br>    { public MainWindow()<br>        {<br>            InitializeComponent(); #region 基础数据(员工集合) ObservableCollection<Employee> employeeList &#x3D; new ObservableCollection<Employee> { new Employee{EmployeeNum&#x3D;”0027”,EmployeeName&#x3D;”张三”,Sex&#x3D;”男”,Title&#x3D;”副经理”}, new Employee{EmployeeNum&#x3D;”1086”,EmployeeName&#x3D;”春丽”,Sex&#x3D;”女”,Title&#x3D;”秘书”}, new Employee{EmployeeNum&#x3D;”1031”,EmployeeName&#x3D;”王五”,Sex&#x3D;”男”,Title&#x3D;”普通员工”}, new Employee{EmployeeNum&#x3D;”1211”,EmployeeName&#x3D;”赵阳”,Sex&#x3D;”男”,Title&#x3D;”普通员工”}, new Employee{EmployeeNum&#x3D;”1201”,EmployeeName&#x3D;”孙迪”,Sex&#x3D;”男”,Title&#x3D;”普通员工”}, new Employee{EmployeeNum&#x3D;”1416”,EmployeeName&#x3D;”李玥玥”,Sex&#x3D;”女”,Title&#x3D;”秘书”}, new Employee{EmployeeNum&#x3D;”0017”,EmployeeName&#x3D;”钱哆哆”,Sex&#x3D;”男”,Title&#x3D;”副经理”}, new Employee{EmployeeNum&#x3D;”1016”,EmployeeName&#x3D;”周畅”,Sex&#x3D;”女”,Title&#x3D;”秘书”}, new Employee{EmployeeNum&#x3D;”1231”,EmployeeName&#x3D;”郑超”,Sex&#x3D;”男”,Title&#x3D;”普通员工”}, new Employee{EmployeeNum&#x3D;”1131”,EmployeeName&#x3D;”王思聪”,Sex&#x3D;”男”,Title&#x3D;”普通员工”}, new Employee{EmployeeNum&#x3D;”1871”,EmployeeName&#x3D;”李文”,Sex&#x3D;”男”,Title&#x3D;”普通员工”}, new Employee{EmployeeNum&#x3D;”1266”,EmployeeName&#x3D;”周琪妹”,Sex&#x3D;”女”,Title&#x3D;”秘书”}<br>            }; #endregion CollectionViewSource employeeCvs = (CollectionViewSource)this.FindResource(“employeeCollectionViewSource”);<br>            employeeCvs.Source = employeeList;<br>        } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 右键菜单、按住Ctrl键可多选 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        private void MenuItem_Click(object sender, RoutedEventArgs e)<br>        { &#x2F;&#x2F;获取关键字<br>            string keyword &#x3D; txtEmployeeKeyword.Text.Trim(); if (string.IsNullOrEmpty(keyword))&#x2F;&#x2F;如果没有关键字<br> { if (lbx1.SelectedItem !&#x3D; null)&#x2F;&#x2F;判断lbx1有没有选中项<br> { foreach (var item in lbx1.SelectedItems)<br>                    {<br>                        Employee employee = item as Employee; string msg &#x3D; string.Format(“姓名：{0},工号:{1},性别:{2},职位:{3}”, employee.EmployeeName, employee.EmployeeNum, employee.Sex, employee.Title);<br>                        MessageBox.Show(msg);<br>                    }<br>                }<br>            } else { if (lbx2.SelectedItem !&#x3D; null)&#x2F;&#x2F;有关键字的话，显示lbx2<br> { foreach (var item in lbx2.SelectedItems)&#x2F;&#x2F;判断lbx2有没有选中项<br> {<br>                        Employee employee = item as Employee; string msg &#x3D; string.Format(“姓名：{0},工号:{1},性别:{2},职位:{3}”, employee.EmployeeName, employee.EmployeeNum, employee.Sex, employee.Title);<br>                        MessageBox.Show(msg);<br>                    }<br>                }<br>            }<br>        } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 关键字改变时触发 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        private void txtEmployeeKeyword_TextChanged(object sender, TextChangedEventArgs e)<br>        { string keyword &#x3D; txtEmployeeKeyword.Text.Trim(); if (string.IsNullOrEmpty(keyword))&#x2F;&#x2F;无关键字，显示scv1下的listbox(有分组)<br> {</p>
+<pre><code>            scv1.Visibility \= Visibility.Visible;
+            scv2.Visibility \= Visibility.Collapsed;
+        &#125; else//有关键字，显示scv2下的listbox(无分组)
+</code></pre>
+<p> {<br>                scv1.Visibility = Visibility.Collapsed;<br>                scv2.Visibility = Visibility.Visible;<br>            }<br>            CollectionViewSource employeeCvs = (CollectionViewSource)this.FindResource(“employeeCollectionViewSource”);<br>            employeeCvs.View.Refresh();&#x2F;&#x2F;刷新View<br> } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 根据关键字(工号或姓名)筛选员工 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        private void employeeCollectionViewSource_Filter(object sender, FilterEventArgs e)<br>        { string keyword &#x3D; txtEmployeeKeyword.Text.Trim();<br>            Employee employee = e.Item as Employee; if (employee !&#x3D; null)<br>            { if (string.IsNullOrEmpty(keyword))&#x2F;&#x2F;无关键字，直接Accept<br> {<br>                    e.Accepted = true;<br>                } else { &#x2F;&#x2F;有关键字、筛选员工号或姓名中包含关键字的员工<br>                    e.Accepted &#x3D; employee.EmployeeNum.Contains(keyword) || employee.EmployeeName.Contains(keyword);<br>                }<br>            }<br>        } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 清空关键字 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        private void btnClearKeyword_Click(object sender, RoutedEventArgs e)<br>        { this.txtEmployeeKeyword.Clear();<br>        }<br>    } public class Employee:INotifyPropertyChanged<br>    { #region 实现更改通知<br>        public event PropertyChangedEventHandler PropertyChanged; public void RaisePropertyChanged(string propertyName)<br>        { if (this.PropertyChanged !&#x3D; null)<br>            { this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));<br>            }<br>        } #endregion</p>
+<pre><code>    /// &lt;summary&gt;
+    /// 重载ToString()方法 /// &lt;/summary&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    public override string ToString()
+    &#123; return this.EmployeeNum + &quot;  &quot; + this.EmployeeName;
+    &#125; private string title; /// &lt;summary&gt;
+    /// 职位 /// &lt;/summary&gt;
+    public string Title
+    &#123; get &#123; return title; &#125; set &#123; title = value;
+        RaisePropertyChanged(&quot;Title&quot;);
+        &#125;
+    &#125; private string employeeName; /// &lt;summary&gt;
+    /// 姓名 /// &lt;/summary&gt;
+    public string EmployeeName
+    &#123; get &#123; return employeeName; &#125; set &#123; employeeName = value;
+        RaisePropertyChanged(&quot;EmployeeName&quot;);
+        &#125;
+    &#125; private string employeeNum; /// &lt;summary&gt;
+    /// 工号 /// &lt;/summary&gt;
+    public string EmployeeNum
+    &#123; get &#123; return employeeNum; &#125; set &#123; employeeNum = value;
+        RaisePropertyChanged(&quot;EmployeeNum&quot;);
+        &#125;
+    &#125; private string sex; /// &lt;summary&gt;
+    /// 性别 /// &lt;/summary&gt;
+    public string Sex
+    &#123; get &#123; return sex; &#125; set &#123; sex = value;
+        RaisePropertyChanged(&quot;Sex&quot;);
+        &#125;
+    &#125;
+
+&#125;
+</code></pre>
+<p>}</p>
+<p>View Code</p>
+<p>运行效果：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/485370/201503/302245186074814.png"></p>
+<p>右键菜单点击“Show” 弹出选中项的员工信息：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/485370/201503/302246411397366.png"></p>
+<p>输入关键字”同步”筛选模糊查询员工：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/485370/201503/302247498736502.png"></p>
+<p>点击清空按钮清空关键字，“恢复”分组数据：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/485370/201503/302248392642779.png"></p>
+<p>总结核心xaml:</p>
+<p>①资源CollectionViewSource， CollectionViewSource.GroupDescriptions:分组描述(依据),CollectionViewSource.SortDescriptions：分组排序(描述)</p>
+<p>在资源中：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>  &lt;CollectionViewSource x:Key=“employeeCollectionViewSource” Filter=“employeeCollectionViewSource_Filter”&gt;<br>            &lt;CollectionViewSource.SortDescriptions&gt;<br>                <!--排序描述\--><br>                &lt;scm:SortDescription PropertyName=“Num”&#x2F;&gt;<br>            &lt;&#x2F;CollectionViewSource.SortDescriptions&gt;<br>            &lt;CollectionViewSource.GroupDescriptions&gt;<br>                <!--分组描述\--><br>                &lt;PropertyGroupDescription PropertyName=“Title”&#x2F;&gt;<br>            &lt;&#x2F;CollectionViewSource.GroupDescriptions&gt;<br>        &lt;&#x2F;CollectionViewSource&gt;</p>
+<p>View Code</p>
+<p>②绑定到ListBox的Itemsource上，设置分组样式，使用Expander控件使分组可以折叠：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<pre><code>&lt;ScrollViewer x:Name\=&quot;scv1&quot; Grid.Row\=&quot;1&quot; VerticalScrollBarVisibility\=&quot;Auto&quot; HorizontalScrollBarVisibility\=&quot;Auto&quot;\&gt;
+        &lt;ListBox x:Name\=&quot;lbx1&quot; SelectionMode\=&quot;Extended&quot; ItemsSource\=&quot;&#123;Binding Source=&#123;StaticResource ResourceKey=employeeCollectionViewSource&#125;&#125;&quot;\&gt;
+            &lt;!--分组样式\--&gt;
+            &lt;ListBox.GroupStyle\&gt;
+                &lt;GroupStyle\&gt;
+                    &lt;GroupStyle.ContainerStyle\&gt;
+                        &lt;Style TargetType\=&quot;&#123;x:Type GroupItem&#125;&quot;\&gt;
+                            &lt;Setter Property\=&quot;Template&quot;\&gt;
+                                &lt;Setter.Value\&gt;
+                                    &lt;ControlTemplate TargetType\=&quot;&#123;x:Type GroupItem&#125;&quot;\&gt;
+                                        &lt;Expander\&gt;
+                                            &lt;Expander.Header\&gt;
+                                                &lt;Grid\&gt;
+                                                    &lt;Grid.ColumnDefinitions\&gt;
+                                                        &lt;ColumnDefinition Width\=&quot;Auto&quot;/&gt;
+                                                        &lt;ColumnDefinition/&gt;
+                                                    &lt;/Grid.ColumnDefinitions\&gt;
+                                                    &lt;Grid.RowDefinitions\&gt;
+                                                        &lt;RowDefinition/&gt;
+                                                    &lt;/Grid.RowDefinitions\&gt;
+                                                    &lt;StackPanel Orientation\=&quot;Horizontal&quot; Margin\=&quot;0,0,10,0&quot;\&gt;
+                                                        &lt;!--分组的组名\--&gt;
+                                                        &lt;TextBlock Text\=&quot;&#123;Binding Path=Name&#125;&quot; FontWeight\=&quot;Bold&quot; /&gt;
+                                                        &lt;!--该分组元素(员工)的总和数\--&gt;
+                                                        &lt;TextBlock FontWeight\=&quot;Bold&quot; Text\=&quot;&#123;Binding Path=ItemCount, StringFormat=(共&#123;0&#125;条)&#125;&quot;/&gt;
+                                                    &lt;/StackPanel\&gt;
+                                                    &lt;Line Grid.Column\=&quot;1&quot; SnapsToDevicePixels\=&quot;true&quot; X1\=&quot;0&quot; X2\=&quot;1&quot; Stretch\=&quot;Fill&quot; StrokeThickness\=&quot;1&quot;/&gt;
+                                                &lt;/Grid\&gt;
+                                            &lt;/Expander.Header\&gt;
+                                            &lt;ItemsPresenter /&gt;
+                                        &lt;/Expander\&gt;
+                                    &lt;/ControlTemplate\&gt;
+                                &lt;/Setter.Value\&gt;
+                            &lt;/Setter\&gt;
+                        &lt;/Style\&gt;
+                    &lt;/GroupStyle.ContainerStyle\&gt;
+                &lt;/GroupStyle\&gt;
+            &lt;/ListBox.GroupStyle\&gt;
+            &lt;!--右键菜单\--&gt;
+            &lt;ListBox.ContextMenu\&gt;
+                &lt;ContextMenu\&gt;
+                    &lt;MenuItem Header\=&quot;Show&quot; Click\=&quot;MenuItem\_Click&quot;/&gt;
+                &lt;/ContextMenu\&gt;
+            &lt;/ListBox.ContextMenu\&gt;
+            &lt;!--“没有”绑定ListBox.ItemTemplate，是因为在Employee类重写了ToString()方法\--&gt;
+        &lt;/ListBox\&gt;
+    &lt;/ScrollViewer\&gt;
+</code></pre>
+<p>View Code</p>
+<p>总结核心C#:</p>
+<p>①CollectionViewSource的筛选器Filter的方法：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p> &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 根据关键字(工号或姓名)筛选员工 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        private void employeeCollectionViewSource_Filter(object sender, FilterEventArgs e)<br>        { string keyword &#x3D; txtEmployeeKeyword.Text.Trim();<br>            Employee employee = e.Item as Employee; if (employee !&#x3D; null)<br>            { if (string.IsNullOrEmpty(keyword))&#x2F;&#x2F;无关键字，直接Accept<br> {<br>                    e.Accepted = true;<br>                } else { &#x2F;&#x2F;有关键字、筛选员工号或姓名中包含关键字的员工<br>                    e.Accepted &#x3D; employee.EmployeeNum.Contains(keyword) || employee.EmployeeName.Contains(keyword);<br>                }<br>            }<br>        }</p>
+<p>View Code</p>
+<p>②关键字文本框的文本发生改变时触发的事件：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>&#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 关键字改变时触发 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="sender"></param><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        private void txtEmployeeKeyword_TextChanged(object sender, TextChangedEventArgs e)<br>        { string keyword &#x3D; txtEmployeeKeyword.Text.Trim(); if (string.IsNullOrEmpty(keyword))&#x2F;&#x2F;无关键字，显示scv1下的listbox(有分组)<br> {</p>
+<pre><code>            scv1.Visibility \= Visibility.Visible;
+            scv2.Visibility \= Visibility.Collapsed;
+        &#125; else//有关键字，显示scv2下的listbox(无分组)
+</code></pre>
+<p> {<br>                scv1.Visibility = Visibility.Collapsed;<br>                scv2.Visibility = Visibility.Visible;<br>            }<br>            CollectionViewSource employeeCvs = (CollectionViewSource)this.FindResource(“employeeCollectionViewSource”);<br>            employeeCvs.View.Refresh();&#x2F;&#x2F;刷新View<br>        }</p>
+<p>View Code</p>
+<p>总结：以上就是ListBox的分组、折叠、筛选显示的Demo。日积月累，水滴石穿！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/wpf%20loading%20%E9%81%AE%E7%BD%A9%E5%B1%82%E6%95%88%E6%9E%9C/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/C%E8%AF%AD%E8%A8%80/C%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="WPF MVVM框架—— Prism中配置NLog - just–like - 博客园 Excerpt日志在生成环境中是必不可少的调试记录工具，在这里简单记录一下NLog在wpf中如何配置并如何注册到Prism的容器中 准备工作 需要安装三个NuGet程序包 Microsoft.Extensions.Logging.Abstraction NLog.Config NLog.Extensions.L">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="WPF MVVM框架—— Prism中配置NLog - just–like - 博客园 Excerpt日志在生成环境中是必不可少的调试记录工具，在这里简单记录一下NLog在wpf中如何配置并如何注册到Prism的容器中 准备工作 需要安装三个NuGet程序包 Microsoft.Extensions.Logging.Abstraction NLog.Config NLog.Extensions.L">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104606941.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.165Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.165Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="WPF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104606941.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="WPF-MVVM框架——-Prism中配置NLog-just–like-博客园"><a href="#WPF-MVVM框架——-Prism中配置NLog-just–like-博客园" class="headerlink" title="WPF MVVM框架—— Prism中配置NLog - just–like - 博客园"></a>WPF MVVM框架—— Prism中配置NLog - just–like - 博客园</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>日志在生成环境中是必不可少的调试记录工具，在这里简单记录一下NLog在wpf中如何配置并如何注册到Prism的容器中 准备工作 需要安装三个NuGet程序包 Microsoft.Extensions.Logging.Abstraction NLog.Config NLog.Extensions.Lo</p>
+</blockquote>
+<hr>
+<p>日志在生成环境中是必不可少的调试记录工具，在这里简单记录一下NLog在wpf中如何配置并如何注册到Prism的容器中</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>需要安装三个NuGet程序包</p>
+<p>Microsoft.Extensions.Logging.Abstraction</p>
+<p>NLog.Config</p>
+<p>NLog.Extensions.Logging</p>
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104606941.png"></p>
+<h2 id="配置NLog"><a href="#配置NLog" class="headerlink" title="配置NLog"></a>配置NLog</h2><p>安装好之后在解决方案中会出现一个NLog.config，日志输出的路径，内容、规则等都在这个文件中进行配置，右击属性，将修改为始终复制。</p>
+<p>若解决方案中没有出现NLog.config这个文件，则需要自己手动创建一个</p>
+<p>关于配置，可以看NLog  github上的介绍  github: <a target="_blank" rel="noopener" href="https://github.com/NLog/NLog/wiki/Configuration-file">配置文件 ·NLog&#x2F;NLog Wiki ·GitHub</a></p>
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif" alt="复制代码"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">&lt;span&gt;&amp;lt;?&lt;/span&gt;&lt;span&gt;xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; &lt;/span&gt;&lt;span&gt;?&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;nlog &lt;/span&gt;&lt;span&gt;xmlns&lt;/span&gt;&lt;span&gt;=&quot;http://www.nlog-project.org/schemas/NLog.xsd&quot;&lt;/span&gt;&lt;span&gt;</span><br><span class="line">      xmlns:xsi&lt;/span&gt;&lt;span&gt;=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&lt;/span&gt;&lt;span&gt;</span><br><span class="line">      autoReload&lt;/span&gt;&lt;span&gt;=&quot;true&quot;&lt;/span&gt;&lt;span&gt;</span><br><span class="line">      internalLogLevel&lt;/span&gt;&lt;span&gt;=&quot;Info&quot;&lt;/span&gt;&lt;span&gt;</span><br><span class="line">      internalLogFile&lt;/span&gt;&lt;span&gt;=&quot;c:\temp\internal-nlog-AspNetCore.txt&quot;&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">  &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt; enable asp.net core layout renderers &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">  &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;extensions&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;add &lt;/span&gt;&lt;span&gt;assembly&lt;/span&gt;&lt;span&gt;=&quot;NLog.Web.AspNetCore&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">  &lt;span&gt;&amp;lt;/&lt;/span&gt;&lt;span&gt;extensions&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">  &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt; the targets to write to &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">  &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;targets&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt; File Target for all log messages with basic details &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;target &lt;/span&gt;&lt;span&gt;xsi:type&lt;/span&gt;&lt;span&gt;=&quot;File&quot;&lt;/span&gt;&lt;span&gt; name&lt;/span&gt;&lt;span&gt;=&quot;allfile&quot;&lt;/span&gt;&lt;span&gt; fileName&lt;/span&gt;&lt;span&gt;=&quot;$&#123;basedir&#125;/Logs/allfile/wpf-all-$&#123;shortdate&#125;.log&quot;&lt;/span&gt;&lt;span&gt;</span><br><span class="line">            layout&lt;/span&gt;&lt;span&gt;=&quot;$&#123;longdate&#125;|$&#123;event-properties:item=EventId:whenEmpty=0&#125;|$&#123;level:uppercase=true&#125;|$&#123;logger&#125;|$&#123;message&#125; $&#123;exception:format=tostring&#125;&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt; File Target for own log messages with extra web details using some ASP.NET core renderers &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;target &lt;/span&gt;&lt;span&gt;xsi:type&lt;/span&gt;&lt;span&gt;=&quot;File&quot;&lt;/span&gt;&lt;span&gt; name&lt;/span&gt;&lt;span&gt;=&quot;ownFile-web&quot;&lt;/span&gt;&lt;span&gt; fileName&lt;/span&gt;&lt;span&gt;=&quot;$&#123;basedir&#125;/Logs/ownFile/wpf-own-$&#123;shortdate&#125;.log&quot;&lt;/span&gt;&lt;span&gt;</span><br><span class="line">            layout&lt;/span&gt;&lt;span&gt;=&quot;$&#123;longdate&#125;|$&#123;event-properties:item=EventId:whenEmpty=0&#125;|$&#123;level:uppercase=true&#125;|$&#123;logger&#125;|$&#123;message&#125; $&#123;exception:format=tostring&#125;|url: $&#123;aspnet-request-url&#125;|action: $&#123;aspnet-mvc-action&#125;|$&#123;callsite&#125;&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt;Console Target for hosting lifetime messages to improve Docker / Visual Studio startup detection &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;target &lt;/span&gt;&lt;span&gt;xsi:type&lt;/span&gt;&lt;span&gt;=&quot;Console&quot;&lt;/span&gt;&lt;span&gt; name&lt;/span&gt;&lt;span&gt;=&quot;lifetimeConsole&quot;&lt;/span&gt;&lt;span&gt; layout&lt;/span&gt;&lt;span&gt;=&quot;$&#123;MicrosoftConsoleLayout&#125;&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">  &lt;span&gt;&amp;lt;/&lt;/span&gt;&lt;span&gt;targets&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">  &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt; rules to map from logger name to target &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">  &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;rules&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt;All logs, including from Microsoft&lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;logger &lt;/span&gt;&lt;span&gt;name&lt;/span&gt;&lt;span&gt;=&quot;*&quot;&lt;/span&gt;&lt;span&gt; minlevel&lt;/span&gt;&lt;span&gt;=&quot;Trace&quot;&lt;/span&gt;&lt;span&gt; writeTo&lt;/span&gt;&lt;span&gt;=&quot;allfile&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt;Output hosting lifetime messages to console target for faster startup detection &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;logger &lt;/span&gt;&lt;span&gt;name&lt;/span&gt;&lt;span&gt;=&quot;Microsoft.Hosting.Lifetime&quot;&lt;/span&gt;&lt;span&gt; minlevel&lt;/span&gt;&lt;span&gt;=&quot;Info&quot;&lt;/span&gt;&lt;span&gt; writeTo&lt;/span&gt;&lt;span&gt;=&quot;lifetimeConsole, ownFile-web&quot;&lt;/span&gt;&lt;span&gt; final&lt;/span&gt;&lt;span&gt;=&quot;true&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&amp;lt;!--&lt;/span&gt;&lt;span&gt;Skip non-critical Microsoft logs and so log only own logs (BlackHole) &lt;/span&gt;&lt;span&gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;logger &lt;/span&gt;&lt;span&gt;name&lt;/span&gt;&lt;span&gt;=&quot;Microsoft.*&quot;&lt;/span&gt;&lt;span&gt; maxlevel&lt;/span&gt;&lt;span&gt;=&quot;Info&quot;&lt;/span&gt;&lt;span&gt; final&lt;/span&gt;&lt;span&gt;=&quot;true&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;logger &lt;/span&gt;&lt;span&gt;name&lt;/span&gt;&lt;span&gt;=&quot;System.Net.Http.*&quot;&lt;/span&gt;&lt;span&gt; maxlevel&lt;/span&gt;&lt;span&gt;=&quot;Info&quot;&lt;/span&gt;&lt;span&gt; final&lt;/span&gt;&lt;span&gt;=&quot;true&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;logger &lt;/span&gt;&lt;span&gt;name&lt;/span&gt;&lt;span&gt;=&quot;*&quot;&lt;/span&gt;&lt;span&gt; minlevel&lt;/span&gt;&lt;span&gt;=&quot;Trace&quot;&lt;/span&gt;&lt;span&gt; writeTo&lt;/span&gt;&lt;span&gt;=&quot;ownFile-web&quot;&lt;/span&gt; &lt;span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">  &lt;span&gt;&amp;lt;/&lt;/span&gt;&lt;span&gt;rules&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;/span&gt;&lt;span&gt;nlog&lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif" alt="复制代码"></p>
+<h2 id="创建实例并注册到IOC容器中"><a href="#创建实例并注册到IOC容器中" class="headerlink" title="创建实例并注册到IOC容器中"></a>创建实例并注册到IOC容器中</h2><p>打开App.xaml.cs</p>
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif" alt="复制代码"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;span&gt;private&lt;/span&gt;&lt;span&gt; ILogger _logger;</span><br><span class="line">&lt;/span&gt;&lt;span&gt;protected&lt;/span&gt; &lt;span&gt;override&lt;/span&gt; &lt;span&gt;void&lt;/span&gt;&lt;span&gt; RegisterTypes(IContainerRegistry containerRegistry)</span><br><span class="line">&#123;</span><br><span class="line">    &lt;/span&gt;&lt;span&gt;var&lt;/span&gt; factory = &lt;span&gt;new&lt;/span&gt;&lt;span&gt; NLogLoggerFactory();</span><br><span class="line">    _logger &lt;/span&gt;= factory.CreateLogger(&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;NLog.config&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;);</span><br><span class="line">    containerRegistry.RegisterInstance&lt;/span&gt;&amp;lt;ILogger&amp;gt;&lt;span&gt;(_logger);</span><br><span class="line">&#125;&lt;/span&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif" alt="复制代码"></p>
+<p>这里要注册为单例类型，整个App使用的是同一个实例</p>
+<h2 id="获取及使用"><a href="#获取及使用" class="headerlink" title="获取及使用"></a>获取及使用</h2><p>日志实例通过构造函数注入获取，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;span&gt;public&lt;/span&gt;&lt;span&gt; MainViewModel(ILogger logger)</span><br><span class="line">&#123;</span><br><span class="line">    &lt;/span&gt;&lt;span&gt;this&lt;/span&gt;._logger =&lt;span&gt; logger;</span><br><span class="line">&#125;&lt;/span&gt;</span><br></pre></td></tr></table></figure>
+
+<p>使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_logger.LogInformation($&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;测试日志&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;);</span><br></pre></td></tr></table></figure>
+
+<p>注意;</p>
+<p>在编写程序的过程中，很难保证程序不会因为异常而退出，这时就需要将异常信息打印出来，方便查找问题的所在，所以需要在App.xaml.cs 中的CreateShell方法中订阅一些异常事件,并将这些异常信息打印到日志中</p>
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif" alt="复制代码"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;span&gt;protected&lt;/span&gt; &lt;span&gt;override&lt;/span&gt;&lt;span&gt; Window CreateShell()</span><br><span class="line">&#123;</span><br><span class="line">    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;ui线程未捕获的异常&lt;/span&gt;</span><br><span class="line">    DispatcherUnhandledException +=&lt;span&gt; OnDispatcherUnhandledException;</span><br><span class="line">    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;Task线程未捕获的异常&lt;/span&gt;</span><br><span class="line">    TaskScheduler.UnobservedTaskException +=&lt;span&gt; OnUnobservedTaskException;</span><br><span class="line">    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;多线程异常&lt;/span&gt;</span><br><span class="line">    AppDomain.CurrentDomain.UnhandledException +=&lt;span&gt; OnUnhandledException;</span><br><span class="line">    &lt;/span&gt;&lt;span&gt;return&lt;/span&gt; Container.Resolve&amp;lt;MainView&amp;gt;&lt;span&gt;();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/span&gt;&lt;span&gt;private&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; OnDispatcherUnhandledException(&lt;span&gt;object&lt;/span&gt;&lt;span&gt; sender, DispatcherUnhandledExceptionEventArgs e)</span><br><span class="line">&#123;</span><br><span class="line">    _logger.LogCritical($&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;&#123;e.Exception.StackTrace&#125;,&#123;e.Exception.Message&#125;&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/span&gt;&lt;span&gt;private&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; OnUnobservedTaskException(&lt;span&gt;object&lt;/span&gt;?&lt;span&gt; sender, UnobservedTaskExceptionEventArgs e)</span><br><span class="line">&#123;</span><br><span class="line">    _logger.LogCritical($&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;&#123;e.Exception.StackTrace&#125;,&#123;e.Exception.Message&#125;&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/span&gt;&lt;span&gt;private&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; OnUnhandledException(&lt;span&gt;object&lt;/span&gt;&lt;span&gt; sender, UnhandledExceptionEventArgs e)</span><br><span class="line">&#123;</span><br><span class="line">    Exception ex &lt;/span&gt;= e.ExceptionObject &lt;span&gt;as&lt;/span&gt;&lt;span&gt; Exception;</span><br><span class="line">    _logger.LogCritical($&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;&#123;ex.StackTrace&#125;,&#123;ex.Message&#125;&lt;/span&gt;&lt;span&gt;&quot;&lt;/span&gt;&lt;span&gt;);</span><br><span class="line">&#125;&lt;/span&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/IMG-20250804104607041.gif" alt="复制代码"></p>
+<h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><ol>
+<li>安装三个NuGet程序包</li>
+<li>配置NLog.config</li>
+<li>创建日志实例，并注册到IOC容器中</li>
+<li>获取实例，打印日志</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WPF/" rel="tag"># WPF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20ListBox%E7%AD%89%E5%88%97%E8%A1%A8%E6%8E%A7%E4%BB%B6%E9%9A%94%E8%A1%8C%E6%8D%A2%E8%89%B2/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WPF-MVVM%E6%A1%86%E6%9E%B6%E2%80%94%E2%80%94-Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog-just%E2%80%93like-%E5%8D%9A%E5%AE%A2%E5%9B%AD"><span class="nav-number">1.</span> <span class="nav-text">WPF MVVM框架—— Prism中配置NLog - just–like - 博客园</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AENLog"><span class="nav-number">1.3.</span> <span class="nav-text">配置NLog</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BE%8B%E5%B9%B6%E6%B3%A8%E5%86%8C%E5%88%B0IOC%E5%AE%B9%E5%99%A8%E4%B8%AD"><span class="nav-number">1.4.</span> <span class="nav-text">创建实例并注册到IOC容器中</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%8F%8A%E4%BD%BF%E7%94%A8"><span class="nav-number">1.5.</span> <span class="nav-text">获取及使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">1.6.</span> <span class="nav-text">总结：</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

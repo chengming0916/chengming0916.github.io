@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="[WPF] 使用三种方式实现弧形进度条 - dino.c - 博客园 Excerpt 需求 前天看到有人问弧形进度条怎么做，我模仿了一下，成果如下图所示： 当时我第一反应是可以用 Microsoft.Toolkit.Uwp.UI.Controls 里的 RadialGauge 实现，虽然这是个 UWP 的控件，不过代码没有很复杂，应该很轻松就能移植到 WPF： 但仔细想想，我实    1. 需求#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="[WPF] 使用三种方式实现弧形进度条 - dino.c - 博客园 Excerpt 需求 前天看到有人问弧形进度条怎么做，我模仿了一下，成果如下图所示： 当时我第一反应是可以用 Microsoft.Toolkit.Uwp.UI.Controls 里的 RadialGauge 实现，虽然这是个 UWP 的控件，不过代码没有很复杂，应该很轻松就能移植到 WPF： 但仔细想想，我实    1. 需求#">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606249.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606370.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606490.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606744.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104607002.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104607176.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104607343.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104608659.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104609205.png">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104609697.png">
+<meta property="article:published_time" content="2025-08-07T00:50:17.166Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.166Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="WPF">
+<meta property="article:tag" content="XAML">
+<meta property="article:tag" content="Design and Animation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606249.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="WPF-使用三种方式实现弧形进度条-dino-c-博客园"><a href="#WPF-使用三种方式实现弧形进度条-dino-c-博客园" class="headerlink" title="[WPF] 使用三种方式实现弧形进度条 - dino.c - 博客园"></a>[WPF] 使用三种方式实现弧形进度条 - dino.c - 博客园</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><ol>
+<li>需求 前天看到有人问弧形进度条怎么做，我模仿了一下，成果如下图所示： 当时我第一反应是可以用 Microsoft.Toolkit.Uwp.UI.Controls 里的 RadialGauge 实现，虽然这是个 UWP 的控件，不过代码没有很复杂，应该很轻松就能移植到 WPF： 但仔细想想，我实</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="1-需求"><a href="#1-需求" class="headerlink" title="1. 需求#"></a>1. 需求<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#3540571181">#</a></h2><p>前天看到有人问弧形进度条怎么做，我模仿了一下，成果如下图所示：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135629410-1030559717.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606249.png"></a></p>
+<p>当时我第一反应是可以用 Microsoft.Toolkit.Uwp.UI.Controls 里的 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/microsoft.toolkit.uwp.ui.controls.radialgauge?view=win-comm-toolkit-dotnet-7.0">RadialGauge</a> 实现，虽然这是个 UWP 的控件，不过代码没有很复杂，应该很轻松就能移植到 WPF：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135637765-1296338170.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606370.png"></a></p>
+<p>但仔细想想，我实现过很多次圆形的进度条，这种弧形的进度条则没碰过。原型进度条基本只需要用 Ellipse 就能实现，而且只需要 Progress 一个参数，而弧形进度条则还需要 StartAngle 和 EndAngle 两个属性，而且计算复杂许多。于是兴致来了试试用不同的方式实现弧形进度条。</p>
+<p>这篇文章只介绍了怎么显示弧形及怎么显示进度，只有原理，没有具体实现一个弧形进度条控件。</p>
+<h2 id="2-使用-Path-及-ArcSegment"><a href="#2-使用-Path-及-ArcSegment" class="headerlink" title="2. 使用 Path 及 ArcSegment#"></a>2. 使用 Path 及 ArcSegment<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#3472587041">#</a></h2><p>Path 用于绘制曲线和复杂形状，而且 ArcSegment 用于描述 Path 中两点之间的一条椭圆弧。通常使用以下几个属性控制 ArcSegment：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Point</td>
+<td>终点（起始点在 Path 或前一个 Segment 中描述）。</td>
+</tr>
+<tr>
+<td>Size</td>
+<td>X 轴和 Y 轴的半径。</td>
+</tr>
+<tr>
+<td>IsLargeArc</td>
+<td>圆弧是整个圆形中大的那部分，还是小的那部分。</td>
+</tr>
+<tr>
+<td>SweepDirection</td>
+<td>弧线绘制的方向。</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135650348-1445997547.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606490.png"></a></p>
+<p>具体说明可以看 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.windows.media.arcsegment?view=netframework-4.8">这个文档</a>。</p>
+<p>用 Path 和 ArcSegment 可以很好地实现弧形的进度条，它的 XAML 如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Path&lt;/span&gt; &lt;span&gt;Stroke&lt;/span&gt;=&lt;span&gt;&quot;SlateBlue&quot;&lt;/span&gt;</span><br><span class="line">      &lt;span&gt;StrokeThickness&lt;/span&gt;=&lt;span&gt;&quot;4&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;Path.Data&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;PathGeometry&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;&lt;span&gt;PathFigure&lt;/span&gt; &lt;span&gt;IsClosed&lt;/span&gt;=&lt;span&gt;&quot;False&quot;&lt;/span&gt; &lt;span&gt;StartPoint&lt;/span&gt;=&lt;span&gt;&quot;30,170&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;&lt;span&gt;ArcSegment&lt;/span&gt; &lt;span&gt;IsLargeArc&lt;/span&gt;=&lt;span&gt;&quot;True&quot;&lt;/span&gt;</span><br><span class="line">                            &lt;span&gt;Point&lt;/span&gt;=&lt;span&gt;&quot;170,170&quot;&lt;/span&gt;</span><br><span class="line">                            &lt;span&gt;Size&lt;/span&gt;=&lt;span&gt;&quot;96,96&quot;&lt;/span&gt;</span><br><span class="line">                            &lt;span&gt;SweepDirection&lt;/span&gt;=&lt;span&gt;&quot;Clockwise&quot;&lt;/span&gt; /&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;/&lt;span&gt;PathFigure&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;/&lt;span&gt;PathGeometry&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;Path.Data&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;Path&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>叠加两个不同颜色的 Path，就可以实现这种效果：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135721512-89957370.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104606744.png"></a></p>
+<p>Path 和 ArcSegment 是一个很正统的方案，前面提到的 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/microsoft.toolkit.uwp.ui.controls.radialgauge?view=win-comm-toolkit-dotnet-7.0">RadialGauge</a> 就用了这个方案。不过它的计算很麻烦，三角函数我已经忘光了。</p>
+<p>另外，请注意弧线两端都是平平的直角，这和需求不符，所以需要设置 <code>StrokeStartLineCap</code> 和 <code>StrokeEndLineCap</code> 这两个属性的值为 <code>Round</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;StrokeStartLineCap=&quot;Round&quot; StrokeEndLineCap=&quot;Round&quot;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>它们控制线条两端边缘的轮廓，<code>Round</code> 表示一个直径等于线条粗细的半圆形。这样才能实现需求中的圆角：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135736021-1256376538.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104607002.png"></a></p>
+<p>顺便一提，这两个属性的类型是 <code>PenLineCap</code> 枚举，这个枚举的四个值分别代表以下几种形状：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135747924-1799161843.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104607176.png"></a></p>
+<h2 id="3-使用-Arc"><a href="#3-使用-Arc" class="headerlink" title="3. 使用 Arc#"></a>3. 使用 Arc<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#172356508">#</a></h2><p>第二个方案是使用 <code>Microsoft.Expression.Drawing</code> 中的 <code>Arc</code> 形状直接画出一个弧形。如果安装了旧版的 Blend（好像 2017 或以前的都可以），可以在 <code>资产-&gt;形状</code> 里找到这个形状（我装的是英文版所以没有中文截图）：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103140038907-237880396.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104607343.png"></a></p>
+<p>或者在 Nuget 上搜索 <code>Microsoft.Expression.Drawing</code> 找到一个符合自己项目的版本。</p>
+<p>Arc 的用法很简单，只需要执行 <code>StartAngle</code> 和 <code>EndAngle</code> 即可输出一个弧形：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;ed:Arc&lt;/span&gt; &lt;span&gt;ArcThickness&lt;/span&gt;=&lt;span&gt;&quot;12&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;ArcThicknessUnit&lt;/span&gt;=&lt;span&gt;&quot;Pixel&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;EndAngle&lt;/span&gt;=&lt;span&gt;&quot;150&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;Fill&lt;/span&gt;=&lt;span&gt;&quot;#101a26&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;StartAngle&lt;/span&gt;=&lt;span&gt;&quot;-150&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;Stretch&lt;/span&gt;=&lt;span&gt;&quot;None&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;StrokeEndLineCap&lt;/span&gt;=&lt;span&gt;&quot;Round&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;StrokeStartLineCap&lt;/span&gt;=&lt;span&gt;&quot;Round&quot;&lt;/span&gt; /&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>叠加两个不同颜色的 Arc，可以实现这种效果：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135809220-1041097947.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104608659.png"></a></p>
+<p>可是仔细看，就算用了 <code>StrokeStartLineCap</code> 和 <code>StrokeEndLineCap</code> 两个属性，Arc 的两端任然是直角，这不符合需求，所以这个方案简单但不完美，我还要尝试下一个方案。</p>
+<h2 id="4-使用-Ellipse"><a href="#4-使用-Ellipse" class="headerlink" title="4. 使用 Ellipse#"></a>4. 使用 Ellipse<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#3258844870">#</a></h2><p>这个方案还算有趣，Ellipse 明明是圆形，却能用来画弧形。为了用 Ellipse 显示进度，我们会用 StrokeDashArray 控制它的边框长度。StrokeDashArray 用于将边框变成虚线，它的值是一个 double 类型的有序集合，集合中的值指虚线中每一段的长度，长度单位是边框值的宽度。例如以下圆形：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-xml&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Ellipse&lt;/span&gt; &lt;span&gt;StrokeDashArray&lt;/span&gt;=&lt;span&gt;&quot;1,2,3&quot;&lt;/span&gt;</span><br><span class="line">         &lt;span&gt;Stroke&lt;/span&gt;=&lt;span&gt;&quot;#FFFF0EC4&quot;&lt;/span&gt;</span><br><span class="line">         &lt;span&gt;StrokeThickness&lt;/span&gt;=&lt;span&gt;&quot;10&quot;&lt;/span&gt;</span><br><span class="line">         &lt;span&gt;Height&lt;/span&gt;=&lt;span&gt;&quot;200&quot;&lt;/span&gt;</span><br><span class="line">         &lt;span&gt;Width&lt;/span&gt;=&lt;span&gt;&quot;200&quot;&lt;/span&gt; /&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://images2015.cnblogs.com/blog/38937/201705/38937-20170508220059316-408102107.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104609205.png"></a></p>
+<p>边框宽度为 10，虚线的第一段是长度为 10 的实线，第二段为长度为 20 的空白，第三段为长度为 30 的实线，然后如此循环直到结束。</p>
+<p>用 StrokeDashArray 做进度提示的基本做法就是将进度（Progress）通过 Converter 转换为分成两段的 StrokeDashArray，第一段为实线，表示当前进度，第二段为空白。假设一个 Shape 的边长是 100，当前进度为 50，则将 StrokeDashArray 设置成 {50，double.MaxValue} 两段。</p>
+<p>为了实现弧形进度条，我们还需要控制 Ellipse 旋转的角度。具体来说我实现了一个 EllipseProgressBehavior，里面有 Progress、StartAngle 和 EndAngle 三个属性，具体代码在 <a target="_blank" rel="noopener" href="https://github.com/DinoChan/wpf_design_and_animation_lab/blob/master/WpfDesignAndAnimationLab/Behaviors/EllipseProgressBehavior.cs">这里</a>。用这个 Behavior 控制 Ellipse 的边框长度和旋转角度，使用方式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Ellipse&lt;/span&gt; &lt;span&gt;Margin&lt;/span&gt;=&lt;span&gt;&quot;4&quot;&lt;/span&gt;</span><br><span class="line">         &lt;span&gt;Stroke&lt;/span&gt;=&lt;span&gt;&quot;#7bcdd9&quot;&lt;/span&gt;</span><br><span class="line">         &lt;span&gt;StrokeThickness&lt;/span&gt;=&lt;span&gt;&quot;4&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;interactivity:Interaction.Behaviors&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;local1:EllipseProgressBehavior&lt;/span&gt; &lt;span&gt;EndAngle&lt;/span&gt;=&lt;span&gt;&quot;150&quot;&lt;/span&gt;</span><br><span class="line">                                        &lt;span&gt;Progress&lt;/span&gt;=&lt;span&gt;&quot;50&quot;&lt;/span&gt;</span><br><span class="line">                                        &lt;span&gt;StartAngle&lt;/span&gt;=&lt;span&gt;&quot;-150&quot;&lt;/span&gt; /&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;interactivity:Interaction.Behaviors&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;Ellipse&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>叠加两个 Ellipse，即可实现需求中的弧形进度条。可是这时候弧形的两端都是直角，即使设置了 <code>StrokeStartLineCap</code> 和 <code>StrokeEndLineCap</code> 两个属性都不起作用。对于用 StrokeDashArray 显示的边框，不能使用 <code>StrokeStartLineCap</code> 和 <code>StrokeEndLineCap</code> 去控制它的两端的轮廓，而应该使用 StrokeDashCap：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;StrokeDashCap=&quot;Round&quot;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最终通过叠加两个 Ellipse 实现了户型进度条的需求：</p>
+<p><a target="_blank" rel="noopener" href="https://img2020.cnblogs.com/blog/38937/202111/38937-20211103135816139-1933574550.png"><img src="/WPF%20%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1/IMG-20250804104609697.png"></a></p>
+<h2 id="5-最后"><a href="#5-最后" class="headerlink" title="5. 最后#"></a>5. 最后<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#586399642">#</a></h2><p>童话和寓言都喜欢把相似的内容说上三次，例如三只小猪，三顾茅庐，弗利萨的三段变身。所以不是我在研究回字有多少种写法，我只是遵循古法想把一种技术讲透而已。</p>
+<h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6. 参考#"></a>6. 参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#1380356496">#</a></h2><p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/ZH-CN/dotnet/api/system.windows.media.arcsegment?view=netframework-4.8">ArcSegment 类</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/desktop/wpf/graphics-multimedia/geometries?view=netframeworkdesktop-4.8">几何图形</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/desktop/wpf/graphics-multimedia/shapes-and-basic-drawing-in-wpf-overview?view=netframeworkdesktop-4.8">WPF 中的形状和基本图形概述</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/UWP_Shape.html">实用的Shape指南</a></p>
+<h2 id="7-源码"><a href="#7-源码" class="headerlink" title="7. 源码#"></a>7. 源码<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/arc_progress_bar.html#3131976032">#</a></h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/DinoChan/wpf_design_and_animation_lab">https://github.com/DinoChan/wpf_design_and_animation_lab</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WPF/" rel="tag"># WPF</a>
+              <a href="/tags/XAML/" rel="tag"># XAML</a>
+              <a href="/tags/Design-and-Animation/" rel="tag"># Design and Animation</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20Interaction%E6%A1%86%E6%9E%B6%E7%AE%80%E4%BB%8B%E4%B8%80%E2%80%94%E2%80%94Behavior/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20WPF%20%E4%B8%AD%E7%9A%84%20Triggers%20%E5%92%8C%20VisualStateManager/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WPF-%E4%BD%BF%E7%94%A8%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%BC%A7%E5%BD%A2%E8%BF%9B%E5%BA%A6%E6%9D%A1-dino-c-%E5%8D%9A%E5%AE%A2%E5%9B%AD"><span class="nav-number">1.</span> <span class="nav-text">[WPF] 使用三种方式实现弧形进度条 - dino.c - 博客园</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%9C%80%E6%B1%82"><span class="nav-number">1.2.</span> <span class="nav-text">1. 需求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8-Path-%E5%8F%8A-ArcSegment"><span class="nav-number">1.3.</span> <span class="nav-text">2. 使用 Path 及 ArcSegment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BD%BF%E7%94%A8-Arc"><span class="nav-number">1.4.</span> <span class="nav-text">3. 使用 Arc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8-Ellipse"><span class="nav-number">1.5.</span> <span class="nav-text">4. 使用 Ellipse</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%9C%80%E5%90%8E"><span class="nav-number">1.6.</span> <span class="nav-text">5. 最后</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%8F%82%E8%80%83"><span class="nav-number">1.7.</span> <span class="nav-text">6. 参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%BA%90%E7%A0%81"><span class="nav-number">1.8.</span> <span class="nav-text">7. 源码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

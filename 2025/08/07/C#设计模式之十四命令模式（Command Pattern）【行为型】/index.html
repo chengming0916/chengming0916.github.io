@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%9B%9B%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F%EF%BC%88Command%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201711/1048776-20171121151712618-219632155.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.153Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.153Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201711/1048776-20171121151712618-219632155.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%9B%9B%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F%EF%BC%88Command%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%9B%9B%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F%EF%BC%88Command%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%9B%9B%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F%EF%BC%88Command%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%9B%9B%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F%EF%BC%88Command%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a></p>
+<p>15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>   今天我们开始讲“行为型”设计模式的第二个模式，该模式是【命令模式】，又称为行动（Action）模式或交易（Transaction）模式，英文名称是：Command Pattern。还是老套路，先从名字上来看看。“命令模式”我第一次看到这个名称，我的理解是，可能是一种行为或者一个操作就是一个命令。“命令”这个词语在军队里面用的最多，比如：下达作战命令，接下来就是上战场玩命了。基于这些，我感觉“命令”就是任务，执行了命令就完成了一个任务。或者说，命令是任务，我们再从这个名字上并不知道命令的发出者和接受者分别是谁，为什么呢？因为我们并不关心他们是谁，发出命令的人发出命令，可以继续做其他的事情，接受命令的人执行任务就可以，不需要你发出命令，还要监督我们完成，只要我们完成任务是合格的就行。这种行为也就是“解耦”。在我们的现实生活中有很多例子可以拿来说明这个模式，我们还拿吃饺子这个事情来说。我的奶奶说了，今天想吃饺子，发出了命令，然后我奶奶就去看电视去了。我们夫妻俩收到命令就开始和面，做饺子馅，包饺子。饺子包好了，我们就休息一会，等下午5点就开始烧水煮饺子了，晚饭的时间到了，我奶奶按时吃上了饺子。还有很多例子，就不一一列举了。  </p>
+<p><strong>二、命令模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>   在软件构建过程中，“行为请求者”与“行为实现者”通常呈现一种“紧耦合”。但在某些场合——比如需要对行为进行“记录、撤销&#x2F;重做（undo&#x2F;redo）、事务”等处理，这种无法抵御变化的紧耦合是不合适的。在这种情况下，如何将“行为请求者”与“行为实现者”解耦？将一组行为抽象为对象，可以实现二者之间的松耦合。  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>   将一个请求封装为一个对象，从而使你可用不同的请求对客户（客户程序，也是行为的请求者）进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。　　　　　　                                ——《设计模式》GoF  </p>
+<p><strong>2.3、</strong>结构图（Structure）****  </p>
+<p>      <img src="http://images2017.cnblogs.com/blog/1048776/201711/1048776-20171121151712618-219632155.png">  </p>
+<p><strong>2.4、模式的组成</strong><br>    <br>    从命令模式的结构图可以看出，它涉及到五个角色，它们分别是：  </p>
+<p>    <strong>（1）、客户角色（Client）</strong>：创建具体的命令对象，并且设置命令对象的接收者。注意这个不是我们常规意义上的客户端，而是在组装命令对象和接收者，或许，把这个Client称为装配者会更好理解，因为真正使用命令的客户端是从Invoker来触发执行。  </p>
+<p>    <strong>（2）、命令角色（Command）</strong>：声明了一个给所有具体命令类实现的抽象接口。  </p>
+<p>    <strong>（3）、具体命令角色（ConcreteCommand）</strong>：命令接口实现对象，是“虚”的实现；通常会持有接收者，并调用接收者的功能来完成命令要执行的操作。  </p>
+<p>    <strong>（4）、请求者角色（Invoker）：</strong>要求命令对象执行请求，通常会持有命令对象，可以持有很多的命令对象。这个是客户端真正触发命令并要求命令执行相应操作的地方，也就是说相当于使用命令对象的入口。  </p>
+<p>    <strong>（5）、接受者角色（Receiver）</strong>：接收者，真正执行命令的对象。任何类都可能成为一个接收者，只要它能够实现命令要求实现的相应功能。  </p>
+<p><strong>2.5、命令模式的代码实现</strong>  </p>
+<p>    下面以生活中吃饺子为例来说说如何实现命令模式吧。在现实生活中，作为北方人都爱吃饺子，我奶奶特别爱吃饺子，我也遗传了这个爱好。今天早上，我奶奶就发布了命令，说她老人家想吃猪肉大葱馅的饺子。我奶奶腿脚不好，就让我爸爸捎个话给我们夫妻俩，晚上要吃猪肉大葱馅的饺子。我瞬间就明白了，这个伟大的任务就落到我们夫妻俩肩上了。说做就做，保证晚饭能吃上热气腾腾的饺子，具体实现代码如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 1 namespace 命令模式的实现 2 {<br> 3     &#x2F;&#x2F;&#x2F; <summary><br> 4     &#x2F;&#x2F;&#x2F; 俗话说：“好吃不如饺子，舒服不如倒着”。今天奶奶发话要吃他大孙子和孙媳妇包的饺子。今天还拿吃饺子这件事来说说命令模式的实现吧。 5     &#x2F;&#x2F;&#x2F; </summary><br> 6     class Client 7     {<br> 8         static void Main(string[] args)<br> 9 {<br>10             &#x2F;&#x2F;奶奶想吃猪肉大葱馅的饺子<br>11             PatrickLiuAndWife liuAndLai &#x3D; new PatrickLiuAndWife();&#x2F;&#x2F;命令接受者<br>12             Command command &#x3D; new MakeDumplingsCommand(liuAndLai);&#x2F;&#x2F;命令<br>13             PaPaInvoker papa &#x3D; new PaPaInvoker(command); &#x2F;&#x2F;命令请求者<br>14<br>15             &#x2F;&#x2F;奶奶发布命令<br>16 papa.ExecuteCommand();<br>17<br>18<br>19 Console.Read();<br>20 }<br>21 }<br>22<br>23     &#x2F;&#x2F;这个类型就是请求者角色–也就是我爸爸的角色，告诉奶奶要吃饺子<br>24     public sealed class PaPaInvoker<br>25 {<br>26         &#x2F;&#x2F;我爸爸从奶奶那里接受到的命令<br>27         private Command _command;<br>28<br>29         &#x2F;&#x2F;爸爸开始接受具体的命令<br>30         public PaPaInvoker(Command command)<br>31 {<br>32             this._command &#x3D; command;<br>33 }<br>34<br>35         &#x2F;&#x2F;爸爸给我们下达命令<br>36         public void ExecuteCommand()<br>37 {<br>38 _command.MakeDumplings();<br>39 }<br>40 }<br>41<br>42     &#x2F;&#x2F;该类型就是抽象命令角色–Commmand，定义了命令的抽象接口，任务是包饺子<br>43     public abstract class Command<br>44 {<br>45         &#x2F;&#x2F;真正任务的接受者<br>46         protected PatrickLiuAndWife _worker;<br>47<br>48         protected Command(PatrickLiuAndWife worker)<br>49 {<br>50             _worker &#x3D; worker;<br>51 }<br>52<br>53         &#x2F;&#x2F;该方法就是抽象命令对象Command的Execute方法<br>54         public abstract void MakeDumplings();<br>55 }<br>56<br>57     &#x2F;&#x2F;该类型是具体命令角色–ConcreteCommand，这个命令完成制作“猪肉大葱馅”的饺子<br>58     public sealed class MakeDumplingsCommand : Command<br>59 {<br>60         public MakeDumplingsCommand(PatrickLiuAndWife worker) : base(worker) { }<br>61<br>62         &#x2F;&#x2F;执行命令–包饺子<br>63         public override void MakeDumplings()<br>64 {<br>65             &#x2F;&#x2F;执行命令—包饺子<br>66             _worker.Execute(“今天包的是农家猪肉和农家大葱馅的饺子”);<br>67 }<br>68 }<br>69<br>70     &#x2F;&#x2F;该类型是具体命令接受角色Receiver，具体包饺子的行为是我们夫妻俩来完成的<br>71     public sealed class PatrickLiuAndWife<br>72 {<br>73         &#x2F;&#x2F;这个方法相当于Receiver类型的Action方法<br>74         public void Execute(string job)<br>75 {<br>76 Console.WriteLine(job);<br>77 }<br>78 }<br>79 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>   这个模式有点复杂，刚开始也不是很好理解，这种模式在我们现实的编码中用的不是很多，可能针对特定领域的软件或者系统需求更大，比如：文档编辑等。在编码过程中慢慢体会吧，仔细看看代码的结构和模式的使用场景。这个模式的也有一些变形，某些角色可以合并或者省略。我写的这个代码实现，没有突出命令的Redo和Undo,也没写命令的排队，但是大家要知道，之所以把行为抽象独立对象，就是要对其可以进行特殊处理。  </p>
+<p><strong>三、命令模式的实现要点：</strong><br>    <br>     1、Command模式的根本目的在于将“行为请求者”与“行为实现者”解耦，在面向对象语言中，常见的实现手段是“将行为抽象为对象”。  </p>
+<p>     2、实现Command接口的具体命令对象ConcreteCommand有时候根据需要可能会保存一些额外的状态信息。  </p>
+<p>     3、通过使用Composite组合模式，可以将多个命令封装为一个“复合命令”MacroCommand。  </p>
+<p>     4、Command模式与C#中的Delegate有些类似。但两者定义行为接口的规范有所区别：Command以面向对象中的“接口-实现”来定义行为接口规范，更严格，更符合抽象原则；Delegate以函数签名来定义行为接口规范，更灵活，但抽象能力比较弱。  </p>
+<p>     5、使用命令模式会导致某些系统有过多的具体命令类。某些系统可能需要几十个，几百个甚至几千个具体命令类，这会使命令模式在这样的系统里变得不实际。  </p>
+<p>      <strong>3.1】、命令模式的优点：</strong></p>
+<p>          （1）、命令模式使得新的命令很容易被加入到系统里。  </p>
+<p>          （2）、可以设计一个命令队列来实现对请求的Undo和Redo操作。  </p>
+<p>          （3）、可以较容易地将命令写入日志。  </p>
+<p>          （4）、可以把命令对象聚合在一起，合成为合成命令。合成命令式合成模式的应用。  </p>
+<p>      <strong>3.2】、命令模式的缺点：</strong></p>
+<p>           （1）、使用命令模式可能会导致系统有过多的具体命令类。这会使得命令模式在这样的系统里变得不实际。  </p>
+<p>     <strong>3.3】、命令模式的使用场景：</strong>  </p>
+<p>          （1）、系统需要支持命令的撤销（undo）。命令对象可以把状态存储起来，等到客户端需要撤销命令所产生的效果时，可以调用undo方法把命令所产生的效果撤销掉。命令对象还可以提供redo方法，以供客户端在需要时，再重新实现命令效果。  </p>
+<p>          （2）、系统需要在不同的时间指定请求、将请求排队。一个命令对象和原先的请求发出者可以有不同的生命周期。意思为：原来请求的发出者可能已经不存在了，而命令对象本身可能仍是活动的。这时命令的接受者可以在本地，也可以在网络的另一个地址。命令对象可以串行地传送到接受者上去。<br> <br>          （3）、如果一个系统要将系统中所有的数据消息更新到日志里，以便在系统崩溃时，可以根据日志里读回所有数据的更新命令，重新调用方法来一条一条地执行这些命令，从而恢复系统在崩溃前所做的数据更新。  </p>
+<p>          （4）、系统需要使用命令模式作为“CallBack(回调)”在面向对象系统中的替代。Callback即是先将一个方法注册上，然后再以后调用该方法。  </p>
+<p><strong>四、.NET 中命令模式的实现</strong>  </p>
+<p>      由于.NET有了Delegate，它很少很少用到Command。它只要需要用到行为抽象，它都用Delegate去做。因为这是Framework，这是和业务领域相关度不大的基础建设层面，它是不太需要用到OO的层面。对于我们来说，我们建议更多地用Command去实现。  </p>
+<p><strong>五、总结</strong>  </p>
+<p>    今天就到此为止吧，该去接孩子放学了，小家伙刚上学，有点淘气，不想上学，哈哈，这点和我小时候还是挺像的。命令模式是把一个操作或者行为抽象为一个独立的对象，通过对命令的抽象化来使得发出命令的责任和执行命令的责任分隔开，也可以对独立的命令对象进行特殊操作，比如可以实现命令的撤销和恢复功能。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">https://www.cnblogs.com/PatrickLiu/p/7873322.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F%EF%BC%88Facade%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%85%AD%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Observer%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

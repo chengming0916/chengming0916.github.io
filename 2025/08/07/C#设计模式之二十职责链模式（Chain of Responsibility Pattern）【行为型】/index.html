@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88Chain%20of%20Responsibility%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images2018.cnblogs.com/blog/1048776/201712/1048776-20171225140403040-197033143.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images2018.cnblogs.com/blog/1048776/201712/1048776-20171225140403040-197033143.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88Chain%20of%20Responsibility%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88Chain%20of%20Responsibility%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88Chain%20of%20Responsibility%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88Chain%20of%20Responsibility%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a></p>
+<p>21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>   今天我们开始讲“行为型”设计模式的第八个模式，该模式是【职责链模式】，英文名称是：Chain of Responsibility Pattern。让我们看看现实生活中的例子吧，理解起来可能更容易。我们看看某公司的采购流程吧。某公司的规章制度规定，采购原材料的总价在5万之内，只需要经理级别的人批准即可，采购总价大于5万小于10万的则需要财务经理进行批准，总价大于10万小于30万的需要总经理批准，而总价大于30万的则需要通过董事会会议讨论决定。对于这样一个需求，最直接的方法就是设计一个方法，该方法接受的参数是采购的总价，然后在这个方法内对价格进行判断，然后针对不同的条件交给不同级别的角色去处理，如果情况就是这样，不变了，这样做很好，没问题。如果我们又有新的条件要增加该怎么办呢？我们不得不去修改原来设计的方法来再添加一个条件判断，让本已多重if-else判断语句更多了，这样的设计显然违背了“开放-关闭”原则。这时候，我们可以采用职责链模式来解决这样的问题。  </p>
+<p><strong>二、职责链模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>   在软件构建过程中，一个请求可能被多个对象处理，但是每个请求在运行时只能有一个接受者，如果显示指定，将必不可少地带来请求发送者与接受者的紧耦合。如何使请求的发送者不需要指定具体的接受者，让请求的接受者自己在运行时决定来处理请求，从而使两者解耦。  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>   避免请求发送者与接收者耦合在一起，让多个对象都有可能接受请求，将这些对象连接成一条链，并且沿着这条链传递请求，知道有对象处理它为止。　　　　　　                                ——《设计模式》GoF  </p>
+<p><strong>2.3、结构图（Structure）</strong>  </p>
+<p>      <img src="https://images2018.cnblogs.com/blog/1048776/201712/1048776-20171225140403040-197033143.png">  </p>
+<p><strong>2.4、模式的组成</strong><br>    <br>    可以看出，在职责链模式的结构图有以下角色：  </p>
+<p>    <strong>（1）、抽象处理者角色（Handler）</strong>：抽象处理者定义了一个处理请求的接口，它一般设计为抽象类，由于不同的具体处理者处理请求的方式不同，因此在其中定义了抽象请求处理方法。因为每一个处理者的下家还是一个处理者，因此在抽象处理者中定义了一个自类型的对象，作为其对下家的引用。通过该引用，处理者可以连成一条链。  </p>
+<p>    <strong>（2）、具体处理者角色（ConcreteHandler）</strong>：具体处理者是抽象处理者的子类，它可以处理用户请求，在具体处理者类中实现了抽象处理者中定义的抽象处理方法，在处理请求之前需要进行判断，看是否有相应的处理权限，如果可以处理请求就处理它，否则将请求转发给后继者；在具体处理者中可以访问链中下一个对象，以便请求的转发。  </p>
+<p><strong>2.5、职责链模式的代码实现</strong>  </p>
+<p>    在现实生活中，职责链模式的例子也是很多的，例如：公司的请假流程就是一个很好的职责链模式的例子，如果请假半天，只要告诉本部门经理就可以了；如果请假7天或者以上必须人事总监批准；如果请假15天以上，那就要经过总裁批准了。还有类似的例子就是采购的流程，其流程也是职责链模式很好的体现，采购的金额不同，需要批准的人员也不同，比如：部门采购1万元的纸品，只要部门领导签批就可以，如果要采购大于1万小于5万的物品，那就需要财务经理签批了，如果采购30万的原材料或者物品，那就需要总裁或者类似角色才能审批了。接下来我们就以采购的实例来说明职责链模式。实现代码如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  1 namespace ChainOfResponsibility  2 {<br>  3     &#x2F;&#x2F; 采购请求<br>  4     public sealed class PurchaseRequest  5     {<br>  6         &#x2F;&#x2F; 金额<br>  7         public double Amount { get; set; }<br>  8<br>  9         &#x2F;&#x2F; 产品名字<br> 10         public string ProductName { get; set; }<br> 11<br> 12         public PurchaseRequest(double amount, string productName) 13         {<br> 14             Amount &#x3D; amount; 15             ProductName &#x3D; productName; 16         }<br> 17     }<br> 18<br> 19     &#x2F;&#x2F;抽象审批人,Handler—相当于“抽象处理者角色”<br> 20     public abstract class Approver 21     {<br> 22         &#x2F;&#x2F;下一位审批人，由此形成一条链<br> 23         public Approver NextApprover { get; set; }<br> 24<br> 25         &#x2F;&#x2F;审批人的名称<br> 26         public string Name { get; set; }<br> 27<br> 28         public Approver(string name) 29         {<br> 30             this.Name &#x3D; name; 31         }<br> 32<br> 33         &#x2F;&#x2F;处理请求<br> 34         public abstract void ProcessRequest(PurchaseRequest request); 35     }<br> 36<br> 37     &#x2F;&#x2F;部门经理—-相当于“具体处理者角色” ConcreteHandler<br> 38     public sealed class Manager : Approver 39     {<br> 40         public Manager(string name): base(name){ }<br> 41<br> 42         public override void ProcessRequest(PurchaseRequest request) 43         {<br> 44             if (request.Amount &lt;&#x3D; 10000.0)<br> 45             {<br> 46                 Console.WriteLine(“{0} 部门经理批准了对原材料{1}的采购计划！”, this.Name, request.ProductName);<br> 47             }<br> 48             else if (NextApprover !&#x3D; null)<br> 49             {<br> 50                 NextApprover.ProcessRequest(request);<br> 51             }<br> 52         }<br> 53     }<br> 54<br> 55     &#x2F;&#x2F;财务经理—相当于“具体处理者角色”ConcreteHandler<br> 56     public sealed class FinancialManager : Approver 57     {<br> 58         public FinancialManager(string name): base(name){ }<br> 59<br> 60         public override void ProcessRequest(PurchaseRequest request) 61         {<br> 62             if (request.Amount &gt; 10000.0 &amp;&amp; request.Amount &lt;&#x3D; 50000.0)<br> 63             {<br> 64                 Console.WriteLine(“{0} 财务经理批准了对原材料{1}的采购计划！”, this.Name, request.ProductName);<br> 65             }<br> 66             else if (NextApprover !&#x3D; null)<br> 67             {<br> 68                 NextApprover.ProcessRequest(request);<br> 69             }<br> 70         }<br> 71     }<br> 72<br> 73     &#x2F;&#x2F;总裁—相当于“具体处理者角色” ConcreteHandler<br> 74     public sealed class CEO :Approver 75     {<br> 76         public CEO(string name): base(name){ }<br> 77<br> 78         public override void ProcessRequest(PurchaseRequest request) 79         {<br> 80             if (request.Amount &gt; 50000.0 &amp;&amp; request.Amount &lt; 300000.0)<br> 81             {<br> 82                 Console.WriteLine(“{0} 总裁批准了对原材料 {1} 的采购计划！”, this.Name, request.ProductName);<br> 83             }<br> 84             else<br> 85             {<br> 86                 Console.WriteLine(“这个采购计划的金额比较大，需要一次董事会会议讨论才能决定！”);<br> 87             }<br> 88         }<br> 89     }<br> 90<br> 91     class Program 92     {<br> 93         static void Main(string[] args)<br> 94         {<br> 95             PurchaseRequest requestDao &#x3D; new PurchaseRequest(8000.0, “单刀5把”);<br> 96             PurchaseRequest requestHuaJi &#x3D; new PurchaseRequest(10000.0, “10把方天画戟”);<br> 97             PurchaseRequest requestJian &#x3D; new PurchaseRequest(80000.0, “5把金丝龙鳞闪电劈”);<br> 98<br> 99             Approver manager &#x3D; new Manager(“黄飞鸿”);<br>100             Approver financial &#x3D; new FinancialManager(“黄麒英”);<br>101             Approver ceo &#x3D; new CEO(“十三姨”);<br>102<br>103             &#x2F;&#x2F; 设置职责链<br>104             manager.NextApprover &#x3D; financial;<br>105             financial.NextApprover &#x3D; ceo;<br>106<br>107             &#x2F;&#x2F; 处理请求<br>108 manager.ProcessRequest(requestDao);<br>109 manager.ProcessRequest(requestHuaJi);<br>110 manager.ProcessRequest(requestJian);<br>111<br>112 Console.ReadLine();<br>113 }<br>114 }<br>115 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>   模式的代码如上，很简单，备注很清楚，慢慢品味一下就知道其中道理了。  </p>
+<p><strong>三、职责链模式的实现要点：</strong>  </p>
+<p>        Chain of Responsibility模式的应用场合在于“一个请求可能有多个接受者，但是最后真正的接受者只有一个”，只有这时候请求发送者与接受者的耦合才有可能出现“变化脆弱”的症状，职责链的目的就是将二者解耦，从而更好地应对变化。  </p>
+<p>　　应用了Chain of Responsibility模式后，对象的职责分派将更具灵活性。我们可以在运行时动态添加&#x2F;修改请求的处理职责。  </p>
+<p>　　当我们要新增一个DHandler处理请求，就不需再改原来的代码了，遵从了开放封闭原则。这样我们的程序就更赋予变化，更有变化的抵抗力。Handler类本身继承自BaseHandler类型，又包含了一个BaseHandler类型的对象，这点类似Decorator模式。  </p>
+<p>　　如果请求传递到职责链的末尾仍得不到处理，应该有一个合理的缺省机制。这也是每一个接受对象的责任，而不是发出请求的对象的责任。  </p>
+<p>    <strong>（1）、职责链模式的主要优点有：</strong>  </p>
+<p>        1】、降低耦合度：职责链模式使得一个对象无需知道是其他哪一个对象处理其请求。对象仅需知道该请求会被处理即可，接受者和发送者都没有对方的明确信息，且链中的对象不需要知道链的结构，有客户端负责链的创建。  </p>
+<p>        2】、可简化对象的相互连接：接受者对象仅需维持一个指向其后继者的引用，而不需维持它对所有的候选处理者的引用。  </p>
+<p>        3】、增强给对象指派职责的灵活性：在给对象分派职责时，职责链可以给我们带来更多的灵活性。可以通过在运行时对该连进行动态的增加或修改处理一个请求的职责。  </p>
+<p>        4】、增加新的请求处理类很方便：在系统中增加一个新的请求处理者无需修改原有系统的代码，只需要在客户端重新建链即可，从这一点看来是符合“开闭原则”的。  </p>
+<p>　<strong>（2）、职责链模式的主要缺点有：</strong>  </p>
+<p>        1】、在找到正确的处理对象之前，所有的条件判定都要执行一遍，当责任链过长时，可能会引起性能的问题。  </p>
+<p>        2】、可能导致某个请求不被处理。  </p>
+<p>        3】、客户端需要组装这个链条，耦合了客户端和链条的组成结构，可以把这个在客户端的组合动作提到外面，通过配置来做，会更好点。  </p>
+<p>    <strong>（3）、在下面的情况下可以考虑使用职责链模式：</strong>  </p>
+<p>        1】、一个系统的审批需要多个对象才能完成处理的情况下，例如请假系统等。  </p>
+<p>        2】、代码中存在多个if-else语句的情况下，此时可以考虑使用责任链模式来对代码进行重构  </p>
+<p>        3】、有多个对象可以处理同一个请求，具体哪个对象处理该请求有运行时刻自动确定。客户端只需将请求提交到链上，无须关心请求的处理对象是谁以及它是如何处理的。  </p>
+<p>        4】、不明确指定接受者的情况下，向多个对象中的一个提交一个请求。请求的发送者与请求者解耦，请求将沿着链进行传递，寻求响应的处理者。  </p>
+<p>        5】、可动态指定一组对象处理请求。客户端可以动态创建职责链来处理请求，还可以动态改变链中处理者之间的先后次序  </p>
+<p><strong>四、.NET 职责链模式的实现</strong>  </p>
+<p>     这个模式在Net框架中的实现不多，我感觉这个模式的使用场景更多的是在业务系统总才会有更大的用处。这种模式在处理UI的消息时很常用，但实际上Windows消息循环还是硬编码的结构。因为效率上的考虑，Windows消息循环是哪个对象有一个请求，则直接到达处理函数的地址。如果链条上的对象多了，而真正处理的函数在链条后部分，效率会很低下。因此我们在使用这种模式的时候更适合业务流程，即对性能要求不是特别高的情况更加常用。  </p>
+<p><strong>五、总结</strong>  </p>
+<p>    终于写完了，这个模式并不是很难，在现实生活中也能很容易的找到对应的实例。这个模式也是为了解耦，解耦请求的发送者和接受者，当有新的需求的时候更容易变化，让我们的代码更符合面向对象OO的设计。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">https://www.cnblogs.com/PatrickLiu/p/8109100.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%BA%8C%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F%EF%BC%88Memento%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

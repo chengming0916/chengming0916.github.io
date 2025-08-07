@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B9%9D%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%EF%BC%88Composite%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171027143433945-1645593536.jpg">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171027143412867-974161708.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.151Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.151Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171027143433945-1645593536.jpg">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B9%9D%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%EF%BC%88Composite%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B9%9D%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%EF%BC%88Composite%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B9%9D%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%EF%BC%88Composite%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B9%9D%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%EF%BC%88Composite%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a></p>
+<p>10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p>一、引言  </p>
+<p>      今天我们要讲【结构型】设计模式的第四个模式，该模式是【组合模式】，英文名称是：Composite Pattern。当我们谈到这个模式的时候，有一个物件和这个模式很像，也符合这个模式要表达的意思，那就是“俄罗斯套娃”。“俄罗斯套娃”就是大的瓷器娃娃里面装着一个小的瓷器娃娃，小的瓷器娃娃里面再装着更小的瓷器娃娃，直到最后一个不能再装更小的瓷器娃娃的那个瓷器娃娃为止（有点绕，下面我会配图，一看就明白）。在我们的操作系统中有文件夹的概念，文件夹可以包含文件夹，可以嵌套多层，最里面包含的是文件，这个概念和“俄罗斯套娃”很像。当然还有很多的例子，例如我们使用系统的时候，会使用到“系统菜单”，这个东西是树形结构。这些例子包含的这些东西或者说是对象，可以分为两类，一类是：容器对象，可以包含其他的子对象；另一类是：叶子对象，这类对象是不能在包含其他对象的对象了。在软件设计中，我们该怎么处理这种情况呢？是每类对象分别对待，还是提供一个统一的操作方式呢。组合模式给我们提供了一种解决此类问题的一个途径，接下来我们就好好的介绍一下“组合模式”吧。</p>
+<p>       <img src="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171027143433945-1645593536.jpg">  </p>
+<p><strong>二、组合模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>     客户代码过多地依赖于对象容器（对象容器是对象的容器，细细评味）复杂的内部实现结构，对象容器内部实现结构（而非抽象接口）的变化将引起客户代码的频繁变化，带来了代码的维护性、扩展性等方面的弊端。如何将“客户代码与复杂的对象容器结构”解耦？如何让对象容器自己来实现自身的复杂结构，从而使得客户代码就像处理简单对象一样来处理复杂的对象容器？  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>     将对象组合成树形结构以表示“部分-整体”的层次结构。Composite使得用户对单个对象和组合对象的使用具有一致性。　　       ——  《设计模式》GoF  </p>
+<p><strong>2.3、</strong>结构图（Structure）****  </p>
+<p>      <img src="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171027143412867-974161708.png">  </p>
+<p><strong>2.4、模式的组成</strong><br>    <br>    组合模式中涉及到三个角色：  </p>
+<p>    <strong>（1）、抽象构件角色（Component）</strong>：这是一个抽象角色，它给参加组合的对象定义出了公共的接口及默认行为，可以用来管理所有的子对象（在透明式的组合模式是这样的）。在安全式的组合模式里，构件角色并不定义出管理子对象的方法，这一定义由树枝结构对象给出。  </p>
+<p>    <strong>（2）、树叶构件角色（Leaf）</strong>：树叶对象是没有下级子对象的对象，定义出参加组合的原始对象的行为。（原始对象的行为可以理解为没有容器对象管理子对象的方法，或者 【原始对象行为】+【管理子对象的行为（Add，Remove等）】&#x3D;面对客户代码的接口行为集合）  </p>
+<p>    <strong>（3）、树枝构件角色（Composite）</strong>：代表参加组合的有下级子对象的对象，树枝对象给出所有管理子对象的方法实现，如Add、Remove等。  </p>
+<p>   组合模式实现的最关键的地方是——简单对象和复合对象必须实现相同的接口。这就是组合模式能够将组合对象和简单对象进行一致处理的原因。  </p>
+<p><strong>2.5、组合模式的具体代码实现</strong>  </p>
+<p>        组合模式有两种实现方式，一种是：透明式的组合模式，另外一种是：安全式的组合模式。在这里我就详细说一下何为“透明式”，何为“安全式”。所谓透明式是指“抽象构件角色”定义的接口行为集合包含两个部分，一部分是叶子对象本身所包含的行为（比如Operation），另外一部分是容器对象本身所包含的管理子对象的行为(Add,Remove)。这个抽象构件必须同时包含这两类对象所有的行为，客户端代码才会透明的使用，无论调用容器对象还是叶子对象，接口方法都是一样的，这就是透明，针对客户端代码的透明，但是也有他自己的问题，叶子对象不会包含自己的子对象，为什么要有Add,Remove等类似方法呢，调用叶子对象这样的方法可能（注意：我这里说的是可能，因为有些人会把这些方法实现为空，不做任何动作，当然也不会有异常抛出了，不要抬杠）会抛出异常，这样就不安全了，然后人们就提出了“安全式的组合模式”。所谓安全式是指“抽象构件角色”只定义叶子对象的方法，确切的说这个抽象构件只定义两类对象共有的行为，然后容器对象的方法定义在“树枝构件角色”上，这样叶子对象有叶子对象的方法，容器对象有容器对象的方法，这样责任很明确，当然调用肯定不会抛出异常了。大家可以根据自己的情况自行选择是实现为“透视式”还是“安全式”的，以下我们会针对这两种情况都有实现，具体实现如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 1 namespace 透明式的组合模式的实现 2 {<br> 3     &#x2F;&#x2F;&#x2F; <summary><br> 4     &#x2F;&#x2F;&#x2F; 该抽象类就是文件夹抽象接口的定义，该类型就相当于是抽象构件Component类型 5     &#x2F;&#x2F;&#x2F; </summary><br> 6     public abstract class Folder 7     {<br> 8         &#x2F;&#x2F;增加文件夹或文件<br> 9         public abstract void Add(Folder folder);<br>10<br>11         &#x2F;&#x2F;删除文件夹或者文件<br>12         public abstract void Remove(Folder folder);<br>13<br>14         &#x2F;&#x2F;打开文件或者文件夹–该操作相当于Component类型的Operation方法<br>15         public abstract void Open();<br>16 }<br>17<br>18     &#x2F;&#x2F;&#x2F; <summary><br>19     &#x2F;&#x2F;&#x2F; 该Word文档类就是叶子构件的定义，该类型就相当于是Leaf类型，不能在包含子对象<br>20     &#x2F;&#x2F;&#x2F; </summary><br>21     public sealed class Word : Folder<br>22 {<br>23         &#x2F;&#x2F;增加文件夹或文件<br>24         public override void Add(Folder folder)<br>25 {<br>26             throw new Exception(“Word文档不具有该功能”);<br>27 }<br>28<br>29         &#x2F;&#x2F;删除文件夹或者文件<br>30         public override void Remove(Folder folder)<br>31 {<br>32             throw new Exception(“Word文档不具有该功能”);<br>33 }<br>34<br>35         &#x2F;&#x2F;打开文件–该操作相当于Component类型的Operation方法<br>36         public override void Open()<br>37 {<br>38             Console.WriteLine(“打开Word文档，开始进行编辑”);<br>39 }<br>40 }<br>41<br>42     &#x2F;&#x2F;&#x2F; <summary><br>43     &#x2F;&#x2F;&#x2F; SonFolder类型就是树枝构件，由于我们使用的是“透明式”，所以Add,Remove都是从Folder类型继承下来的<br>44     &#x2F;&#x2F;&#x2F; </summary><br>45     public class SonFolder : Folder<br>46 {<br>47         &#x2F;&#x2F;增加文件夹或文件<br>48         public override void Add(Folder folder)<br>49 {<br>50             Console.WriteLine(“文件或者文件夹已经增加成功”);<br>51 }<br>52<br>53         &#x2F;&#x2F;删除文件夹或者文件<br>54         public override void Remove(Folder folder)<br>55 {<br>56             Console.WriteLine(“文件或者文件夹已经删除成功”);<br>57 }<br>58<br>59         &#x2F;&#x2F;打开文件夹–该操作相当于Component类型的Operation方法<br>60         public override void Open()<br>61 {<br>62             Console.WriteLine(“已经打开当前文件夹”);<br>63 }<br>64 }<br>65<br>66     public class Program<br>67 {<br>68         static void Main()<br>69 {<br>70<br>71             Folder myword &#x3D; new Word();<br>72<br>73             myword.Open();&#x2F;&#x2F;打开文件，处理文件<br>74<br>75             myword.Add(new SonFolder());&#x2F;&#x2F;抛出异常<br>76             myword.Remove(new SonFolder());&#x2F;&#x2F;抛出异常<br>77<br>78<br>79             Folder myfolder &#x3D; new SonFolder();<br>80             myfolder.Open();&#x2F;&#x2F;打开文件夹<br>81<br>82             myfolder.Add(new SonFolder());&#x2F;&#x2F;成功增加文件或者文件夹<br>83             myfolder.Remove(new SonFolder());&#x2F;&#x2F;成功删除文件或者文件夹<br>84<br>85 Console.Read();<br>86 }<br>87 }<br>88 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>   <strong>以上代码就是“透明式的组合模式”实现，以下代码就是“安全式的组合模式”实现：</strong>  </p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 1 namespace 安全式的组合模式的实现 2 {<br> 3     &#x2F;&#x2F;&#x2F; <summary><br> 4     &#x2F;&#x2F;&#x2F; 该抽象类就是文件夹抽象接口的定义，该类型就相当于是抽象构件Component类型 5     &#x2F;&#x2F;&#x2F; </summary><br> 6     public abstract class Folder &#x2F;&#x2F;该类型少了容器对象管理子对象的方法的定义，换了地方，在树枝构件也就是SonFolder类型<br> 7     {<br> 8         &#x2F;&#x2F;打开文件或者文件夹–该操作相当于Component类型的Operation方法<br> 9         public abstract void Open();<br>10 }<br>11<br>12     &#x2F;&#x2F;&#x2F; <summary><br>13     &#x2F;&#x2F;&#x2F; 该Word文档类就是叶子构件的定义，该类型就相当于是Leaf类型，不能在包含子对象<br>14     &#x2F;&#x2F;&#x2F; </summary><br>15     public sealed class Word : Folder  &#x2F;&#x2F;这类型现在很干净<br>16 {<br>17         &#x2F;&#x2F;打开文件–该操作相当于Component类型的Operation方法<br>18         public override void Open()<br>19 {<br>20             Console.WriteLine(“打开Word文档，开始进行编辑”);<br>21 }<br>22 }<br>23<br>24     &#x2F;&#x2F;&#x2F; <summary><br>25     &#x2F;&#x2F;&#x2F; SonFolder类型就是树枝构件，现在由于我们使用的是“安全式”，所以Add,Remove都是从此处开始定义的<br>26     &#x2F;&#x2F;&#x2F; </summary><br>27     public abstract class SonFolder : Folder &#x2F;&#x2F;这里可以是抽象接口，可以自己根据自己的情况而定<br>28 {<br>29         &#x2F;&#x2F;增加文件夹或文件<br>30         public abstract void Add(Folder folder);<br>31<br>32         &#x2F;&#x2F;删除文件夹或者文件<br>33         public abstract void Remove(Folder folder);<br>34<br>35         &#x2F;&#x2F;打开文件夹–该操作相当于Component类型的Operation方法<br>36         public override void Open()<br>37 {<br>38             Console.WriteLine(“已经打开当前文件夹”);<br>39 }<br>40 }<br>41<br>42     &#x2F;&#x2F;&#x2F; <summary><br>43     &#x2F;&#x2F;&#x2F; NextFolder类型就是树枝构件的实现类<br>44     &#x2F;&#x2F;&#x2F; </summary><br>45     public sealed class NextFolder : SonFolder<br>46 {<br>47         &#x2F;&#x2F;增加文件夹或文件<br>48         public override void Add(Folder folder)<br>49 {<br>50             Console.WriteLine(“文件或者文件夹已经增加成功”);<br>51 }<br>52<br>53         &#x2F;&#x2F;删除文件夹或者文件<br>54         public override void Remove(Folder folder)<br>55 {<br>56             Console.WriteLine(“文件或者文件夹已经删除成功”);<br>57 }<br>58<br>59         &#x2F;&#x2F;打开文件夹–该操作相当于Component类型的Operation方法<br>60         public override void Open()<br>61 {<br>62             Console.WriteLine(“已经打开当前文件夹”);<br>63 }<br>64 }<br>65<br>66     public class Program<br>67 {<br>68         static void Main()<br>69 {<br>70             &#x2F;&#x2F;这是安全的组合模式<br>71             Folder myword &#x3D; new Word();<br>72<br>73             myword.Open();&#x2F;&#x2F;打开文件，处理文件<br>74<br>75<br>76             Folder myfolder &#x3D; new NextFolder();<br>77             myfolder.Open();&#x2F;&#x2F;打开文件夹<br>78<br>79             &#x2F;&#x2F;此处要是用增加和删除功能，需要转型的操作，否则不能使用<br>80             ((SonFolder)myfolder).Add(new NextFolder());&#x2F;&#x2F;成功增加文件或者文件夹<br>81             ((SonFolder)myfolder).Remove(new NextFolder());&#x2F;&#x2F;成功删除文件或者文件夹<br>82<br>83 Console.Read();<br>84 }<br>85 }<br>86 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>   这个模式不是很难，仔细体会实现关键点，最重要理解模式的意图，结合结构图，大家好好体会一下。  </p>
+<p><strong>三、组合模式的实现要点：</strong><br>    <br>    1、Composite模式采用树形结构来实现普遍存在的对象容器，从而将“一对多”的关系转化为“一对一”的关系，使得客户代码可以一致地处理对象和对象容器，无需关心处理的是单个的对象，还是组合的对象容器。  </p>
+<p>    2、将“客户代码与复杂的对象容器结构”解耦是Composite模式的核心思想，解耦之后，客户代码将与纯粹的抽象接口——而非对象容器的复杂内部实现结构——发生依赖关系，从而更能“应对变化”。  </p>
+<p>    3、Composite模式中，是将“Add和Remove等和对象容器相关的方法”定义在“表示抽象对象的Component类”中，还是将其定义在“表示对象容器的Composite类”中，是一个关乎“透明性”和“安全性”的两难问题，需要仔细权衡。这里有可能违背面向对象的“单一职责原则”，但是对于这种特殊结构，这又是必须付出的代价。ASP.Net控件的实现在这方面为我们提供了一个很好的示范。  </p>
+<p>    4、Composite模式在具体实现中，可以让父对象中的子对象反向追朔；如果父对象有频繁的遍历需求，可使用缓存技巧来改善效率。  </p>
+<p>    <strong>3.1】、组合模式的优点：</strong>  </p>
+<p>          （1）、组合模式使得客户端代码可以一致地处理对象和对象容器，无需关系处理的单个对象，还是组合的对象容器。  </p>
+<p>          （2）、将”客户代码与复杂的对象容器结构“解耦。  </p>
+<p>          （3）、可以更容易地往组合对象中加入新的构件。  </p>
+<p>     <strong>3.2】、组合模式的缺点：</strong>  </p>
+<p>          （1）、使得设计更加复杂。客户端需要花更多时间理清类之间的层次关系。（这个是几乎所有设计模式所面临的问题）。  </p>
+<p>      <strong>3.3】、在以下情况下应该考虑使用组合模式：</strong>  </p>
+<p>           （1）、需要表示一个对象整体或部分的层次结构。  </p>
+<p>           （2）、希望用户忽略组合对象与单个对象的不同，用户将统一地使用组合结构中的所有对象。  </p>
+<p><strong>四、.NET 中组合模式的实现</strong>  </p>
+<p>       其实组合模式在FCL里面运用还是很多的，不知道大家是不是有所感觉，这个模式大多数是运用在控件上或者是和界面操作、展示相关的操作上。这个模式在.NET 中最典型的应用就是应用与WinForms和Web的开发中，在.NET类库中，都为这两个平台提供了很多现有的控件，然而System.Windows.Forms.dll中System.Windows.Forms.Control类就应用了组合模式，因为控件包括Label、TextBox等这样的简单控件，这些控件可以理解为叶子对象，同时也包括GroupBox、DataGrid这样复合的控件或者叫容器控件，每个控件都需要调用OnPaint方法来进行控件显示，为了表示这种对象之间整体与部分的层次结构，微软把Control类的实现应用了组合模式（确切地说应用了透明式的组合模式）。  </p>
+<p><strong>五、总结</strong>  </p>
+<p>      我写文章，怎么也要3个小时，也要读上好几遍，防止有错字错句的出现。我也想把握的理解更好融进我写的文章中，但是能力有限，欢迎大家来批评指正，我也会从中收益。今天的文章就写到这里了，模式这个东西就像“独孤九剑”，不要死记硬背，要多看看别人的，多写写代码，要理解场景和意图，多写多练吧，你就有可能成为一代大侠。模式学无止境，我也是刚刚开始。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">https://www.cnblogs.com/PatrickLiu/p/7743118.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%80%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Visitor%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%89%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%EF%BC%88AbstractFactory%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

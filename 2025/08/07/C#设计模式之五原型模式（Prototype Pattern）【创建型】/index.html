@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%94%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Prototype%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171009140420418-187843483.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171009140420418-187843483.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%94%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Prototype%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%94%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Prototype%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%94%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Prototype%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%94%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Prototype%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a></p>
+<p>6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>      在开始今天的文章之前先说明一点，欢迎大家来指正。很多人说原型设计模式会节省机器内存，他们说是拷贝出来的对象，这些对象其实都是原型的复制，不会使用内存。我认为这是不对的，因为拷贝出来的每一个对象都是实际存在的，每个对象都有自己的独立内存地址，都会被GC回收。如果就浅拷贝来说，可能会公用一些字段，深拷贝是不会的，所以说原型设计模式会提高内存使用率，不一定。具体还要看当时的设计，如果拷贝出来的对象缓存了，每次使用的是缓存的拷贝对象，那就另当别论了，再说该模式本身解决的不是内存使用率的问题。<br>     现在说说原型模式的要解决的问题吧，在软件系统中，当创建一个类的实例的过程很昂贵或很复杂，并且我们需要创建多个这样类的实例时，如果我们用new操作符去创建这样的类实例，这就会增加创建类的复杂度和创建过程与客户代码复杂的耦合度。如果采用工厂模式来创建这样的实例对象的话，随着产品类的不断增加，导致子类的数量不断增多，也导致了相应工厂类的增加，维护的代码维度增加了，因为有产品和工厂两个维度了，反而增加了系统复杂程度，所以在这里使用工厂模式来封装类创建过程并不合适。由于每个类实例都是相同的，这个相同指的是类型相同，但是每个实例的状态参数会有不同，如果状态数值也相同就没意义了，有一个这样的对象就可以了。当我们需要多个相同的类实例时，可以通过对原来对象拷贝一份来完成创建，这个思路正是原型模式的实现方式。  </p>
+<p><strong>二、原型模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>        在软件系统中，经常面临着“某些结构复杂的对象”的创建工作；由于需求的变化，这些对象经常面临着剧烈的变化，但是它们却拥有比较稳定一致的接口。如何应对这种变化？如何向“客户程序（使用这些对象的程序）”隔离出“这些易变对象”，从而使得“依赖这些易变对象的客户程序”不随着需求改变而改变？  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>      使用原型实例指定创建对象的种类，然后通过拷贝这些原型来创建新的对象。                 –《设计模式》Gof  </p>
+<p><strong>2.3、</strong>结构图（Structure）****  </p>
+<p>      <img src="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171009140420418-187843483.png">  </p>
+<p><strong>2.4、模式的组成</strong>  </p>
+<p>      可以看出，在原型模式的结构图有以下角色：  </p>
+<p>     <strong>（1）、原型类（Prototype）</strong>：原型类，声明一个Clone自身的接口；  </p>
+<p>　  <strong>（2）、具体原型类（ConcretePrototype）</strong>：实现一个Clone自身的操作。  </p>
+<p>　   在原型模式中，Prototype通常提供一个包含Clone方法的接口，具体的原型ConcretePrototype使用Clone方法完成对象的创建。  </p>
+<p><strong>2.5 原型模式的具体实现</strong>  </p>
+<p>      《大话西游之大圣娶亲》这部电影，没看过的人不多吧，里面有这样一个场景。牛魔王使用无敌牛虱大战至尊宝，至尊宝的应对之策就是，从脑后把下一撮猴毛，吹了口仙气，无数猴子猴孙现身，来大战牛魔王的无敌牛虱。至尊宝的猴子猴孙就是该原型模式的最好体现。至尊宝创建自己的一个副本，不用还要重新孕育五百年，然后出世，再学艺，最后来和老牛大战，估计黄花菜都凉了。他有3根救命猴毛，轻轻一吹，想要多少个自己就有多少个，方便，快捷。  
+  </p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 1 &#x2F;&#x2F;&#x2F; <summary><br> 2 &#x2F;&#x2F;&#x2F; 原型设计模式，每个具体原型是一类对象的原始对象，通过每个原型对象克隆出来的对象也可以进行设置，在原型的基础之上丰富克隆出来的对象，所以要设计好抽象原型的接口 3 &#x2F;&#x2F;&#x2F; </summary><br> 4 namespace 设计模式之原型模式 5 {<br> 6     &#x2F;&#x2F;&#x2F; <summary><br> 7     &#x2F;&#x2F;&#x2F; 客户类 8     &#x2F;&#x2F;&#x2F; </summary><br> 9     class Customer<br>10 {<br>11         static void Main(string[] args)<br>12 {<br>13             Prototype xingZheSun &#x3D; new XingZheSunPrototype();<br>14             Prototype xingZheSun2 &#x3D; xingZheSun.Clone();<br>15             Prototype xingZheSun3 &#x3D; xingZheSun.Clone();<br>16<br>17             Prototype sunXingZhe &#x3D; new SunXingZhePrototype();<br>18             Prototype sunXingZhe2 &#x3D; sunXingZhe.Clone();<br>19             Prototype sunXingZhe3 &#x3D; sunXingZhe.Clone();<br>20             Prototype sunXingZhe4 &#x3D; sunXingZhe.Clone();<br>21             Prototype sunXingZhe5 &#x3D; sunXingZhe.Clone();<br>22<br>23             &#x2F;&#x2F;1号孙行者打妖怪<br>24 sunXingZhe.Fight();<br>25             &#x2F;&#x2F;2号孙行者去化缘<br>26 sunXingZhe2.BegAlms();<br>27<br>28             &#x2F;&#x2F;战斗和化缘也可以分类，比如化缘，可以分：水果类化缘，饭食类化缘；战斗可以分为：天界宠物下界成妖的战斗，自然修炼成妖的战斗，大家可以自己去想吧，原型模式还是很有用的<br>29<br>30 Console.Read();<br>31 }<br>32 }<br>33<br>34     &#x2F;&#x2F;&#x2F; <summary><br>35     &#x2F;&#x2F;&#x2F; 抽象原型，定义了原型本身所具有特征和动作，该类型就是至尊宝<br>36     &#x2F;&#x2F;&#x2F; </summary><br>37     public abstract class Prototype<br>38 {<br>39         &#x2F;&#x2F; 战斗–保护师傅<br>40         public abstract void Fight();<br>41         &#x2F;&#x2F; 化缘–不要饿着师傅<br>42         public abstract void BegAlms();<br>43<br>44         &#x2F;&#x2F; 吹口仙气–变化一个自己出来<br>45         public abstract Prototype Clone();<br>46 }<br>47<br>48     &#x2F;&#x2F;&#x2F; <summary><br>49     &#x2F;&#x2F;&#x2F; 具体原型，例如：行者孙，他只负责化斋饭食和与天界宠物下界的妖怪的战斗<br>50     &#x2F;&#x2F;&#x2F; </summary><br>51     public sealed class XingZheSunPrototype:Prototype<br>52 {<br>53         &#x2F;&#x2F; 战斗–保护师傅–与自然修炼成妖的战斗<br>54         public override void Fight()<br>55 {<br>56             Console.WriteLine(“腾云驾雾，各种武艺”);<br>57 }<br>58         &#x2F;&#x2F; 化缘–不要饿着师傅–饭食类<br>59         public override void BegAlms()<br>60 {<br>61             Console.WriteLine(“什么都能要来”);<br>62 }<br>63<br>64         &#x2F;&#x2F; 吹口仙气–变化一个自己出来<br>65         public override Prototype Clone()<br>66 {<br>67             return (XingZheSunPrototype)this.MemberwiseClone();<br>68 }<br>69 }<br>70<br>71     &#x2F;&#x2F;&#x2F; <summary><br>72     &#x2F;&#x2F;&#x2F; 具体原型，例如：孙行者，他只负责与自然界修炼成妖的战斗和化斋水果<br>73     &#x2F;&#x2F;&#x2F; </summary><br>74     public sealed class SunXingZhePrototype : Prototype<br>75 {<br>76         &#x2F;&#x2F; 战斗–保护师傅-与天界宠物战斗<br>77         public override void Fight()<br>78 {<br>79             Console.WriteLine(“腾云驾雾，各种武艺”);<br>80 }<br>81         &#x2F;&#x2F; 化缘–不要饿着师傅—水果类<br>82         public override void BegAlms()<br>83 {<br>84             Console.WriteLine(“什么都能要来”);<br>85 }<br>86<br>87         &#x2F;&#x2F; 吹口仙气–变化一个自己出来<br>88         public override Prototype Clone()<br>89 {<br>90             return (SunXingZhePrototype)this.MemberwiseClone();<br>91 }<br>92 }<br>93 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>   上面代码中都有详细的注释代码，这里就不过多解释。  </p>
+<p><strong>三、原型模式的实现要点：</strong> <br> <br>       Prototype模式同样用于隔离类对象的使用者和具体类型（易变类）之间的耦合关系，它同样要求这些“易变类”拥有“稳定的接口”。<br>　　Prototype模式对于“如何创建易变类的实体对象”（创建型模式除了Singleton模式以外，都是用于解决创建易变类的实体对象的问题的）采用“原型克隆”的方法来做，它使得我们可以非常灵活地动态创建“拥有某些稳定接口”的新对象——所需工作仅仅是注册一个新类的对象（即原型），然后在任何需要的地方不断地Clone。<br>　　Prototype模式中的Clone方法可以利用.NET中的Object类的MemberwiseClone()方法或者序列化来实现深拷贝。<br>    <strong>3.1】、原型模式的优点：</strong><br>        （1）、原型模式向客户隐藏了创建新实例的复杂性<br>        （2）、原型模式允许动态增加或较少产品类。<br>        （3）、原型模式简化了实例的创建结构，工厂方法模式需要有一个与产品类等级结构相同的等级结构，而原型模式不需要这样。<br>        （4）、产品类不需要事先确定产品的等级结构，因为原型模式适用于任何的等级结构<br>   <strong>3.2】、原型模式的缺点：</strong><br>       （1）、每个类必须配备一个克隆方法<br>       （2）、配备克隆方法需要对类的功能进行通盘考虑，这对于全新的类不是很难，但对于已有的类不一定很容易，特别当一个类引用不支持串行化的间接对象，或者引用含有循环结构的时候。  </p>
+<p>   <strong>3.3】、原型模式使用的场景：</strong><br>          （1）、资源优化场景  </p>
+<p>                      类初始化需要消化非常多的资源，这个资源包括数据、硬件资源等。  </p>
+<p>         （2）、性能和安全要求的场景  </p>
+<p>                    通过new产生一个对象需要非常繁琐的数据准备或访问权限，则可以使用原型模式。  </p>
+<p>         （3）、一个对象多个修改者的场景  </p>
+<p>                    一个对象需要提供给其他对象访问，而且各个调用者可能都需要修改其值时，可以考虑使用原型模式拷贝多个对象供调用者使用。  </p>
+<p>           在实际项目中，原型模式很少单独出现，一般是和工厂方法模式一起出现，通过clone的方法创建一个对象，然后由工厂方法提供给调用者。  </p>
+<p>**四、.NET 中原型模式的实现<br>**<br>      在.NET中，微软已经为我们提供了原型模式的接口实现，该接口就是ICloneable，其实这个接口就是抽象原型，提供克隆方法，相当于与上面代码中Prototype抽象类，其中的Clone()方法来实现原型模式，如果我们想我们自定义的类具有克隆的功能，首先定义类实现ICloneable接口的Clone方法。其实在.NET中实现了ICloneable接口的类有很多，如下图所示（图中只截取了部分，可以用ILSpy反编译工具进行查看）：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>namespace System<br>{<br>    [ComVisible(true)]<br>    public interface ICloneable<br>    {<br>        object Clone();<br>    }<br>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>在Net的FCL里面实现ICloneable接口的类如图，自己可以去查看每个类自己的实现，在此就不贴出来了。</p>
+<p>**五、总结<br>**<br>       到今天为止，所有的创建型设计模式就写完了。学习设计模式应该是有一个循序渐进的过程，当我们写代码的时候不要一上来就用什么设计模式，而是通过重构来使用设计模式。创建型的设计模式写完了，我们就总结一下。Singleton单件模式解决的是实体对象个数的问题。除了Singleton之外，其他创建型模式解决的都是new所带来的耦合关系。　Factory Method，Abstract Factory，Builder都需要一个额外的工厂类来负责实例化“易变对象”，而Prototype则是通过原型（一个特殊的工厂类）来克隆“易变对象”。（其实原型就是一个特殊的工厂类，它只是把工厂和实体对象耦合在一起了）。如果遇到“易变类”，起初的设计通常从Factory Method开始，当遇到更多的复杂变化时，再考虑重构为其他三种工厂模式（Abstract Factory，Builder，Prototype）。<br>　一般来说，如果可以使用Factory Method，那么一定可以使用Prototype。但是Prototype的使用情况一般是在类比较容易克隆的条件之上，如果是每个类实现比较简单，都可以只用实现MemberwiseClone，没有引用类型的深拷贝，那么就更适合了。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">https://www.cnblogs.com/PatrickLiu/p/7640873.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%85%AB%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F%EF%BC%88Decorator%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

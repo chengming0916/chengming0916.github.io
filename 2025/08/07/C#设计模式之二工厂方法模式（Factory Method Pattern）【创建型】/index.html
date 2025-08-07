@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09 3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21 4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09 3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21 4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201801/1048776-20180114105746144-1903407789.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201801/1048776-20180114105746144-1903407789.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory%20Method%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a></p>
+<p>3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>       在上一篇文章中我们讲解了过渡的一种模式叫做【简单工厂】，也有叫【静态工厂】的，通过对简单工厂模式得了解，我们也发现了它的缺点，就是随着需求的变化我们要不停地修改工厂里面的方法的代码，需求变化越多，里面的If–Else–也越多，这样就会造成简单工厂的实现逻辑过于复杂。设计模式是遵循一定原则而得来的，比如，我们要怎么增加代码，怎么修改代码，不是想怎么来就怎么来的，其中一个原则就是OCP原则，中文是【开放关闭原则】，对增加代码开发，对修改代码关闭，所以我们就不能总是这样修改简单工厂里面的方法。本章介绍的工厂方法模式可以解决简单工厂模式中存在的这个问题，下面就具体看看工厂方法模式是如何解决该问题的。</p>
+<p><strong>二、工厂方法模式的胡介绍</strong>  </p>
+<p>      <strong>2.1、动机（Motivate）<br>**<br>           在软件系统的构建过程中，经常面临着“某个对象”的创建工作：由于需求的变化，这个对象（的具体实现）经常面临着剧烈的变化，但是它却拥有</strong>比较稳定的接口**。</p>
+<p>　　    如何应对这种变化？如何提供一种“封装机制”来隔离出“这个易变对象”的变化，从而保持系统中“其他依赖对象的对象”不随着需求改变而改变？  </p>
+<p>      <strong>2.2、意图（Intent）</strong>          定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method使得一个类的实例化延迟到子类。                                        –《设计模式》GoF      **2.3、结构图（Structure）  </p>
+<p>           <img src="http://images2017.cnblogs.com/blog/1048776/201801/1048776-20180114105746144-1903407789.png">  </p>
+<p>     2.4、模式的组成  </p>
+<p>          可以看出，在工厂方法模式的结构图有以下角色：  </p>
+<p>          （1）、抽象工厂角色（Creator）:** 充当抽象工厂角色，定义工厂类所具有的基本的操作，任何具体工厂都必须继承该抽象类。  </p>
+<p>          <strong>（2）、具体工厂角色（ConcreteCreator）</strong>：充当具体工厂角色，该类必须继承抽象工厂角色，实现抽象工厂定义的方法，用来创建具体产品。  </p>
+<p>          <strong>（3）、抽象产品角色（Product）：</strong>充当抽象产品角色，定义了产品类型所有具有的基本操作，具体产品必须继承该抽象类。  </p>
+<p>          <strong>（4）、具体产品角色（ConcreteProduct）</strong>：充当具体产品角色，实现抽象产品类对定义的抽象方法，由具体工厂类创建，它们之间有一一对应的关系。  </p>
+<p>     <strong>2.5、工厂方法模式的代码实现</strong>  </p>
+<p>         【简单工厂模式】的问题是：如果有新的需求就需要修改工厂类里面创建产品对象实例的那个方法的实现代码，在面向对象设计一个原则就是哪里有变化，我就封装哪里。还有另外两个大的原则，其一是：面向抽象编程，细节和高层实现都要依赖抽象，第二个原则是：多组合，少继承。这三个原则是最根本的原则，学习设计模式必须以这三个原则为基点，否则都是枉然。根据这三大原则又衍生出来6个具体的原则，分别是<a target="_blank" rel="noopener" href="http://www.uml.org.cn/sjms/201211023.asp">【单一职责原则】，【里氏替换原则】，【依赖倒置原则】，【接口隔离原则】、【迪米特法则】和【开闭原则】</a>，既然工厂类有变化，我们就封装它，面向抽象编程，我们先抽象出一个工厂基类，然后，每个需求就实现一个具体的工厂类，这样我们就符合了【开闭原则OCP】，让一个工厂生产一款产品，并一一对应。我们把具体产品的创建推迟到子类中，此时工厂类（这类是基类了）不再负责所有产品的创建，而只是给出具体工厂必须实现的接口，这样工厂方法模式就可以允许系统不修改工厂类逻辑的情况下来添加新产品，这样也就克服了简单工厂模式中缺点。下面就是工厂方法模式的实现代码：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 2 namespace 设计模式之工厂方法模式 3 {<br> 4     &#x2F;&#x2F;&#x2F; <summary><br> 5     &#x2F;&#x2F;&#x2F; 汽车抽象类 6     &#x2F;&#x2F;&#x2F; </summary><br> 7     public abstract class Car 8     {<br> 9         &#x2F;&#x2F; 开始行驶<br>10         public abstract void Go();<br>11 }<br>12<br>13     &#x2F;&#x2F;&#x2F; <summary><br>14     &#x2F;&#x2F;&#x2F; 红旗汽车<br>15     &#x2F;&#x2F;&#x2F; </summary><br>16     public class HongQiCar : Car<br>17 {<br>18         public override void Go()<br>19 {<br>20             Console.WriteLine(“红旗汽车开始行驶了！”);<br>21 }<br>22 }<br>23<br>24     &#x2F;&#x2F;&#x2F; <summary><br>25     &#x2F;&#x2F;&#x2F; 奥迪汽车<br>26     &#x2F;&#x2F;&#x2F; </summary><br>27     public class AoDiCar : Car<br>28 {<br>29         public override void Go()<br>30 {<br>31             Console.WriteLine(“奥迪汽车开始行驶了”);<br>32 }<br>33 }<br>34<br>35     &#x2F;&#x2F;&#x2F; <summary><br>36     &#x2F;&#x2F;&#x2F; 抽象工厂类<br>37     &#x2F;&#x2F;&#x2F; </summary><br>38     public abstract class Factory<br>39 {<br>40         &#x2F;&#x2F; 工厂方法<br>41         public abstract Car CreateCar();<br>42 }<br>43<br>44     &#x2F;&#x2F;&#x2F; <summary><br>45     &#x2F;&#x2F;&#x2F; 红旗汽车工厂类<br>46     &#x2F;&#x2F;&#x2F; </summary><br>47     public class HongQiCarFactory:Factory<br>48 {<br>49         &#x2F;&#x2F;&#x2F; <summary><br>50         &#x2F;&#x2F;&#x2F; 负责生产红旗汽车<br>51         &#x2F;&#x2F;&#x2F; </summary><br>52         &#x2F;&#x2F;&#x2F; <returns></returns><br>53         public override Car CreateCar()<br>54 {<br>55             return new HongQiCar();<br>56 }<br>57 }<br>58<br>59     &#x2F;&#x2F;&#x2F; <summary><br>60     &#x2F;&#x2F;&#x2F; 奥迪汽车工厂类<br>61     &#x2F;&#x2F;&#x2F; </summary><br>62     public class AoDiCarFactory:Factory<br>63 {<br>64         &#x2F;&#x2F;&#x2F; <summary><br>65         &#x2F;&#x2F;&#x2F; 负责创建奥迪汽车<br>66         &#x2F;&#x2F;&#x2F; </summary><br>67         &#x2F;&#x2F;&#x2F; <returns></returns><br>68         public override Car CreateCar()<br>69 {<br>70             return new AoDiCar();<br>71 }<br>72 }<br>73<br>74     &#x2F;&#x2F;&#x2F; <summary><br>75     &#x2F;&#x2F;&#x2F; 客户端调用<br>76     &#x2F;&#x2F;&#x2F; </summary><br>77     class Client<br>78 {<br>79         static void Main(string[] args)<br>80 {<br>81             &#x2F;&#x2F; 初始化创建汽车的两个工厂<br>82             Factory hongQiCarFactory &#x3D; new HongQiCarFactory();<br>83             Factory aoDiCarFactory &#x3D; new AoDiCarFactory();<br>84<br>85             &#x2F;&#x2F; 生产一辆红旗汽车<br>86             Car hongQi &#x3D; hongQiCarFactory.CreateCar();<br>87 hongQi.Go();<br>88<br>89             &#x2F;&#x2F;生产一辆奥迪汽车<br>90             Car aoDi &#x3D; aoDiCarFactory.CreateCar();<br>91 aoDi.Go();<br>92<br>93 Console.Read();<br>94 }<br>95 }<br>96 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>    在【工厂方法模式】中，我们同样也把汽车的类抽象出来一个抽象的基类，这里正好符合了【面向抽象编程】，客户端在使用的时候不会依赖具体的什么汽车。使用工厂方法实现的系统，如果系统需要添加新产品时，我们可以利用多态性来完成系统的扩展，对于抽象工厂类和具体工厂中的代码都不需要做任何改动。例如，我们想增加一辆奔驰车，我们只需从Car抽象类下继承一个BenChiCar类，同时在从Factory抽象基类下继承一个“奔驰”的工厂类BenChinaCarFactory就可以了，这样扩展符合OCP的原则。具体代码为：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 1     &#x2F;&#x2F;&#x2F; <summary><br> 2     &#x2F;&#x2F;&#x2F; 奔驰车 3     &#x2F;&#x2F;&#x2F; </summary><br> 4     public class BenChiCar : Car 5     {<br> 6         &#x2F;&#x2F;&#x2F; <summary><br> 7         &#x2F;&#x2F;&#x2F; 重写抽象类中的方法 8         &#x2F;&#x2F;&#x2F; </summary><br> 9         public override void Go()<br>10 {<br>11             Console.WriteLine(“奔驰车开始行驶了！”);<br>12 }<br>13 }<br>14<br>15     &#x2F;&#x2F;&#x2F; <summary><br>16     &#x2F;&#x2F;&#x2F; 奔驰车的工厂类<br>17     &#x2F;&#x2F;&#x2F; </summary><br>18     public class BenChiCarFactory : Factory<br>19 {<br>20         &#x2F;&#x2F;&#x2F; <summary><br>21         &#x2F;&#x2F;&#x2F; 负责生产奔驰车<br>22         &#x2F;&#x2F;&#x2F; </summary><br>23         &#x2F;&#x2F;&#x2F; <returns></returns><br>24         public override Car CreateCar()<br>25 {<br>26             return new BenChiCar();<br>27 }<br>28 }<br>29<br>30     &#x2F;&#x2F;&#x2F; <summary><br>31     &#x2F;&#x2F;&#x2F; 客户端调用<br>32     &#x2F;&#x2F;&#x2F; </summary><br>33     class Client<br>34 {<br>35         static void Main(string[] args)<br>36 {<br>37<br>38             &#x2F;&#x2F; 如果客户又生产一辆奔驰车<br>39             &#x2F;&#x2F; 再另外初始化一个奔驰车的工厂<br>40             Factory benChiCarFactory &#x3D; new BenChiCarFactory();<br>41<br>42             &#x2F;&#x2F; 利用奔驰车的工厂生产奔驰车<br>43             Car benChi &#x3D; benChiCarFactory.CreateCar();<br>44 benChi.Go();<br>45<br>46 Console.Read();<br>47 }<br>48 }<br>49     </p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p><strong>三、</strong>Factory Method模式的几个要点****</p>
+<p>　　Factory Method模式主要用于隔离类对象的使用者和具体类型之间的耦合关系。面对一个经常变化的具体类型，紧耦合关系会导致软件的脆弱。</p>
+<p>　　Factory Method模式通过面向对象的手法，将所要创建的具体对象工作延迟到子类，从而实现一种扩展（而非更改）的策略，较好地解决了这种紧耦合关系。</p>
+<p>      <strong>Factory Method模式</strong>解决“<strong>单个对象</strong>”的需求变化；</p>
+<p>      <strong>AbstractFactory模式</strong>解决“<strong>系列对象</strong>”的需求变化；</p>
+<p>      <strong>Builder模式</strong>解决“<strong>对象部分</strong>”的需求变化；  </p>
+<p>        <strong>3.1】、工厂方法模式的优点：</strong>  </p>
+<p>           （1）、 在工厂方法中，用户只需要知道所要产品的具体工厂，无须关系具体的创建过程，甚至不需要具体产品类的类名。  </p>
+<p>           （2）、在系统增加新的产品时，我们只需要添加一个具体产品类和对应的实现工厂，无需对原工厂进行任何修改，很好地符合了“开闭原则”。  </p>
+<p>        <strong>3.2】、工厂方法模式的缺点：</strong>  </p>
+<p>           （1）、每次增加一个产品时，都需要增加一个具体类和对象实现工厂，是的系统中类的个数成倍增加，在一定程度上增加了系统的复杂度，同时也增加了系统具体类的依赖。这并不是什么好事。  </p>
+<p>        <strong>3.3】、工厂方法模式使用的场景：</strong>  </p>
+<p>            （1）、一个类不知道它所需要的对象的类。在工厂方法模式中，我们不需要具体产品的类名，我们只需要知道创建它的具体工厂即可。  </p>
+<p>            （2）、一个类通过其子类来指定创建那个对象。在工厂方法模式中，对于抽象工厂类只需要提供一个创建产品的接口，而由其子类来确定具体要创建的对象，在程序运行时，子类对象将覆盖父类对象，从而使得系统更容易扩展。  </p>
+<p>            （3）、将创建对象的任务委托给多个工厂子类中的某一个，客户端在使用时可以无须关心是哪一个工厂子类创建产品子类，需要时再动态指定。  </p>
+<p><strong>四、.NET中实现了工厂方法的类</strong>  </p>
+<p>.NET 类库中也有很多实现了工厂方法的类，例如Asp.net中，处理程序对象是具体用来处理请求，当我们请求一个*.aspx的文件时，此时会映射到System.Web.UI.PageHandlerFactory类上进行处理，而对*.ashx的请求将映射到System.Web.UI.SimpleHandlerFactory类中（这两个类都是继承于IHttpHandlerFactory接口的），关于这点说明我们可以在“C:\Windows\Microsoft.NET\Framework\v4.0.30319\Config\Web.Config”文件中找到相关定义，具体定义如下：</p>
+<add path="\*.axd" verb="\*" type="System.Web.HttpNotFoundHandler" validate="True"/>
+ <add path="\*.aspx" verb="\*" type="System.Web.UI.PageHandlerFactory" validate="True"/>
+<add path="\*.ashx" verb="\*" type="System.Web.UI.SimpleHandlerFactory" validate="True"/>
+
+<p>配置文件截图了一部分，有时间大家可以自己去研究一下。<br>下面我们就具体看下工厂方法模式在Asp.net中是如何实现的，如果对一个Index.aspx页面发出请求时，将会调用PageHandlerFactory中GetHandler方法来创建一个Index.aspx对象，它们之间的类图关系如下：</p>
+<p><strong>五、总结</strong>  </p>
+<p>       每种模式都有自己的使用场合，切记，如果使用错误，还不如不用。工厂方法模式通过面向对象编程中的多态性来将对象的创建延迟到具体工厂中，从而解决了简单工厂模式中存在的问题，也很好地符合了开放封闭原则（即对扩展开发，对修改封闭）。</p>
+<p>学习设计模式我们一定要谨记设计模式的几大原则，否则是徒劳无功的。就像学务工一样，我们要记心法。6大原则就像孤独求败的独孤九剑的剑诀，学会了，变化无穷。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">https://www.cnblogs.com/PatrickLiu/p/7567880.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%94%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Prototype%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88Chain%20of%20Responsibility%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="由于内容陈旧，已经写了新的文章代替这篇，请参考新的文章：  Window(窗体)的UI元素及行为：这篇文章主要讨论标准Window的 UI 元素和行为。  使用WindowChrome自定义Window Style：介绍使用 WindowChrome 自定义 Window 的原理及各种细节。  使用WindowChrome的问题：介绍如何处理使用WindowChrome自定义 Window 会遇到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E4%BD%BF%E7%94%A8WindowChrome%E8%87%AA%E5%AE%9A%E4%B9%89Window%20Style/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="由于内容陈旧，已经写了新的文章代替这篇，请参考新的文章：  Window(窗体)的UI元素及行为：这篇文章主要讨论标准Window的 UI 元素和行为。  使用WindowChrome自定义Window Style：介绍使用 WindowChrome 自定义 Window 的原理及各种细节。  使用WindowChrome的问题：介绍如何处理使用WindowChrome自定义 Window 会遇到">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908134528241-459542101.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154643179-964997365.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154654116-809601816.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154701679-1472738296.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908103142944-1682110124.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154739601-1800999977.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154745663-311519930.png">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154058179-203515782.gif">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154755522-511004026.png">
+<meta property="article:published_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908134528241-459542101.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E4%BD%BF%E7%94%A8WindowChrome%E8%87%AA%E5%AE%9A%E4%B9%89Window%20Style/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E4%BD%BF%E7%94%A8WindowChrome%E8%87%AA%E5%AE%9A%E4%B9%89Window%20Style/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E4%BD%BF%E7%94%A8WindowChrome%E8%87%AA%E5%AE%9A%E4%B9%89Window%20Style/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E4%BD%BF%E7%94%A8WindowChrome%E8%87%AA%E5%AE%9A%E4%B9%89Window%20Style/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>由于内容陈旧，已经写了新的文章代替这篇，请参考新的文章：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/uielements_of_window.html">Window(窗体)的UI元素及行为</a>：这篇文章主要讨论标准Window的 UI 元素和行为。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/custom_window_style_using_WindowChrome.html">使用WindowChrome自定义Window Style</a>：介绍使用 WindowChrome 自定义 Window 的原理及各种细节。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html">使用WindowChrome的问题</a>：介绍如何处理使用WindowChrome自定义 Window 会遇到的各种问题。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/custom_ribbonwindow_using_WindowChrome.html">使用WindowChrome自定义RibbonWindow</a>：提供了一个自定义的 RibbonWindow 以解决原生 RibbonWindow 的问题。</p>
+</li>
+</ul>
+<p>以下为原内容—————————————————————————–</p>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言#"></a>1. 前言<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#4051099097">#</a></h2><p>做了WPF开发多年，一直未曾自己实现一个自定义Window Style，无论是《WPF编程宝典》或是各种博客都建议使用<code>WindowStyle=&quot;None&quot;</code> 和 <code>AllowsTransparency=&quot;True&quot;</code>，于是想当然以为这样就可以了。最近来了兴致想自己实现一个，才知道<code>WindowStyle=&quot;None&quot;</code> 的方式根本不好用，原因有几点：</p>
+<ul>
+<li>如果Window没有阴影会很难看，但自己添加DropShadowEffect又十分影响性能。</li>
+<li>需要自定义弹出、关闭、最大化、最小化动画，而自己做肯定不如Windows自带动画高效。</li>
+<li>需要实现Resize功能。</li>
+<li>其它BUG。</li>
+</ul>
+<p>光是性能问题就足以放弃<code>WindowStyle=&quot;None&quot;</code> 的实现方式，幸好还有使用WindowChrome的实现方式，但一时之间也找不到理想的实现，连MSDN上的文档( <a target="_blank" rel="noopener" href="https://msdn.microsoft.com/en-us/library/system.windows.shell.windowchrome(v=vs.110).aspx">WindowChrome Class</a> )都太过时，.NET 4.5也没有SystemParameters2这个类，只好参考一些开源项目(如 <a target="_blank" rel="noopener" href="https://github.com/firstfloorsoftware/mui">Modern UI for WPF</a> )自己实现了。</p>
+<h2 id="2-Window基本功能"><a href="#2-Window基本功能" class="headerlink" title="2. Window基本功能#"></a>2. Window基本功能<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#3907215090">#</a></h2><p><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908134528241-459542101.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908134528241-459542101.png"></a></p>
+<p>Window的基本功能如上图所示。注意除了标准的“最小化”、“最大化&#x2F;还原”、”关闭”按钮外，Icon上单击还应该能打开窗体的系统菜单，双击则直接关闭窗体。</p>
+<p>我想实现类似Office 2016的Window效果：阴影、自定义窗体颜色。阴影、动画效果保留系统默认的就可以了，基本上会很耐看。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154643179-964997365.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154643179-964997365.png"></a></p>
+<p>大多数自定义Window都有圆角，但我并不喜欢，低DPI的情况下只有几个像素组成的圆角通常都不会很圆滑（如下图），所以保留直角。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154654116-809601816.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154654116-809601816.png"></a></p>
+<p>另外，激活、非激活状态下标题栏颜色变更：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154701679-1472738296.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154701679-1472738296.png"></a></p>
+<p>最终效果如下：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908103142944-1682110124.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170908103142944-1682110124.png"></a></p>
+<h2 id="3-实现"><a href="#3-实现" class="headerlink" title="3. 实现#"></a>3. 实现<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#3954556540">#</a></h2><h3 id="3-1-定义CustomWindow控件"><a href="#3-1-定义CustomWindow控件" class="headerlink" title="3.1 定义CustomWindow控件#"></a>3.1 定义CustomWindow控件<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#3637678628">#</a></h3><p>首先，为了方便以后的扩展，我定义了一个名为CustomWindow的模板化控件派生自Window。</p>
+<p>Copy</p>
+<p>&#96;public class CustomWindow : Window<br>{<br>    public CustomWindow()<br>    {<br>        DefaultStyleKey &#x3D; typeof(CustomWindow);<br>        CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, CloseWindow));<br>        CommandBindings.Add(new CommandBinding(SystemCommands.MaximizeWindowCommand, MaximizeWindow, CanResizeWindow));<br>        CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, MinimizeWindow, CanMinimizeWindow));<br>        CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, RestoreWindow, CanResizeWindow));<br>        CommandBindings.Add(new CommandBinding(SystemCommands.ShowSystemMenuCommand, ShowSystemMenu));<br>    }</p>
+<pre><code>protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+&#123;
+    base.OnMouseLeftButtonDown(e);
+    if (e.ButtonState == MouseButtonState.Pressed)
+        DragMove();
+&#125;
+
+protected override void OnContentRendered(EventArgs e)
+&#123;
+    base.OnContentRendered(e);
+    if (SizeToContent == SizeToContent.WidthAndHeight)
+        InvalidateMeasure();
+&#125;
+
+#region Window Commands
+
+private void CanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
+&#123;
+    e.CanExecute = ResizeMode == ResizeMode.CanResize || ResizeMode == ResizeMode.CanResizeWithGrip;
+&#125;
+
+private void CanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)
+&#123;
+    e.CanExecute = ResizeMode != ResizeMode.NoResize;
+&#125;
+
+private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
+&#123;
+    this.Close();
+    
+&#125;
+
+private void MaximizeWindow(object sender, ExecutedRoutedEventArgs e)
+&#123;
+    SystemCommands.MaximizeWindow(this);
+&#125;
+
+private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
+&#123;
+    SystemCommands.MinimizeWindow(this);
+&#125;
+
+private void RestoreWindow(object sender, ExecutedRoutedEventArgs e)
+&#123;
+    SystemCommands.RestoreWindow(this);
+&#125;
+
+
+private void ShowSystemMenu(object sender, ExecutedRoutedEventArgs e)
+&#123;
+    var element = e.OriginalSource as FrameworkElement;
+    if (element == null)
+        return;
+
+    var point = WindowState == WindowState.Maximized ? new Point(0, element.ActualHeight)
+        : new Point(Left + BorderThickness.Left, element.ActualHeight + Top + BorderThickness.Top);
+    point = element.TransformToAncestor(this).Transform(point);
+    SystemCommands.ShowSystemMenu(this, point);
+&#125;
+
+#endregion
+</code></pre>
+<p>}&#96; </p>
+<p>主要是添加了几个CommandBindings，用于给标题栏上的按钮绑定。</p>
+<h3 id="3-2-使用WindowChrome"><a href="#3-2-使用WindowChrome" class="headerlink" title="3.2 使用WindowChrome#"></a>3.2 使用WindowChrome<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#3911569284">#</a></h3><p>对于WindowChrome，<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/system.windows.shell.windowchrome(v=vs.110).aspx">MSDN</a>是这样描述的：</p>
+<blockquote>
+<p>若要自定义窗口，同时保留其标准功能，可以使用WindowChrome类。 WindowChrome类窗口框架的功能分离开来视觉对象，并允许您控制的客户端和应用程序窗口的非工作区之间的边界。</p>
+</blockquote>
+<p>在CustomWindow的DefaultStyle中添加如下Setting:</p>
+<p>Copy</p>
+<p> <code>&lt;Setter Property=&quot;WindowChrome.WindowChrome&quot;&gt;     &lt;Setter.Value&gt;         &lt;WindowChrome CornerRadius=&quot;0&quot;                       GlassFrameThickness=&quot;1&quot;                       UseAeroCaptionButtons=&quot;False&quot;                       NonClientFrameEdges=&quot;None&quot; /&gt;     &lt;/Setter.Value&gt; &lt;/Setter&gt;</code> </p>
+<p>这样除了包含阴影的边框，整个Window的内容就可以由用户定义了。</p>
+<h3 id="3-3-Window基本布局"><a href="#3-3-Window基本布局" class="headerlink" title="3.3 Window基本布局#"></a>3.3 Window基本布局<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#1562667043">#</a></h3><p>Copy</p>
+<p>&#96;<Border BorderBrush="{TemplateBinding BorderBrush}"
+        BorderThickness="{TemplateBinding BorderThickness}"
+        x:Name="WindowBorder"><br>    <Grid x:Name="LayoutRoot"
+          Background="{TemplateBinding Background}"><br>        &lt;Grid.RowDefinitions&gt;<br>            <RowDefinition Height="Auto" /><br>            <RowDefinition Height="*" /><br>        &lt;&#x2F;Grid.RowDefinitions&gt;</p>
+<pre><code>    &lt;Grid x:Name=&quot;PART_WindowTitleGrid&quot;
+          Grid.Row=&quot;0&quot;
+          Height=&quot;26.4&quot;
+          Background=&quot;&#123;TemplateBinding BorderBrush&#125;&quot;&gt;
+       ....
+    &lt;/Grid&gt;
+    &lt;AdornerDecorator Grid.Row=&quot;1&quot; KeyboardNavigation.IsTabStop=&quot;False&quot;&gt;
+        &lt;ContentPresenter x:Name=&quot;MainContentPresenter&quot;
+                          KeyboardNavigation.TabNavigation=&quot;Cycle&quot; /&gt;
+    &lt;/AdornerDecorator&gt;
+    &lt;ResizeGrip x:Name=&quot;ResizeGrip&quot;
+                HorizontalAlignment=&quot;Right&quot;
+                VerticalAlignment=&quot;Bottom&quot;
+                Grid.Row=&quot;1&quot;
+                IsTabStop=&quot;False&quot;
+                Visibility=&quot;Hidden&quot;
+                WindowChrome.ResizeGripDirection=&quot;BottomRight&quot; /&gt;
+&lt;/Grid&gt;
+</code></pre>
+<p></Border>&#96; </p>
+<p>Window的标准布局很简单，大致上就是标题栏和内容。<br>PART_WindowTitleGrid是标题栏，具体内容下一节再讨论。</p>
+<p>ContentPresenter的内容即Window的Client Area的范围。</p>
+<p>ResizeGrip是当<code>ResizeMode = ResizeMode.CanResizeWithGrip;</code>时出现的Window右下角的大小调整手柄，基本上用于提示窗口可以通过拖动边框改调整小。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154739601-1800999977.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154739601-1800999977.png"></a></p>
+<p>AdornerDecorator 为可视化树中的子元素提供 AdornerLayer，如果没有它的话一些装饰效果不能显示（例如下图Button控件的Focus效果），Window的 ContentPresenter 外面套个 AdornerDecorator 是 必不能忘的。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154745663-311519930.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154745663-311519930.png"></a></p>
+<h3 id="3-4-布局标题栏"><a href="#3-4-布局标题栏" class="headerlink" title="3.4 布局标题栏#"></a>3.4 布局标题栏<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#806949989">#</a></h3><p>Copy</p>
+<p><code>&lt;Button x:Name=&quot;Minimize&quot;         ToolTip=&quot;Minimize&quot;         WindowChrome.IsHitTestVisibleInChrome=&quot;True&quot;         Command=&quot;&#123;Binding Source=&#123;x:Static SystemCommands.MinimizeWindowCommand&#125;&#125;&quot;         ContentTemplate=&quot;&#123;StaticResource MinimizeWhite&#125;&quot;         Style=&quot;&#123;StaticResource TitleBarButtonStyle&#125;&quot;         IsTabStop=&quot;False&quot; /&gt;</code> </p>
+<p>标题栏上的按钮实现如上，将Command绑定到SystemCommands，并且设置<code>WindowChrome.IsHitTestVisibleInChrome=&quot;True&quot;</code>，标题栏上的内容要设置这个附加属性才能响应鼠标操作。</p>
+<p>Copy</p>
+<p><code>&lt;Button VerticalAlignment=&quot;Center&quot;         Margin=&quot;7,0,5,0&quot;         Content=&quot;&#123;TemplateBinding Icon&#125;&quot;         Height=&quot;&#123;x:Static SystemParameters.SmallIconHeight&#125;&quot;         Width=&quot;&#123;x:Static SystemParameters.SmallIconWidth&#125;&quot;         WindowChrome.IsHitTestVisibleInChrome=&quot;True&quot;         IsTabStop=&quot;False&quot;&gt;     &lt;Button.Template&gt;         &lt;ControlTemplate TargetType=&quot;&#123;x:Type Button&#125;&quot;&gt;             &lt;Image Source=&quot;&#123;TemplateBinding Content&#125;&quot; /&gt;         &lt;/ControlTemplate&gt;     &lt;/Button.Template&gt;     &lt;i:Interaction.Triggers&gt;         &lt;i:EventTrigger EventName=&quot;Click&quot;&gt;             &lt;i:InvokeCommandAction Command=&quot;&#123;x:Static SystemCommands.ShowSystemMenuCommand&#125;&quot; /&gt;         &lt;/i:EventTrigger&gt;         &lt;i:EventTrigger EventName=&quot;MouseDoubleClick&quot;&gt;             &lt;i:InvokeCommandAction Command=&quot;&#123;x:Static SystemCommands.CloseWindowCommand&#125;&quot; /&gt;         &lt;/i:EventTrigger&gt;     &lt;/i:Interaction.Triggers&gt; &lt;/Button&gt;</code> </p>
+<p>标题栏上的Icon也是一个按钮，单机打开SystemMenu，双击关闭Window。Height和Widht的值分别使用了<code>SystemParameters.SmallIconHeight</code>和<code>SystemParameters.SmallIconWidth</code>，SystemParameters包含可用来查询系统设置的属性，能使用SystemParameters的地方尽量使用总是没错的。</p>
+<p>按钮的样式没实现得很好，这点暂时将就一下，以后改进吧。</p>
+<h3 id="3-5-处理Triggers"><a href="#3-5-处理Triggers" class="headerlink" title="3.5 处理Triggers#"></a>3.5 处理Triggers<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#2907390335">#</a></h3><p>Copy</p>
+<p>&#96;&lt;ControlTemplate.Triggers&gt;<br>    <Trigger Property="IsActive"
+             Value="False"><br>        <Setter Property="BorderBrush"
+                Value="#FF6F7785" /><br>    </Trigger><br>    <Trigger Property="WindowState"
+             Value="Maximized"><br>        <Setter TargetName="Maximize"
+                Property="Visibility"
+                Value="Collapsed" /><br>        <Setter TargetName="Restore"
+                Property="Visibility"
+                Value="Visible" /><br>        <Setter TargetName="LayoutRoot"
+                Property="Margin"
+                Value="7" /><br>    </Trigger><br>    <Trigger Property="WindowState"
+             Value="Normal"><br>        <Setter TargetName="Maximize"
+                Property="Visibility"
+                Value="Visible" /><br>        <Setter TargetName="Restore"
+                Property="Visibility"
+                Value="Collapsed" /><br>    </Trigger><br>    <Trigger Property="ResizeMode"
+             Value="NoResize"><br>        <Setter TargetName="Minimize"
+                Property="Visibility"
+                Value="Collapsed" /><br>        <Setter TargetName="Maximize"
+                Property="Visibility"
+                Value="Collapsed" /><br>        <Setter TargetName="Restore"
+                Property="Visibility"
+                Value="Collapsed" /><br>    </Trigger></p>
+<pre><code>&lt;MultiTrigger&gt;
+    &lt;MultiTrigger.Conditions&gt;
+        &lt;Condition Property=&quot;ResizeMode&quot;
+                   Value=&quot;CanResizeWithGrip&quot; /&gt;
+        &lt;Condition Property=&quot;WindowState&quot;
+                   Value=&quot;Normal&quot; /&gt;
+    &lt;/MultiTrigger.Conditions&gt;
+    &lt;Setter TargetName=&quot;ResizeGrip&quot;
+            Property=&quot;Visibility&quot;
+            Value=&quot;Visible&quot; /&gt;
+&lt;/MultiTrigger&gt;
+</code></pre>
+<p>&lt;&#x2F;ControlTemplate.Triggers&gt;&#96; </p>
+<p>虽然我平时喜欢用VisualState的方式实现模板化控件UI再状态之间的转变，但有时还是Trigger方便快捷，尤其是不需要做动画的时候。<br>注意当WindowState&#x3D;Maximized时要将LayoutRoot的Margin设置成7，如果不这样做在最大化时Window边缘部分会被遮蔽，很多使用WindowChrome自定义Window的方案都没有处理这点。</p>
+<h3 id="3-6-处理导航"><a href="#3-6-处理导航" class="headerlink" title="3.6 处理导航#"></a>3.6 处理导航<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#715520258">#</a></h3><p>另一点需要注意的是键盘导航。一般来说Window中按Tab键，焦点会在Window的内容间循环，不要让标题栏的按钮获得焦点，也不要让ContentPresenter 的各个父元素获得焦点，所以在ContentPresenter 上设置<code>KeyboardNavigation.TabNavigation=&quot;Cycle&quot;</code>。为了不让标题栏上的各个按钮获得焦点，在各个按钮上还设置了<code>IsTabStop=&quot;False&quot;</code>，</p>
+<h3 id="3-7-DragMove"><a href="#3-7-DragMove" class="headerlink" title="3.7 DragMove#"></a>3.7 DragMove<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#2433370323">#</a></h3><p>有些人喜欢不止标题栏，按住Window的任何空白部分都可以拖动Window，只需要在代码中添加DragMove即可：</p>
+<p>Copy</p>
+<p><code>protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) &#123;     base.OnMouseLeftButtonDown(e);     if (e.ButtonState == MouseButtonState.Pressed)         DragMove(); &#125;</code> </p>
+<h3 id="3-8-移植TransitioningContentControl"><a href="#3-8-移植TransitioningContentControl" class="headerlink" title="3.8 移植TransitioningContentControl#"></a>3.8 移植TransitioningContentControl<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#3999056846">#</a></h3><p>索性让Window打开时内容也添加一些动画。我将Silverlight Toolkit的<code>TransitioningContentControl</code>复制过来，只改了一点动画，并且在<code>OnApplyTemplate()</code>最后添加了这句：<code>VisualStateManager.GoToState(this, Transition, true);</code>。最后将Window中的ContentPresenter 替换成这个控件，效果还不错(实际效果挺流畅的，可是GIF看起来不怎么样)：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154058179-203515782.gif"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154058179-203515782.gif"></a></p>
+<h3 id="3-9-SizeToContent问题"><a href="#3-9-SizeToContent问题" class="headerlink" title="3.9 SizeToContent问题#"></a>3.9 SizeToContent问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#691142253">#</a></h3><p>有个比较麻烦的问题，当设置<code>SizeToContent=&quot;WidthAndHeight&quot;</code>，打开Window会出现以下错误。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154755522-511004026.png"><img src="https://images2017.cnblogs.com/blog/38937/201709/38937-20170907154755522-511004026.png"></a></p>
+<p>看上去是内容的Size和Window的Size计算错误，目前的解决方法是在CustomWindow中添加以下代码，简单粗暴，但可能引发其它问题：</p>
+<p>Copy</p>
+<p><code>protected override void OnContentRendered(EventArgs e) &#123;     base.OnContentRendered(e);     if (SizeToContent == SizeToContent.WidthAndHeight)         InvalidateMeasure(); &#125;</code> </p>
+<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5. 结语#"></a>5. 结语<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#2570406865">#</a></h2><p>第一次写Window样式，想不到遇到这么多需要注意的地方。<br>目前只是个很简单的Demo，没有添加额外的功能，希望对他人有帮助吧。<br>编码在Window10上完成，只在Windows7上稍微测试了一下，不敢保证兼容性。<br>如有错漏请指出。</p>
+<h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6. 参考#"></a>6. 参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#3252053501">#</a></h2><p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/dotnet/framework/wpf/controls/window-styles-and-templates">Window Styles and Templates</a><br><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/system.windows.shell.windowchrome(v=vs.110).aspx">WindowChrome 类</a><br><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/system.windows.systemparameters(v=vs.110).aspx">SystemParameters 类</a><br><a target="_blank" rel="noopener" href="http://mahapps.com/">mahapps.metro</a><br><a target="_blank" rel="noopener" href="https://github.com/firstfloorsoftware/mui">Modern UI for WPF</a></p>
+<h2 id="7-源码"><a href="#7-源码" class="headerlink" title="7. 源码#"></a>7. 源码<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#1530788667">#</a></h2><p><a target="_blank" rel="noopener" href="https://github.com/DinoChan/WindowDemo">GitHub - WindowDemo</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E5%AE%9E%E7%8E%B0%E5%AF%86%E7%A0%81%E6%A1%86%E7%9A%84%E5%AF%86%E7%A0%81%E7%BB%91%E5%AE%9A/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B-MVVM%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%A6%E5%8F%91%E5%99%A8%E5%9C%A8Xaml%E4%B8%AD%E5%BC%B9%E5%87%BA%E7%AA%97%E4%BD%93/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Window%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD"><span class="nav-number">2.</span> <span class="nav-text">2. Window基本功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">3. 实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%AE%9A%E4%B9%89CustomWindow%E6%8E%A7%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 定义CustomWindow控件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BD%BF%E7%94%A8WindowChrome"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 使用WindowChrome</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-Window%E5%9F%BA%E6%9C%AC%E5%B8%83%E5%B1%80"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 Window基本布局</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%B8%83%E5%B1%80%E6%A0%87%E9%A2%98%E6%A0%8F"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 布局标题栏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E5%A4%84%E7%90%86Triggers"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 处理Triggers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E5%A4%84%E7%90%86%E5%AF%BC%E8%88%AA"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 处理导航</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-DragMove"><span class="nav-number">3.7.</span> <span class="nav-text">3.7 DragMove</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-8-%E7%A7%BB%E6%A4%8DTransitioningContentControl"><span class="nav-number">3.8.</span> <span class="nav-text">3.8 移植TransitioningContentControl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-9-SizeToContent%E9%97%AE%E9%A2%98"><span class="nav-number">3.9.</span> <span class="nav-text">3.9 SizeToContent问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%BB%93%E8%AF%AD"><span class="nav-number">4.</span> <span class="nav-text">5. 结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">6. 参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%BA%90%E7%A0%81"><span class="nav-number">6.</span> <span class="nav-text">7. 源码</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

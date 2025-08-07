@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="[WPF]本地化入门 - dino.c - 博客园 Excerpt 前言 WPF的本地化是个很常见的功能，我做过的WPF程序大部分都实现了本地化（不管最终有没有用到）。通常本地化有以下几点需求： 在程序启动时根据 “CultureInfo.CurrentUICulture” 或配置项显示对应语言的UI。 在程序运行时可以动态切换UI语言（无    1. 前言#WPF的本地化是个很常见的功能，我做过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="[WPF]本地化入门 - dino.c - 博客园 Excerpt 前言 WPF的本地化是个很常见的功能，我做过的WPF程序大部分都实现了本地化（不管最终有没有用到）。通常本地化有以下几点需求： 在程序启动时根据 “CultureInfo.CurrentUICulture” 或配置项显示对应语言的UI。 在程序运行时可以动态切换UI语言（无    1. 前言#WPF的本地化是个很常见的功能，我做过">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104608358.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104609131.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104609437.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104609880.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610268.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610453.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610659.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610842.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611012.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611204.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611307.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611437.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611532.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611701.png">
+<meta property="article:published_time" content="2025-08-07T00:50:17.172Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.172Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="WPF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104608358.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="WPF-本地化入门-dino-c-博客园"><a href="#WPF-本地化入门-dino-c-博客园" class="headerlink" title="[WPF]本地化入门 - dino.c - 博客园"></a>[WPF]本地化入门 - dino.c - 博客园</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><ol>
+<li>前言 WPF的本地化是个很常见的功能，我做过的WPF程序大部分都实现了本地化（不管最终有没有用到）。通常本地化有以下几点需求： 在程序启动时根据 “CultureInfo.CurrentUICulture” 或配置项显示对应语言的UI。 在程序运行时可以动态切换UI语言（无</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言#"></a>1. 前言<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#1179440454">#</a></h2><p>WPF的本地化是个很常见的功能，我做过的WPF程序大部分都实现了本地化（不管最终有没有用到）。通常本地化有以下几点需求：</p>
+<ul>
+<li>在程序启动时根据<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.globalization.cultureinfo.currentuiculture?view=netframework-4.7.1">CultureInfo.CurrentUICulture</a>或配置项显示对应语言的UI。</li>
+<li>在程序运行时可以动态切换UI语言（无需重启程序）。</li>
+<li>制作对应不同语言的安装包。</li>
+<li>通过下载语言包实现多种语言的本地化。</li>
+</ul>
+<p>其中只有第一点是必要的。<br>第二点最好也可以实现，很多时候切换语言只为了看看某个专业术语在英语中的原文是什么，或者临时打印个英文报表，平时使用还是用中文，用户不想为了这点重启程序。<br>第三点和第四点虽然很常见，但我从来没实现过，毕竟文字资源（有时还有少量图片）占用的空间不会太多，大部分WPF程序都没有大到需要考虑安装包大小，所有语言的资源全部打包进一个安装包就可以了。</p>
+<p>WPF本地化技术很成熟，也有几种方案，微软在MSDN给出了详细的介绍<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/ms788718(v=vs.110).aspx">WPF 全球化和本地化概述</a>，还有一份古老的文档<a target="_blank" rel="noopener" href="http://wpflocalization.codeplex.com/">WPF Localization Guidance</a>，整整66页，里面详细介绍了各种WPF本地化的机制。</p>
+<p>本文只介绍两种实现以上第1、2点需求的方案。</p>
+<h2 id="2-使用资源词典"><a href="#2-使用资源词典" class="headerlink" title="2. 使用资源词典#"></a>2. 使用资源词典<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#1338090120">#</a></h2><h3 id="2-1-基本原理"><a href="#2-1-基本原理" class="headerlink" title="2.1 基本原理#"></a>2.1 基本原理<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#2078030662">#</a></h3><p>对WPF开发者来说，资源词典肯定不会陌生。不过在资源词典里使用string可能比较少。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-xml&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Window&lt;/span&gt; &lt;span&gt;x:Class&lt;/span&gt;=&lt;span&gt;&quot;LocalizationDemoWpf.Window1&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;xmlns&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;xmlns:x&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;xmlns:d&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/expression/blend/2008&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;xmlns:mc&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;xmlns:local&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:LocalizationDemoWpf&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;mc:Ignorable&lt;/span&gt;=&lt;span&gt;&quot;d&quot;&lt;/span&gt; </span><br><span class="line">        &lt;span&gt;xmlns:system&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:System;assembly=mscorlib&quot;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;Title&lt;/span&gt;=&lt;span&gt;&quot;Window1&quot;&lt;/span&gt; &lt;span&gt;Height&lt;/span&gt;=&lt;span&gt;&quot;300&quot;&lt;/span&gt; &lt;span&gt;Width&lt;/span&gt;=&lt;span&gt;&quot;300&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;Window.Resources&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;Chinese&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;中文&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;Window.Resources&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;Grid&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;TextBlock&lt;/span&gt; &lt;span&gt;Text&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Chinese&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;Grid&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;Window&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如以上代码所示，在XAML中定义string资源需要先引入 <code>xmlns:system=&quot;clr-namespace:System;assembly=mscorlib&quot;</code>命名空间，之后再使用DynamicResource引用这个资源。不要使用StaticResource，这样没法做到动态切换语言。</p>
+<p>要使用资源词典实现本地化，需要先创建所需语言的xaml，我在DEMO中创建了en-us.xaml和zh-cn.xaml两个资源词典，里面的包含的资源结构一致（指数量和Key一样）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;ResourceDictionary&lt;/span&gt; &lt;span&gt;xmlns&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;&lt;/span&gt;</span><br><span class="line">                    &lt;span&gt;xmlns:x&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;&lt;/span&gt; </span><br><span class="line">                    &lt;span&gt;xmlns:system&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:System;assembly=mscorlib&quot;&lt;/span&gt;</span><br><span class="line">                    &lt;span&gt;xmlns:local&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:LocalizationDemoWpf&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;SwitchLanguage&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;切换语言&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;Chinese&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;中文&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;English&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;英文&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;Username&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;用户名&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;Sex&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;性别&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;system:String&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;Address&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;地址&lt;span&gt;&amp;lt;/&lt;span&gt;system:String&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;SolidColorBrush&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;Background&quot;&lt;/span&gt; &lt;span&gt;Color&lt;/span&gt;=&lt;span&gt;&quot;#88FF0000&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;ResourceDictionary&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在程序启动时根据<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.globalization.cultureinfo.currentuiculture?view=netframework-4.7.1">CultureInfo.CurrentUICulture</a>或配置项选择对应的资源词典，使用MergedDictionaries的方式加载到程序的资源集合中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-cs&quot;&gt;&lt;span&gt;var&lt;/span&gt; culture = ReadCultureFromConfig();</span><br><span class="line">&lt;span&gt;var&lt;/span&gt; cultureInfo = &lt;span&gt;new&lt;/span&gt; System.Globalization.CultureInfo(culture);</span><br><span class="line">Thread.CurrentThread.CurrentUICulture = cultureInfo;</span><br><span class="line">Thread.CurrentThread.CurrentCulture = cultureInfo;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ResourceDictionary dictionary = &lt;span&gt;new&lt;/span&gt; ResourceDictionary &#123; Source = &lt;span&gt;new&lt;/span&gt; Uri(&lt;span&gt;$@&quot;Resources\&lt;span&gt;&#123;culture&#125;&lt;/span&gt;.xaml&quot;&lt;/span&gt;, UriKind.RelativeOrAbsolute) &#125;;</span><br><span class="line">Application.Current.Resources.MergedDictionaries[&lt;span&gt;0&lt;/span&gt;] = dictionary;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这样本地化的功能就完成了。</p>
+<h3 id="2-2-动态切换语言"><a href="#2-2-动态切换语言" class="headerlink" title="2.2 动态切换语言#"></a>2.2 动态切换语言<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#3676937507">#</a></h3><p>其实上述方案已实现了动态切换语言。<br>XAML资源的引用原则是就近原则，这个就近不仅指VisualTree上的就近，还指时间上的就近。后添加进资源词典的资源将替换之前的同名资源。使用DynamicResource而不是StaticResource，就是为了在资源被替换时能实时变更UI的显示。</p>
+<h3 id="2-3-设计时支持"><a href="#2-3-设计时支持" class="headerlink" title="2.3 设计时支持#"></a>2.3 设计时支持<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#2080645032">#</a></h3><p>VisualStudio的XAML设计时支持对开发WPF程序至关重要，对本地化来说，设计时支持主要包含3部分：</p>
+<ul>
+<li>在编写XAML时可以得到资源的智能感知</li>
+<li>有完整的设计视图</li>
+<li>在不同语言之间切换</li>
+</ul>
+<p>使用资源词典实现本地化，只需在App.xaml中合并对应的资源词典即可获得完整的设计时支持。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Application&lt;/span&gt; &lt;span&gt;x:Class&lt;/span&gt;=&lt;span&gt;&quot;LocalizationDemoWpf.App&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns:x&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns:local&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:LocalizationDemoWpf&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns:resource&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:LocalizationDemoWpf.Resource;assembly=LocalizationDemoWpf.Resource&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;StartupUri&lt;/span&gt;=&lt;span&gt;&quot;MainWindow.xaml&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;Application.Resources&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;ResourceDictionary&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;&lt;span&gt;ResourceDictionary.MergedDictionaries&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;&lt;span&gt;ResourceDictionary&lt;/span&gt; &lt;span&gt;Source&lt;/span&gt;=&lt;span&gt;&quot;/LocalizationDemoWpf;component/Resources/zh-cn.xaml&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;!--&amp;lt;ResourceDictionary Source=&quot;/LocalizationDemoWpf;component/Resources/en-us.xaml&quot;/&amp;gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;/&lt;span&gt;ResourceDictionary.MergedDictionaries&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;/&lt;span&gt;ResourceDictionary&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;Application.Resources&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;Application&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108112939888-480229856.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104608358.png" class=""></a></p>
+<p>这段XAML只是为了提高设计时体验，没有也能通过编译。</p>
+<h3 id="2-4-在代码里访问资源"><a href="#2-4-在代码里访问资源" class="headerlink" title="2.4 在代码里访问资源#"></a>2.4 在代码里访问资源<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#4052137013">#</a></h3><p>在代码中访问资源比较麻烦，需要知道资源的名称，而且没有智能感知，如果资源词典由第三方类库提供就会更麻烦。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;var&lt;/span&gt; message = TryFindResource(&lt;span&gt;&quot;SwitchLanguage&quot;&lt;/span&gt;) &lt;span&gt;as&lt;/span&gt; &lt;span&gt;string&lt;/span&gt;;</span><br><span class="line">&lt;span&gt;if&lt;/span&gt; (&lt;span&gt;string&lt;/span&gt;.IsNullOrWhiteSpace(message) == &lt;span&gt;false&lt;/span&gt;)</span><br><span class="line">    MessageBox.Show(message);</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-在代码里替换资源"><a href="#2-5-在代码里替换资源" class="headerlink" title="2.5 在代码里替换资源#"></a>2.5 在代码里替换资源<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#3744498189">#</a></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&lt;span&gt;private&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; &lt;span&gt;OnReplaceString&lt;/span&gt;(&lt;span&gt;&lt;span&gt;object&lt;/span&gt; sender, RoutedEventArgs e&lt;/span&gt;)&lt;/span&gt;</span><br><span class="line">&#123;</span><br><span class="line">    _totalReplace++;</span><br><span class="line">    &lt;span&gt;string&lt;/span&gt; content = &lt;span&gt;&quot;Replace &quot;&lt;/span&gt; + _totalReplace;</span><br><span class="line">    Resources[&lt;span&gt;&quot;StringToReplace&quot;&lt;/span&gt;] = content;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如上所示，在代码中替换资源十分简单，不过这种简单也带来了资源不可控的问题。</p>
+<h3 id="2-6-在程序集之间共享资源"><a href="#2-6-在程序集之间共享资源" class="headerlink" title="2.6 在程序集之间共享资源#"></a>2.6 在程序集之间共享资源<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#1055960078">#</a></h3><p>上面有提过，在获取第三方类库中某个资源十分麻烦，不仅如此，连获得第三方类库中的资源词典名称都十分麻烦。我建议在类库中定义如下的类，可以给开发者提供一些方便：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; &lt;span&gt;class&lt;/span&gt; &lt;span&gt;Resources&lt;/span&gt;</span><br><span class="line">&#123;</span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; Uri EnglishResourceUri &#123; &lt;span&gt;get&lt;/span&gt;; &#125; =</span><br><span class="line">        &lt;span&gt;new&lt;/span&gt; Uri(&lt;span&gt;&quot;/LocalizationDemoWpf.Resource;component/Resource.en-us.xaml&quot;&lt;/span&gt;, UriKind.RelativeOrAbsolute);</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; Uri ChineseResourceUri &#123; &lt;span&gt;get&lt;/span&gt;; &#125; =</span><br><span class="line">        &lt;span&gt;new&lt;/span&gt; Uri(&lt;span&gt;&quot;/LocalizationDemoWpf.Resource;component/Resource.zh-cn.xaml&quot;&lt;/span&gt;, UriKind.RelativeOrAbsolute);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-7-总结"><a href="#2-7-总结" class="headerlink" title="2.7 总结#"></a>2.7 总结<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#1967508476">#</a></h3><p>资源词典是实现本地化的一种很常见的方式，它有如下优点：</p>
+<ul>
+<li>简单易用，而且容易理解。</li>
+<li>XAML语法简单。</li>
+<li>资源可以是除string以外的类型，如SolidColorBrush。</li>
+</ul>
+<p>但这种方式的缺点也不少：</p>
+<ul>
+<li>难以管理，一旦资源过多，重名、互相覆盖、智能感知列表过长等问题将极大地影响开发，就连保证不同语言间资源词典里的资源数量一致都很麻烦。</li>
+<li>在程序集之间难以共享，引用很简单，但由于没有智能感知将很难使用，而且不同程序集之间的资源同名更难以跟踪。</li>
+</ul>
+<p>除此以外，在动态切换语言上还存在一些问题。下面这段XAML就没法做到动态切换语言：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;DataGrid&lt;/span&gt; &lt;span&gt;Grid.Row&lt;/span&gt;=&lt;span&gt;&quot;1&quot;&lt;/span&gt; &lt;span&gt;Margin&lt;/span&gt;=&lt;span&gt;&quot;5&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;DataGrid.Columns&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &lt;span&gt;Header&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Username&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &lt;span&gt;Header&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Sex&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &lt;span&gt;Header&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Address&#125;&quot;&lt;/span&gt; &lt;span&gt;Width&lt;/span&gt;=&lt;span&gt;&quot;*&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;DataGrid.Columns&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;DataGrid&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在DataGridColumn的Header上做动态切换语言，需要写成DataTemplate的方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;DataGrid&lt;/span&gt; &lt;span&gt;Grid.Row&lt;/span&gt;=&lt;span&gt;&quot;2&quot;&lt;/span&gt; &lt;span&gt;Margin&lt;/span&gt;=&lt;span&gt;&quot;5&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;DataGrid.Columns&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn.HeaderTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;&lt;span&gt;DataTemplate&lt;/span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">                    &lt;span&gt;&amp;lt;&lt;span&gt;TextBlock&lt;/span&gt; &lt;span&gt;Text&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Username&#125;&quot;&lt;/span&gt;/</span><br><span class="line">                &amp;lt;/&lt;span&gt;DataTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;/&lt;span&gt;DataGridTextColumn.HeaderTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;/&lt;span&gt;DataGridTextColumn&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn.HeaderTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;&lt;span&gt;DataTemplate&lt;/span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">                    &lt;span&gt;&amp;lt;&lt;span&gt;TextBlock&lt;/span&gt; &lt;span&gt;Text&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Sex&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;/&lt;span&gt;DataTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;/&lt;span&gt;DataGridTextColumn.HeaderTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;/&lt;span&gt;DataGridTextColumn&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &lt;span&gt;Width&lt;/span&gt;=&lt;span&gt;&quot;*&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn.HeaderTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;&lt;span&gt;DataTemplate&lt;/span&gt; &amp;gt;&lt;/span&gt;</span><br><span class="line">                    &lt;span&gt;&amp;lt;&lt;span&gt;TextBlock&lt;/span&gt; &lt;span&gt;Text&lt;/span&gt;=&lt;span&gt;&quot;&#123;DynamicResource Address&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">                &lt;span&gt;&amp;lt;/&lt;span&gt;DataTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">            &lt;span&gt;&amp;lt;/&lt;span&gt;DataGridTextColumn.HeaderTemplate&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;/&lt;span&gt;DataGridTextColumn&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;DataGrid.Columns&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;DataGrid&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-使用Resx资源文件"><a href="#3-使用Resx资源文件" class="headerlink" title="3. 使用Resx资源文件#"></a>3. 使用Resx资源文件<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#836777762">#</a></h2><h3 id="3-1-基本原理"><a href="#3-1-基本原理" class="headerlink" title="3.1 基本原理#"></a>3.1 基本原理<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#2138703310">#</a></h3><p>比起资源词典，我更喜欢使用Resx资源文件，不过这种方式语法复杂一些，而且也有不少小问题。<br>在VisualStudio中创建后缀名为resx的资源文件并打开，可在以下UI编辑资源文件的值（将访问修饰符改为public用起来方便些）：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108113009903-2117398372.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104609131.png" class=""></a></p>
+<p>在修改资源文件的值后PublicResXFileCodeGenerator将自动创建对应的类并为每一个键值添加如下代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt;   查找类似 Address 的本地化字符串。&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;/summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; &lt;span&gt;string&lt;/span&gt; Address &#123;</span><br><span class="line">    &lt;span&gt;get&lt;/span&gt; &#123;</span><br><span class="line">        &lt;span&gt;return&lt;/span&gt; ResourceManager.GetString(&lt;span&gt;&quot;Address&quot;&lt;/span&gt;, resourceCulture);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后将这个资源文件复制粘贴一份，将名称改为“原名+.+对应的语言+.resx”的格式，并且将里面的值翻译成对应语言如下：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108113021341-99670918.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104609437.png" class=""></a></p>
+<p>在UI上使用x:Static绑定到对应的资源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &lt;span&gt;Header&lt;/span&gt;=&lt;span&gt;&quot;&#123;x:Static local:Labels.Username&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这样基本的本地化就完成了。很多控件库都是使用这种方式做本地化。除了字符串，resx资源文件还支持除字符串以外的资源，如图片、音频等。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171115160028952-732294284.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104609880.png" class=""></a></p>
+<p>但是这个方案只实现了最基本的本地化，而且最大的问题是只支持直接使用字符串，不支持TypeConverter，甚至也不支持除字符串以外的其它<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-CN/library/ee792002(v=vs.110).aspx">XAML内置类型</a>（即Boolea,Char,Decimal,Single,Double,Int16,Int32,Int64,TimeSpan,Uri,Byte,Array等类型）。例如使用Label.resx中名为Background值为 #880000FF 的字符串为Grid.Background实现本地化：</p>
+<p><strong>Labels.designer.resx</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt;   查找类似 #880000FF 的本地化字符串。&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;/summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; &lt;span&gt;string&lt;/span&gt; Background &#123;</span><br><span class="line">    &lt;span&gt;get&lt;/span&gt; &#123;</span><br><span class="line">        &lt;span&gt;return&lt;/span&gt; ResourceManager.GetString(&lt;span&gt;&quot;Background&quot;&lt;/span&gt;, resourceCulture);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>MainWindow.xaml</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Grid&lt;/span&gt;  &lt;span&gt;Background&lt;/span&gt;=&lt;span&gt;&quot;&#123;x:Static local:Labels.Background&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>运行时报错：ArgumentException: “#88FF0000”不是属性“Background”的有效值。</p>
+<p>这样资源文件的实用性大打折扣。当然，这个方案也不支持动态切换语言。</p>
+<h3 id="3-2-动态切换语言"><a href="#3-2-动态切换语言" class="headerlink" title="3.2 动态切换语言#"></a>3.2 动态切换语言<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#308672838">#</a></h3><p>在<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/dd882554(v=vs.95).aspx">Silverlight</a>中已没有了x:Static的绑定方式，改为使用Binding实现本地化，这样虽然语法复杂一些，但更加实用。WPF当然也可以使用这种方式。</p>
+<p>首先， 创建一个类封装资源文件生成的类(在这个Demo中是Labels)：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-cs&quot;&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;class&lt;/span&gt; &lt;span&gt;ApplicationResources&lt;/span&gt;</span><br><span class="line">&#123;</span><br><span class="line">    &lt;span&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;ApplicationResources&lt;/span&gt;()&lt;/span&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        Labels = &lt;span&gt;new&lt;/span&gt; Labels();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; Labels Labels &#123; &lt;span&gt;get&lt;/span&gt;; &lt;span&gt;set&lt;/span&gt;; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后在App.xaml中将这个类作为资源添加到资源集合中，为了以后使用的语法简单些，我通常将Key取得很简单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-xml&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;Application&lt;/span&gt; &lt;span&gt;x:Class&lt;/span&gt;=&lt;span&gt;&quot;LocalizationDemoWpfUsingResource.App&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns:x&lt;/span&gt;=&lt;span&gt;&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;xmlns:local&lt;/span&gt;=&lt;span&gt;&quot;clr-namespace:LocalizationDemoWpfUsingResource&quot;&lt;/span&gt;</span><br><span class="line">             &lt;span&gt;StartupUri&lt;/span&gt;=&lt;span&gt;&quot;MainWindow.xaml&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;Application.Resources&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">        &lt;span&gt;&amp;lt;&lt;span&gt;local:ApplicationResources&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;R&quot;&lt;/span&gt;  /&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;/&lt;span&gt;Application.Resources&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;Application&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最后在XAML中这样绑定：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;DataGridTextColumn&lt;/span&gt; &lt;span&gt;Header&lt;/span&gt;=&lt;span&gt;&quot;&#123;Binding Labels.Username, Source=&#123;StaticResource R&#125;&#125;&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这样语法复杂一些，但也有很多好处：</p>
+<ul>
+<li>支持TypeConverter，这样就可以使用除String以外的其它类型。</li>
+<li>支持Binding的其它功能，如IValueConverter。</li>
+</ul>
+<p>麻烦的是，WPF似乎不是很喜欢这种方式，VisualStudio会提示这种错误，毕竟资源文件中的属性都是static属性，不是实例成员。幸运的是编译一次这种错误提示就会消失。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108113049778-1849522784.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610268.png" class=""></a></p>
+<p>将调用方式改为Binding以后就可以实现动态切换语言了。由于UI通过Binding获取资源文件的内容，可以通过INotifyPropertyChanged通知UI更新。将ApplicationResources 改造一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;class&lt;/span&gt; &lt;span&gt;ApplicationResources&lt;/span&gt; : &lt;span&gt;INotifyPropertyChanged&lt;/span&gt;</span><br><span class="line">&#123;</span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; ApplicationResources Current &#123; &lt;span&gt;get&lt;/span&gt;; &lt;span&gt;private&lt;/span&gt; &lt;span&gt;set&lt;/span&gt;; &#125;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;ApplicationResources&lt;/span&gt;()&lt;/span&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        Current = &lt;span&gt;this&lt;/span&gt;;</span><br><span class="line">        Labels = &lt;span&gt;new&lt;/span&gt; Labels();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; Labels Labels &#123; &lt;span&gt;get&lt;/span&gt;; &lt;span&gt;set&lt;/span&gt;; &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; &lt;span&gt;event&lt;/span&gt; PropertyChangedEventHandler PropertyChanged;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&lt;span&gt;public&lt;/span&gt;  &lt;span&gt;void&lt;/span&gt; &lt;span&gt;ChangeCulture&lt;/span&gt;(&lt;span&gt;System.Globalization.CultureInfo cultureInfo&lt;/span&gt;)&lt;/span&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        Thread.CurrentThread.CurrentUICulture = cultureInfo;</span><br><span class="line">        Thread.CurrentThread.CurrentCulture = cultureInfo;</span><br><span class="line">        Labels.Culture = cultureInfo;</span><br><span class="line"></span><br><span class="line">        &lt;span&gt;if&lt;/span&gt; (Current != &lt;span&gt;null&lt;/span&gt;)</span><br><span class="line">            Current.RaiseProoertyChanged();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &lt;span&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; &lt;span&gt;RaiseProoertyChanged&lt;/span&gt;()&lt;/span&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        PropertyChanged?.Invoke(&lt;span&gt;this&lt;/span&gt;, &lt;span&gt;new&lt;/span&gt; PropertyChangedEventArgs(&lt;span&gt;&quot;&quot;&lt;/span&gt;));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>现在可以简单地切换语言了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-cs&quot;&gt;&lt;span&gt;var&lt;/span&gt; culture = ReadCultureFromConfig();</span><br><span class="line">&lt;span&gt;var&lt;/span&gt; cultureInfo = &lt;span&gt;new&lt;/span&gt; System.Globalization.CultureInfo(culture);</span><br><span class="line">ApplicationResources.Current.ChangeCulture(cultureInfo);</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-设计时支持"><a href="#3-3-设计时支持" class="headerlink" title="3.3 设计时支持#"></a>3.3 设计时支持<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#1572829506">#</a></h3><p>实现本地化的一个很麻烦的事情是如何在设计视图看到各种语言下的效果。在使用资源词典的方案中是通过在App.xaml中合并对应的资源词典：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-xml&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;ResourceDictionary.MergedDictionaries&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;ResourceDictionary&lt;/span&gt; &lt;span&gt;Source&lt;/span&gt;=&lt;span&gt;&quot;/LocalizationDemoWpf;component/Resources/zh-cn.xaml&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;!--&amp;lt;ResourceDictionary Source=&quot;/LocalizationDemoWpf;component/Resources/en-us.xaml&quot;/&amp;gt;--&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;ResourceDictionary.MergedDictionaries&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在资源文件的方案中，需要在ApplicationResources中添加一个属性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;private&lt;/span&gt; &lt;span&gt;string&lt;/span&gt; _language;</span><br><span class="line"></span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt; 获取或设置 Language 的值&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;/summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;public&lt;/span&gt; &lt;span&gt;string&lt;/span&gt; Language</span><br><span class="line">&#123;</span><br><span class="line">    &lt;span&gt;get&lt;/span&gt; &#123; &lt;span&gt;return&lt;/span&gt; _language; &#125;</span><br><span class="line">    &lt;span&gt;set&lt;/span&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        &lt;span&gt;if&lt;/span&gt; (_language == &lt;span&gt;value&lt;/span&gt;)</span><br><span class="line">            &lt;span&gt;return&lt;/span&gt;;</span><br><span class="line"></span><br><span class="line">        _language = &lt;span&gt;value&lt;/span&gt;;</span><br><span class="line">        &lt;span&gt;var&lt;/span&gt; cultureInfo = &lt;span&gt;new&lt;/span&gt; CultureInfo(&lt;span&gt;value&lt;/span&gt;);</span><br><span class="line">        Thread.CurrentThread.CurrentUICulture = cultureInfo;</span><br><span class="line">        Thread.CurrentThread.CurrentCulture = cultureInfo;</span><br><span class="line">        Labels.Culture = cultureInfo;</span><br><span class="line"></span><br><span class="line">        RaiseProoertyChanged();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>之后在App.xaml中就可以通过改变这个属性来改变设计时的UI的语言，在VS2017中连编译都不需要就可以改变设计视图的语言。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;local:ApplicationResources&lt;/span&gt; &lt;span&gt;x:Key&lt;/span&gt;=&lt;span&gt;&quot;R&quot;&lt;/span&gt;  &lt;span&gt;Language&lt;/span&gt;=&lt;span&gt;&quot;zh-CN&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108135504278-1937951760.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610453.png" class=""></a></p>
+<h3 id="3-4-在代码里访问资源"><a href="#3-4-在代码里访问资源" class="headerlink" title="3.4 在代码里访问资源#"></a>3.4 在代码里访问资源<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#3355489300">#</a></h3><p>在代码里访问资源文件的资源十分简单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;MessageBox.Show(Labels.SwitchLanguage);</span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-在代码里替换资源"><a href="#3-5-在代码里替换资源" class="headerlink" title="3.5 在代码里替换资源#"></a>3.5 在代码里替换资源<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#1410825802">#</a></h3><p>资源文件要实现这个需求就一点都不有趣了，至少我从未在实际工作中做过。最大的难题是资源文件生成的类中的属性是静态属性，而且只有getter方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;static&lt;/span&gt; &lt;span&gt;string&lt;/span&gt; StringToReplace &#123;</span><br><span class="line">    &lt;span&gt;get&lt;/span&gt; &#123;</span><br><span class="line">        &lt;span&gt;return&lt;/span&gt; ResourceManager.GetString(&lt;span&gt;&quot;StringToReplace&quot;&lt;/span&gt;, resourceCulture);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们也可以创建一个派生类，强行替换对应的属性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;public&lt;/span&gt; &lt;span&gt;class&lt;/span&gt; &lt;span&gt;ExtendLabels&lt;/span&gt; : &lt;span&gt;Labels&lt;/span&gt;</span><br><span class="line">&#123;</span><br><span class="line">    &lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&lt;span&gt;///&lt;/span&gt; 获取或设置 StringToReplace 的值&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&lt;span&gt;///&lt;/span&gt; &lt;span&gt;&amp;lt;/summary&amp;gt;&lt;/span&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;public&lt;/span&gt; &lt;span&gt;new&lt;/span&gt; &lt;span&gt;string&lt;/span&gt; StringToReplace &#123; &lt;span&gt;get&lt;/span&gt;; &lt;span&gt;set&lt;/span&gt;; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后替换ApplicationResources中的Labels，并且触发PropertyChanged。不过这样会刷新所有UI上的字符串等资源，只为了替换一个字符资源代价有点大，幸好一般来说并不会太消耗性能。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-undefined&quot;&gt;&lt;span&gt;&lt;span&gt;private&lt;/span&gt; &lt;span&gt;void&lt;/span&gt; &lt;span&gt;OnReplaceString&lt;/span&gt;(&lt;span&gt;&lt;span&gt;object&lt;/span&gt; sender, RoutedEventArgs e&lt;/span&gt;)&lt;/span&gt;</span><br><span class="line">&#123;</span><br><span class="line">    _totalReplace++;</span><br><span class="line">    &lt;span&gt;string&lt;/span&gt; content = Labels.StringToReplace + &lt;span&gt;&quot; &quot;&lt;/span&gt; + _totalReplace;</span><br><span class="line">    &lt;span&gt;if&lt;/span&gt; (_extendLabels == &lt;span&gt;null&lt;/span&gt;)</span><br><span class="line">        _extendLabels = &lt;span&gt;new&lt;/span&gt; ExtendLabels();</span><br><span class="line"></span><br><span class="line">    _extendLabels.StringToReplace = content;</span><br><span class="line">    ApplicationResources.Current.Labels = _extendLabels;</span><br><span class="line">    ApplicationResources.Current.RaiseProoertyChanged();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-在程序集之间共享资源"><a href="#3-6-在程序集之间共享资源" class="headerlink" title="3.6 在程序集之间共享资源#"></a>3.6 在程序集之间共享资源<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#4175137399">#</a></h3><p>只需要将资源文件的访问修饰符改为public，无需其它操作就可以方便地在程序集之间共享资源。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108113103497-811574450.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610659.png" class=""></a></p>
+<h3 id="3-7-管理资源文件"><a href="#3-7-管理资源文件" class="headerlink" title="3.7 管理资源文件#"></a>3.7 管理资源文件<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#2814540742">#</a></h3><p>比起资源词典，资源文件还有一个很大的优势就是容易管理。Demo中只有一个名字Labels的资源文件，实际项目中可以按功能或模块分别建立对应的资源文件，解决了资源词典重名、互相覆盖、智能感知列表过长等问题。另外我推荐使用VS的扩展程序ResXManager管理所有资源文件。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108113118825-1468791266.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104610842.png" class=""></a></p>
+<p>它可以在一个UI里管理所有语言的资源文件，极大地方便了资源文件的使用。<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171108135926450-310155823.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611012.png" class=""></a></p>
+<h3 id="3-8-ReSharper支持"><a href="#3-8-ReSharper支持" class="headerlink" title="3.8 ReSharper支持#"></a>3.8 ReSharper支持<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#3486988777">#</a></h3><p>对Resx资源文件，ReSharper也提供了良好的支持。</p>
+<p>当需要为某个资源修改Key时，可以按“资源文件名称”+”.”+”Key”来全局替换，通常这样已经足够放心。ReSharper更进一步，它提供了重命名功能。假设要将Labels的资源English重名为为Englishs，可以先在Labels.Designer.cs重命名，然后应用“Apply rename refactoring”选项：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171109142511153-777699834.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611204.png" class=""></a></p>
+<p>这时所有引用，包括XAML都已应用新的名称：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171109142638544-1404320764.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611307.png" class=""></a></p>
+<p>不过最后仍需自己动手在资源文件编辑器中修改Key。</p>
+<p>除此之外，如果在XAML中使用了错误的Key，ReSharper也有错误提示：<br><a target="_blank" rel="noopener" href="https://images2017.cnblogs.com/blog/38937/201711/38937-20171109143550622-868689640.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611437.png" class=""></a></p>
+<p>在某些场合，ReShaper还可使用“Move To Resource”功能：<br><a target="_blank" rel="noopener" href="https://images2018.cnblogs.com/blog/38937/201711/38937-20171128102459331-1641425557.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611532.png" class=""></a><br><a target="_blank" rel="noopener" href="https://images2018.cnblogs.com/blog/38937/201711/38937-20171128102504769-805723355.png"><img src="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/IMG-20250804104611701.png" class=""></a></p>
+<h3 id="3-9-总结"><a href="#3-9-总结" class="headerlink" title="3.9 总结#"></a>3.9 总结<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#3119014043">#</a></h3><p>使用Resx资源文件实现本地化有如下优点：</p>
+<ul>
+<li>资源管理方便。</li>
+<li>容易在代码中使用。</li>
+<li>容易在程序集之间共享。</li>
+<li>支持TypeConverter，这样就可以使用除String以外的其它类型。</li>
+<li>支持Binding的其它功能，如IValueConverter。</li>
+<li>兼容性好，Silverlight及之后的XAML技术都可以使用。</li>
+<li>第三方工具支持。</li>
+<li>支持图片、音频等资源。</li>
+</ul>
+<p>缺点如下：</p>
+<ul>
+<li>XAML语法相对复杂。</li>
+<li>不能直接应用于TypeConverter不支持的类型，例如LinearGradientBrush。</li>
+</ul>
+<p>虽然不能直接支持LinearGradientBrush，但也不是完全没有办法，只是复杂了许多，如分别对LinearGradientBrush的GradientStop做本地化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;Copy&lt;/p&gt;&lt;code id=&quot;code-lang-xml&quot;&gt;&lt;span&gt;&amp;lt;&lt;span&gt;LinearGradientBrush&lt;/span&gt; &lt;span&gt;EndPoint&lt;/span&gt;=&lt;span&gt;&quot;0.5,1&quot;&lt;/span&gt; &lt;span&gt;StartPoint&lt;/span&gt;=&lt;span&gt;&quot;0.5,0&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;GradientStop&lt;/span&gt; &lt;span&gt;Color&lt;/span&gt;=&lt;span&gt;&quot;Black&quot;&lt;/span&gt; &lt;span&gt;Offset&lt;/span&gt;=&lt;span&gt;&quot;0&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">    &lt;span&gt;&amp;lt;&lt;span&gt;GradientStop&lt;/span&gt; &lt;span&gt;Color&lt;/span&gt;=&lt;span&gt;&quot;&#123;Binding Source=&#123;StaticResource R&#125;,Path=Labels.Background&#125;&quot;&lt;/span&gt; &lt;span&gt;Offset&lt;/span&gt;=&lt;span&gt;&quot;1&quot;&lt;/span&gt;/&amp;gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;&amp;lt;/&lt;span&gt;LinearGradientBrush&lt;/span&gt;&amp;gt;&lt;/span&gt;</span><br><span class="line"></span><br><span class="line">&lt;/code&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-结语"><a href="#4-结语" class="headerlink" title="4. 结语#"></a>4. 结语<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#978347987">#</a></h2><p>这篇文章只介绍了本地化的入门知识，其它还有很多本地化的要点，如验证信息中的本地化没有涉及。另外，本地化还可以使用x:Uid方式或<a target="_blank" rel="noopener" href="https://github.com/SeriousM/WPFLocalizationExtension">WPFLocalizeExtension</a>等方式实现，这里就不详细介绍。<br><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/ms788718(v=vs.110).aspx">WPF 全球化和本地化概述</a>里有介绍一些本地化的最佳做法，如UI上应该使用相对布局而非绝对布局、字体选择等，这里不再累赘。</p>
+<p>需要注意的是上述两种方案都不适用于CLR属性，这也是为什么我一直强调UIElement的属性最好是依赖属性的原因之一。</p>
+<p>如有错漏请指出。</p>
+<h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5. 参考#"></a>5. 参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#2984841659">#</a></h2><p><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/ms788718(v=vs.110).aspx">WPF 全球化和本地化概述</a><br><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/cc189057(v=vs.95).aspx">Silverlight 部署和本地化</a><br><a target="_blank" rel="noopener" href="https://github.com/SeriousM/WPFLocalizationExtension">WPFLocalizationExtension</a><br><a target="_blank" rel="noopener" href="http://wpflocalization.codeplex.com/">WPF Localization Guidance</a><br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/xaml-resources">XAML Resources</a><br><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/system.globalization.cultureinfo(v=vs.95).aspx">CultureInfo 类</a><br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/uwp/publish/supported-languages">Supported languages</a></p>
+<h2 id="6-源码"><a href="#6-源码" class="headerlink" title="6. 源码#"></a>6. 源码<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/LocalizationWPF.html#3749789202">#</a></h2><p><a target="_blank" rel="noopener" href="https://github.com/DinoChan/LocalizationDemo">LocalizationDemo</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WPF/" rel="tag"># WPF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E6%8E%A7%E4%BB%B6%E7%A0%94%E7%A9%B6%E4%B9%8BTabControl/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WPF-%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8-dino-c-%E5%8D%9A%E5%AE%A2%E5%9B%AD"><span class="nav-number">1.</span> <span class="nav-text">[WPF]本地化入门 - dino.c - 博客园</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%89%8D%E8%A8%80"><span class="nav-number">1.2.</span> <span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8%E8%B5%84%E6%BA%90%E8%AF%8D%E5%85%B8"><span class="nav-number">1.3.</span> <span class="nav-text">2. 使用资源词典</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">1.3.1.</span> <span class="nav-text">2.1 基本原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%8A%A8%E6%80%81%E5%88%87%E6%8D%A2%E8%AF%AD%E8%A8%80"><span class="nav-number">1.3.2.</span> <span class="nav-text">2.2 动态切换语言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E8%AE%BE%E8%AE%A1%E6%97%B6%E6%94%AF%E6%8C%81"><span class="nav-number">1.3.3.</span> <span class="nav-text">2.3 设计时支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E5%9C%A8%E4%BB%A3%E7%A0%81%E9%87%8C%E8%AE%BF%E9%97%AE%E8%B5%84%E6%BA%90"><span class="nav-number">1.3.4.</span> <span class="nav-text">2.4 在代码里访问资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%9C%A8%E4%BB%A3%E7%A0%81%E9%87%8C%E6%9B%BF%E6%8D%A2%E8%B5%84%E6%BA%90"><span class="nav-number">1.3.5.</span> <span class="nav-text">2.5 在代码里替换资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-%E5%9C%A8%E7%A8%8B%E5%BA%8F%E9%9B%86%E4%B9%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90"><span class="nav-number">1.3.6.</span> <span class="nav-text">2.6 在程序集之间共享资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-%E6%80%BB%E7%BB%93"><span class="nav-number">1.3.7.</span> <span class="nav-text">2.7 总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BD%BF%E7%94%A8Resx%E8%B5%84%E6%BA%90%E6%96%87%E4%BB%B6"><span class="nav-number">1.4.</span> <span class="nav-text">3. 使用Resx资源文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">1.4.1.</span> <span class="nav-text">3.1 基本原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%8A%A8%E6%80%81%E5%88%87%E6%8D%A2%E8%AF%AD%E8%A8%80"><span class="nav-number">1.4.2.</span> <span class="nav-text">3.2 动态切换语言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%AE%BE%E8%AE%A1%E6%97%B6%E6%94%AF%E6%8C%81"><span class="nav-number">1.4.3.</span> <span class="nav-text">3.3 设计时支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%9C%A8%E4%BB%A3%E7%A0%81%E9%87%8C%E8%AE%BF%E9%97%AE%E8%B5%84%E6%BA%90"><span class="nav-number">1.4.4.</span> <span class="nav-text">3.4 在代码里访问资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E5%9C%A8%E4%BB%A3%E7%A0%81%E9%87%8C%E6%9B%BF%E6%8D%A2%E8%B5%84%E6%BA%90"><span class="nav-number">1.4.5.</span> <span class="nav-text">3.5 在代码里替换资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E5%9C%A8%E7%A8%8B%E5%BA%8F%E9%9B%86%E4%B9%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90"><span class="nav-number">1.4.6.</span> <span class="nav-text">3.6 在程序集之间共享资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90%E6%96%87%E4%BB%B6"><span class="nav-number">1.4.7.</span> <span class="nav-text">3.7 管理资源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-8-ReSharper%E6%94%AF%E6%8C%81"><span class="nav-number">1.4.8.</span> <span class="nav-text">3.8 ReSharper支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-9-%E6%80%BB%E7%BB%93"><span class="nav-number">1.4.9.</span> <span class="nav-text">3.9 总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%BB%93%E8%AF%AD"><span class="nav-number">1.5.</span> <span class="nav-text">4. 结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%8F%82%E8%80%83"><span class="nav-number">1.6.</span> <span class="nav-text">5. 参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%BA%90%E7%A0%81"><span class="nav-number">1.7.</span> <span class="nav-text">6. 源码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

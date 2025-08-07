@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="项目经常前台界面涉及到用户输入时，我们常常会用到数据有效性的验证。在网页中我们之前用js来校验Form中的数据有效性。在WPF中我们如何实现这种验证机制了？答案：INotifyDataErrorInfo INotifyDataErrorInfo简介 如图示该接口有三件宝贝：  HasErrors: a read-only boolean property which tells if the ob">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E7%B3%BB%E5%88%97-Data%20Validation/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="项目经常前台界面涉及到用户输入时，我们常常会用到数据有效性的验证。在网页中我们之前用js来校验Form中的数据有效性。在WPF中我们如何实现这种验证机制了？答案：INotifyDataErrorInfo INotifyDataErrorInfo简介 如图示该接口有三件宝贝：  HasErrors: a read-only boolean property which tells if the ob">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/684558/201501/231248368916883.png">
+<meta property="og:image" content="http://www.jonathanantoine.com/wp-content/uploads/2011/09/interfaceINotifyDataErrorInfo.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.174Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.174Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog/684558/201501/231248368916883.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E7%B3%BB%E5%88%97-Data%20Validation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E7%B3%BB%E5%88%97-Data%20Validation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E7%B3%BB%E5%88%97-Data%20Validation/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E7%B3%BB%E5%88%97-Data%20Validation/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>项目经常前台界面涉及到用户输入时，我们常常会用到数据有效性的验证。在网页中我们之前用js来校验Form中的数据有效性。在WPF中我们如何实现这种验证机制了？答案：INotifyDataErrorInfo</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/684558/201501/231248333285793.png"><img src="https://images0.cnblogs.com/blog/684558/201501/231248368916883.png" alt="image" title="image"></a></h2><h2 id="INotifyDataErrorInfo简介"><a href="#INotifyDataErrorInfo简介" class="headerlink" title="INotifyDataErrorInfo简介"></a>INotifyDataErrorInfo简介</h2><p><img src="http://www.jonathanantoine.com/wp-content/uploads/2011/09/interfaceINotifyDataErrorInfo.png"></p>
+<p>如图示该接口有三件宝贝：</p>
+<ul>
+<li><strong>HasErrors</strong>: a read-only boolean property which tells if the object as a whole have any validation errors;</li>
+<li><strong>GetErrors</strong>: a method which returns validation errors for a given property;</li>
+<li><strong>ErrorsChanged</strong>: an event which must be raised when new errors – or the lacks of errors – is detected. You have to raise this event for each property.</li>
+</ul>
+<h2 id="如何使用INotifyDataErrorInfo？"><a href="#如何使用INotifyDataErrorInfo？" class="headerlink" title="如何使用INotifyDataErrorInfo？"></a>如何使用INotifyDataErrorInfo？</h2><p>With the traditionnal IDataErrorInfo, you have to set to true the ValidatesOnDataErrors property on each binding to your object. There is nothing really new under the sun because this time <strong>you have to set the ValidatesOnNotifyDataErrors property to true</strong>.</p>
+<p>In the linked demo project I create a form which display the properties of an object named ‘Person’. Here is how the validation with INotifyDataErrorInfo is enabled in the Binding:</p>
+<p>&lt;TextBox Text=“{Binding Name,Mode&#x3D;TwoWay,ValidatesOnNotifyDataErrors&#x3D;True}”&#x2F;&gt;</p>
+<p><strong>The binding will then register itself for the ErrorsChanged event of the binded Person. Eeach time this event is raised for the binded property, the controls will dress itself to display an error. As pointed out before, this is done only if the HasErrors is set to true.</strong></p>
+<h2 id="实例代码片段"><a href="#实例代码片段" class="headerlink" title="实例代码片段"></a>实例代码片段</h2><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>public class ViewModel : INotifyDataErrorInfo<br>{ private readonly IService _service; private readonly Dictionary&lt;string, ICollection&lt;string&gt;&gt; _validationErrors = new Dictionary&lt;string, ICollection&lt;string&gt;&gt;(); public ViewModel(IService service)<br>    {<br>        _service = service;<br>    }</p>
+<pre><code>... #region INotifyDataErrorInfo members
+public event EventHandler&lt;DataErrorsChangedEventArgs&gt; ErrorsChanged; private void RaiseErrorsChanged(string propertyName)
+&#123; if (ErrorsChanged != null)
+        ErrorsChanged(this, new DataErrorsChangedEventArgs(propertyName));
+&#125; public System.Collections.IEnumerable GetErrors(string propertyName)
+&#123; if (string.IsNullOrEmpty(propertyName) || !\_validationErrors.ContainsKey(propertyName)) return null; return \_validationErrors\[propertyName\];
+&#125; public bool HasErrors
+&#123; get &#123; return \_validationErrors.Count &gt; 0; &#125;
+&#125; #endregion &#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>TextBox 错误模板以及效果图:</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>&lt;TextBox Text=“{Binding Age, UpdateSourceTrigger&#x3D;PropertyChanged}”&gt;<br>    &lt;Validation.ErrorTemplate&gt;<br>        &lt;ControlTemplate&gt;<br>            &lt;StackPanel&gt;<br>                <!-- Placeholder for the TextBox itself \--><br>                &lt;AdornedElementPlaceholder x:Name=“textBox”&#x2F;&gt;<br>                &lt;TextBlock Text=“{Binding [0].ErrorContent}” Foreground=“Red”&#x2F;&gt;<br>            &lt;&#x2F;StackPanel&gt;<br>        &lt;&#x2F;ControlTemplate&gt;<br>    &lt;&#x2F;Validation.ErrorTemplate&gt;<br>&lt;&#x2F;TextBox&gt;</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h2 id="首次bind不能触发校验"><a href="#首次bind不能触发校验" class="headerlink" title="首次bind不能触发校验"></a>首次bind不能触发校验</h2><ol>
+<li>如果你使用了BindGroup 怎可为其添加 ValidatesOnTargetUpdated&#x3D;”True” 来促使前台验证。</li>
+<li>如果没有则需要手动触发propertychanged事件。</li>
+</ol>
+<h2 id="菜单栏上的保存按钮如何和验证状态同步更新"><a href="#菜单栏上的保存按钮如何和验证状态同步更新" class="headerlink" title="菜单栏上的保存按钮如何和验证状态同步更新"></a>菜单栏上的保存按钮如何和验证状态同步更新</h2><p>参考</p>
+<p><a target="_blank" rel="noopener" href="http://www.codeproject.com/Articles/25808/Aggregating-WPF-Commands-with-CommandGroup">Aggregating WPF Commands with CommandGroup</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/57493/wpf-databind-before-saving">WPF Databind Before Saving</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.jonathanantoine.com/2011/09/18/wpf-4-5-asynchronous-data-validation/">WPF 4.5 – Part 1 : Asynchronous data validation</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.magnusmontin.net/2013/08/26/data-validation-in-wpf/">Data validation in WPF</a></p>
+<p><a target="_blank" rel="noopener" href="http://blogs.msdn.com/b/bethmassi/archive/2008/06/27/displaying-data-validation-messages-in-wpf.aspx">Displaying Data Validation Messages in WPF</a></p>
+<p><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/magazine/ff714593.aspx">通过 WPF 强制执行复杂的业务数据规则</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.codeproject.com/Articles/39198/Automatically-validating-business-entities-in-WPF">Automatically validating business entities in WPF using custom binding and attributes</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/11617502/1616023" title="https://stackoverflow.com/a/11617502/1616023">Business logic validation with Entity Framework and IDataErrorInfo</a></p>
+<p><a target="_blank" rel="noopener" href="http://blogs.msdn.com/b/vinsibal/archive/2008/08/11/wpf-3-5-sp1-feature-bindinggroups-with-item-level-validation.aspx">WPF 3.5 SP1 Feature: BindingGroups with Item-level Validation</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.scottlogic.com/blog/2009/01/26/bindinggroups-for-total-view-validation.html">BINDINGGROUPS FOR TOTAL VIEW VALIDATION</a></p>
+<p><a target="_blank" rel="noopener" href="http://blogs.msdn.com/b/wpfsdk/archive/2007/10/02/data-validation-in-3-5.aspx">Data Validation in 3.5</a></p>
+<h3 id="WPF-Validation-of-business-objects-a-simpler-approach"><a href="#WPF-Validation-of-business-objects-a-simpler-approach" class="headerlink" title="WPF: Validation of business objects, a simpler approach"></a><a target="_blank" rel="noopener" href="http://www.codeproject.com/Articles/27944/WPF-Validation-of-business-objects-a-simpler-appro#ExtendingIt">WPF: Validation of business objects, a simpler approach</a></h3><p>作者：**<a target="_blank" rel="noopener" href="http://www.cnblogs.com/HQFZ/">旭东</a>**<br>出处：<a target="_blank" rel="noopener" href="http://www.cnblogs.com/HQFZ/">http://www.cnblogs.com/HQFZ</a><br>关于作者：专注于微软平台项目架构、管理和企业解决方案。现主要从事WinForm、ASP.NET、WPF、WCF、等方面的项目开发、架构、管理。如有问题或建议，请不吝指教！<br>本文版权归作者，欢迎转载，但未经作者同意必须保留此段声明，且在文章页面明显位置给出原文连接。如有问题，可以联系我，非常感谢。<br>如果您该文觉得不错或者对你有帮助，请点下推荐，让更多的朋友看到，谢谢！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A7%E4%BB%B6-1-%E2%80%94%E2%80%94%E4%BB%AA%E8%A1%A8%E7%9B%98%E8%AE%BE%E8%AE%A11/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%A7%E4%BB%B6%E7%9B%98%E7%82%B9/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#INotifyDataErrorInfo%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">INotifyDataErrorInfo简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8INotifyDataErrorInfo%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">如何使用INotifyDataErrorInfo？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E4%BB%A3%E7%A0%81%E7%89%87%E6%AE%B5"><span class="nav-number">4.</span> <span class="nav-text">实例代码片段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E6%AC%A1bind%E4%B8%8D%E8%83%BD%E8%A7%A6%E5%8F%91%E6%A0%A1%E9%AA%8C"><span class="nav-number">5.</span> <span class="nav-text">首次bind不能触发校验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8F%9C%E5%8D%95%E6%A0%8F%E4%B8%8A%E7%9A%84%E4%BF%9D%E5%AD%98%E6%8C%89%E9%92%AE%E5%A6%82%E4%BD%95%E5%92%8C%E9%AA%8C%E8%AF%81%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E6%9B%B4%E6%96%B0"><span class="nav-number">6.</span> <span class="nav-text">菜单栏上的保存按钮如何和验证状态同步更新</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WPF-Validation-of-business-objects-a-simpler-approach"><span class="nav-number">6.1.</span> <span class="nav-text">WPF: Validation of business objects, a simpler approach</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

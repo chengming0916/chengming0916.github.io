@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%80%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Visitor%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201712/1048776-20171228123709535-1543578351.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.151Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.152Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201712/1048776-20171228123709535-1543578351.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%80%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Visitor%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%80%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Visitor%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%80%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Visitor%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%BA%8C%E5%8D%81%E4%B8%80%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Visitor%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a></p>
+<p>22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>   今天我们开始讲“行为型”设计模式的第九个模式，该模式是【访问者模式】，英文名称是：Visitor Pattern。如果按老规矩，先从名称上来看看这个模式，我根本不能获得任何对理解该模式有用的信息，而且这个模式在我们的编码生活中使用的并不是很多。该模式的意图定义很抽象，第一次看了这个定义其实和没看没有什么区别，一头雾水，为了让大家更好的理解该模式的初衷，我们举个例子来说明模式。比如：当我们为了解决一个新的软件需求的时候，经过多个日以继夜的努力，最终通过一个完美（自己认为的）的软件设计解决了客户提出的新的需求，而且这个设计有完美的类层次结构，并且是符合OO的设计原则的，我们很开心，对自己设计的东西很有成就感。又过了一段时间，客户突然又有了一个新的需求，需要为现有的类层次结构里面的类增加一个新的操作（其实就是一个方法），怎么办？好办，在面向OO设计模式中有一个模式就是为了解决这个问题的，那就是“访问者模式”，可以为现有的类层次结构中的类轻松增加新的操作，我们继续吧，好好的了解一下该模式。  </p>
+<p><strong>二、访问者模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>   在软件构建过程中，由于需求的改变，某些类层次结构中常常需要增加新的行为（方法），如果直接在基类中做这样的更改，将会给子类带来很繁重的变更负担，甚至破坏原有设计。如何在不更改类层次结构的前提下，在运行时根据需要透明地为类层次结构上的各个类动态添加新的操作，从而避免上述问题？  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>   表示一个作用于某对象结构中的各个元素的操作。它可以在不改变各元素的类的前提下定义作用于这些元素的新的操作。　　　　　　                                ——《设计模式》GoF  </p>
+<p><strong>2.3、结构图（Structure）</strong>  </p>
+<p>     <img src="http://images2017.cnblogs.com/blog/1048776/201712/1048776-20171228123709535-1543578351.png">  </p>
+<p><strong>2.4、模式的组成</strong><br>    <br>    可以看出，在访问者模式的结构图有以下角色：  </p>
+<p>    <strong>（1）、抽象访问者角色（Vistor）</strong>: 声明一个包括多个访问操作，多个操作针对多个具体节点角色（可以说有多少个具体节点角色就有多少访问操作），使得所有具体访问者必须实现的接口。  </p>
+<p>    <strong>（2）、具体访问者角色（ConcreteVistor）</strong>：实现抽象访问者角色中所有声明的接口，也可以说是实现对每个具体节点角色的新的操作。  </p>
+<p>    <strong>（3）、抽象节点角色（Element）</strong>：声明一个接受操作，接受一个访问者对象作为参数，如果有其他参数，可以在这个“接受操作”里在定义相关的参数。  </p>
+<p>    <strong>（4）、具体节点角色（ConcreteElement）</strong>：实现抽象元素所规定的接受操作。  </p>
+<p>    <strong>（5）、结构对象角色（ObjectStructure）</strong>：节点的容器，可以包含多个不同类或接口的容器。  </p>
+<p><strong>2.5、访问者模式的代码实现</strong>  </p>
+<p>    访问者这个模式在我们现实的编码生活中使用的并不是很多，我就直接贴代码，让大家看代码的结构吧。今天给大家两个代码实例，自己慢慢体会访问者吧。实现代码如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  1 namespace Vistor  2 {<br>  3     &#x2F;&#x2F;抽象图形定义—相当于“抽象节点角色”Element<br>  4     public abstract class Shape  5     {<br>  6         &#x2F;&#x2F;画图形<br>  7         public abstract void Draw();  8         &#x2F;&#x2F;外界注入具体访问者<br>  9         public abstract void Accept(ShapeVisitor visitor); 10     }<br> 11<br> 12     &#x2F;&#x2F;抽象访问者 Visitor<br> 13     public abstract class ShapeVisitor 14     {<br> 15         public abstract void Visit(Rectangle shape); 16<br> 17         public abstract void Visit(Circle shape); 18<br> 19         public abstract void Visit(Line shape); 20<br> 21         &#x2F;&#x2F;这里有一点要说：Visit方法的参数可以写成Shape吗？就是这样 Visit(Shape shape)，当然可以，但是ShapeVisitor子类Visit方法就需要判断当前的Shape是什么类型，是Rectangle类型，是Circle类型，或者是Line类型。<br> 22     }<br> 23<br> 24     &#x2F;&#x2F;具体访问者 ConcreteVisitor<br> 25     public sealed class CustomVisitor : ShapeVisitor 26     {<br> 27         &#x2F;&#x2F;针对Rectangle对象<br> 28         public override void Visit(Rectangle shape) 29         {<br> 30             Console.WriteLine(“针对Rectangle新的操作！”);<br> 31         }<br> 32         &#x2F;&#x2F;针对Circle对象<br> 33         public override void Visit(Circle shape) 34         {<br> 35             Console.WriteLine(“针对Circle新的操作！”);<br> 36         }<br> 37         &#x2F;&#x2F;针对Line对象<br> 38         public override void Visit(Line shape) 39         {<br> 40             Console.WriteLine(“针对Line新的操作！”);<br> 41         }<br> 42     }<br> 43<br> 44     &#x2F;&#x2F;矩形—-相当于“具体节点角色” ConcreteElement<br> 45     public sealed class Rectangle : Shape 46     {<br> 47         public override void Draw() 48         {<br> 49             Console.WriteLine(“矩形我已经画好！”);<br> 50         }<br> 51<br> 52         public override void Accept(ShapeVisitor visitor) 53         {<br> 54             visitor.Visit(this);<br> 55         }<br> 56     }<br> 57<br> 58     &#x2F;&#x2F;圆形—相当于“具体节点角色”ConcreteElement<br> 59     public sealed class Circle : Shape 60     {<br> 61         public override void Draw() 62         {<br> 63             Console.WriteLine(“圆形我已经画好！”);<br> 64         }<br> 65<br> 66         public override void Accept(ShapeVisitor visitor) 67         {<br> 68             visitor.Visit(this);<br> 69         }<br> 70     }<br> 71<br> 72     &#x2F;&#x2F;直线—相当于“具体节点角色” ConcreteElement<br> 73     public sealed class Line : Shape 74     {<br> 75         public override void Draw() 76         {<br> 77             Console.WriteLine(“直线我已经画好！”);<br> 78         }<br> 79<br> 80         public override void Accept(ShapeVisitor visitor) 81         {<br> 82             visitor.Visit(this);<br> 83         }<br> 84     }<br> 85<br> 86     &#x2F;&#x2F;结构对象角色<br> 87     internal class AppStructure 88     {<br> 89         private ShapeVisitor _visitor; 90<br> 91         public AppStructure(ShapeVisitor visitor) 92         {<br> 93             this._visitor &#x3D; visitor; 94         }<br> 95<br> 96         public void Process(Shape shape) 97         {<br> 98             shape.Accept(_visitor);<br> 99 }<br>100 }<br>101<br>102     class Program<br>103 {<br>104         static void Main(string[] args)<br>105 {<br>106             &#x2F;&#x2F;如果想执行新增加的操作<br>107             ShapeVisitor visitor &#x3D; new CustomVisitor();<br>108             AppStructure app &#x3D; new AppStructure(visitor);<br>109<br>110             Shape shape &#x3D; new Rectangle();<br>111             shape.Draw();&#x2F;&#x2F;执行自己的操作<br>112             app.Process(shape);&#x2F;&#x2F;执行新的操作<br>113<br>114<br>115             shape &#x3D; new Circle();<br>116             shape.Draw();&#x2F;&#x2F;执行自己的操作<br>117             app.Process(shape);&#x2F;&#x2F;执行新的操作<br>118<br>119<br>120             shape &#x3D; new Line();<br>121             shape.Draw();&#x2F;&#x2F;执行自己的操作<br>122             app.Process(shape);&#x2F;&#x2F;执行新的操作<br>123<br>124<br>125 Console.ReadLine();<br>126 }<br>127 }<br>128 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>这是访问者模式第二种代码实例：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  1 namespace Visitor  2 {<br>  3     &#x2F;&#x2F;抽象访问者角色 Visitor<br>  4     public abstract class Visitor  5     {<br>  6         public abstract void PutTelevision(Television tv);  7<br>  8         public abstract void PutComputer(Computer comp);  9     }<br> 10<br> 11     &#x2F;&#x2F;具体访问者角色 ConcreteVisitor<br> 12     public sealed class SizeVisitor : Visitor 13     {<br> 14         public override void PutTelevision(Television tv) 15         {<br> 16             Console.WriteLine(“按商品大小{0}排放”, tv.Size);<br> 17         }<br> 18<br> 19         public override void PutComputer(Computer comp) 20         {<br> 21             Console.WriteLine(“按商品大小{0}排放”, comp.Size);<br> 22         }<br> 23     }<br> 24<br> 25     &#x2F;&#x2F;具体访问者角色 ConcreteVisitor<br> 26     public sealed class StateVisitor : Visitor 27     {<br> 28         public override void PutTelevision(Television tv) 29         {<br> 30             Console.WriteLine(“按商品新旧值{0}排放”, tv.State);<br> 31         }<br> 32<br> 33         public override void PutComputer(Computer comp) 34         {<br> 35             Console.WriteLine(“按商品新旧值{0}排放”, comp.State);<br> 36         }<br> 37     }<br> 38<br> 39     &#x2F;&#x2F;抽象节点角色 Element<br> 40     public abstract class Goods 41     {<br> 42         public abstract void Operate(Visitor visitor); 43<br> 44         private int nSize; 45         public int Size 46         {<br> 47             get { return nSize; } 48             set { nSize &#x3D; value; } 49         }<br> 50<br> 51         private int nState; 52         public int State 53         {<br> 54             get { return nState; } 55             set { nState &#x3D; value; } 56         }<br> 57     }<br> 58<br> 59     &#x2F;&#x2F;具体节点角色 ConcreteElement<br> 60     public sealed class Television : Goods 61     {<br> 62         public override void Operate(Visitor visitor) 63         {<br> 64             visitor.PutTelevision(this);<br> 65         }<br> 66     }<br> 67<br> 68     &#x2F;&#x2F;具体节点角色 ConcreteElement<br> 69     public sealed class Computer : Goods 70     {<br> 71         public override void Operate(Visitor visitor) 72         {<br> 73             visitor.PutComputer(this);<br> 74         }<br> 75     }<br> 76<br> 77     &#x2F;&#x2F;结构对象角色<br> 78     public sealed class StoragePlatform 79     {<br> 80         private IList<Goods> list &#x3D; new List<Goods>();<br> 81<br> 82         public void Attach(Goods element) 83         {<br> 84             list.Add(element);<br> 85         }<br> 86<br> 87         public void Detach(Goods element) 88         {<br> 89             list.Remove(element);<br> 90         }<br> 91<br> 92         public void Operate(Visitor visitor) 93         {<br> 94             foreach (Goods g in list) 95             {<br> 96                 g.Operate(visitor);<br> 97             }<br> 98         }<br> 99 }<br>100<br>101     class Program<br>102 {<br>103         static void Main(string[] args)<br>104 {<br>105             StoragePlatform platform &#x3D; new StoragePlatform();<br>106             platform.Attach(new Television());<br>107             platform.Attach(new Computer());<br>108<br>109             SizeVisitor sizeVisitor &#x3D; new SizeVisitor();<br>110             StateVisitor stateVisitor &#x3D; new StateVisitor();<br>111<br>112 platform.Operate(sizeVisitor);<br>113 platform.Operate(stateVisitor);<br>114<br>115 Console.Read();<br>116 }<br>117 }<br>118 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p><strong>三、访问者模式的实现要点：</strong>  </p>
+<p>    Visitor模式通过所谓双重分发（double dispatch）来实现在不更改Element类层次结构的前提下，在运行时透明地为类层次结构上的各个类动态添加新的操作。所谓双重分发即Visitor模式中间包括了两个多态分发（注意其中的多态机制）：第一个为accept方法的多态辨析；第二个为visit方法的多态辨析。  </p>
+<p>　　设计模式其实是一种堵漏洞的方式，但是没有一种设计模式能够堵完所有的漏洞，即使是组合各种设计模式也是一样。每个设计模式都有漏洞，都有它们解决不了的情况或者变化。每一种设计模式都假定了某种变化，也假定了某种不变化。Visitor模式假定的就是操作变化，而Element类层次结构稳定。  </p>
+<p>    <strong>（1）、访问者模式的主要优点有：</strong>  </p>
+<p>        1】、访问者模式使得添加新的操作变得容易。如果一些操作依赖于一个复杂的结构对象的话，那么一般而言，添加新的操作会变得很复杂。而使用访问者模式，增加新的操作就意味着添加一个新的访问者类。因此，使得添加新的操作变得容易。  </p>
+<p>        2】、访问者模式使得有关的行为操作集中到一个访问者对象中，而不是分散到一个个的元素类中。这点类似与”中介者模式”。  </p>
+<p>        3】、访问者模式可以访问属于不同的等级结构的成员对象，而迭代只能访问属于同一个等级结构的成员对象。  </p>
+<p>　<strong>（2）、访问者模式的主要缺点有：</strong>  </p>
+<p>        1】、增加新的元素类变得困难。每增加一个新的元素意味着要在抽象访问者角色中增加一个新的抽象操作，并在每一个具体访问者类中添加相应的具体操作。具体来说，Visitor模式的最大缺点在于扩展类层次结构（增添新的Element子类），会导致Visitor类的改变。因此Visitor模式适用于“Element类层次结构稳定，而其中的操作却经常面临频繁改动”。  </p>
+<p>    <strong>（3）、在下面的情况下可以考虑使用访问者模式：</strong>  </p>
+<p>        1】、如果系统有比较稳定的数据结构，而又有易于变化的算法时，此时可以考虑使用访问者模式。因为访问者模式使得算法操作的添加比较容易。  </p>
+<p>        2】、如果一组类中，存在着相似的操作，为了避免出现大量重复的代码，可以考虑把重复的操作封装到访问者中。（当然也可以考虑使用抽象类了）  </p>
+<p>        3】、如果一个对象存在着一些与本身对象不相干，或关系比较弱的操作时，为了避免操作污染这个对象，则可以考虑把这些操作封装到访问者对象中。  </p>
+<p><strong>四、.NET 访问者模式的实现</strong>  </p>
+<p>     在现在的Net框架里面，如果要想给现有的类增加新的方法，有了新的方式，那就是“扩展方法”，使用起来和实例方法是一样一样的，而且在Net框架里面，微软自己也写了很多的扩展方法给我们使用。我目前还没有学习到Net的框架类库里面有“访问者模式”实现，看来自己还需努力，革命尚未成功啊。  </p>
+<p><strong>五、总结</strong>  </p>
+<p>    访问者模式写完了，这个模式刚开始理解起来还是挺麻烦的，但是，如果我们多看几个实例代码，完全掌握也不是问题。随着C#语言的发展，设计模式里面的很多东西，我们可以通过C#语言的一些特性做更好的替代。我们写设计模式刚开始要慢慢来，一步一步的照猫画虎的来写代码，等我们熟练掌握了模式的核心意思，我们就要写符合C#风格和特性的模式代码了，或者说我们要用C#来写设计模式了，写出来的代码会更棒。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">https://www.cnblogs.com/PatrickLiu/p/8135083.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F(13)%E2%80%94%E2%80%94%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%EF%BC%88Proxy%20Pattern%EF%BC%89/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B9%9D%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F%EF%BC%88Composite%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="设计原理WPF换肤的设计原理，利用资源字典为每种皮肤资源添加不同的样式，在后台切换皮肤资源文件。 截图 上图中，第一张图采用规则样式，第二张图采用不规则样式，截图的时候略有瑕疵。 资源字典规则样式资源Skin.RegularStyle.xaml   1 &lt;ResourceDictionary xmlns&#x3D;“http:&#x2F;&#x2F;schemas.microsoft.com&#x2F;winfx&#x2F;2006&#x2F;xam">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8B%E6%8D%A2%E8%82%A4/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="设计原理WPF换肤的设计原理，利用资源字典为每种皮肤资源添加不同的样式，在后台切换皮肤资源文件。 截图 上图中，第一张图采用规则样式，第二张图采用不规则样式，截图的时候略有瑕疵。 资源字典规则样式资源Skin.RegularStyle.xaml   1 &lt;ResourceDictionary xmlns&#x3D;“http:&#x2F;&#x2F;schemas.microsoft.com&#x2F;winfx&#x2F;2006&#x2F;xam">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/317409/201505/260906523181647.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/317409/201505/260910070213663.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog2015/317409/201505/260906523181647.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8B%E6%8D%A2%E8%82%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8B%E6%8D%A2%E8%82%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E4%B9%8B%E6%8D%A2%E8%82%A4/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E4%B9%8B%E6%8D%A2%E8%82%A4/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="设计原理"><a href="#设计原理" class="headerlink" title="设计原理"></a>设计原理</h3><p>WPF换肤的设计原理，利用资源字典为每种皮肤资源添加不同的样式，在后台切换皮肤资源文件。</p>
+<h3 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h3><p><img src="https://images0.cnblogs.com/blog2015/317409/201505/260906523181647.png"></p>
+<p>上图中，第一张图采用规则样式，第二张图采用不规则样式，截图的时候略有瑕疵。</p>
+<h3 id="资源字典"><a href="#资源字典" class="headerlink" title="资源字典"></a>资源字典</h3><p>规则样式资源Skin.RegularStyle.xaml</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p> 1 &lt;ResourceDictionary xmlns=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml/presentation">http://schemas.microsoft.com/winfx/2006/xaml/presentation</a>“<br> 2                     xmlns:x=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml%22/%3E">http://schemas.microsoft.com/winfx/2006/xaml&quot;\&gt;</a><br> 3<br> 4     <!--Window样式\--><br> 5     &lt;Style x:Key=“WindowStyle” TargetType=“Window”&gt;<br> 6         &lt;Setter Property=“Template”&gt;<br> 7             &lt;Setter.Value&gt;<br> 8                 &lt;ControlTemplate TargetType=“Window”&gt;<br> 9                     &lt;Border BorderBrush=“{TemplateBinding BorderBrush}”<br> 10                             BorderThickness=“{TemplateBinding BorderThickness}”&gt;<br> 11                         &lt;Border.Background&gt;<br> 12                             &lt;LinearGradientBrush StartPoint=“0,0” EndPoint=“0,1”&gt;<br> 13                                 &lt;GradientStop Color=“Green” Offset=“0”&gt;&lt;&#x2F;GradientStop&gt;<br> 14                                 &lt;GradientStop Color=“LightGreen” Offset=“0.4”&gt;&lt;&#x2F;GradientStop&gt;<br> 15                                 &lt;GradientStop Color=“White” Offset=“1”&gt;&lt;&#x2F;GradientStop&gt;<br> 16                             &lt;&#x2F;LinearGradientBrush&gt;<br> 17                         &lt;&#x2F;Border.Background&gt;<br> 18                         &lt;ContentPresenter&gt;&lt;&#x2F;ContentPresenter&gt;<br> 19                     &lt;&#x2F;Border&gt;<br> 20                 &lt;&#x2F;ControlTemplate&gt;<br> 21             &lt;&#x2F;Setter.Value&gt;<br> 22         &lt;&#x2F;Setter&gt;<br> 23     &lt;&#x2F;Style&gt;<br> 24<br> 25     <!--Button样式\--><br> 26     &lt;Style TargetType=“Button”&gt;<br> 27         &lt;Setter Property=“Width” Value=“70”&gt;&lt;&#x2F;Setter&gt;<br> 28         &lt;Setter Property=“Height” Value=“23”&gt;&lt;&#x2F;Setter&gt;<br> 29         &lt;Setter Property=“Template”&gt;<br> 30             &lt;Setter.Value&gt;<br> 31                 &lt;ControlTemplate TargetType=“Button”&gt;<br> 32                     &lt;Border Name=“bdr” Cursor=“Arrow”<br> 33                             BorderBrush=“{TemplateBinding BorderBrush}”<br> 34                             BorderThickness=“{TemplateBinding BorderThickness}”&gt;<br> 35                         &lt;Border.Background&gt;<br> 36                             &lt;LinearGradientBrush StartPoint=“0,0” EndPoint=“0,1”&gt;<br> 37                                 &lt;GradientStop Color=“White” Offset=“0”&gt;&lt;&#x2F;GradientStop&gt;<br> 38                                 &lt;GradientStop Color=“LightGreen” Offset=“0.3”&gt;&lt;&#x2F;GradientStop&gt;<br> 39                                 &lt;GradientStop Color=“Green” Offset=“1”&gt;&lt;&#x2F;GradientStop&gt;<br> 40                             &lt;&#x2F;LinearGradientBrush&gt;<br> 41                         &lt;&#x2F;Border.Background&gt;<br> 42                         &lt;TextBlock Name=“tbk” Background=“Transparent” Foreground=“DarkGreen” TextAlignment=“Center”<br> 43                                    Text=“{TemplateBinding Content}”&gt;&lt;&#x2F;TextBlock&gt;<br> 44                     &lt;&#x2F;Border&gt;<br> 45                     &lt;ControlTemplate.Triggers&gt;<br> 46                         &lt;Trigger Property=“IsMouseOver” Value=“True”&gt;<br> 47                             &lt;Setter TargetName=“bdr” Property=“Background”&gt;<br> 48                                 &lt;Setter.Value&gt;<br> 49                                     &lt;LinearGradientBrush StartPoint=“0,0” EndPoint=“0,1”&gt;<br> 50                                         &lt;GradientStop Color=“LightGreen” Offset=“0”&gt;&lt;&#x2F;GradientStop&gt;<br> 51                                         &lt;GradientStop Color=“Green” Offset=“1”&gt;&lt;&#x2F;GradientStop&gt;<br> 52                                     &lt;&#x2F;LinearGradientBrush&gt;<br> 53                                 &lt;&#x2F;Setter.Value&gt;<br> 54                             &lt;&#x2F;Setter&gt;<br> 55                             &lt;Setter TargetName=“tbk” Property=“Foreground” Value=“White”&gt;&lt;&#x2F;Setter&gt;<br> 56                         &lt;&#x2F;Trigger&gt;<br> 57                     &lt;&#x2F;ControlTemplate.Triggers&gt;<br> 58                 &lt;&#x2F;ControlTemplate&gt;<br> 59             &lt;&#x2F;Setter.Value&gt;<br> 60         &lt;&#x2F;Setter&gt;<br> 61     &lt;&#x2F;Style&gt;<br> 62<br> 63     <!--TextBox样式\--><br> 64     &lt;Style TargetType=“TextBox”&gt;<br> 65         &lt;Setter Property=“FontFamily” Value=“SketchFlow Print”&#x2F;&gt;<br> 66         &lt;Setter Property=“FontSize” Value=“14”&#x2F;&gt;<br> 67         &lt;Setter Property=“Template”&gt;<br> 68             &lt;Setter.Value&gt;<br> 69                 &lt;ControlTemplate TargetType=“TextBox”&gt;<br> 70                     &lt;Border BorderBrush=“DarkGreen” BorderThickness=“0.5”&gt;<br> 71                         &lt;ScrollViewer x:Name=“PART_ContentHost” Focusable=“false”<br> 72                                       HorizontalScrollBarVisibility=“Hidden”<br> 73                                       VerticalScrollBarVisibility=“Hidden”&gt;&lt;&#x2F;ScrollViewer&gt;<br> 74                     &lt;&#x2F;Border&gt;<br> 75                 &lt;&#x2F;ControlTemplate&gt;<br> 76             &lt;&#x2F;Setter.Value&gt;<br> 77         &lt;&#x2F;Setter&gt;<br> 78     &lt;&#x2F;Style&gt;<br> 79<br> 80     <!--ContextMenu样式\--><br> 81     &lt;Style TargetType=“ContextMenu”&gt;<br> 82         &lt;Setter Property=“Template”&gt;<br> 83             &lt;Setter.Value&gt;<br> 84                 &lt;ControlTemplate TargetType=“ContextMenu”&gt;<br> 85                     &lt;Border BorderBrush=“Green” BorderThickness=“1”&gt;<br> 86                         <ItemsPresenter/><br> 87                     &lt;&#x2F;Border&gt;<br> 88                 &lt;&#x2F;ControlTemplate&gt;<br> 89             &lt;&#x2F;Setter.Value&gt;<br> 90         &lt;&#x2F;Setter&gt;<br> 91     &lt;&#x2F;Style&gt;<br> 92<br> 93     <!--MenuItem样式\--><br> 94     &lt;Style TargetType=“MenuItem”&gt;<br> 95         &lt;Setter Property=“Template”&gt;<br> 96             &lt;Setter.Value&gt;<br> 97                 &lt;ControlTemplate TargetType=“MenuItem”&gt;<br> 98                     &lt;Border Name=“border” Background=“LightGreen” BorderThickness=“0”&gt;<br> 99                         &lt;TextBlock Name=“tbk” Background=“Transparent” Padding=“5,5”<br>100                                    Text=“{TemplateBinding Header}”&gt;&lt;&#x2F;TextBlock&gt;<br>101                     &lt;&#x2F;Border&gt;<br>102                     &lt;ControlTemplate.Triggers&gt;<br>103                         &lt;Trigger Property=“IsMouseOver” Value=“True”&gt;<br>104                             &lt;Setter TargetName=“border” Property=“Background” Value=“Green”&gt;&lt;&#x2F;Setter&gt;<br>105                             &lt;Setter TargetName=“tbk” Property=“Foreground” Value=“White”&gt;&lt;&#x2F;Setter&gt;<br>106                         &lt;&#x2F;Trigger&gt;<br>107                     &lt;&#x2F;ControlTemplate.Triggers&gt;<br>108                 &lt;&#x2F;ControlTemplate&gt;<br>109             &lt;&#x2F;Setter.Value&gt;<br>110         &lt;&#x2F;Setter&gt;<br>111     &lt;&#x2F;Style&gt;<br>112<br>113     <!--TextBlock样式\--><br>114     &lt;Style TargetType=“TextBlock”&gt;<br>115         &lt;Setter Property=“FontFamily” Value=“SketchFlow Print”&#x2F;&gt;<br>116         &lt;Setter Property=“FontSize” Value=“14”&#x2F;&gt;<br>117     &lt;&#x2F;Style&gt;<br>118<br>119 &lt;&#x2F;ResourceDictionary&gt;</p>
+<p>View Code</p>
+<p>不规则样式资源Skin.RoundedCornerStyle.xaml</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p> 1 &lt;ResourceDictionary xmlns=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml/presentation">http://schemas.microsoft.com/winfx/2006/xaml/presentation</a>“<br> 2                     xmlns:x=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml%22/%3E">http://schemas.microsoft.com/winfx/2006/xaml&quot;\&gt;</a><br> 3<br> 4     <!--Window样式\--><br> 5     &lt;Style x:Key=“WindowStyle” TargetType=“Window”&gt;<br> 6         &lt;Setter Property=“Template”&gt;<br> 7             &lt;Setter.Value&gt;<br> 8                 &lt;ControlTemplate TargetType=“Window”&gt;<br> 9                     &lt;Grid Margin=“10”&gt;<br> 10                         &lt;Rectangle Fill=“{DynamicResource {x:Static SystemColors.WindowBrushKey}}”<br> 11                                    RadiusX=“5” RadiusY=“5”&gt;<br> 12                             &lt;Rectangle.Effect&gt;<br> 13                                 &lt;DropShadowEffect BlurRadius=“10” Color=“Black” Direction=“0” Opacity=“0.8”<br> 14                                                   RenderingBias=“Performance” ShadowDepth=“0”&#x2F;&gt;<br> 15                             &lt;&#x2F;Rectangle.Effect&gt;<br> 16                         &lt;&#x2F;Rectangle&gt;<br> 17                         &lt;Border BorderBrush=“{TemplateBinding BorderBrush}”<br> 18                                 BorderThickness=“{TemplateBinding BorderThickness}”<br> 19                                 SnapsToDevicePixels=“True” CornerRadius=“5”&gt;<br> 20                             &lt;Border.Background&gt;<br> 21                                 &lt;LinearGradientBrush StartPoint=“0,0” EndPoint=“0,1”&gt;<br> 22                                     &lt;GradientStop Color=“Blue” Offset=“0”&gt;&lt;&#x2F;GradientStop&gt;<br> 23                                     &lt;GradientStop Color=“LightBlue” Offset=“0.4”&gt;&lt;&#x2F;GradientStop&gt;<br> 24                                     &lt;GradientStop Color=“White” Offset=“1”&gt;&lt;&#x2F;GradientStop&gt;<br> 25                                 &lt;&#x2F;LinearGradientBrush&gt;<br> 26                             &lt;&#x2F;Border.Background&gt;<br> 27                             &lt;ContentPresenter&gt;&lt;&#x2F;ContentPresenter&gt;<br> 28                         &lt;&#x2F;Border&gt;<br> 29                     &lt;&#x2F;Grid&gt;<br> 30                 &lt;&#x2F;ControlTemplate&gt;<br> 31             &lt;&#x2F;Setter.Value&gt;<br> 32         &lt;&#x2F;Setter&gt;<br> 33     &lt;&#x2F;Style&gt;<br> 34<br> 35     <!--Button样式\--><br> 36     &lt;Style TargetType=“Button”&gt;<br> 37         &lt;Setter Property=“Width” Value=“70”&gt;&lt;&#x2F;Setter&gt;<br> 38         &lt;Setter Property=“Height” Value=“23”&gt;&lt;&#x2F;Setter&gt;<br> 39         &lt;Setter Property=“Template”&gt;<br> 40             &lt;Setter.Value&gt;<br> 41                 &lt;ControlTemplate TargetType=“Button”&gt;<br> 42                     &lt;Border Name=“bdr” CornerRadius=“5” Cursor=“Hand”<br> 43                             BorderBrush=“{TemplateBinding BorderBrush}”<br> 44                             BorderThickness=“{TemplateBinding BorderThickness}”&gt;<br> 45                         &lt;TextBlock Name=“tbk” Background=“Transparent” Foreground=“Yellow” TextAlignment=“Center”<br> 46                                    Text=“{Binding RelativeSource&#x3D;{RelativeSource TemplatedParent},Path&#x3D;Content}”&gt;&lt;&#x2F;TextBlock&gt;<br> 47                         &lt;Border.Background&gt;<br> 48                             &lt;LinearGradientBrush StartPoint=“0,0” EndPoint=“0,1”&gt;<br> 49                                 &lt;GradientStop Color=“White” Offset=“0”&gt;&lt;&#x2F;GradientStop&gt;<br> 50                                 &lt;GradientStop Color=“LightBlue” Offset=“0.3”&gt;&lt;&#x2F;GradientStop&gt;<br> 51                                 &lt;GradientStop Color=“Blue” Offset=“1”&gt;&lt;&#x2F;GradientStop&gt;<br> 52                             &lt;&#x2F;LinearGradientBrush&gt;<br> 53                         &lt;&#x2F;Border.Background&gt;<br> 54                     &lt;&#x2F;Border&gt;<br> 55                     &lt;ControlTemplate.Triggers&gt;<br> 56                         &lt;Trigger Property=“IsMouseOver” Value=“True”&gt;<br> 57                             &lt;Setter TargetName=“bdr” Property=“Background”&gt;<br> 58                                 &lt;Setter.Value&gt;<br> 59                                     &lt;LinearGradientBrush StartPoint=“0,0” EndPoint=“0,1”&gt;<br> 60                                         &lt;GradientStop Color=“LightBlue” Offset=“0”&gt;&lt;&#x2F;GradientStop&gt;<br> 61                                         &lt;GradientStop Color=“Blue” Offset=“1”&gt;&lt;&#x2F;GradientStop&gt;<br> 62                                     &lt;&#x2F;LinearGradientBrush&gt;<br> 63                                 &lt;&#x2F;Setter.Value&gt;<br> 64                             &lt;&#x2F;Setter&gt;<br> 65                             &lt;Setter TargetName=“tbk” Property=“Foreground” Value=“LightYellow”&gt;&lt;&#x2F;Setter&gt;<br> 66                         &lt;&#x2F;Trigger&gt;<br> 67                     &lt;&#x2F;ControlTemplate.Triggers&gt;<br> 68                 &lt;&#x2F;ControlTemplate&gt;<br> 69             &lt;&#x2F;Setter.Value&gt;<br> 70         &lt;&#x2F;Setter&gt;<br> 71     &lt;&#x2F;Style&gt;<br> 72<br> 73     <!--TextBox样式\--><br> 74     &lt;Style TargetType=“TextBox”&gt;<br> 75         &lt;Setter Property=“FontFamily” Value=“Times New Roman”&gt;&lt;&#x2F;Setter&gt;<br> 76         &lt;Setter Property=“FontSize” Value=“14”&gt;&lt;&#x2F;Setter&gt;<br> 77         &lt;Setter Property=“Template”&gt;<br> 78             &lt;Setter.Value&gt;<br> 79                 &lt;ControlTemplate TargetType=“TextBox”&gt;<br> 80                     &lt;Border BorderBrush=“Blue” BorderThickness=“0.5” CornerRadius=“5”&gt;<br> 81                         &lt;ScrollViewer x:Name=“PART_ContentHost” Focusable=“false”<br> 82                                       HorizontalScrollBarVisibility=“Hidden”<br> 83                                       VerticalScrollBarVisibility=“Hidden”&gt;&lt;&#x2F;ScrollViewer&gt;<br> 84                     &lt;&#x2F;Border&gt;<br> 85                 &lt;&#x2F;ControlTemplate&gt;<br> 86             &lt;&#x2F;Setter.Value&gt;<br> 87         &lt;&#x2F;Setter&gt;<br> 88     &lt;&#x2F;Style&gt;<br> 89<br> 90     <!--ContextMenu样式\--><br> 91     &lt;Style TargetType=“ContextMenu”&gt;<br> 92         &lt;Setter Property=“Template”&gt;<br> 93             &lt;Setter.Value&gt;<br> 94                 &lt;ControlTemplate TargetType=“ContextMenu”&gt;<br> 95                     &lt;Border CornerRadius=“5” BorderBrush=“Blue” BorderThickness=“1”&gt;<br> 96                         <ItemsPresenter/><br> 97                     &lt;&#x2F;Border&gt;<br> 98                 &lt;&#x2F;ControlTemplate&gt;<br> 99             &lt;&#x2F;Setter.Value&gt;<br>100         &lt;&#x2F;Setter&gt;<br>101     &lt;&#x2F;Style&gt;<br>102<br>103     <!--MenuItem样式\--><br>104     &lt;Style TargetType=“MenuItem”&gt;<br>105         &lt;Setter Property=“Template”&gt;<br>106             &lt;Setter.Value&gt;<br>107                 &lt;ControlTemplate TargetType=“MenuItem”&gt;<br>108                     &lt;Border Name=“border” Background=“LightSkyBlue” BorderThickness=“0” CornerRadius=“5”&gt;<br>109                         &lt;TextBlock Name=“tbk” Background=“Transparent” Padding=“5,5”<br>110                                    Text=“{TemplateBinding Header}”&gt;&lt;&#x2F;TextBlock&gt;<br>111                     &lt;&#x2F;Border&gt;<br>112                     &lt;ControlTemplate.Triggers&gt;<br>113                         &lt;Trigger Property=“IsMouseOver” Value=“True”&gt;<br>114                             &lt;Setter TargetName=“border” Property=“Background” Value=“BlueViolet”&gt;&lt;&#x2F;Setter&gt;<br>115                             &lt;Setter TargetName=“tbk” Property=“Foreground” Value=“White”&gt;&lt;&#x2F;Setter&gt;<br>116                         &lt;&#x2F;Trigger&gt;<br>117                     &lt;&#x2F;ControlTemplate.Triggers&gt;<br>118                 &lt;&#x2F;ControlTemplate&gt;<br>119             &lt;&#x2F;Setter.Value&gt;<br>120         &lt;&#x2F;Setter&gt;<br>121     &lt;&#x2F;Style&gt;<br>122<br>123     <!--TextBlock样式\--><br>124     &lt;Style TargetType=“TextBlock”&gt;<br>125         &lt;Setter Property=“FontFamily” Value=“Times New Roman”&#x2F;&gt;<br>126         &lt;Setter Property=“FontSize” Value=“14”&#x2F;&gt;<br>127     &lt;&#x2F;Style&gt;<br>128 &lt;&#x2F;ResourceDictionary&gt;</p>
+<p>View Code</p>
+<p>　　仔细观察上面定义的样式，你会发现在定义Window样式的时候指定了Key，其他的Control样式却没有指定Key。大家都知道，如果没有给Style指定Key，那么这个Style会应用到所有目标类型(TargetType)为指定类型的Control。请看下面一段文字：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/317409/201505/260910070213663.png"></p>
+<p>因为在换肤的过程中，需要动态加载Window的样式，所以用DynamicResource作绑定Style&#x3D;”{DynamicResource WindowStyle}”。</p>
+<h3 id="App-xaml"><a href="#App-xaml" class="headerlink" title="App.xaml"></a>App.xaml</h3><p>程序运行的时候，默认加载规则样式的皮肤。</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>1     &lt;Application.Resources&gt;<br>2         &lt;ResourceDictionary&gt;<br>3             &lt;ResourceDictionary.MergedDictionaries&gt;<br>4                 &lt;ResourceDictionary Source=“Dictionary\Skin.RegularStyle.xaml”&gt;&lt;&#x2F;ResourceDictionary&gt;<br>5             &lt;&#x2F;ResourceDictionary.MergedDictionaries&gt;<br>6         &lt;&#x2F;ResourceDictionary&gt;<br>7     &lt;&#x2F;Application.Resources&gt;</p>
+<p>View Code</p>
+<h3 id="后台代码"><a href="#后台代码" class="headerlink" title="后台代码"></a>后台代码</h3><p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p> 1         &#x2F;&#x2F;&#x2F; <summary><br> 2         &#x2F;&#x2F;&#x2F; MenuItem的执行方法 3         &#x2F;&#x2F;&#x2F; </summary><br> 4         &#x2F;&#x2F;&#x2F; <param name="parameter"></param><br> 5         private void RelayMenuItemEvent(object parameter) 6         {<br> 7             if (parameter.ToString() &#x3D;&#x3D; RegularStyle) 8             {<br> 9                 ChangeSkinResource(Skins[0]); 10 } 11             else if (parameter.ToString() &#x3D;&#x3D; RoundedCornerStyle) 12 { 13                 ChangeSkinResource(Skins[1]); 14 } 15 } 16<br>17         &#x2F;&#x2F;&#x2F; <summary><br>18         &#x2F;&#x2F;&#x2F; 更换皮肤资源 19         &#x2F;&#x2F;&#x2F; </summary><br>20         &#x2F;&#x2F;&#x2F; <param name="skin"></param><br>21         private void ChangeSkinResource(ResourceDictionary skin) 22 { 23             if (Application.Current.Resources.MergedDictionaries[0].Source.IsAbsoluteUri) 24 { 25                 if (Application.Current.Resources.MergedDictionaries[0].Source.OriginalString !&#x3D; skin.Source.OriginalString) 26 { 27                     Application.Current.Resources.MergedDictionaries[0] &#x3D; skin; 28 } 29 } 30             else<br>31 { 32                 if (Application.Current.Resources.MergedDictionaries[0].Source.OriginalString.ToString(‘\\‘) !&#x3D; skin.Source.OriginalString.ToString(‘&#x2F;‘)) 33 { 34                     Application.Current.Resources.MergedDictionaries[0] &#x3D; skin; 35 } 36 } 37         }</p>
+<p>View Code</p>
+<p>运行的时候在MainWindow上右键选择皮肤样式，就可以换肤了。</p>
+<h3 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a><a target="_blank" rel="noopener" href="http://files.cnblogs.com/files/zhou-yi/Sunny906.Project.Skin.rar" title="源码">源码下载</a></h3><h3 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h3><p><a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/431940/how-to-set-default-wpf-window-style-in-app-xaml" title="stackoverflow">stackoverflow</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%BB%BF%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90%E7%B3%BB%E5%88%97%E4%B8%80%E3%80%81%E5%B7%A6%E4%BE%A7%E8%8F%9C%E5%8D%95%E6%A0%8F%EF%BC%9AExpander+RadioButton/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">设计原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%AA%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">截图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%AD%97%E5%85%B8"><span class="nav-number">3.</span> <span class="nav-text">资源字典</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#App-xaml"><span class="nav-number">4.</span> <span class="nav-text">App.xaml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E5%8F%B0%E4%BB%A3%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text">后台代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E4%B8%8B%E8%BD%BD"><span class="nav-number">6.</span> <span class="nav-text">源码下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5"><span class="nav-number">7.</span> <span class="nav-text">链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

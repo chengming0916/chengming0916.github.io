@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在WPF系(包括SL,WP或者Win8)应用开发中，MVVM是个老生常谈的问题。初学者可能不会有感觉，但当你写一个核心逻辑能在各种平台上无缝移植，而只需改改UI的时候，那种快感是无法用语言来形容的。    笔者当初接触时，对MVVM并不以为然，编了很多代码以后，反过来看MVVM for WPF的经典文章以后，才若有顿悟。标准的MVVM把程序分成了Model, ViewModel和 Vi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF_MVVM%20%E5%BC%80%E5%8F%91%E7%9A%84%E5%87%A0%E7%A7%8D%E6%A8%A1%E5%BC%8F%E8%AE%A8%E8%AE%BA/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在WPF系(包括SL,WP或者Win8)应用开发中，MVVM是个老生常谈的问题。初学者可能不会有感觉，但当你写一个核心逻辑能在各种平台上无缝移植，而只需改改UI的时候，那种快感是无法用语言来形容的。    笔者当初接触时，对MVVM并不以为然，编了很多代码以后，反过来看MVVM for WPF的经典文章以后，才若有顿悟。标准的MVVM把程序分成了Model, ViewModel和 Vi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/287060/201307/28093625-a899857c2be5417eba6670e7bf4d0fef.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/287060/201307/28093625-608c83001e2440a386b96493ec87699e.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/287060/201307/28111116-7ee46e6f3e1547638695cc329d940652.png">
+<meta property="article:published_time" content="2025-08-07T00:50:17.167Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.167Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF_MVVM%20%E5%BC%80%E5%8F%91%E7%9A%84%E5%87%A0%E7%A7%8D%E6%A8%A1%E5%BC%8F%E8%AE%A8%E8%AE%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF_MVVM%20%E5%BC%80%E5%8F%91%E7%9A%84%E5%87%A0%E7%A7%8D%E6%A8%A1%E5%BC%8F%E8%AE%A8%E8%AE%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF_MVVM%20%E5%BC%80%E5%8F%91%E7%9A%84%E5%87%A0%E7%A7%8D%E6%A8%A1%E5%BC%8F%E8%AE%A8%E8%AE%BA/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF_MVVM%20%E5%BC%80%E5%8F%91%E7%9A%84%E5%87%A0%E7%A7%8D%E6%A8%A1%E5%BC%8F%E8%AE%A8%E8%AE%BA/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<hr>
+<hr>
+<p>   在WPF系(包括SL,WP或者Win8)应用开发中，MVVM是个老生常谈的问题。初学者可能不会有感觉，但当你写一个核心逻辑能在各种平台上无缝移植，而只需改改UI的时候，那种快感是无法用语言来形容的。</p>
+<p>   笔者当初接触时，对MVVM并不以为然，编了很多代码以后，反过来看MVVM for WPF的经典文章以后，才若有顿悟。标准的MVVM把程序分成了Model, ViewModel和 View三个部分，但方法是死的，人是活的。我一般的做法是逻辑写一个，View写一个，没有那么严格。为了方便讨论，我们把ViewModel和Model合称Model, View还是View, 分别代表逻辑和界面。分离是肯定的，可是在程序中终究是要把View和Model在某个地方结合起来。 本文就讨论下几种结合的方式。</p>
+<h2 id="1-标准MVVM-由View实例化Model"><a href="#1-标准MVVM-由View实例化Model" class="headerlink" title="1. 标准MVVM(由View实例化Model)"></a>1. 标准MVVM(由View实例化Model)</h2><p>     标准的MVVM，做法当然是先设计Model, 然后再设计View, 在View的代码里有且仅有这么几句话：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> public partial class PluginMangerUI : UserControl<br>    {</p>
+<pre><code>    public PluginMangerUI()
+    &#123;
+        this.InitializeComponent();
+        PluginManager manager = new PluginManager();
+        this.DataContext = manager;
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 基本的逻辑结构可以用下图来表示。不同的库是由自底向上的方式设计的。</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/287060/201307/28093624-9edbde89fc344eb9b8af219fd32e1954.png"><img src="https://images0.cnblogs.com/blog/287060/201307/28093625-a899857c2be5417eba6670e7bf4d0fef.png" alt="image" title="image"></a></p>
+<p>    这种由View调用Model, 并具体由View负责Model实例化的方式是最为普遍的，非常适合于需要跨平台的应用。当然，Model并不知道View的存在，因此View要承担所有的界面逻辑，好在WPF已经给出了足够多的解决方案，触发器，模板。基本绝大多数需求都能满足。</p>
+<h2 id="2-插件结构-Model实例化View"><a href="#2-插件结构-Model实例化View" class="headerlink" title="2. 插件结构(Model实例化View)"></a>2. 插件结构(Model实例化View)</h2><p>     这种做法，是笔者经常用的。在Model里，通过以下代码来实现界面生成</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>internal class ViewExample : UserControl { }</p>
+<pre><code>public class ModelExample : IView
+&#123;
+
+    private readonly ViewExample view;
+    public ModelExample()
+    &#123;
+        this.view = new ViewExample();
+    &#125;
+    public object UserControl
+    &#123;
+        get
+        &#123;
+            return this.view;
+        &#125;
+    &#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>   肯定会有同学问道，怎么会有这么奇怪的写法？这种做法的最常见场合应该是插件系统。一个个的Model其实是一个个的插件，它们应该具备自治性。因此，应该由自身负责界面的产生。</p>
+<p>   它的好处是可以通过Model更加精细的调节View的行为，你可以在任何时候获得View内部ListBox的SelectIndex, 而不用麻烦的用Binding。 打个比方说，游戏开发中，你需要随时控制物体的运动速度和方向，这样Model就必须控制View. 绑定很难解决这类问题。</p>
+<p>   我不知道有多少同学在WPF中使用插件的设计思想。若按插件的思路，库应该按功能划分。在这种设计思路下，不同的库便不是自下而上的分层了，而是通过领域和功能分层，如下图：</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/287060/201307/28093625-53c40620a0a643a3a624bab69343a71c.png"><img src="https://images0.cnblogs.com/blog/287060/201307/28093625-608c83001e2440a386b96493ec87699e.png" alt="image" title="image"></a></p>
+<p>  每一个功能库都有完整的自治性，当你将该功能库拷贝到主框架之下时，它就会自动加载，由Model负责View的生成。一切合情合理。</p>
+<h2 id="3-组装车间（第三方组装View和Model）"><a href="#3-组装车间（第三方组装View和Model）" class="headerlink" title="3. 组装车间（第三方组装View和Model）"></a>3. 组装车间（第三方组装View和Model）</h2><p>   这种思路来自于工厂方法，类似于装配车间，View和Model都不负责互相的实例化。而有一个“管理器”负责组装它们。这样的好处在于可配置。你可以通过配置文件动态的改变View.</p>
+<p>    我记得一种比较著名的WPF向导（Wizard）就是这样的设计思路：</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>private static List&lt;CompleteStep<DataProcessTask>&gt; CreateSteps(DataProcessTask o)<br>        {<br>            var welcomeModel &#x3D; new WelcomeModel(o);<br>            var step1ViewModel &#x3D; new UserCoreModel(o);<br>            var step2ViewModel &#x3D; new UserDataModel(o);<br>            var step3ViewModel &#x3D; new ConnectModel(o);<br>            var step6ViewModel &#x3D; new FinishModel(o);</p>
+<pre><code>        return new List&lt;CompleteStep&lt;DataProcessTask&gt;&gt;
+                   &#123;
+                       /// Each step contains a ViewModel and a View type (the type representing the actual Xaml to be shown).
+                       new CompleteStep&lt;DataProcessTask&gt;
+                           &#123;ViewModel = welcomeModel, ViewType = typeof (Welcome), Visited = true&#125;,
+                       new CompleteStep&lt;DataProcessTask&gt; &#123;ViewModel = step1ViewModel, ViewType = typeof (UserCore)&#125;,
+                       new CompleteStep&lt;DataProcessTask&gt;
+                           &#123;ViewModel = step2ViewModel, ViewType = typeof (UserDataView)&#125;,
+                       new CompleteStep&lt;DataProcessTask&gt; &#123;ViewModel = step3ViewModel, ViewType = typeof (Connect)&#125;,
+                       new CompleteStep&lt;DataProcessTask&gt; &#123;ViewModel = step6ViewModel, ViewType = typeof (Finish)&#125;
+                   &#125;;
+    &#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>    如上图所示，DataProcessTask类是控制整个流程的核心，第一步先实例化所需的ViewModel, 第二部，通过构建一个List列表，将View的Type的方法传到列表中。最终管理器通过反射来实例化View,并将DataContext绑定到对应的ViewModel完成整个组装过程。</p>
+<p>    可以看出，这种做法彻底的隔绝了View和Model, 同时通过配置选项，可以随时修改View。可谓是一种不错的设计。 但是，必需看到，对于View来说,Model没有任何管理的权限。下图展示了它的基本逻辑：</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/287060/201307/28111116-daa14d7f7b8a4702856de6dd48e05d44.png"><img src="https://images0.cnblogs.com/blog/287060/201307/28111116-7ee46e6f3e1547638695cc329d940652.png" alt="image" title="image"></a></p>
+<p>  如果最终你依旧需要两边互相控制，可以考虑采用dynamic关键字。</p>
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>    其实没有哪种方式是最好的，完全是看你对整个系统的设计需求。但不论如何，界面和逻辑的分离，这是毋庸置疑的。下面的表格总结了几种做法的特点和适用场合：</p>
+<p>名称</p>
+<p>组装逻辑</p>
+<p>适用场合</p>
+<p>缺点</p>
+<p>备注</p>
+<p>标准MVVM</p>
+<p>View实例化Model</p>
+<p>常用的跨平台场合</p>
+<p>Model无法控制任何View</p>
+<p>适用于自底向上的分层设计</p>
+<p>Model实例化View</p>
+<p>Model实例化View</p>
+<p>插件结构或用于游戏开发</p>
+<p>存在一定的耦合</p>
+<p>适用于按功能划分的插件型类库设计，或要求Model大量控制View的场合</p>
+<p>组装车间</p>
+<p>第三方管理器实例化和组装Model和View</p>
+<p>可动态替换所有View</p>
+<p>两者彻底隔绝，没有控制灵活性</p>
+<p>大型系统的严格设计</p>
+<p>    当然，如果用MVVMLight等第三方类库的话，就应该按照它的方案去开发。但我们的原则是，解决问题，但不要引入更复杂的问题。为了解耦，搞了大量的复杂逻辑，反而舍本逐末。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B8%AD%E5%9C%A8%E6%91%84%E5%83%8F%E5%A4%B4%E8%A7%86%E9%A2%91%E4%B8%8A%E5%8F%A0%E5%8A%A0%E6%8E%A7%E4%BB%B6%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%87%E9%A2%98%E6%A0%8F%20%E8%87%AA%E5%AE%9A%E4%B9%89%E8%8F%9C%E5%8D%95%E6%A0%8F/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A0%87%E5%87%86MVVM-%E7%94%B1View%E5%AE%9E%E4%BE%8B%E5%8C%96Model"><span class="nav-number">1.</span> <span class="nav-text">1. 标准MVVM(由View实例化Model)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%8F%92%E4%BB%B6%E7%BB%93%E6%9E%84-Model%E5%AE%9E%E4%BE%8B%E5%8C%96View"><span class="nav-number">2.</span> <span class="nav-text">2. 插件结构(Model实例化View)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BB%84%E8%A3%85%E8%BD%A6%E9%97%B4%EF%BC%88%E7%AC%AC%E4%B8%89%E6%96%B9%E7%BB%84%E8%A3%85View%E5%92%8CModel%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3. 组装车间（第三方组装View和Model）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">4. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

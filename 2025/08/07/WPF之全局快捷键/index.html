@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1.WPF****快捷键实现方式#2.全局快捷键设置界面#3.Windows API****调用#4.注册全局快捷键#5.快捷键触发#  WPF快捷键实现主要有自定义快捷键命令和全局快捷键两种方式。  自定义快捷键命令方式是通过KeyBinding为命令绑定快捷键，按键组合可使用“+”进行连接。可以通过Modifiers+Key和Gesture两种方式定义快捷键组合。可以任选其一进行使用，MSDN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="1.WPF****快捷键实现方式#2.全局快捷键设置界面#3.Windows API****调用#4.注册全局快捷键#5.快捷键触发#  WPF快捷键实现主要有自定义快捷键命令和全局快捷键两种方式。  自定义快捷键命令方式是通过KeyBinding为命令绑定快捷键，按键组合可使用“+”进行连接。可以通过Modifiers+Key和Gesture两种方式定义快捷键组合。可以任选其一进行使用，MSDN">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/457529/201508/010035299393187.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog2015/457529/201508/010035299393187.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="1-WPF-快捷键实现方式"><a href="#1-WPF-快捷键实现方式" class="headerlink" title="1.WPF****快捷键实现方式#"></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#a"><strong>1.WPF****快捷键实现方式</strong></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#1.wpf%E5%BF%AB%E6%8D%B7%E9%94%AE%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F">#</a></h3><h3 id="2-全局快捷键设置界面"><a href="#2-全局快捷键设置界面" class="headerlink" title="2.全局快捷键设置界面#"></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#b"><strong>2.全局快捷键设置界面</strong></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#2.%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE%E8%AE%BE%E7%BD%AE%E7%95%8C%E9%9D%A2">#</a></h3><h3 id="3-Windows-API-调用"><a href="#3-Windows-API-调用" class="headerlink" title="3.Windows API****调用#"></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#c"><strong>3.Windows API****调用</strong></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#3.windows-api%E8%B0%83%E7%94%A8">#</a></h3><h3 id="4-注册全局快捷键"><a href="#4-注册全局快捷键" class="headerlink" title="4.注册全局快捷键#"></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#d"><strong>4.注册全局快捷键</strong></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#4.%E6%B3%A8%E5%86%8C%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE">#</a></h3><h3 id="5-快捷键触发"><a href="#5-快捷键触发" class="headerlink" title="5.快捷键触发#"></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#e"><strong>5.快捷键触发</strong></a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#5.%E5%BF%AB%E6%8D%B7%E9%94%AE%E8%A7%A6%E5%8F%91">#</a></h3><hr>
+<p> WPF快捷键实现主要有自定义快捷键命令和全局快捷键两种方式。</p>
+<p> 自定义快捷键命令方式是通过KeyBinding为命令绑定快捷键，按键组合可使用“+”进行连接。可以通过Modifiers+Key和Gesture两种方式定义快捷键组合。可以任选其一进行使用，MSDN中建议使用Gesture方式定义以免发生混淆。</p>
+<p>  &lt;Window.InputBindings&gt;<br>        &lt;KeyBinding Modifiers=“Control+Alt” Key=“Z” Command=“{StaticResource CaptureScreen}” &#x2F;&gt;<br>        &lt;KeyBinding Gesture=“Control+Alt+Q” Command=“{StaticResource FullScreen}” &#x2F;&gt;<br>  &lt;&#x2F;Window.InputBindings&gt;</p>
+<p>    全局快捷键方式是通过调用Windows API的RegisterHotKey函数来实现全局快捷键注册，调用UnregisterHotKey函数实现全局快捷键注销。这种方式WinForm和WPF通用。和自定义命令方式不同的是这种方式是在系统范围内定义热键，而前者是在窗口范围内定义。窗口范围内定义的快捷键触发条件不仅要求窗口可见，并且要求窗口获取键盘焦点。这里引入的问题是，如果命令的目标不具备获取键盘焦点的能力，则命令将会无效。并且，和系统范围内定义的快捷键相冲突时，优先级要低。</p>
+<p> 如果是Ribbon界面菜单，推荐使用自定义快捷键命令的方式。通过CanExecute方法控制当前命令在目标元素上是否可用，目标元素显示可用或禁用状态。如果是窗口无焦点下触发快捷键，则只能选用全局快捷键方式了。</p>
+<hr>
+<p>   以下是热键设置的界面。接下来对全局快捷键的实现分步骤说明。</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog2015/457529/201508/010035299393187.png"><img src="https://images0.cnblogs.com/blog2015/457529/201508/010035299393187.png"></a> </p>
+<p> 这是XAML页面的代码，这里有界面元素的定义。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>…… &lt;ItemsControl Margin=“10” ItemsSource=“{Binding HotKeyList,ElementName&#x3D;win}”&gt;<br>                &lt;ItemsControl.ItemTemplate&gt;<br>                    &lt;DataTemplate&gt;<br>                        &lt;Grid Margin=“7”&gt;<br>                            &lt;Grid.ColumnDefinitions&gt;<br>                                &lt;ColumnDefinition Width=“Auto” &#x2F;&gt;<br>                                &lt;ColumnDefinition Width=“Auto” &#x2F;&gt;<br>                                &lt;ColumnDefinition Width=“Auto” &#x2F;&gt;<br>                                &lt;ColumnDefinition Width=“Auto” &#x2F;&gt;<br>                                &lt;ColumnDefinition Width=“Auto” &#x2F;&gt;<br>                            &lt;&#x2F;Grid.ColumnDefinitions&gt;<br>                            &lt;CheckBox Grid.Column=“0” Content=“{Binding Name}” IsChecked=“{Binding IsUsable}” Style=“{StaticResource ckbStyle1}” &#x2F;&gt;<br>                            &lt;CheckBox Grid.Column=“1” Content=“Ctrl” IsChecked=“{Binding IsSelectCtrl}” IsEnabled=“{Binding IsUsable}” Style=“{StaticResource ckbStyle2}” &#x2F;&gt;<br>                            &lt;CheckBox Grid.Column=“2” Content=“Shift” IsChecked=“{Binding IsSelectShift}” IsEnabled=“{Binding IsUsable}” Style=“{StaticResource ckbStyle2}” &#x2F;&gt;<br>                            &lt;CheckBox Grid.Column=“3” Content=“Alt” IsChecked=“{Binding IsSelectAlt}” IsEnabled=“{Binding IsUsable}” Style=“{StaticResource ckbStyle2}” &#x2F;&gt;<br>                            &lt;ComboBox Grid.Column=“4” ItemsSource=“{Binding Keys}” SelectedItem=“{Binding SelectKey}” IsEnabled=“{Binding IsUsable}” Style=“{StaticResource cmbStyle1}” &#x2F;&gt;<br>                        &lt;&#x2F;Grid&gt;<br>                    &lt;&#x2F;DataTemplate&gt;<br>                &lt;&#x2F;ItemsControl.ItemTemplate&gt;<br>            &lt;&#x2F;ItemsControl&gt; ……</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>    首先，新建一个自定义按键枚举。WinForm中可以使用Keys枚举转换，WPF中Key枚举是不正确的，应该使用system.Windows.Froms.Keys枚举，或者自定义正确的枚举或int常量。因为这里定义的枚举会作为快捷键设置的可选项，可以只定义需要击键。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<pre><code>/// &lt;summary&gt;   
+</code></pre>
+<p> &#x2F;&#x2F;&#x2F; 自定义按键枚举 &#x2F;&#x2F;&#x2F; </summary><br>    public enum EKey<br>    {<br>        Space = 32,<br>        Left = 37,<br>        Up = 38,<br>        Right = 39,<br>        Down = 40,<br>        A = 65,<br>        B = 66,<br>        C = 67,<br>        D = 68,<br>        ……<br>    }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 新建快捷键模型类。在模型中，可以直接将EKey枚举值集合绑定到界面的ComboBox上。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<pre><code>/// &lt;summary&gt;
+/// 快捷键模型 /// &lt;/summary&gt;
+public class HotKeyModel
+&#123; /// &lt;summary&gt;
+    /// 设置项名称 /// &lt;/summary&gt;
+    public string Name &#123; get; set; &#125; /// &lt;summary&gt;
+    /// 设置项快捷键是否可用 /// &lt;/summary&gt;
+    public bool IsUsable &#123; get; set; &#125; /// &lt;summary&gt;
+    /// 是否勾选Ctrl按键 /// &lt;/summary&gt;
+    public bool IsSelectCtrl &#123; get; set; &#125; /// &lt;summary&gt;
+    /// 是否勾选Shift按键 /// &lt;/summary&gt;
+    public bool IsSelectShift &#123; get; set; &#125; /// &lt;summary&gt;
+    /// 是否勾选Alt按键 /// &lt;/summary&gt;
+    public bool IsSelectAlt &#123; get; set; &#125; /// &lt;summary&gt;
+    /// 选中的按键 /// &lt;/summary&gt;
+    public EKey SelectKey &#123; get; set; &#125; /// &lt;summary&gt;
+    /// 快捷键按键集合 /// &lt;/summary&gt;
+    public static Array Keys
+    &#123; get &#123; return Enum.GetValues(typeof(EKey));
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<hr>
+<p>     WM_HOTKEY为热键消息，在用户键入被RegisterHotKey函数注册的热键时发送。该消息将位于队列的最前端，并且与注册了这个热键的进程关联。</p>
+<p> RegisterHotKey函数定义一个系统范围内的热键。 参数hWnd是接收热键产生WM_HOTKEY消息的窗口句柄。若该参数null，传递给调用线程的WM_HOTKEY消息必须在消息循环中进行处理。 参数id为定义热键的标识符。调用线程中的其他热键，不能使用同样的标识符。为了避免与其他动态链接库定义的热键冲突，一个DLL必须使用GlobalAddAtom函数获取热键的标识符。 参数fsModifiers是定义为了产生WM_HOTKEY消息而必须与由nVirKey参数定义的键一起按下的键，即Ctrl、Shift和Alt的按键组合。 参数vk是定义热键的虚拟键码，也就是选中的EKey中的按键。 PS：当某键被接下时，系统在所有的热键中寻找匹配者。一旦找到一个匹配的热键，系统将把WM_HOTKEY消息传递给登记了该热键的线程的消息队列。该消息被传送到队列头部，因此它将在下一轮消息循环中被移除。该函数不能将热键同其他线程创建的窗口关联起来。若为一热键定义的击键已被其他热键所定义，则RegisterHotKey函数调用失败。若hWnd参数标识的窗口已用与id参数定义的相同的标识符登记了一个热键，则参数fsModifiers和vk的新值将替代这些参数先前定义的值。</p>
+<p> UnregisterHotKey函数释放调用线程先前登记的热键。 参数hWnd与被释放的热键相关的窗口句柄。若热键不与窗口相关，则该参数为null。</p>
+<p> GlobalAddAtom函数是向全局原子表添加一个字符串，并返回这个字符串的唯一标识符（原子ATOM）。Win32系统中，为了实现信息共享，系统维护了一张全局原子表，用于保存字符串与之对应的标识符的组合。 参数lpString为一个字符串，这个字符串的长度最大为255字节。返回值为一个short类型的原子。若函数调用失败，则返回值为0。 PS：如果字符串中已经存在于全局原子表中，则返回现有的字符串的原子，并且原子的引用计数加1。与原子相关的字符串不会从内存中删除，直到它的引用计数为零。全局原子不会在应用程序终止时自动删除。每次调用GlobalAddAtom函数，必须相应的调用GlobalDeleteAtom函数删除原子。</p>
+<p> GlobalFindAtom函数是在表中搜索全局原子。 参数lpString为一个字符串。找到返回原子，没找到返回0。</p>
+<p> GlobalDeleteAtom函数是在表中删除全局原子。 参数nAtom为全局原子。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<pre><code>/// &lt;summary&gt;
+/// 热键管理器 /// &lt;/summary&gt;
+public class HotKeyManager
+&#123; /// &lt;summary&gt;
+    /// 热键消息 /// &lt;/summary&gt;
+    public const int WM\_HOTKEY = 0x312; /// &lt;summary&gt;
+    /// 注册热键 /// &lt;/summary&gt;
+    \[DllImport(&quot;user32.dll&quot;, SetLastError = true)\] public static extern bool RegisterHotKey(IntPtr hWnd, int id, ModifierKeys fsModifuers, int vk); /// &lt;summary&gt;
+    /// 注销热键 /// &lt;/summary&gt;
+    \[DllImport(&quot;user32.dll&quot;, SetLastError = true)\] public static extern bool UnregisterHotKey(IntPtr hWnd, int id); /// &lt;summary&gt;
+    /// 向原子表中添加全局原子 /// &lt;/summary&gt;
+    \[DllImport(&quot;kernel32.dll&quot;, SetLastError = true)\] public static extern short GlobalAddAtom(string lpString); /// &lt;summary&gt;
+    /// 在表中搜索全局原子 /// &lt;/summary&gt;
+    \[DllImport(&quot;kernel32.dll&quot;, SetLastError = true)\] public static extern short GlobalFindAtom(string lpString); /// &lt;summary&gt;
+    /// 在表中删除全局原子 /// &lt;/summary&gt;
+    \[DllImport(&quot;kernel32.dll&quot;, SetLastError = true)\] public static extern short GlobalDeleteAtom(string nAtom);
+&#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<hr>
+<p>     首先，重载OnSourceInitialized函数，这个事件发生在WPF窗体的资源初始化完成，并且可以通过WindowInteropHelper获得该窗体的句柄用来与Win32交互后。调用HwndSource.FromHwnd方法获取当前窗口句柄，再调用hWndSource.AddHook方法添加接收所有窗口消息的事件处理程序。重载OnContentRendered函数，在控件初始化完成后初始化快捷键。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> protected override void OnSourceInitialized(EventArgs e)<br>        { base.OnSourceInitialized(e); &#x2F;&#x2F; 获取窗体句柄<br>            m_Hwnd &#x3D; new WindowInteropHelper(this).Handle;<br>            HwndSource hWndSource = HwndSource.FromHwnd(m_Hwnd); &#x2F;&#x2F; 添加处理程序<br>            if (hWndSource !&#x3D; null) hWndSource.AddHook(WndProc);<br>        } &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 所有控件初始化完成后调用 &#x2F;&#x2F;&#x2F; </summary><br>        &#x2F;&#x2F;&#x2F; <param name="e"></param><br>        protected override void OnContentRendered(EventArgs e)<br>        { base.OnContentRendered(e); &#x2F;&#x2F; 注册热键<br> InitHotKey();<br>        }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 注册全局快捷键到系统中。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<pre><code>    /// &lt;summary&gt;
+    /// 初始化注册快捷键 /// &lt;/summary&gt;
+    /// &lt;param name=&quot;hotKeyModelList&quot;&gt;待注册热键的项&lt;/param&gt;
+    /// &lt;returns&gt;true:保存快捷键的值；false:弹出设置窗体&lt;/returns&gt;
+    private bool InitHotKey(ObservableCollection&lt;SysParameterSettingHotKeyModel&gt; hotKeyModelList = null)
+    &#123; var list = hotKeyModelList ?? SysParameterSettingsManager.Instance.LoadDefaultHotKey(); // 注册全局快捷键
+        string failList = HotKeyHelper.RegisterGlobalHotKey(list, m\_Hwnd, out m\_HotKeySettings); if (string.IsNullOrEmpty(failList)) return true;
+
+        MessageBoxResult mbResult \= MessageBoxWindow.Show(&quot;提示&quot;, string.Format(&quot;无法注册下列快捷键\\n\\r&#123;0&#125;是否要改变这些快捷键？&quot;, failList), MessageBoxButton.YesNo); var win = SysParameterSettingsWindow.CreateInstance(); if (mbResult == MessageBoxResult.Yes)
+        &#123;
+            win.hotKeySet.IsSelected \= true; if (!win.IsVisible)
+            &#123;
+                win.ShowDialog();
+            &#125; else &#123;
+                win.Activate();
+            &#125; return false;
+        &#125; return true;
+    &#125;
+</code></pre>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 新建一个热键注册帮助类HotKeyHelper。这里有两个需要注意的地方。第一个是全局原子不会在应用程序终止时自动删除，每次调用GlobalAddAtom函数，必须相应的调用GlobalDeleteAtom函数删除原子。第二是若为一热键定义的击键已被其他热键所定义，则RegisterHotKey函数调用失败，所以每次调用RegisterHotKey函数注册热键时，必须先调用UnregisterHotKey函数注销旧的热键。 </p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<pre><code>/// &lt;summary&gt;
+/// 热键注册帮助 /// &lt;/summary&gt;
+public class HotKeyHelper
+&#123; /// &lt;summary&gt;
+    /// 记录快捷键注册项的唯一标识符 /// &lt;/summary&gt;
+    private static Dictionary&lt;EHotKeySetting, int\&gt; m\_HotKeySettingsDic = new Dictionary&lt;EHotKeySetting, int\&gt;(); /// &lt;summary&gt;
+    /// 注册系统快捷键 /// &lt;/summary&gt;
+    /// &lt;param name=&quot;hotKeyModelList&quot;&gt;待注册快捷键项&lt;/param&gt;
+    /// &lt;param name=&quot;hwnd&quot;&gt;窗口句柄&lt;/param&gt;
+    /// &lt;param name=&quot;hotKeySettingsDic&quot;&gt;快捷键注册项的唯一标识符字典&lt;/param&gt;
+    /// &lt;returns&gt;返回注册失败项的拼接字符串&lt;/returns&gt;
+    public static string RegisterSystemHotKey(IEnumerable&lt;HotKeyModel&gt; hotKeyModelList, IntPtr hwnd, out Dictionary&lt;EHotKeySetting, int\&gt; hotKeySettingsDic)
+    &#123; string failList = string.Empty; foreach (var item in hotKeyModelList)
+        &#123; if (!RegisterHotKey(item, hwnd))
+            &#123; string str = string.Empty; if (item.IsSelectCtrl &amp;&amp; !item.IsSelectShift &amp;&amp; !item.IsSelectAlt)
+                &#123;
+                    str \= ModifierKeys.Control.ToString();
+                &#125; else if (!item.IsSelectCtrl &amp;&amp; item.IsSelectShift &amp;&amp; !item.IsSelectAlt)
+                &#123;
+                    str \= ModifierKeys.Shift.ToString();
+                &#125; else if (!item.IsSelectCtrl &amp;&amp; !item.IsSelectShift &amp;&amp; item.IsSelectAlt)
+                &#123;
+                    str \= ModifierKeys.Alt.ToString();
+                &#125; else if (item.IsSelectCtrl &amp;&amp; item.IsSelectShift &amp;&amp; !item.IsSelectAlt)
+                &#123;
+                    str \= string.Format(&quot;&#123;0&#125;+&#123;1&#125;&quot;, ModifierKeys.Control.ToString(), ModifierKeys.Shift);
+                &#125; else if (item.IsSelectCtrl &amp;&amp; !item.IsSelectShift &amp;&amp; item.IsSelectAlt)
+                &#123;
+                    str \= string.Format(&quot;&#123;0&#125;+&#123;1&#125;&quot;, ModifierKeys.Control.ToString(), ModifierKeys.Alt);
+                &#125; else if (!item.IsSelectCtrl &amp;&amp; item.IsSelectShift &amp;&amp; item.IsSelectAlt)
+                &#123;
+                    str \= string.Format(&quot;&#123;0&#125;+&#123;1&#125;&quot;, ModifierKeys.Shift.ToString(), ModifierKeys.Alt);
+                &#125; else if (item.IsSelectCtrl &amp;&amp; item.IsSelectShift &amp;&amp; item.IsSelectAlt)
+                &#123;
+                    str \= string.Format(&quot;&#123;0&#125;+&#123;1&#125;+&#123;2&#125;&quot;, ModifierKeys.Control.ToString(), ModifierKeys.Shift.ToString(), ModifierKeys.Alt);
+                &#125;
+                str += string.Format(&quot;+&#123;0&#125;&quot;, item.SelectKey.ToString());
+                str \= string.Format(&quot;&#123;0&#125; (&#123;1&#125;)\\n\\r&quot;, item.Name, str);
+                failList += str;
+            &#125;
+        &#125;
+        hotKeySettingsDic \= m\_HotKeySettingsDic; return failList;
+    &#125; /// &lt;summary&gt;
+    /// 注册热键 /// &lt;/summary&gt;
+    /// &lt;param name=&quot;hotKeyModel&quot;&gt;热键待注册项&lt;/param&gt;
+    /// &lt;param name=&quot;hWnd&quot;&gt;窗口句柄&lt;/param&gt;
+    /// &lt;returns&gt;成功返回true，失败返回false&lt;/returns&gt;
+    private static bool RegisterHotKey(HotKeyModel hotKeyModel, IntPtr hWnd)
+    &#123; var fsModifierKey = new ModifierKeys(); var hotKeySetting = (EHotKeySetting)Enum.Parse(typeof(EHotKeySetting), hotKeyModel.Name); if (!m\_HotKeySettingsDic.ContainsKey(hotKeySetting))
+        &#123; // 全局原子不会在应用程序终止时自动删除。每次调用GlobalAddAtom函数，必须相应的调用GlobalDeleteAtom函数删除原子。
+            if (HotKeyManager.GlobalFindAtom(hotKeySetting.ToString()) != 0)
+            &#123;                    HotKeyManager.GlobalDeleteAtom(HotKeyManager.GlobalFindAtom(hotKeySetting.ToString()));
+            &#125; // 获取唯一标识符
+            m\_HotKeySettingsDic\[hotKeySetting\] = HotKeyManager.GlobalAddAtom(hotKeySetting.ToString());
+        &#125; else &#123; // 注销旧的热键
+</code></pre>
+<p> HotKeyManager.UnregisterHotKey(hWnd, m_HotKeySettingsDic[hotKeySetting]);<br>            } if (!hotKeyModel.IsUsable) return true; &#x2F;&#x2F; 注册热键<br>            if (hotKeyModel.IsSelectCtrl &amp;&amp; !hotKeyModel.IsSelectShift &amp;&amp; !hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Control;<br>            } else if (!hotKeyModel.IsSelectCtrl &amp;&amp; hotKeyModel.IsSelectShift &amp;&amp; !hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Shift;<br>            } else if (!hotKeyModel.IsSelectCtrl &amp;&amp; !hotKeyModel.IsSelectShift &amp;&amp; hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Alt;<br>            } else if (hotKeyModel.IsSelectCtrl &amp;&amp; hotKeyModel.IsSelectShift &amp;&amp; !hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Control | ModifierKeys.Shift;<br>            } else if (hotKeyModel.IsSelectCtrl &amp;&amp; !hotKeyModel.IsSelectShift &amp;&amp; hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Control | ModifierKeys.Alt;<br>            } else if (!hotKeyModel.IsSelectCtrl &amp;&amp; hotKeyModel.IsSelectShift &amp;&amp; hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Shift | ModifierKeys.Alt;<br>            } else if (hotKeyModel.IsSelectCtrl &amp;&amp; hotKeyModel.IsSelectShift &amp;&amp; hotKeyModel.IsSelectAlt)<br>            {<br>                fsModifierKey = ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt;<br>            } return HotKeyManager.RegisterHotKey(hWnd, m_HotKeySettingsDic[hotKeySetting], fsModifierKey, (int)hotKeyModel.SelectKey);<br>        }<br>    }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><strong>快捷键触发</strong> </p>
+<hr>
+<p>    通过判断msg 是否为WM_HOTKEY来判断当前快捷键是否触发。通过附加参数wideParam获得当前快捷键触发的项，进而进行相应处理。另外，当前消息处理完成后需要将handled置为true。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<pre><code>    /// &lt;summary&gt;
+    /// 窗体回调函数，接收所有窗体消息的事件处理函数 /// &lt;/summary&gt;
+    /// &lt;param name=&quot;hWnd&quot;&gt;窗口句柄&lt;/param&gt;
+    /// &lt;param name=&quot;msg&quot;&gt;消息&lt;/param&gt;
+    /// &lt;param name=&quot;wideParam&quot;&gt;附加参数1&lt;/param&gt;
+    /// &lt;param name=&quot;longParam&quot;&gt;附加参数2&lt;/param&gt;
+    /// &lt;param name=&quot;handled&quot;&gt;是否处理&lt;/param&gt;
+    /// &lt;returns&gt;返回句柄&lt;/returns&gt;
+    private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wideParam, IntPtr longParam, ref bool handled)
+    &#123; var hotkeySetting = new EHotKeySetting(); switch (msg)
+        &#123; case HotKeyManager.WM\_HOTKEY: int sid = wideParam.ToInt32(); if (sid == m\_HotKeySettings\[EHotKeySetting.全屏\])
+                &#123;
+                    hotkeySetting \= EHotKeySetting.全屏; //TODO 执行全屏操作
+</code></pre>
+<p> } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.截图])<br>                    {<br>                        hotkeySetting = EHotKeySetting.截图; &#x2F;&#x2F;TODO 执行截图操作<br> } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.播放])<br>                    {<br>                        hotkeySetting = EHotKeySetting.播放; &#x2F;&#x2F;TODO ……<br> } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.前进])<br>                    {<br>                        hotkeySetting = EHotKeySetting.前进;<br>                    } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.后退])<br>                    {<br>                        hotkeySetting = EHotKeySetting.后退;<br>                    } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.保存])<br>                    {<br>                        hotkeySetting = EHotKeySetting.保存;<br>                    } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.打开])<br>                    {<br>                        hotkeySetting = EHotKeySetting.打开;<br>                    } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.新建])<br>                    {<br>                        hotkeySetting = EHotKeySetting.新建;<br>                    } else if (sid &#x3D;&#x3D; m_HotKeySettings[EHotKeySetting.删除])<br>                    {<br>                        hotkeySetting = EHotKeySetting.删除;<br>                    }<br>                    MessageBox.Show(string.Format(“触发【{0}】快捷键”, hotkeySetting.ToString()));<br>                    handled = true; break;<br>            } return IntPtr.Zero;<br>        }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p><strong><a target="_blank" rel="noopener" href="http://files.cnblogs.com/files/leolion/GlobalHotKeyDemo.zip">源码下载</a></strong> <a target="_blank" rel="noopener" href="https://www.cnblogs.com/leolion/p/4693514.html#k">移步到开始↑</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8B%E6%8D%A2%E8%82%A4/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-WPF-%E5%BF%AB%E6%8D%B7%E9%94%AE%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">1.WPF****快捷键实现方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE%E8%AE%BE%E7%BD%AE%E7%95%8C%E9%9D%A2"><span class="nav-number">2.</span> <span class="nav-text">2.全局快捷键设置界面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Windows-API-%E8%B0%83%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">3.Windows API****调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%B3%A8%E5%86%8C%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE"><span class="nav-number">4.</span> <span class="nav-text">4.注册全局快捷键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%BF%AB%E6%8D%B7%E9%94%AE%E8%A7%A6%E5%8F%91"><span class="nav-number">5.</span> <span class="nav-text">5.快捷键触发</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

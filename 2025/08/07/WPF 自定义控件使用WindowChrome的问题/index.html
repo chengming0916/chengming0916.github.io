@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1. 前言#上一篇文章介绍了使用WindowChrome自定义Window，实际使用下来总有各种各样的问题，这些问题大部分都不影响使用，可能正是因为不影响使用所以一直没得到修复(也有可能别人根本不觉得这些是问题)。 这篇文章我总结了一些实际遇到的问题及其解决方案。 2. WindowChrome最大化的问题#2.1 影响Chrome尺寸的几个值#上一篇文章提到有几个值用于计算Chrome的尺寸">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A7%E4%BB%B6%E4%BD%BF%E7%94%A8WindowChrome%E7%9A%84%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="1. 前言#上一篇文章介绍了使用WindowChrome自定义Window，实际使用下来总有各种各样的问题，这些问题大部分都不影响使用，可能正是因为不影响使用所以一直没得到修复(也有可能别人根本不觉得这些是问题)。 这篇文章我总结了一些实际遇到的问题及其解决方案。 2. WindowChrome最大化的问题#2.1 影响Chrome尺寸的几个值#上一篇文章提到有几个值用于计算Chrome的尺寸">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125839427-1150602112.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125844957-1586117270.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125853307-104153632.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125906858-387366596.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191220081534829-1309452124.gif">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125925846-2133706741.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125932456-1234836284.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191220081557829-1128606025.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.167Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.167Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125839427-1150602112.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A7%E4%BB%B6%E4%BD%BF%E7%94%A8WindowChrome%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A7%E4%BB%B6%E4%BD%BF%E7%94%A8WindowChrome%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A7%E4%BB%B6%E4%BD%BF%E7%94%A8WindowChrome%E7%9A%84%E9%97%AE%E9%A2%98/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A7%E4%BB%B6%E4%BD%BF%E7%94%A8WindowChrome%E7%9A%84%E9%97%AE%E9%A2%98/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<hr>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言#"></a>1. 前言<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#1445346751">#</a></h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/custom_window_style_using_WindowChrome.html">上一篇文章</a>介绍了使用WindowChrome自定义Window，实际使用下来总有各种各样的问题，这些问题大部分都不影响使用，可能正是因为不影响使用所以一直没得到修复(也有可能别人根本不觉得这些是问题)。</p>
+<p>这篇文章我总结了一些实际遇到的问题及其解决方案。</p>
+<h2 id="2-WindowChrome最大化的问题"><a href="#2-WindowChrome最大化的问题" class="headerlink" title="2. WindowChrome最大化的问题#"></a>2. WindowChrome最大化的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#2736755771">#</a></h2><h3 id="2-1-影响Chrome尺寸的几个值"><a href="#2-1-影响Chrome尺寸的几个值" class="headerlink" title="2.1 影响Chrome尺寸的几个值#"></a>2.1 影响Chrome尺寸的几个值<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#120909876">#</a></h3><p>上一篇文章提到有几个值用于计算Chrome的尺寸：</p>
+<p>属性</p>
+<p>值(像素)</p>
+<p>描述</p>
+<p>SM_CXFRAME&#x2F;SM_CYFRAME</p>
+<p>4</p>
+<p>The thickness of the sizing border around the perimeter of a window that can be resized, in pixels. SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border.This value is the same as SM_CXFRAME.</p>
+<p>SM_CXPADDEDBORDER</p>
+<p>4</p>
+<p>The amount of border padding for captioned windows, in pixels.Windows XP&#x2F;2000: This value is not supported.</p>
+<p>SM_CYCAPTION</p>
+<p>23</p>
+<p>The height of a caption area, in pixels.</p>
+<p>在有标题的标准Window，chrome的顶部尺寸为SM_CYFRAME + SM_CXPADDEDBORDER + SM_CYCAPTION &#x3D; 31，左右两边尺寸为SM_CXFRAME + SM_CXPADDEDBORDER &#x3D; 8，底部尺寸为SM_CYFRAME + SM_CXPADDEDBORDER &#x3D; 8。</p>
+<p>具体的计算方式可以参考Firefox的<a target="_blank" rel="noopener" href="https://github.com/mozilla/gecko-dev/blob/master/widget/windows/nsWindow.cpp">源码</a>：</p>
+<p>Copy</p>
+<p> &#96;mCaptionHeight &#x3D; GetSystemMetrics(SM_CYFRAME) +<br>                   (hasCaption ? GetSystemMetrics(SM_CYCAPTION) +<br>                                     GetSystemMetrics(SM_CXPADDEDBORDER)<br>                               : 0);</p>
+<p>  mHorResizeMargin &#x3D; GetSystemMetrics(SM_CXFRAME) +<br>                     (hasCaption ? GetSystemMetrics(SM_CXPADDEDBORDER) : 0);</p>
+<p>  mVertResizeMargin &#x3D; GetSystemMetrics(SM_CYFRAME) +<br>(hasCaption ? GetSystemMetrics(SM_CXPADDEDBORDER) : 0);&#96; </p>
+<p>在WPF中这几个值分别映射到SystemParameters的相关属性：</p>
+<p>另外还有<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.windows.systemparameters.windownonclientframethickness?view=netframework-4.7.2#System_Windows_SystemParameters_WindowNonClientFrameThickness">WindowNonClientFrameThickness</a>，相当于WindowResizeBorderThickness的基础上，Top+&#x3D;WindowCaptionHeight，值为 4,27,4,4。</p>
+<p>SM_CXPADDEDBORDER在WPF里没有对应的值，我写了个WindowParameters的类，添加了这个属性：</p>
+<p>Copy</p>
+<p> &#96;public static Thickness PaddedBorderThickness<br>{<br>    [SecurityCritical]<br>    get<br>    {<br>        if (_paddedBorderThickness &#x3D;&#x3D; null)<br>        {<br>            var paddedBorder &#x3D; NativeMethods.GetSystemMetrics(SM.CXPADDEDBORDER);<br>            var dpi &#x3D; GetDpi();<br>            Size frameSize &#x3D; new Size(paddedBorder, paddedBorder);<br>            Size frameSizeInDips &#x3D; DpiHelper.DeviceSizeToLogical(frameSize, dpi &#x2F; 96.0, dpi &#x2F; 96.0);<br>            _paddedBorderThickness &#x3D; new Thickness(frameSizeInDips.Width, frameSizeInDips.Height, frameSizeInDips.Width, frameSizeInDips.Height);<br>        }</p>
+<pre><code>    return _paddedBorderThickness.Value;
+&#125;
+</code></pre>
+<p>}&#96; </p>
+<h3 id="2-2-WindowChrome的实际大小和普通Window不同"><a href="#2-2-WindowChrome的实际大小和普通Window不同" class="headerlink" title="2.2 WindowChrome的实际大小和普通Window不同#"></a>2.2 WindowChrome的实际大小和普通Window不同<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#3262930107">#</a></h3><p>先说说我的环境，WIndows 10，1920 * 1080 分辨率，100% DPI。</p>
+<p>Copy</p>
+<p><code>&lt;WindowChrome.WindowChrome&gt;     &lt;WindowChrome /&gt; &lt;/WindowChrome.WindowChrome&gt; &lt;Window.Style&gt;     &lt;Style TargetType=&quot;&#123;x:Type Window&#125;&quot;&gt; &lt;Setter Property=&quot;Template&quot;&gt;             &lt;Setter.Value&gt;                 &lt;ControlTemplate TargetType=&quot;&#123;x:Type Window&#125;&quot;&gt;                     &lt;Border&gt;                         &lt;Grid&gt;                             &lt;AdornerDecorator&gt;                                 &lt;ContentPresenter /&gt;                             &lt;/AdornerDecorator&gt;                             &lt;ResizeGrip x:Name=&quot;WindowResizeGrip&quot;                                         HorizontalAlignment=&quot;Right&quot;                                         IsTabStop=&quot;false&quot;                                         Visibility=&quot;Collapsed&quot;                                         VerticalAlignment=&quot;Bottom&quot; /&gt;                         &lt;/Grid&gt;                     &lt;/Border&gt;                     &lt;ControlTemplate.Triggers&gt;                         &lt;MultiTrigger&gt;                             &lt;MultiTrigger.Conditions&gt;                                 &lt;Condition Property=&quot;ResizeMode&quot;                                            Value=&quot;CanResizeWithGrip&quot; /&gt;                                 &lt;Condition Property=&quot;WindowState&quot;                                            Value=&quot;Normal&quot; /&gt;                             &lt;/MultiTrigger.Conditions&gt;                             &lt;Setter Property=&quot;Visibility&quot;                                     TargetName=&quot;WindowResizeGrip&quot;                                     Value=&quot;Visible&quot; /&gt;                         &lt;/MultiTrigger&gt;                     &lt;/ControlTemplate.Triggers&gt;                 &lt;/ControlTemplate&gt;             &lt;/Setter.Value&gt;         &lt;/Setter&gt; &lt;/Style&gt; &lt;/Window.Style&gt;</code> </p>
+<p>按上一篇文章介绍的方法打开一个使用WindowChrome的Window(大小为800 * 600)，在VisualStudio的实时可视化树可以看到AdornerDecorator的实际大小和Window的实际大小都是800 * 600(毕竟边WindowChrome里的Border、Grid等都没设Margin或Padding)。然后用<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/desktop/WinAuto/inspect-objects">Inspect</a>观察它的边框。可以看到Window实际上的范围没什么问题。但和标准Window的对比就可以看出有区别，我在之前的文章中介绍过标准Window的实际范围和用户看到的并不一样。</p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125839427-1150602112.png"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125839427-1150602112.png"></a></p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125844957-1586117270.png"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125844957-1586117270.png"></a></p>
+<p>上面两张图分别是通过Inspect观察的标准Window(上图)和使用WindowChrome的Window(下图)，可以看到标准Window左右下三个方向有些空白位置，和边框加起来是8个像素。WindowChrome则没有这个问题。</p>
+<h3 id="2-3-最大化状态下Margin和标题高度的问题"><a href="#2-3-最大化状态下Margin和标题高度的问题" class="headerlink" title="2.3 最大化状态下Margin和标题高度的问题#"></a>2.3 最大化状态下Margin和标题高度的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#4046902042">#</a></h3><p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125853307-104153632.png"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125853307-104153632.png"></a></p>
+<p>WindowChrome最大化时状态如上图所示，大小也变为1936 * 1066，这个大小没问题，有问题的是它不会计算好client-area的尺寸，只是简单地加大non-client的尺寸，导致client-area的尺寸也成了1936 * 1066。标准Window在最大化时non-client area的尺寸为1936 * 1066，client-area的尺寸为1920 * 1027。</p>
+<h3 id="2-4-最大化时chrome尺寸的问题"><a href="#2-4-最大化时chrome尺寸的问题" class="headerlink" title="2.4 最大化时chrome尺寸的问题#"></a>2.4 最大化时chrome尺寸的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#314953490">#</a></h3><p>结合<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/uielements_of_window.html">Window(窗体)的UI元素及行为</a>这篇文章，WindowChrome最大化时的client-area的尺寸就是Window尺寸(1936 * 1066)减去WindowNonClientFrameThickness(4，27，4，4)再减去PaddedBorderThickness(4，4，4，4)。这样就准确地计算出client-area在最大化状态下的尺寸为1920 * 1027。</p>
+<p>在自定义Window的ControlTempalte中我使用Trigger在最大化状态下将边框改为0，然后加上WindowResizeBorderThickness的Padding和PaddedBorderThickness的Margin：</p>
+<p>Copy</p>
+<p><code>&lt;Trigger Property=&quot;WindowState&quot;          Value=&quot;Maximized&quot;&gt;     &lt;Setter TargetName=&quot;MaximizeButton&quot;             Property=&quot;Visibility&quot;             Value=&quot;Collapsed&quot; /&gt;     &lt;Setter TargetName=&quot;RestoreButton&quot;             Property=&quot;Visibility&quot;             Value=&quot;Visible&quot; /&gt;     &lt;Setter TargetName=&quot;WindowBorder&quot;             Property=&quot;BorderThickness&quot;             Value=&quot;0&quot; /&gt;     &lt;Setter TargetName=&quot;WindowBorder&quot;             Property=&quot;Padding&quot;             Value=&quot;&#123;x:Static SystemParameters.WindowResizeBorderThickness&#125;&quot; /&gt;     &lt;Setter Property=&quot;Margin&quot;             TargetName=&quot;LayoutRoot&quot;             Value=&quot;&#123;x:Static local:WindowParameters.PaddedBorderThickness&#125;&quot; /&gt; &lt;/Trigger&gt;</code> </p>
+<p>以前我还试过让BorderThickness保持为1，Margin改为7，但后来发现运行在高于100% DPI的环境下出了问题，所以改为绑定到属性。</p>
+<p>在不同DPI下这几个属性值如下：</p>
+<p>DPI</p>
+<p>non-client area 尺寸</p>
+<p>client area 尺寸</p>
+<p>WindowNonClientFrameThickness</p>
+<p>PaddedBorderThickness</p>
+<p>100</p>
+<p>1936 * 1066</p>
+<p>1920 * 1027</p>
+<p>4,4,4,4</p>
+<p>4,4,4,4</p>
+<p>125</p>
+<p>1550.4</p>
+<p>1536</p>
+<p>3.2,3.2,3.2,3.2</p>
+<p>4,4,4,4</p>
+<p>150</p>
+<p>1294.66666666667</p>
+<p>280</p>
+<p>3.3333,3.3333,3.3333,3.3333</p>
+<p>4,4,4,4</p>
+<p>175</p>
+<p>1110.85714285714</p>
+<p>1097.14285714286</p>
+<p>2.8571428,2.8571428,2.8571428,2.8571428</p>
+<p>4,4,4,4</p>
+<p>200</p>
+<p>973</p>
+<p>960</p>
+<p>2.5,2.5,2.5,2.5</p>
+<p>4,4,4,4</p>
+<p>可以看到PaddedBorderThickness总是等于4，所以也可以使用不绑定PaddedBorderThickness的方案：</p>
+<p>Copy</p>
+<p><code>&lt;Border x:Name=&quot;WindowBorder&quot;         BorderThickness=&quot;3&quot;         BorderBrush=&quot;&#123;TemplateBinding BorderBrush&#125;&quot;         Background=&quot;&#123;TemplateBinding Background&#125;&quot;         &gt;     &lt;Border.Style&gt;         &lt;Style TargetType=&quot;&#123;x:Type Border&#125;&quot;&gt; &lt;Style.Triggers&gt;                 &lt;DataTrigger Binding=&quot;&#123;Binding WindowState, RelativeSource=&#123;RelativeSource TemplatedParent&#125;&#125;&quot; Value=&quot;Maximized&quot;&gt;                     &lt;Setter Property=&quot;Margin&quot; Value=&quot;&#123;x:Static SystemParameters.WindowResizeBorderThickness&#125;&quot;/&gt;                     &lt;Setter Property=&quot;Padding&quot; Value=&quot;1&quot;/&gt;                 &lt;/DataTrigger&gt;             &lt;/Style.Triggers&gt; &lt;/Style&gt;     &lt;/Border.Style&gt;</code> </p>
+<p>但我还是更喜欢PaddedBorderThickness，这是<strong>心情上的问题</strong>（我都写了这么多代码了，你告诉我直接用4这个神奇的数字就好了，我断然不能接受）。而且有可能将来Windows的窗体设计会改变，绑定系统的属性比较保险。</p>
+<p>最后，其实应该监视SystemParameters的StaticPropertyChanged事件然后修改PaddedBorderThickness，因为WindowNonClientFrameThickness和WindowResizeBorderThickness会在系统主题改变时改变，但不想为了这小概率事件多写代码就偷懒了。</p>
+<h2 id="3-SizeToContent的问题"><a href="#3-SizeToContent的问题" class="headerlink" title="3. SizeToContent的问题#"></a>3. SizeToContent的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#698006098">#</a></h2><p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.windows.window.sizetocontent?view=netframework-4.7.2">SizeToContent</a>属性用于指示Window是否自动调整它的大小，但当设置’SizeToContent&#x3D;”WidthAndHeight”‘时就会出问题：</p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125906858-387366596.png"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125906858-387366596.png"></a></p>
+<p>上图左面时一个没内容的自定义Window，右边是一个没内容的系统Window，两个都设置了<code>SizeToContent=&quot;WidthAndHeight&quot;</code>。可以看到自定义WindowChorme多出了一些黑色的区域，仔细观察这些黑色区域，发觉它的尺寸大概就是non-client area的尺寸，而且内容就是WindowChrome原本的内容。</p>
+<p><code>SizeToContent=&quot;WidthAndHeight&quot;</code>时Window需要计算ClientArea的尺寸然后再确定Window的尺寸，但使用WindowChrome自定义Window时程序以为整个ControlTempalte的内容都是ClientArea，把它当作了ClientArea的尺寸，再加上non-client的尺寸就得出了错误的Window尺寸。ControleTemplate的内容没办法遮住整个WindowChrome的内容，于是就出现了这些黑色的区域。</p>
+<p>解决方案是在OnSourceInitialized时简单粗暴地要求再计算一次尺寸：</p>
+<p>Copy</p>
+<p><code>protected override void OnSourceInitialized(EventArgs e) &#123;     base.OnSourceInitialized(e);     if (SizeToContent == SizeToContent.WidthAndHeight &amp;&amp; WindowChrome.GetWindowChrome(this) != null)     &#123;         InvalidateMeasure();     &#125; &#125;</code> </p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/CustomWindowStyle.html#idx_11">以前</a>我曾建议在<code>OnContentRendered</code>中执行这段代码，但后来发现调试模式，或者性能比较差的场合会有些问题，所以改为在<code>OnSourceInitialized</code>中执行了。</p>
+<h2 id="4-FlashWindow的问题"><a href="#4-FlashWindow的问题" class="headerlink" title="4. FlashWindow的问题#"></a>4. FlashWindow的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#3506205972">#</a></h2><p>如果一个Window设置了Owner并且以ShowDialog的方式打开，点击它的Owner将对这个Window调用<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/desktop/api/winuser/nf-winuser-flashwindowex">FlashWindowEx</a>功能，即闪烁几下,并且还有提示音。除了这种方式还可以用编程的方式调用FlashWindow功能。</p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191220081534829-1309452124.gif"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191220081534829-1309452124.gif"></a></p>
+<p>WindowChrome提供通知FlashWindow发生的事件，FlashWindow发生时虽然Window看上去在Active&#x2F;Inactive 状态间切换，但IsActive属性并不会改变。</p>
+<p>要处理这个问题，可以监听<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/desktop/winmsg/wm-ncactivate">WM_NCACTIVATE</a>消息，它通知Window的non-client area是否需要切换Active&#x2F;Inactive状态。</p>
+<p>Copy</p>
+<p>&#96;IntPtr handle &#x3D; new WindowInteropHelper(this).Handle;<br>HwndSource.FromHwnd(handle).AddHook(new HwndSourceHook(WndProc));</p>
+<p>protected override void OnActivated(EventArgs e)<br>{<br>    base.OnActivated(e);<br>    SetValue(IsNonClientActivePropertyKey, true);<br>}</p>
+<p>protected override void OnDeactivated(EventArgs e)<br>{<br>    base.OnDeactivated(e);<br>    SetValue(IsNonClientActivePropertyKey, false);<br>}</p>
+<p>private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)<br>{<br>    if (msg &#x3D;&#x3D; WindowNotifications.WM_NCACTIVATE)<br>        SetValue(IsNonClientActivePropertyKey, wParam &#x3D;&#x3D; _trueValue);</p>
+<pre><code>return IntPtr.Zero;
+</code></pre>
+<p>}&#96; </p>
+<p>需要添加一个只读的IsNonClientActive依赖属性，ControlTemplate通过Trigger使边框置灰：</p>
+<p>Copy</p>
+<p><code>&lt;Trigger Property=&quot;IsNonClientActive&quot;          Value=&quot;False&quot;&gt;     &lt;Setter Property=&quot;BorderBrush&quot;             Value=&quot;#FF6F7785&quot; /&gt; &lt;/Trigger&gt;</code> </p>
+<h2 id="5-ResizeBorder的问题"><a href="#5-ResizeBorder的问题" class="headerlink" title="5. ResizeBorder的问题#"></a>5. ResizeBorder的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#3895208869">#</a></h2><h3 id="5-1-ResizeBorder尺寸的问题"><a href="#5-1-ResizeBorder尺寸的问题" class="headerlink" title="5.1 ResizeBorder尺寸的问题#"></a>5.1 ResizeBorder尺寸的问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#1441411646">#</a></h3><p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125925846-2133706741.png"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125925846-2133706741.png"></a></p>
+<p>标准Window可以单击并拖动以调整窗口大小的区域为8像素(可以理解为SM_CXFRAME的4像素加上SM_CXPADDEDBORDER的4像素)。</p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125932456-1234836284.png"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191218125932456-1234836284.png"></a></p>
+<p>WindowChrome实际大小就是看起来的大小，默认的ResizeBorderThickness是4像素，就是从Chrome的边框向内的4像素范围，再多就会影响client-area里各元素的正常使用。</p>
+<p>由于标准Window的课拖动区域几乎在Window的外侧，而且有8个像素，而WindowChrome只能有4个像素，所以WindowChrome拖动起来手感没那么好。</p>
+<h3 id="5-2-拖动边框产生的性能问题"><a href="#5-2-拖动边框产生的性能问题" class="headerlink" title="5.2 拖动边框产生的性能问题#"></a>5.2 拖动边框产生的性能问题<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#93368276">#</a></h3><p>最后提一下WindowChrome的性能问题，正常操作我觉得应该没什么问题，只有拖动左右边缘尤其是左边缘改变Window大小的时候右边的边缘会很不和谐。其实这个问题不是什么大问题，看看这个空的什么都没有的Skype窗体都会这样，所以不需要特别在意。</p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/38937/201912/38937-20191220081557829-1128606025.gif"><img src="https://img2018.cnblogs.com/blog/38937/201912/38937-20191220081557829-1128606025.gif"></a></p>
+<h2 id="6-其它自定义Window的方案"><a href="#6-其它自定义Window的方案" class="headerlink" title="6. 其它自定义Window的方案#"></a>6. 其它自定义Window的方案<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#4118576">#</a></h2><p>在Kino.Toolkit.Wpf里我只提供了最简单的使用WindowChrome的方案，这个方案只能创建没有圆角的Window，而且不能自定义边框阴影颜色。如果真的需要更高的自由度可以试试参考其它方案。</p>
+<h3 id="6-1-VisualStudio"><a href="#6-1-VisualStudio" class="headerlink" title="6.1 VisualStudio#"></a>6.1 VisualStudio<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#2429278623">#</a></h3><p>VisualStudio当然没有开源，但并不妨碍我们去参考它的源码。可以在以下DLL找到<code>Microsoft.VisualStudio.PlatformUI.MainWindow</code>:</p>
+<blockquote>
+<p>X:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\Microsoft.VisualStudio.Shell.UI.Internal.dll</p>
+</blockquote>
+<h3 id="6-2-FirstFloor-ModernUI"><a href="#6-2-FirstFloor-ModernUI" class="headerlink" title="6.2 FirstFloor.ModernUI#"></a>6.2 FirstFloor.ModernUI<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#3672970512">#</a></h3><p><a target="_blank" rel="noopener" href="https://github.com/firstfloorsoftware/mui">Modern UI for WPF (MUI)</a>，A set of controls and styles converting your WPF application into a great looking Modern UI app.</p>
+<h3 id="6-3-MahApps-Metro"><a href="#6-3-MahApps-Metro" class="headerlink" title="6.3 MahApps.Metro#"></a>6.3 MahApps.Metro<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#2642907742">#</a></h3><p><a target="_blank" rel="noopener" href="https://github.com/MahApps/MahApps.Metro">MahApps.Metro  
+</a>,A framework that allows developers to cobble together a Metro or Modern UI for their own WPF applications with minimal effort.</p>
+<h3 id="6-4-Fluent-Ribbon"><a href="#6-4-Fluent-Ribbon" class="headerlink" title="6.4 Fluent.Ribbon#"></a>6.4 Fluent.Ribbon<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#35635718">#</a></h3><p><a target="_blank" rel="noopener" href="https://github.com/fluentribbon/Fluent.Ribbon">Fluent.Ribbon</a> is a library that implements an Office-like user interface for the Windows Presentation Foundation (WPF).</p>
+<h3 id="6-5-HandyControl"><a href="#6-5-HandyControl" class="headerlink" title="6.5 HandyControl#"></a>6.5 HandyControl<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#1238416275">#</a></h3><p><a target="_blank" rel="noopener" href="https://github.com/HandyOrg/HandyControl">HandyControl</a>l是一套WPF控件库，它几乎重写了所有原生样式，同时包含50多款额外的控件，还提供了一些好看的Window。</p>
+<h3 id="6-6-Sakuno-UserInterface"><a href="#6-6-Sakuno-UserInterface" class="headerlink" title="6.6 Sakuno.UserInterface#"></a>6.6 Sakuno.UserInterface<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#2999512980">#</a></h3><p><a target="_blank" rel="noopener" href="https://github.com/KodamaSakuno/Sakuno.UserInterface/">Sakuno.UserInterface</a>，A framework with some powerful tools that allows developers to build a WPF application in modern UI.</p>
+<h2 id="7-参考"><a href="#7-参考" class="headerlink" title="7. 参考#"></a>7. 参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#1921838862">#</a></h2><p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.windows.shell.windowchrome?view=netframework-4.7.2">WindowChrome Class (System.Windows.Shell) Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.windows.systemparameters?view=netframework-4.7.2">SystemParameters Class (System.Windows) Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/framework/wpf/app-development/wpf-windows-overview?view=netframework-4.7.2">WPF Windows 概述 _ Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getsystemmetrics">GetSystemMetrics function Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/desktop/api/winuser/nf-winuser-flashwindowex">FlashWindowEx function Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.windows.window?view=netframework-4.7.2">Window Class (System.Windows) Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/desktop/WinAuto/inspect-objects">Inspect - Windows applications Microsoft Docs</a></p>
+<h2 id="8-源码"><a href="#8-源码" class="headerlink" title="8. 源码#"></a>8. 源码<a target="_blank" rel="noopener" href="https://www.cnblogs.com/dino623/p/problems_of_WindowChrome.html#2219458513">#</a></h2><p><a target="_blank" rel="noopener" href="https://github.com/DinoChan/Kino.Toolkit.Wpf/tree/master/Kino.Toolkit.Wpf/Kino.Toolkit.Wpf/Window">Kino.Toolkit.Wpf_Window at master</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%87%E9%A2%98%E6%A0%8F%20%E8%87%AA%E5%AE%9A%E4%B9%89%E8%8F%9C%E5%8D%95%E6%A0%8F/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20%E8%87%AA%E5%AE%9A%E4%B9%89TabControl%E6%8E%A7%E4%BB%B6%E6%A0%B7%E5%BC%8F/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-WindowChrome%E6%9C%80%E5%A4%A7%E5%8C%96%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">2. WindowChrome最大化的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%BD%B1%E5%93%8DChrome%E5%B0%BA%E5%AF%B8%E7%9A%84%E5%87%A0%E4%B8%AA%E5%80%BC"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 影响Chrome尺寸的几个值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-WindowChrome%E7%9A%84%E5%AE%9E%E9%99%85%E5%A4%A7%E5%B0%8F%E5%92%8C%E6%99%AE%E9%80%9AWindow%E4%B8%8D%E5%90%8C"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 WindowChrome的实际大小和普通Window不同</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%9C%80%E5%A4%A7%E5%8C%96%E7%8A%B6%E6%80%81%E4%B8%8BMargin%E5%92%8C%E6%A0%87%E9%A2%98%E9%AB%98%E5%BA%A6%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 最大化状态下Margin和标题高度的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E6%9C%80%E5%A4%A7%E5%8C%96%E6%97%B6chrome%E5%B0%BA%E5%AF%B8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 最大化时chrome尺寸的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-SizeToContent%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">3. SizeToContent的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-FlashWindow%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">4. FlashWindow的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-ResizeBorder%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">5. ResizeBorder的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-ResizeBorder%E5%B0%BA%E5%AF%B8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 ResizeBorder尺寸的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E6%8B%96%E5%8A%A8%E8%BE%B9%E6%A1%86%E4%BA%A7%E7%94%9F%E7%9A%84%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 拖动边框产生的性能问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%85%B6%E5%AE%83%E8%87%AA%E5%AE%9A%E4%B9%89Window%E7%9A%84%E6%96%B9%E6%A1%88"><span class="nav-number">6.</span> <span class="nav-text">6. 其它自定义Window的方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-VisualStudio"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 VisualStudio</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-FirstFloor-ModernUI"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 FirstFloor.ModernUI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-MahApps-Metro"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 MahApps.Metro</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-Fluent-Ribbon"><span class="nav-number">6.4.</span> <span class="nav-text">6.4 Fluent.Ribbon</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-HandyControl"><span class="nav-number">6.5.</span> <span class="nav-text">6.5 HandyControl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-6-Sakuno-UserInterface"><span class="nav-number">6.6.</span> <span class="nav-text">6.6 Sakuno.UserInterface</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%8F%82%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">7. 参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E6%BA%90%E7%A0%81"><span class="nav-number">8.</span> <span class="nav-text">8. 源码</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="WPF开发程序过程中总会遇到一个需求：Loading…正在加载中，这样一个需求作为加载的过渡效果。 这里博主给出两种方法来实现： 1.使用一张规则图片，加上图片的wpf旋转效果来实现加载效果。 2.wpf程序划点，然后旋转实现加载效果。 下面分别给出实现方法及代码： 1.规则图片的旋转实现   这里的RenderTransformOrigin&#x3D;”0.5,0.5”表示以图片的圆心为指定变换">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="WPF开发程序过程中总会遇到一个需求：Loading…正在加载中，这样一个需求作为加载的过渡效果。 这里博主给出两种方法来实现： 1.使用一张规则图片，加上图片的wpf旋转效果来实现加载效果。 2.wpf程序划点，然后旋转实现加载效果。 下面分别给出实现方法及代码： 1.规则图片的旋转实现   这里的RenderTransformOrigin&#x3D;”0.5,0.5”表示以图片的圆心为指定变换">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711140749165-107799083.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711151830572-1416727072.png">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711151911415-1363854687.png">
+<meta property="article:published_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711140749165-107799083.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>WPF开发程序过程中总会遇到一个需求：Loading…正在加载中，这样一个需求作为加载的过渡效果。</p>
+<p>这里博主给出两种方法来实现：</p>
+<p>1.使用一张规则图片，加上图片的wpf旋转效果来实现加载效果。</p>
+<p>2.wpf程序划点，然后旋转实现加载效果。</p>
+<p>下面分别给出实现方法及代码：</p>
+<p>1.规则图片的旋转实现</p>
+<p><img src="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711140749165-107799083.png"></p>
+<p><Image x:Name="run\_image" Source="../Images/loading\_pic.png" Stretch="UniformToFill" Margin="25,0,0,0" Width="28" Height="28"  
+HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" ><br></Image></p>
+<p>这里的RenderTransformOrigin&#x3D;”0.5,0.5”表示以图片的圆心为指定变换原点</p>
+<p>在后台中初始化代码中加上下面一段：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>&#x2F;&#x2F;图片转动<br>            DoubleAnimation da &#x3D; new DoubleAnimation();<br>            da.From = 0;<br>            da.To = 360;<br>            da.Duration = new Duration(TimeSpan.FromSeconds(3));<br>            da.RepeatBehavior = RepeatBehavior.Forever;<br>            RotateTransform rt = new RotateTransform();<br>            run_image.RenderTransform = rt;<br>            rt.BeginAnimation(RotateTransform.AngleProperty, da); &#x2F;&#x2F;图片转动</p>
+<p>View Code</p>
+<p>2.wpf程序划点，然后旋转实现加载效果</p>
+<p><img src="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711151830572-1416727072.png"></p>
+<p>在xaml中我们添加一个遮罩层和这个loading的图像：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>&lt;Grid x:Name&#x3D;”LoadGrid” Visibility&#x3D;”Collapsed” IsVisibleChanged&#x3D;”HandleVisibleChanged”&gt;<br>            &lt;Grid.Background&gt;<br>                <SolidColorBrush Color="Black" Opacity="0.2"  /><br>            &lt;&#x2F;Grid.Background&gt;<br>            &lt;Grid.Resources&gt;<br>                <SolidColorBrush Color="#FF007BE5" x:Key="CirclesColor" /><br>                <!--<SolidColorBrush Color="Black" x:Key="BackgroundColor" Opacity=".20" />--><br>            &lt;&#x2F;Grid.Resources&gt;</p>
+<pre><code>        &lt;Viewbox Width=&quot;100&quot; Height=&quot;100&quot; HorizontalAlignment\=&quot;Center&quot; VerticalAlignment\=&quot;Center&quot;\&gt;
+            &lt;Grid x:Name=&quot;LayoutRoot&quot; Background\=&quot;Transparent&quot; ToolTip\=&quot;Please wait....&quot; HorizontalAlignment\=&quot;Center&quot; VerticalAlignment\=&quot;Center&quot;\&gt;
+                &lt;TextBlock Text=&quot;Loading...&quot;  HorizontalAlignment=&quot;Center&quot; VerticalAlignment=&quot;Center&quot; FontSize=&quot;14&quot; Foreground=&quot;#FFE3953D&quot; FontWeight=&quot;Bold&quot; /&gt;
+                &lt;Canvas RenderTransformOrigin=&quot;0.5,0.5&quot; HorizontalAlignment\=&quot;Center&quot; VerticalAlignment\=&quot;Center&quot; Width=&quot;120&quot; Height\=&quot;120&quot; Loaded=&quot;HandleLoaded&quot; Unloaded\=&quot;HandleUnloaded&quot;  &gt;
+                    &lt;Ellipse x:Name=&quot;C0&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;1.0&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C1&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.9&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C2&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.8&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C3&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.7&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C4&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.6&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C5&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.5&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C6&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.4&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C7&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.3&quot;/&gt;
+                    &lt;Ellipse x:Name=&quot;C8&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.2&quot;/&gt;
+                    &lt;Canvas.RenderTransform&gt;
+                        &lt;RotateTransform x:Name=&quot;SpinnerRotate&quot; Angle\=&quot;0&quot; /&gt;
+                    &lt;/Canvas.RenderTransform&gt;
+                &lt;/Canvas&gt;
+            &lt;/Grid&gt;
+        &lt;/Viewbox&gt;
+    &lt;/Grid&gt;
+</code></pre>
+<p>View Code</p>
+<p>上面的代码实现了：一个半透明的黑色蒙版，9个颜色相同但是透明度不同的蓝色圆点，loading字样</p>
+<p>然后需要在后台cs代码中加入下列代码：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<pre><code>    #region 
+    /// &lt;summary&gt;
+    /// 队列计时器 /// &lt;/summary&gt;
+    private DispatcherTimer animationTimer; #endregion
+
+    #region 加载界面初始化方法
+
+    public void LoadingWait()
+    &#123;
+        animationTimer \= new DispatcherTimer(
+            DispatcherPriority.ContextIdle, Dispatcher);
+        animationTimer.Interval \= new TimeSpan(0, 0, 0, 0, 90);
+    &#125; #endregion
+
+    #region 执行方法
+
+    private void Start()
+    &#123;
+        animationTimer.Tick += HandleAnimationTick;
+        animationTimer.Start();
+    &#125; private void Stop()
+    &#123;
+        animationTimer.Stop();
+        animationTimer.Tick \-= HandleAnimationTick;
+    &#125; private void HandleAnimationTick(object sender, EventArgs e)
+    &#123;
+        SpinnerRotate.Angle \= (SpinnerRotate.Angle + 36) % 360;
+    &#125; private void HandleLoaded(object sender, RoutedEventArgs e)
+    &#123; const double offset = Math.PI; const double step = Math.PI \* 2 / 10.0;
+
+        SetPosition(C0, offset, 0.0, step);
+        SetPosition(C1, offset, 1.0, step);
+        SetPosition(C2, offset, 2.0, step);
+        SetPosition(C3, offset, 3.0, step);
+        SetPosition(C4, offset, 4.0, step);
+        SetPosition(C5, offset, 5.0, step);
+        SetPosition(C6, offset, 6.0, step);
+        SetPosition(C7, offset, 7.0, step);
+        SetPosition(C8, offset, 8.0, step);
+    &#125; private void SetPosition(Ellipse ellipse, double offset, double posOffSet, double step)
+    &#123;
+        ellipse.SetValue(Canvas.LeftProperty, 50.0
+            + Math.Sin(offset + posOffSet \* step) \* 50.0);
+
+        ellipse.SetValue(Canvas.TopProperty, 50
+            + Math.Cos(offset + posOffSet \* step) \* 50.0);
+    &#125; private void HandleUnloaded(object sender, RoutedEventArgs e)
+    &#123;
+        Stop();
+    &#125; private void HandleVisibleChanged(object sender,
+        DependencyPropertyChangedEventArgs e)
+    &#123; bool isVisible = (bool)e.NewValue; if (animationTimer == null)
+        &#123;
+            LoadingWait();
+        &#125; if (isVisible)
+            Start(); else Stop();
+    &#125; 
+</code></pre>
+<p>View Code</p>
+<p>以上的代码主要实现loading图像的旋转，这里原理是这样的：初始化的时候先将9个圆点按照圆形正圆排列（HandleLoaded方法），然后初始化一个DispatcherTimer定时器（知识点：<a target="_blank" rel="noopener" href="http://blog.csdn.net/yl2isoft/article/details/51346294">timer和DispatcherTimer的区别</a>），这样定时触发HandleAnimationTick方法（该方法会给圆形图像设置旋转角度）</p>
+<p>最重要的是，这些动作在该图显示显示的时候发生（IsVisibleChanged&#x3D;”HandleVisibleChanged” &#x2F;&#x2F;这个元素的 IsVisible 属性值变化时发生），要想不显示该效果只需要将该元素隐藏即可（this.LoadGrid.Visibility &#x3D; System.Windows.Visibility.Collapsed;&#x2F;&#x2F;遮罩层隐藏）。</p>
+<p>这块其实可以单独提取出来，哪里想要使用直接引用即可。</p>
+<p> 新建一个usercontrol</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>&lt;UserControl x:Class&#x3D;”LoadingMask_Demo.LoadingWait” xmlns=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml/presentation">http://schemas.microsoft.com/winfx/2006/xaml/presentation</a>“ xmlns:x=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml">http://schemas.microsoft.com/winfx/2006/xaml</a>“ xmlns:mc=“<a target="_blank" rel="noopener" href="http://schemas.openxmlformats.org/markup-compatibility/2006">http://schemas.openxmlformats.org/markup-compatibility/2006</a>“ IsVisibleChanged=“HandleVisibleChanged”&gt;<br>    &lt;UserControl.Background&gt;<br>        <SolidColorBrush Color="Black" Opacity="0.2"  /><br>    &lt;&#x2F;UserControl.Background&gt;<br>    &lt;UserControl.Resources&gt;<br>        <SolidColorBrush Color="#FF007BE5" x:Key="CirclesColor" /><br>        <!--<SolidColorBrush Color="Black" x:Key="BackgroundColor" Opacity=".20" />--><br>    &lt;&#x2F;UserControl.Resources&gt;  </p>
+<pre><code>&lt;Viewbox Width=&quot;100&quot; Height=&quot;100&quot; HorizontalAlignment\=&quot;Center&quot; VerticalAlignment\=&quot;Center&quot;\&gt;  
+    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background\=&quot;Transparent&quot; ToolTip\=&quot;Please wait....&quot; HorizontalAlignment\=&quot;Center&quot; VerticalAlignment\=&quot;Center&quot;\&gt;  
+        &lt;TextBlock Text=&quot;Loading...&quot;  HorizontalAlignment=&quot;Center&quot; VerticalAlignment=&quot;Center&quot; FontSize=&quot;14&quot; Foreground=&quot;#FFE3953D&quot; FontWeight=&quot;Bold&quot; /&gt;  
+        &lt;Canvas RenderTransformOrigin=&quot;0.5,0.5&quot; HorizontalAlignment\=&quot;Center&quot; VerticalAlignment\=&quot;Center&quot; Width=&quot;120&quot; Height\=&quot;120&quot; Loaded=&quot;HandleLoaded&quot; Unloaded\=&quot;HandleUnloaded&quot;  &gt;  
+            &lt;Ellipse x:Name=&quot;C0&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;1.0&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C1&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.9&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C2&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.8&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C3&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.7&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C4&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.6&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C5&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.5&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C6&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.4&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C7&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.3&quot;/&gt;  
+            &lt;Ellipse x:Name=&quot;C8&quot; Width=&quot;20&quot; Height=&quot;20&quot; Canvas.Left\=&quot;0&quot; Canvas.Top\=&quot;0&quot; Stretch=&quot;Fill&quot; Fill\=&quot;&#123;StaticResource CirclesColor&#125;&quot; Opacity=&quot;0.2&quot;/&gt;  
+            &lt;Canvas.RenderTransform&gt;  
+                &lt;RotateTransform x:Name=&quot;SpinnerRotate&quot; Angle\=&quot;0&quot; /&gt;  
+            &lt;/Canvas.RenderTransform&gt;  
+        &lt;/Canvas&gt;  
+    &lt;/Grid&gt;  
+&lt;/Viewbox&gt;  
+</code></pre>
+</UserControl>  
+
+<p>View Code</p>
+<p>对应的cs文件代码：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>using System; using System.Collections.Generic; using System.Linq; using System.Text; using System.Windows; using System.Windows.Controls; using System.Windows.Data; using System.Windows.Documents; using System.Windows.Input; using System.Windows.Media; using System.Windows.Media.Imaging; using System.Windows.Navigation; using System.Windows.Shapes; using System.Windows.Threading; namespace LoadingMask_Demo<br>{ &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; Interaction logic for LoadingWait.xaml &#x2F;&#x2F;&#x2F; </summary><br>    public partial class LoadingWait : UserControl<br>    { #region Data<br>        private readonly DispatcherTimer animationTimer; #endregion  </p>
+<pre><code>    #region Constructor  
+    public LoadingWait()  
+    &#123;  
+        InitializeComponent();  
+
+        animationTimer \= new DispatcherTimer(  
+            DispatcherPriority.ContextIdle, Dispatcher);  
+        animationTimer.Interval \= new TimeSpan(0, 0, 0, 0, 90);  
+    &#125; #endregion  
+
+    #region Private Methods  
+    private void Start()  
+    &#123;  
+        animationTimer.Tick += HandleAnimationTick;  
+        animationTimer.Start();  
+    &#125; private void Stop()  
+    &#123;  
+        animationTimer.Stop();  
+        animationTimer.Tick \-= HandleAnimationTick;  
+    &#125; private void HandleAnimationTick(object sender, EventArgs e)  
+    &#123;  
+        SpinnerRotate.Angle \= (SpinnerRotate.Angle + 36) % 360;  
+    &#125; private void HandleLoaded(object sender, RoutedEventArgs e)  
+    &#123; const double offset = Math.PI; const double step = Math.PI \* 2 / 10.0;  
+
+        SetPosition(C0, offset, 0.0, step);  
+        SetPosition(C1, offset, 1.0, step);  
+        SetPosition(C2, offset, 2.0, step);  
+        SetPosition(C3, offset, 3.0, step);  
+        SetPosition(C4, offset, 4.0, step);  
+        SetPosition(C5, offset, 5.0, step);  
+        SetPosition(C6, offset, 6.0, step);  
+        SetPosition(C7, offset, 7.0, step);  
+        SetPosition(C8, offset, 8.0, step);  
+    &#125; private void SetPosition(Ellipse ellipse, double offset, double posOffSet, double step)  
+    &#123;  
+        ellipse.SetValue(Canvas.LeftProperty, 50.0  
+            + Math.Sin(offset + posOffSet \* step) \* 50.0);  
+
+        ellipse.SetValue(Canvas.TopProperty, 50  
+            + Math.Cos(offset + posOffSet \* step) \* 50.0);  
+    &#125; private void HandleUnloaded(object sender, RoutedEventArgs e)  
+    &#123;  
+        Stop();  
+    &#125; private void HandleVisibleChanged(object sender,  
+        DependencyPropertyChangedEventArgs e)  
+    &#123; bool isVisible = (bool)e.NewValue; if (isVisible)  
+            Start(); else Stop();  
+    &#125; #endregion    &#125;  
+</code></pre>
+<p>} </p>
+<p>View Code</p>
+<p>调用时前台的代码：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>&lt;Window x:Class&#x3D;”LoadingMask_Demo.MainWindow” xmlns=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml/presentation">http://schemas.microsoft.com/winfx/2006/xaml/presentation</a>“ xmlns:x=“<a target="_blank" rel="noopener" href="http://schemas.microsoft.com/winfx/2006/xaml">http://schemas.microsoft.com/winfx/2006/xaml</a>“ Title=“MainWindow” Height&#x3D;”350” Width&#x3D;”525” xmlns:local=“clr-namespace:LoadingMask_Demo”<br>        &gt;<br>    <DockPanel><br>        &lt;StackPanel Orientation&#x3D;”Horizontal” DockPanel.Dock&#x3D;”Top”&gt;<br>            <Button  Content="show" Width="70" Height="30" Click="ShowButton\_Click" /><br>            <Button  Content="hide" Width="70" Height="30" Click="HideButton\_Click"/><br>        </StackPanel>  </p>
+<pre><code>    &lt;Grid Background=&quot;#FF484848&quot; DockPanel.Dock=&quot;Bottom&quot;\&gt;  
+        &lt;TextBlock Text=&quot;asdfasdfasdf&quot; Foreground=&quot;White&quot;/&gt;  
+        &lt;local:LoadingWait x:Name=&quot;\_loading&quot;  Visibility=&quot;Collapsed&quot;/&gt;  
+    &lt;/Grid&gt;  
+&lt;/DockPanel&gt;  
+</code></pre>
+</Window>
+
+<p>View Code</p>
+<p>调用时后台控制显示隐藏的代码：</p>
+<p><img src="https://images.cnblogs.com/OutliningIndicators/ContractedBlock.gif"></p>
+<p>using System; using System.Collections.Generic; using System.Linq; using System.Text; using System.Windows; using System.Windows.Controls; using System.Windows.Data; using System.Windows.Documents; using System.Windows.Input; using System.Windows.Media; using System.Windows.Media.Imaging; using System.Windows.Navigation; using System.Windows.Shapes; namespace LoadingMask_Demo<br>{ &#x2F;&#x2F;&#x2F; <summary><br>    &#x2F;&#x2F;&#x2F; Interaction logic for MainWindow.xaml &#x2F;&#x2F;&#x2F; </summary><br>    public partial class MainWindow : Window<br>    { public MainWindow()<br>        {<br>            InitializeComponent();<br>        } private void ShowButton_Click(object sender, RoutedEventArgs e)<br>        { this._loading.Visibility &#x3D; Visibility.Visible;<br>        } private void HideButton_Click(object sender, RoutedEventArgs e)<br>        { this._loading.Visibility &#x3D; Visibility.Collapsed;<br>        }  </p>
+<pre><code>&#125;  
+</code></pre>
+<p>} </p>
+<p>View Code</p>
+<p>看一下最后的效果图：</p>
+<p><img src="https://images2015.cnblogs.com/blog/489086/201707/489086-20170711151911415-1363854687.png"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8B%E5%85%A8%E5%B1%80%E5%BF%AB%E6%8D%B7%E9%94%AE/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

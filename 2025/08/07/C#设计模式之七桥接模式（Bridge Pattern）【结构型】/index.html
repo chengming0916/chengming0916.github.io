@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%83%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Bridge%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171020141809084-597852780.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.151Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.151Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171020141809084-597852780.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%83%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Bridge%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%83%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Bridge%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%83%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Bridge%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%83%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Bridge%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a></p>
+<p>8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>   今天我们要讲【结构型】设计模式的第二个模式，该模式是【桥接模式】，也有叫【桥模式】的，英文名称：Bridge Pattern。大家第一次看到这个名称会想到什么呢？我第一次看到这个模式根据名称猜肯定是连接什么东西的。因为桥在我们现实生活中经常是连接着A地和B地，再往后来发展，桥引申为一种纽带，比如：丝绸之路是连接亚洲和欧洲的桥梁。有了桥，我们出行方便了，从一个地方到另一个地方在有桥的情况更方便了（此处不许抬杠，当然是需要桥的情况）。桥是针对桥的使用环境来说的，解决了跨越和衔接的问题。在设计模式中的【桥模式】也有类似的概念，是连接了两个不同维度的东西，而且这两个维度又有强烈的变化，什么叫强烈呢，经常变化，什么是经常呢？哈哈，自己理解吧。  </p>
+<p><strong>二、桥接模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>   在很多游戏场景中，会有这样的情况：【装备】本身会有的自己固有的逻辑，比如枪支，会有型号的问题，同时现在很多的游戏又在不同的介质平台上运行和使用，这样就使得游戏的【装备】具有了两个变化的维度——一个变化的维度为“平台的变化”，另一个变化的维度为“型号的变化”。如果我们要写代码实现这款游戏，难道我们针对每种平台都实现一套独立的【装备】吗？复用在哪里？如何应对这种“多维度的变化”？如何利用面向对象技术来使得【装备】可以轻松地沿着“平台”和“型号”两个方向变化，而不引入额外的复杂度？  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>   将抽象部分与实现部分分离，使它们都可以独立地变化。                                                                  –《设计模式》Gof  </p>
+<p>   桥模式不能只是认为是抽象和实现的分离，它其实并不仅限于此。其实两个都是抽象的部分，更确切的理解，应该是将一个事物中多个维度的变化分离。  </p>
+<p><strong>2.3、</strong>结构图（Structure）****  </p>
+<p>       <img src="http://images2017.cnblogs.com/blog/1048776/201710/1048776-20171020141809084-597852780.png">  </p>
+<p><strong>2.4、模式的组成</strong>  </p>
+<p>      桥接模式的结构包括Abstraction、RefinedAbstraction、Implementor、ConcreteImplementorA和ConcreteImplementorB五个部分，其中：  </p>
+<p>       <strong>（1）、抽象化角色(Abstraction)<strong>：抽象化给出的定义，并保存一个对</strong>实现化对象（Implementor）</strong>的引用。  </p>
+<p>       **（2）、修正抽象化角色(Refined Abstraction)**：扩展抽象化角色，改变和修正父类对抽象化的定义。  </p>
+<p>       **（3）、实现化角色(Implementor)**：这个角色给出实现化角色的接口，但不给出具体的实现。必须指出的是，这个接口不一定和抽象化角色的接口定义相同，实际上，这两个接口可以非常不一样。实现化角色应当只给出底层操作，而抽象化角色应当只给出基于底层操作的更高一层的操作。  </p>
+<p>       <strong>（4）、具体实现化角色(Concrete Implementor)：</strong>这个角色给出实现化角色接口的具体实现。  </p>
+<p>　　在桥接模式中，两个类Abstraction和Implementor分别定义了抽象与行为类型的接口，通过调用两接口的子类实现抽象与行为的动态组合。  </p>
+<p><strong>2.5 、桥接模式的具体代码实现</strong>  </p>
+<p>   今天我们就以数据库为例来写该模式的实现。每种数据库都有自己的版本，但是每种数据库在不同的平台上实现又是不一样的。比如：微软的SqlServer数据库，该数据库它有2000版本、2005版本、2006版本、2008版本，后面还会有更新的版本。并且这些版本都是运行在Windows操作系统下的，如果要提供Lunix操作系统下的SqlServer怎么办呢？如果又要提供IOS操作系统下的SqlServer数据库该怎么办呢？这个情况就可以使用桥接模式，也就是Brige模式。我们就来看看具体的实现吧！   </p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p> 1 namespace 桥接模式的实现 2 {<br> 3     &#x2F;&#x2F;&#x2F; <summary><br> 4     &#x2F;&#x2F;&#x2F; 该抽象类就是抽象接口的定义，该类型就相当于是Abstraction类型 5     &#x2F;&#x2F;&#x2F; </summary><br> 6     public abstract class Database 7     {<br> 8         &#x2F;&#x2F;通过组合方式引用平台接口，此处就是桥梁，该类型相当于Implementor类型<br> 9         protected PlatformImplementor _implementor;<br>10<br>11         &#x2F;&#x2F;通过构造器注入，初始化平台实现<br>12         protected Database(PlatformImplementor implementor)<br>13 {<br>14             this._implementor &#x3D; implementor;<br>15 }<br>16<br>17         &#x2F;&#x2F;创建数据库–该操作相当于Abstraction类型的Operation方法<br>18         public abstract void Create();<br>19 }<br>20<br>21     &#x2F;&#x2F;&#x2F; <summary><br>22     &#x2F;&#x2F;&#x2F; 该抽象类就是实现接口的定义，该类型就相当于是Implementor类型<br>23     &#x2F;&#x2F;&#x2F; </summary><br>24     public abstract class PlatformImplementor<br>25 {<br>26         &#x2F;&#x2F;该方法就相当于Implementor类型的OperationImpl方法<br>27         public abstract void Process();<br>28 }<br>29<br>30     &#x2F;&#x2F;&#x2F; <summary><br>31     &#x2F;&#x2F;&#x2F; SqlServer2000版本的数据库，相当于RefinedAbstraction类型<br>32     &#x2F;&#x2F;&#x2F; </summary><br>33     public class SqlServer2000 : Database<br>34 {<br>35         &#x2F;&#x2F;构造函数初始化<br>36         public SqlServer2000(PlatformImplementor implementor) : base(implementor) { }<br>37<br>38         public override void Create()<br>39 {<br>40             this._implementor.Process();<br>41 }<br>42 }<br>43<br>44     &#x2F;&#x2F;&#x2F; <summary><br>45     &#x2F;&#x2F;&#x2F; SqlServer2005版本的数据库，相当于RefinedAbstraction类型<br>46     &#x2F;&#x2F;&#x2F; </summary><br>47     public class SqlServer2005 : Database<br>48 {<br>49         &#x2F;&#x2F;构造函数初始化<br>50         public SqlServer2005(PlatformImplementor implementor) : base(implementor) { }<br>51<br>52         public override void Create()<br>53 {<br>54             this._implementor.Process();<br>55 }<br>56 }<br>57<br>58     &#x2F;&#x2F;&#x2F; <summary><br>59     &#x2F;&#x2F;&#x2F; SqlServer2000版本的数据库针对Unix操作系统具体的实现，相当于ConcreteImplementorA类型<br>60     &#x2F;&#x2F;&#x2F; </summary><br>61     public class SqlServer2000UnixImplementor : PlatformImplementor<br>62 {<br>63         public override void Process()<br>64 {<br>65             Console.WriteLine(“SqlServer2000针对Unix的具体实现”);<br>66 }<br>67 }<br>68<br>69     &#x2F;&#x2F;&#x2F; <summary><br>70     &#x2F;&#x2F;&#x2F; SqlServer2005版本的数据库针对Unix操作系统的具体实现，相当于ConcreteImplementorB类型<br>71     &#x2F;&#x2F;&#x2F; </summary><br>72     public sealed class SqlServer2005UnixImplementor : PlatformImplementor<br>73 {<br>74         public override void Process()<br>75 {<br>76             Console.WriteLine(“SqlServer2005针对Unix的具体实现”);<br>77 }<br>78 }<br>79<br>80     public class Program<br>81 {<br>82         static void Main()<br>83 {<br>84             PlatformImplementor SqlServer2000UnixImp &#x3D; new SqlServer2000UnixImplementor();<br>85             &#x2F;&#x2F;还可以针对不同平台进行扩展，也就是子类化，这个是独立变化的<br>86<br>87             Database SqlServer2000Unix &#x3D; new SqlServer2000(SqlServer2000UnixImp);<br>88             &#x2F;&#x2F;数据库版本也可以进行扩展和升级，也进行独立的变化。<br>89<br>90             &#x2F;&#x2F;以上就是两个维度的变化。<br>91<br>92          &#x2F;&#x2F;就可以针对Unix执行操作了<br>93 SqlServer2000Unix.Create();<br>94 }<br>95 }<br>96 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>    代码都很简单，也有详细的备注，就不多说了。  </p>
+<p><strong>三、桥接模式的实现要点：</strong><br>    <br>    1．Bridge模式使用“对象间的组合关系”解耦了抽象和实现之间固有的绑定关系，使得抽象和实现可以沿着各自的维度来变化。  </p>
+<p>    2．所谓抽象和实现沿着各自维度的变化，即“子类化”它们，得到各个子类之后，便可以任意组合它们，从而获得不同平台上的不同型号。  </p>
+<p>    3．Bridge模式有时候类似于多继承方案，但是多继承方案往往违背了类的单一职责原则（即一个类只有一个变化的原因），复用性比较差。Bridge模式是比多继承方案更好的解决方法。  </p>
+<p>    4．Bridge模式的应用一般在“两个非常强的变化维度”，有时候即使有两个变化的维度，但是某个方向的变化维度并不剧烈——换言之两个变化不会导致纵横交错的结果，并不一定要使用Bridge模式。  </p>
+<p>    <strong>3.1】、桥接模式的优点：</strong>  </p>
+<p>          （1）、把抽象接口与其实现解耦。  </p>
+<p>          （2）、抽象和实现可以独立扩展，不会影响到对方。  </p>
+<p>          （3）、实现细节对客户透明，对用于隐藏了具体实现细节。  </p>
+<p>   <strong>3.2】、桥接模式的缺点：</strong>  </p>
+<p>         （1）、增加了系统的复杂度  </p>
+<p>   <strong>3.3】、桥接模式的使用场景：</strong>  </p>
+<p>         （1）、如果一个系统需要在构件的抽象化角色和具体化角色之间添加更多的灵活性，避免在两个层次之间建立静态的联系。  </p>
+<p>         （2）、设计要求实现化角色的任何改变不应当影响客户端，或者实现化角色的改变对客户端是完全透明的。  </p>
+<p>         （3）、需要跨越多个平台的图形和窗口系统上。  </p>
+<p>         （4）、 一个类存在两个独立变化的维度，且两个维度都需要进行扩展。  </p>
+<p><strong>四、.NET 中桥接模式的实现</strong>  </p>
+<p>    学习中。。。，如果谁有好的代码分享，也可以贴出来。  </p>
+<p><strong>五、总结</strong>  </p>
+<p>  今天的文章就写到这里了，现在小结一下。桥接模式它是连接客户端代码和具体实现代码的一座桥梁，同时它也隔离了实现代码的改变对客户代码的影响。在【意图】中所说的抽象和实现，这两个部分其实都是高度抽象的，前面“抽象”是指定义的针对客户端的接口，客户端其实使用的是Abstract类型或者是RefinedAbstract类型，这两个类型只是接口，具体的实现委托给了Implementor类型了，Abstract类型子类化的扩展也演变成Implementor子类化的变化。我个人的理解，Abstract类型和其子类型在客户端代码和真正实现的代码之间起到了桥梁的作用，隔离了Implementor实现代码的变化，让客户端更稳定，所以【意图】才说是讲抽象部分和它的实现部分隔离。大家好好理解一下吧，刚开始有点绕。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">https://www.cnblogs.com/PatrickLiu/p/7699301.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%89%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%EF%BC%88AbstractFactory%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E4%B8%80%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Singleton%20Pattern%EF%BC%89%E3%80%90%E5%88%9B%E5%BB%BA%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

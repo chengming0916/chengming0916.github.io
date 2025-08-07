@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近在做关于在WPF使用VLC流媒体播放的问题，现在可以在WPF中实现VLC本地播放了，流播放解决了，在下面的代码中注释流媒体播放那两段代码,更多的在乎大家摸索了^^，以供大家相互学习，这里我就先把实现VLC本地播放的代码和过程写给需要的朋友参考。 一、首先到下面网站： http:&#x2F;&#x2F;vlcdotnet.codeplex.com&#x2F;releases&#x2F;view&#x2F;77778 下载  VideoLan D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="最近在做关于在WPF使用VLC流媒体播放的问题，现在可以在WPF中实现VLC本地播放了，流播放解决了，在下面的代码中注释流媒体播放那两段代码,更多的在乎大家摸索了^^，以供大家相互学习，这里我就先把实现VLC本地播放的代码和过程写给需要的朋友参考。 一、首先到下面网站： http:&#x2F;&#x2F;vlcdotnet.codeplex.com&#x2F;releases&#x2F;view&#x2F;77778 下载  VideoLan D">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://i3.codeplex.com/Images/v19219/RuntimeBinary.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.168Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://i3.codeplex.com/Images/v19219/RuntimeBinary.gif">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%E4%B9%8BVLC%E6%B5%81%E5%AA%92%E4%BD%93%E6%92%AD%E6%94%BE/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近在做关于在WPF使用VLC流媒体播放的问题，现在可以在WPF中实现VLC本地播放了，<strong>流播放解决了，在下面的代码中注释流媒体播放那两段代码,更多的在乎大家摸索了^^，</strong>以供大家相互学习，这里我就先把实现VLC本地播放的代码和过程写给需要的朋友参考。</p>
+<p>一、首先到下面网站：</p>
+<p><a target="_blank" rel="noopener" href="http://vlcdotnet.codeplex.com/releases/view/77778">http://vlcdotnet.codeplex.com/releases/view/77778</a></p>
+<p>下载</p>
+<p><img src="http://i3.codeplex.com/Images/v19219/RuntimeBinary.gif" alt="Application"> <a target="_blank" rel="noopener" href="http://vlcdotnet.codeplex.com/downloads/get/308063">VideoLan DotNet for WinForm, WPF, SL5 - 2011.11.29.zip</a></p>
+<p>然后解压后里面有五个.dll</p>
+<p><strong>1.Vlc.DotNet.Core.dll</strong><br><strong>2.Vlc.DotNet.Core.Interops.dll</strong><br><strong>3.Vlc.DotNet.Forms.dll</strong><br><strong>4.Vlc.DotNet.Silverlight.dll</strong><br><strong>5.Vlc.DotNet.Wpf.dll</strong></p>
+<p><strong>根据你做的程序是用什么写的来添加不同的引用，例如：你使用WPF来做的程序就选择</strong>Vlc.DotNet.Wpf.dll、<strong>Vlc.DotNet.Core.dll、</strong>Vlc.DotNet.Core.Interops.dll添加到项目中并引用。********</p>
+<p>二、在VLC官网下载最新的VLC播放器，然后安装，安装后在安装文件目录中分别把文件VideoLAN\VLC\和VideoLAN\VLC\plugins\拷贝到项目中。</p>
+<p><strong>完成以上任务后</strong>在XAML中添加命名空间的引用：****</p>
+<p><strong>xmlns:local&#x3D;”clr-namespace:Vlc.DotNet.Wpf;assembly&#x3D;Vlc.DotNet.Wpf”</strong></p>
+<p><strong><Grid></strong></p>
+<p><strong><Image x:Name="img"/></strong></p>
+<p><strong><Grid/></strong></p>
+<p><strong><strong>然后在项目中的后台代码如下：</strong></strong></p>
+<p><strong>private void Window_Loaded(object sender, RoutedEventArgs e)</strong><br><strong>{</strong><br><strong>var appPath &#x3D; AppDomain.CurrentDomain.BaseDirectory;</strong><br><strong>VlcContext.LibVlcDllsPath &#x3D; appPath + @”VLC\“;</strong><br><strong>&#x2F;&#x2F;Set the vlc plugins directory path</strong><br><strong>VlcContext.LibVlcPluginsPath &#x3D; appPath + @”plugins\“;</strong></p>
+<p><strong>&#x2F;&#x2F;Set the startup options</strong><br><strong>VlcContext.StartupOptions.IgnoreConfig &#x3D; true;</strong><br><strong>VlcContext.StartupOptions.LogOptions.LogInFile &#x3D; false;</strong><br><strong>VlcContext.StartupOptions.LogOptions.ShowLoggerConsole &#x3D; false;</strong><br><strong>VlcContext.StartupOptions.LogOptions.Verbosity &#x3D; VlcLogVerbosities.None;</strong></p>
+<p><strong>&#x2F;&#x2F;Initialize the VlcContext</strong><br><strong>VlcContext.Initialize();</strong></p>
+<p><strong>VlcControl myVlcControl &#x3D; new VlcControl();</strong><br><strong>&#x2F;&#x2F; 创建绑定，绑定Image</strong><br><strong>Binding bing &#x3D; new Binding();</strong><br><strong>bing.Source &#x3D; myVlcControl;</strong><br><strong>bing.Path &#x3D; new PropertyPath(“VideoSource”);</strong><br><strong>img.SetBinding(Image.SourceProperty, bing);</strong></p>
+<p><strong>&#x2F;&#x2F;流媒体播放</strong></p>
+<p><strong>var media&#x3D;new LocationMedia(“udp:&#x2F;&#x2F;@:ip:port”);</strong></p>
+<p><strong>myVlcControl.Play(media);</strong></p>
+<p><strong>&#x2F;&#x2F;本地播放</strong></p>
+<p><strong>myVlcControl.Play(new PathMedia(添加本地视频路径));</strong></p>
+<p><strong>&#x2F;&#x2F;VlcContext.CloseAll();</strong><br><strong>}</strong></p>
+<p>如果各位有什么疑问或者更好的建议请多多指教!Thanks!!!</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E4%B9%8Bloading%E6%AD%A3%E5%9C%A8%E5%8A%A0%E8%BD%BD%E6%95%88%E6%9E%9C%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%85%A5%E9%97%A8/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

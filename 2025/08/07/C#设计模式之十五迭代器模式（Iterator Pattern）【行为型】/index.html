@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E4%BA%94%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Iterator%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="合集 - 设计模式(24) 1.C#设计模式之总结篇2018-01-152.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-093.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-214.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-265.C#设计模式之四建造者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images2018.cnblogs.com/blog/1048776/201711/1048776-20171127130208487-1323685783.png">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="http://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2025-08-07T00:50:17.153Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.153Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images2018.cnblogs.com/blog/1048776/201711/1048776-20171127130208487-1323685783.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E4%BA%94%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Iterator%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E4%BA%94%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Iterator%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E4%BA%94%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Iterator%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E4%BA%94%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%EF%BC%88Iterator%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/PatrickLiu/collections/10986">合集 - 设计模式(24)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8287784.html">1.C#设计模式之总结篇2018-01-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8250985.html">2.C#设计模式之一单例模式（Singleton Pattern）【创建型】2018-01-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7567880.html">3.C#设计模式之二工厂方法模式（Factory Method Pattern）【创建型】2017-09-21</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7596897.html">4.C#设计模式之三抽象工厂模式（AbstractFactory）【创建型】2017-09-26</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7614630.html">5.C#设计模式之四建造者模式（Builder Pattern）【创建型】2017-09-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7640873.html">6.C#设计模式之五原型模式（Prototype Pattern）【创建型】2017-10-09</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7660554.html">7.C#设计模式之六适配器模式（Adapter Pattern）【结构型】2017-10-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7699301.html">8.C#设计模式之七桥接模式（Bridge Pattern）【结构型】2017-10-20</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7723225.html">9.C#设计模式之八装饰模式（Decorator Pattern）【结构型】2017-10-24</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7743118.html">10.C#设计模式之九组合模式（Composite Pattern）【结构型】2017-10-27</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7772184.html">11.C#设计模式之十外观模式（Facade Pattern）【结构型】2017-11-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7792973.html">12.C#设计模式之十一享元模式（Flyweight Pattern）【结构型】2017-11-06</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7814004.html">13.C#设计模式之十二代理模式（Proxy Pattern）【结构型】2017-11-10</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7837716.html">14.C#设计模式之十三模板方法模式（Template Method Pattern）【行为型】2017-11-15</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7873322.html">15.C#设计模式之十四命令模式（Command Pattern）【行为型】2017-11-21</a></p>
+<p>16.C#设计模式之十五迭代器模式（Iterator Pattern）【行为型】2017-11-27</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7928521.html">17.C#设计模式之十六观察者模式（Observer Pattern）【行为型】2017-11-30</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7966240.html">18.C#设计模式之十七中介者模式（Mediator Pattern）【行为型】2017-12-03</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8032683.html">19.C#设计模式之十八状态模式（State Pattern）【行为型】2017-12-13</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8057654.html">20.C#设计模式之十九策略模式（Stragety Pattern）【行为型】2017-12-18</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8109100.html">21.C#设计模式之二十职责链模式（Chain of Responsibility Pattern）【行为型】2017-12-25</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8135083.html">22.C#设计模式之二十一访问者模式（Visitor Pattern）【行为型】2017-12-28</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8176974.html">23.C#设计模式之二十二备忘录模式（Memento Pattern）【行为型】2018-01-02</a><a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/8242238.html">24.C#设计模式之二十三解释器模式（Interpreter Pattern）【行为型】2018-01-08</a></p>
+<p>收起</p>
+<p><strong>一、引言</strong>  </p>
+<p>   今天我们开始讲“行为型”设计模式的第三个模式，该模式是【迭代器模式】，英文名称是：Iterator Pattern。还是老套路，先从名字上来看看。“迭代器模式”我第一次看到这个名称，我的理解是，迭代是遍历的意思，迭代器可以理解为是遍历某某的工具，遍历什么呢？在软件设计中，当然遍历的是集合对象，所以说迭代器模式是遍历集合的一种通用的算法。如果集合只有一种类型，那这个模式就没用了，就是因为集合对象包含数组、列表，字典和哈希表等各种对象，如果为每一种集合对象都实现一套遍历算法，也不太现实，因此为了解决遍历集合有一个统一的接口这个事情，所以就提出了“迭代器”这个模式。  </p>
+<p><strong>二、迭代器模式的详细介绍</strong>  </p>
+<p><strong>2.1、动机（Motivate）</strong>  </p>
+<p>   在软件构建过程中，集合对象内部结构常常变化各异。但对于这些集合对象，我们希望在不暴露其内部结构的同时，可以让外部客户代码透明地访问其中包含的元素；同时这种“透明遍历”也为“同一种算法在多种集合对象上进行操作”提供了可能。  </p>
+<p>　使用面向对象技术将这种遍历机制抽象为“迭代器对象”为“应对变化中的集合对象”提供了一种优雅的方式。  </p>
+<p><strong>2.2、意图（Intent）</strong>  </p>
+<p>   提供一种方法顺序访问一个聚合对象中的各个元素，而又不暴露该对象的内部表示。　　　　　　                                ——《设计模式》GoF  </p>
+<p><strong>2.3、结构图</strong>  </p>
+<p>       <img src="https://images2018.cnblogs.com/blog/1048776/201711/1048776-20171127130208487-1323685783.png">  </p>
+<p><strong>2.4、模式的组成</strong><br>    <br>    从迭代器模式的结构图可以看出，它涉及到四个角色，它们分别是：  </p>
+<p>    **（1）、抽象迭代器(Iterator)**：抽象迭代器定义了访问和遍历元素的接口，一般声明如下方法：用于获取第一个元素的first()，用于访问下一个元素的next()，用于判断是否还有下一个元素的hasNext()，用于获取当前元素的currentItem()，在其子类中将实现这些方法。  </p>
+<p>    **（2）、具体迭代器(ConcreteIterator)**：具体迭代器实现了抽象迭代器接口，完成对集合对象的遍历，同时在对聚合进行遍历时跟踪其当前位置。  </p>
+<p>    **（3）、抽象聚合类(Aggregate)**：抽象聚合类用于存储对象，并定义创建相应迭代器对象的接口，声明一个createIterator()方法用于创建一个迭代器对象。  </p>
+<p>    **（4）、具体聚合类(ConcreteAggregate)**：具体聚合类实现了创建相应迭代器的接口，实现了在抽象聚合类中声明的createIterator()方法，并返回一个与该具体聚合相对应的具体迭代器ConcreteIterator实例。  </p>
+<p><strong>2.5、迭代器模式的代码实现</strong>  </p>
+<p>    迭代器模式在现实生活中也有类似的例子，比如：在部队中，我们可以让某一队伍当中的某人出列，或者让队列里面的每个人依次报名，其实这个过程就是一个遍历的过程。没什么可说的，具体实现代码如下：  </p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  1 namespace 迭代器模式的实现  2 {<br>  3     &#x2F;&#x2F; 部队队列的抽象聚合类–该类型相当于抽象聚合类Aggregate<br>  4     public interface ITroopQueue  5     {<br>  6         Iterator GetIterator();<br>  7     }<br>  8<br>  9     &#x2F;&#x2F; 迭代器抽象类<br> 10     public interface Iterator 11     {<br> 12         bool MoveNext(); 13         Object GetCurrent();<br> 14         void Next(); 15         void Reset(); 16     }<br> 17<br> 18     &#x2F;&#x2F;部队队列具体聚合类–相当于具体聚合类ConcreteAggregate<br> 19     public sealed class ConcreteTroopQueue:ITroopQueue 20     {<br> 21         private string[] collection;<br> 22<br> 23         public ConcreteTroopQueue() 24         {<br> 25             collection &#x3D; new string[] { “黄飞鸿”,”方世玉”,”洪熙官”,”严咏春” }; 26         }<br> 27<br> 28         public Iterator GetIterator() 29         {<br> 30             return new ConcreteIterator(this);<br> 31         }<br> 32<br> 33         public int Length 34         {<br> 35             get { return collection.Length; } 36         }<br> 37<br> 38         public string GetElement(int index) 39         {<br> 40             return collection[index]; 41         }<br> 42     }<br> 43<br> 44     &#x2F;&#x2F; 具体迭代器类<br> 45     public sealed class ConcreteIterator : Iterator 46     {<br> 47         &#x2F;&#x2F; 迭代器要集合对象进行遍历操作，自然就需要引用集合对象<br> 48         private ConcreteTroopQueue _list; 49         private int _index; 50<br> 51         public ConcreteIterator(ConcreteTroopQueue list) 52         {<br> 53             _list &#x3D; list; 54             _index &#x3D; 0;<br> 55         }<br> 56<br> 57         public bool MoveNext() 58         {<br> 59             if (_index &lt; _list.Length) 60             {<br> 61                 return true;<br> 62             }<br> 63             return false;<br> 64         }<br> 65<br> 66         public Object GetCurrent() 67         {<br> 68             return _list.GetElement(_index); 69         }<br> 70<br> 71         public void Reset() 72         {<br> 73             _index &#x3D; 0;<br> 74         }<br> 75<br> 76         public void Next() 77         {<br> 78             if (_index &lt; _list.Length) 79             {<br> 80                 _index++;<br> 81             }<br> 82<br> 83         }<br> 84     }<br> 85<br> 86     &#x2F;&#x2F; 客户端（Client）<br> 87     class Program 88     {<br> 89         static void Main(string[] args)<br> 90         {<br> 91             Iterator iterator;<br> 92             ITroopQueue list &#x3D; new ConcreteTroopQueue(); 93             iterator &#x3D; list.GetIterator(); 94<br> 95             while (iterator.MoveNext()) 96             {<br> 97                 string ren &#x3D; (string)iterator.GetCurrent();<br> 98                 Console.WriteLine(ren);<br> 99 iterator.Next();<br>100 }<br>101<br>102 Console.Read();<br>103 }<br>104 }<br>105 }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  <br><strong>三、迭代器模式的实现要点：</strong><br>    <br>     1、迭代抽象：访问一个聚合对象的内容而无需暴露它的内部表示。  </p>
+<p>     2、迭代多态：为遍历不同的集合结构提供一个统一的接口，从而支持同样的算法在不同的集合结构上进行操作。  </p>
+<p>     3、迭代器的健壮性考虑：遍历的同时更改迭代器所在的集合结构，会导致问题。<br>    <br>     <strong>3.1】、迭代器模式的优点：</strong>  </p>
+<p>          （1）、迭代器模式使得访问一个聚合对象的内容而无需暴露它的内部表示，即迭代抽象。  </p>
+<p>          （2）、迭代器模式为遍历不同的集合结构提供了一个统一的接口，从而支持同样的算法在不同的集合结构上进行操作  </p>
+<p>    <strong>3.2】、迭代器模式的缺点：</strong>  </p>
+<p>          （1）、迭代器模式在遍历的同时更改迭代器所在的集合结构会导致出现异常。所以使用foreach语句只能在对集合进行遍历，不能在遍历的同时更改集合中的元素。  </p>
+<p>     <strong>3.3】、迭代器模式的使用场景：</strong>  </p>
+<p>       （1）、访问一个聚合对象的内容而无需暴露它的内部表示。  </p>
+<p>       （2）、支持对聚合对象的多种遍历。  </p>
+<p>       （3）、为遍历不同的聚合结构提供一个统一的接口(即, 支持多态迭代)。  </p>
+<p><strong>四、.NET 中迭代器模式的实现</strong>  </p>
+<p>     在mscorlib程序集里有这样一个命名空间，该命名空间就是：System.Collections，在该命名空间里面早已有了迭代器模式的实现。对于聚集接口和迭代器接口已经存在了，<strong>其中IEnumerator扮演的就是迭代器的角色</strong>，它的实现如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>public interface IEnumerator<br> {<br>      object Current<br>      {<br>           get;<br>      }</p>
+<pre><code> bool MoveNext();
+
+ void Reset();
+</code></pre>
+<p> }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>     属性Current返回当前集合中的元素，Reset()方法恢复初始化指向的位置，MoveNext()方法返回值true表示迭代器成功前进到集合中的下一个元素，返回值false表示已经位于集合的末尾。能够提供元素遍历的集合对象，在.Net中都实现了IEnumerator接口。  </p>
+<p>     <strong>IEnumerable则扮演的就是抽象聚集的角色</strong>，只有一个GetEnumerator()方法，如果集合对象需要具备跌代遍历的功能，就必须实现该接口。</p>
+<p>public interface IEnumerable<br>{<br>    IEumerator GetEnumerator();<br>}</p>
+<p>    抽象聚合角色（Aggregate）和抽象迭代器角色（Iterator）分别是IEnumerable接口和IEnumerator接口，具体聚合角色（ConcreteAggregate）有Queue类型， BitArray等类型，代码如下：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>  1     public sealed class BitArray : ICollection, IEnumerable, ICloneable  2     {<br>  3         [Serializable]<br>  4         private class BitArrayEnumeratorSimple : IEnumerator, ICloneable  5         {<br>  6             private BitArray bitarray;  7<br>  8             private int index;  9<br> 10             private int version; 11<br> 12             private bool currentElement; 13<br> 14             public virtual object Current 15             {<br> 16                 get<br> 17                 {<br> 18                     if (this.index &#x3D;&#x3D; -1)<br> 19                     {<br> 20                         throw new InvalidOperationException(Environment.GetResourceString(“InvalidOperation_EnumNotStarted”));<br> 21                     }<br> 22                     if (this.index &gt;&#x3D; this.bitarray.Count)<br> 23                     {<br> 24                         throw new InvalidOperationException(Environment.GetResourceString(“InvalidOperation_EnumEnded”));<br> 25                     }<br> 26                     return this.currentElement;<br> 27                 }<br> 28             }<br> 29<br> 30             internal BitArrayEnumeratorSimple(BitArray bitarray) 31             {<br> 32                 this.bitarray &#x3D; bitarray; 33                 this.index &#x3D; -1;<br> 34                 this.version &#x3D; bitarray._version; 35             }<br> 36<br> 37             public object Clone() 38             {<br> 39                 return base.MemberwiseClone();<br> 40             }<br> 41<br> 42             public virtual bool MoveNext() 43             {<br> 44                 if (this.version !&#x3D; this.bitarray._version)<br> 45                 {<br> 46                     throw new InvalidOperationException(Environment.GetResourceString(“InvalidOperation_EnumFailedVersion”));<br> 47                 }<br> 48                 if (this.index &lt; this.bitarray.Count - 1)<br> 49                 {<br> 50                     this.index++;<br> 51                     this.currentElement &#x3D; this.bitarray.Get(this.index);<br> 52                     return true;<br> 53                 }<br> 54                 this.index &#x3D; this.bitarray.Count;<br> 55                 return false;<br> 56             }<br> 57<br> 58             public void Reset() 59             {<br> 60                 if (this.version !&#x3D; this.bitarray._version)<br> 61                 {<br> 62                     throw new InvalidOperationException(Environment.GetResourceString(“InvalidOperation_EnumFailedVersion”));<br> 63                 }<br> 64                 this.index &#x3D; -1;<br> 65             }<br> 66         }<br> 67<br> 68         private const int BitsPerInt32 &#x3D; 32;<br> 69<br> 70         private const int BytesPerInt32 &#x3D; 4;<br> 71<br> 72         private const int BitsPerByte &#x3D; 8;<br> 73<br> 74         private int[] m_array;<br> 75<br> 76         private int m_length; 77<br> 78         private int _version; 79<br> 80         [NonSerialized]<br> 81         private object _syncRoot; 82<br> 83         private const int _ShrinkThreshold &#x3D; 256;<br> 84<br> 85         [__DynamicallyInvokable]<br> 86         public bool this[int index] 87         {<br> 88             [__DynamicallyInvokable]<br> 89             get<br> 90             {<br> 91                 return this.Get(index);<br> 92             }<br> 93             [__DynamicallyInvokable]<br> 94             set<br> 95             {<br> 96                 this.Set(index, value);<br> 97             }<br> 98         }<br> 99<br>100 [__DynamicallyInvokable]<br>101         public int Length<br>102 {<br>103 [__DynamicallyInvokable]<br>104             get<br>105 {<br>106                 return this.m_length;<br>107 }<br>108 [__DynamicallyInvokable]<br>109             set<br>110 {<br>111                 if (value &lt; 0)<br>112 {<br>113                     throw new ArgumentOutOfRangeException(“value”, Environment.GetResourceString(“ArgumentOutOfRange_NeedNonNegNum”));<br>114 }<br>115                 int arrayLength &#x3D; BitArray.GetArrayLength(value, 32);<br>116                 if (arrayLength &gt; this.m_array.Length || arrayLength + 256 &lt; this.m_array.Length)<br>117 {<br>118                     int[] array &#x3D; new int[arrayLength];<br>119                     Array.Copy(this.m_array, array, (arrayLength &gt; this.m_array.Length) ? this.m_array.Length : arrayLength);<br>120                     this.m_array &#x3D; array;<br>121 }<br>122                 if (value &gt; this.m_length)<br>123 {<br>124                     int num &#x3D; BitArray.GetArrayLength(this.m_length, 32) - 1;<br>125                     int num2 &#x3D; this.m_length % 32;<br>126                     if (num2 &gt; 0)<br>127 {<br>128                         this.m_array[num] &amp;&#x3D; (1 &lt;&lt; num2) - 1;<br>129 }<br>130                     Array.Clear(this.m_array, num + 1, arrayLength - num - 1);<br>131 }<br>132                 this.m_length &#x3D; value;<br>133                 this._version++;<br>134 }<br>135 }<br>136<br>137         public int Count<br>138 {<br>139             get<br>140 {<br>141                 return this.m_length;<br>142 }<br>143 }<br>144<br>145         public object SyncRoot<br>146 {<br>147             get<br>148 {<br>149                 if (this._syncRoot &#x3D;&#x3D; null)<br>150 {<br>151                     Interlocked.CompareExchange&lt;object&gt;(ref this._syncRoot, new object(), null);<br>152 }<br>153                 return this._syncRoot;<br>154 }<br>155 }<br>156<br>157         public bool IsReadOnly<br>158 {<br>159             get<br>160 {<br>161                 return false;<br>162 }<br>163 }<br>164<br>165         public bool IsSynchronized<br>166 {<br>167             get<br>168 {<br>169                 return false;<br>170 }<br>171 }<br>172<br>173         private BitArray()<br>174 {<br>175 }<br>176<br>177 [__DynamicallyInvokable]<br>178         public BitArray(int length) : this(length, false)<br>179 {<br>180 }<br>181<br>182 [__DynamicallyInvokable]<br>183         public BitArray(int length, bool defaultValue)<br>184 {<br>185             if (length &lt; 0)<br>186 {<br>187                 throw new ArgumentOutOfRangeException(“length”, Environment.GetResourceString(“ArgumentOutOfRange_NeedNonNegNum”));<br>188 }<br>189             this.m_array &#x3D; new int[BitArray.GetArrayLength(length, 32)];<br>190             this.m_length &#x3D; length;<br>191             int num &#x3D; defaultValue ? -1 : 0;<br>192             for (int i &#x3D; 0; i &lt; this.m_array.Length; i++)<br>193 {<br>194                 this.m_array[i] &#x3D; num;<br>195 }<br>196             this._version &#x3D; 0;<br>197 }<br>198<br>199 [__DynamicallyInvokable]<br>200         public BitArray(byte[] bytes)<br>201 {<br>202             if (bytes &#x3D;&#x3D; null)<br>203 {<br>204                 throw new ArgumentNullException(“bytes”);<br>205 }<br>206             if (bytes.Length &gt; 268435455)<br>207 {<br>208                 throw new ArgumentException(Environment.GetResourceString(“Argument_ArrayTooLarge”, new object[]<br>209 {<br>210                     8<br>211                 }), “bytes”);<br>212 }<br>213             this.m_array &#x3D; new int[BitArray.GetArrayLength(bytes.Length, 4)];<br>214             this.m_length &#x3D; bytes.Length * 8;<br>215             int num &#x3D; 0;<br>216             int num2 &#x3D; 0;<br>217             while (bytes.Length - num2 &gt;&#x3D; 4)<br>218 {<br>219                 this.m_array[num++] &#x3D; ((int)(bytes[num2] &amp; 255) | (int)(bytes[num2 + 1] &amp; 255) &lt;&lt; 8 | (int)(bytes[num2 + 2] &amp; 255) &lt;&lt; 16 | (int)(bytes[num2 + 3] &amp; 255) &lt;&lt; 24);<br>220                 num2 +&#x3D; 4;<br>221 }<br>222             switch (bytes.Length - num2)<br>223 {<br>224             case 1:<br>225                 goto IL_103;<br>226             case 2:<br>227                 break;<br>228             case 3:<br>229                 this.m_array[num] &#x3D; (int)(bytes[num2 + 2] &amp; 255) &lt;&lt; 16;<br>230                 break;<br>231             default:<br>232                 goto IL_11C;<br>233 }<br>234             this.m_array[num] |&#x3D; (int)(bytes[num2 + 1] &amp; 255) &lt;&lt; 8;<br>235 IL_103:<br>236             this.m_array[num] |&#x3D; (int)(bytes[num2] &amp; 255);<br>237 IL_11C:<br>238             this._version &#x3D; 0;<br>239 }<br>240<br>241 [__DynamicallyInvokable]<br>242         public BitArray(bool[] values)<br>243 {<br>244             if (values &#x3D;&#x3D; null)<br>245 {<br>246                 throw new ArgumentNullException(“values”);<br>247 }<br>248             this.m_array &#x3D; new int[BitArray.GetArrayLength(values.Length, 32)];<br>249             this.m_length &#x3D; values.Length;<br>250             for (int i &#x3D; 0; i &lt; values.Length; i++)<br>251 {<br>252                 if (values[i])<br>253 {<br>254                     this.m_array[i &#x2F; 32] |&#x3D; 1 &lt;&lt; i % 32;<br>255 }<br>256 }<br>257             this._version &#x3D; 0;<br>258 }<br>259<br>260 [__DynamicallyInvokable]<br>261         public BitArray(int[] values)<br>262 {<br>263             if (values &#x3D;&#x3D; null)<br>264 {<br>265                 throw new ArgumentNullException(“values”);<br>266 }<br>267             if (values.Length &gt; 67108863)<br>268 {<br>269                 throw new ArgumentException(Environment.GetResourceString(“Argument_ArrayTooLarge”, new object[]<br>270 {<br>271                     32<br>272                 }), “values”);<br>273 }<br>274             this.m_array &#x3D; new int[values.Length];<br>275             this.m_length &#x3D; values.Length * 32;<br>276             Array.Copy(values, this.m_array, values.Length);<br>277             this._version &#x3D; 0;<br>278 }<br>279<br>280 [__DynamicallyInvokable]<br>281         public BitArray(BitArray bits)<br>282 {<br>283             if (bits &#x3D;&#x3D; null)<br>284 {<br>285                 throw new ArgumentNullException(“bits”);<br>286 }<br>287             int arrayLength &#x3D; BitArray.GetArrayLength(bits.m_length, 32);<br>288             this.m_array &#x3D; new int[arrayLength];<br>289             this.m_length &#x3D; bits.m_length;<br>290             Array.Copy(bits.m_array, this.m_array, arrayLength);<br>291             this._version &#x3D; bits._version;<br>292 }<br>293<br>294 [__DynamicallyInvokable]<br>295         public bool Get(int index)<br>296 {<br>297             if (index &lt; 0 || index &gt;&#x3D; this.Length)<br>298 {<br>299                 throw new ArgumentOutOfRangeException(“index”, Environment.GetResourceString(“ArgumentOutOfRange_Index”));<br>300 }<br>301             return (this.m_array[index &#x2F; 32] &amp; 1 &lt;&lt; index % 32) !&#x3D; 0;<br>302 }<br>303<br>304 [__DynamicallyInvokable]<br>305         public void Set(int index, bool value)<br>306 {<br>307             if (index &lt; 0 || index &gt;&#x3D; this.Length)<br>308 {<br>309                 throw new ArgumentOutOfRangeException(“index”, Environment.GetResourceString(“ArgumentOutOfRange_Index”));<br>310 }<br>311             if (value)<br>312 {<br>313                 this.m_array[index &#x2F; 32] |&#x3D; 1 &lt;&lt; index % 32;<br>314 }<br>315             else<br>316 {<br>317                 this.m_array[index &#x2F; 32] &amp;&#x3D; ~(1 &lt;&lt; index % 32);<br>318 }<br>319             this._version++;<br>320 }<br>321<br>322 [__DynamicallyInvokable]<br>323         public void SetAll(bool value)<br>324 {<br>325             int num &#x3D; value ? -1 : 0;<br>326             int arrayLength &#x3D; BitArray.GetArrayLength(this.m_length, 32);<br>327             for (int i &#x3D; 0; i &lt; arrayLength; i++)<br>328 {<br>329                 this.m_array[i] &#x3D; num;<br>330 }<br>331             this._version++;<br>332 }<br>333<br>334 [__DynamicallyInvokable]<br>335         public BitArray And(BitArray value)<br>336 {<br>337             if (value &#x3D;&#x3D; null)<br>338 {<br>339                 throw new ArgumentNullException(“value”);<br>340 }<br>341             if (this.Length !&#x3D; value.Length)<br>342 {<br>343                 throw new ArgumentException(Environment.GetResourceString(“Arg_ArrayLengthsDiffer”));<br>344 }<br>345             int arrayLength &#x3D; BitArray.GetArrayLength(this.m_length, 32);<br>346             for (int i &#x3D; 0; i &lt; arrayLength; i++)<br>347 {<br>348                 this.m_array[i] &amp;&#x3D; value.m_array[i];<br>349 }<br>350             this._version++;<br>351             return this;<br>352 }<br>353<br>354 [__DynamicallyInvokable]<br>355         public BitArray Or(BitArray value)<br>356 {<br>357             if (value &#x3D;&#x3D; null)<br>358 {<br>359                 throw new ArgumentNullException(“value”);<br>360 }<br>361             if (this.Length !&#x3D; value.Length)<br>362 {<br>363                 throw new ArgumentException(Environment.GetResourceString(“Arg_ArrayLengthsDiffer”));<br>364 }<br>365             int arrayLength &#x3D; BitArray.GetArrayLength(this.m_length, 32);<br>366             for (int i &#x3D; 0; i &lt; arrayLength; i++)<br>367 {<br>368                 this.m_array[i] |&#x3D; value.m_array[i];<br>369 }<br>370             this._version++;<br>371             return this;<br>372 }<br>373<br>374 [__DynamicallyInvokable]<br>375         public BitArray Xor(BitArray value)<br>376 {<br>377             if (value &#x3D;&#x3D; null)<br>378 {<br>379                 throw new ArgumentNullException(“value”);<br>380 }<br>381             if (this.Length !&#x3D; value.Length)<br>382 {<br>383                 throw new ArgumentException(Environment.GetResourceString(“Arg_ArrayLengthsDiffer”));<br>384 }<br>385             int arrayLength &#x3D; BitArray.GetArrayLength(this.m_length, 32);<br>386             for (int i &#x3D; 0; i &lt; arrayLength; i++)<br>387 {<br>388                 this.m_array[i] ^&#x3D; value.m_array[i];<br>389 }<br>390             this._version++;<br>391             return this;<br>392 }<br>393<br>394 [__DynamicallyInvokable]<br>395         public BitArray Not()<br>396 {<br>397             int arrayLength &#x3D; BitArray.GetArrayLength(this.m_length, 32);<br>398             for (int i &#x3D; 0; i &lt; arrayLength; i++)<br>399 {<br>400                 this.m_array[i] &#x3D; ~this.m_array[i];<br>401 }<br>402             this._version++;<br>403             return this;<br>404 }<br>405<br>406         public void CopyTo(Array array, int index)<br>407 {<br>408             if (array &#x3D;&#x3D; null)<br>409 {<br>410                 throw new ArgumentNullException(“array”);<br>411 }<br>412             if (index &lt; 0)<br>413 {<br>414                 throw new ArgumentOutOfRangeException(“index”, Environment.GetResourceString(“ArgumentOutOfRange_NeedNonNegNum”));<br>415 }<br>416             if (array.Rank !&#x3D; 1)<br>417 {<br>418                 throw new ArgumentException(Environment.GetResourceString(“Arg_RankMultiDimNotSupported”));<br>419 }<br>420             if (array is int[])<br>421 {<br>422                 Array.Copy(this.m_array, 0, array, index, BitArray.GetArrayLength(this.m_length, 32));<br>423                 return;<br>424 }<br>425             if (array is byte[])<br>426 {<br>427                 int arrayLength &#x3D; BitArray.GetArrayLength(this.m_length, 8);<br>428                 if (array.Length - index &lt; arrayLength)<br>429 {<br>430                     throw new ArgumentException(Environment.GetResourceString(“Argument_InvalidOffLen”));<br>431 }<br>432                 byte[] array2 &#x3D; (byte[])array;<br>433                 for (int i &#x3D; 0; i &lt; arrayLength; i++)<br>434 {<br>435                     array2[index + i] &#x3D; (byte)(this.m_array[i &#x2F; 4] &gt;&gt; i % 4 * 8 &amp; 255);<br>436 }<br>437                 return;<br>438 }<br>439             else<br>440 {<br>441                 if (!(array is bool[]))<br>442 {<br>443                     throw new ArgumentException(Environment.GetResourceString(“Arg_BitArrayTypeUnsupported”));<br>444 }<br>445                 if (array.Length - index &lt; this.m_length)<br>446 {<br>447                     throw new ArgumentException(Environment.GetResourceString(“Argument_InvalidOffLen”));<br>448 }<br>449                 bool[] array3 &#x3D; (bool[])array;<br>450                 for (int j &#x3D; 0; j &lt; this.m_length; j++)<br>451 {<br>452                     array3[index + j] &#x3D; ((this.m_array[j &#x2F; 32] &gt;&gt; j % 32 &amp; 1) !&#x3D; 0);<br>453 }<br>454                 return;<br>455 }<br>456 }<br>457<br>458         public object Clone()<br>459 {<br>460             return new BitArray(this.m_array)<br>461 {<br>462                 _version &#x3D; this._version,<br>463                 m_length &#x3D; this.m_length<br>464 };<br>465 }<br>466<br>467 [__DynamicallyInvokable]<br>468         public IEnumerator GetEnumerator()<br>469 {<br>470             return new BitArray.BitArrayEnumeratorSimple(this);<br>471 }<br>472<br>473         private static int GetArrayLength(int n, int div)<br>474 {<br>475             if (n &lt;&#x3D; 0)<br>476 {<br>477                 return 0;<br>478 }<br>479             return (n - 1) &#x2F; div + 1;<br>480 }<br>481     }</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" alt="复制代码"></a></p>
+<p>   还有很多类型，就不一一列举了，大家可以查看源代码，每个元素都可以在迭代器模式的构造图上找到对应的元素。</p>
+<p>   具体的类型和代码截图如下：  </p>
+<p>     <br>  <br><strong>五、总结</strong>  </p>
+<p>    今天到此就把迭代器模式写完了，该模式不是很难，结构也不是很复杂，Net框架里面也有现成的实现。并且在 Net 2.0里面还有升级的实现，要想学习该模式，可以好好看看该模式在Net 框架中的实现，受益匪浅。</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PatrickLiu/p/7903617.html">https://www.cnblogs.com/PatrickLiu/p/7903617.html</a>，如有侵权，请联系删除。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E5%85%AB%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F%EF%BC%88State%20Pattern%EF%BC%89%E3%80%90%E8%A1%8C%E4%B8%BA%E5%9E%8B%E3%80%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/C#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%81%E4%BA%8C%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%EF%BC%88Proxy%20Pattern%EF%BC%89%E3%80%90%E7%BB%93%E6%9E%84%E5%9E%8B%E3%80%91/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

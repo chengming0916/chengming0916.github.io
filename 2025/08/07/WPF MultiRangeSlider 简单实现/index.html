@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chengming0916.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="WPF MultiRangeSlider 简单实现 - UncleNull - 博客园 ExcerptWPF 多滑块Slider简单实现（MultiRangeSlider） WPF中的MultiRangeSlider，网上有商业的，有开源的，找了几个都不太理想,那就自己写 一个吧，给大家提供点思路。 WPF中的Slider，看他的模板那就很复杂，如果想弄一个可以自定义样式的MultiRangeSl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chemmy&#39;s Blog">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="WPF MultiRangeSlider 简单实现 - UncleNull - 博客园 ExcerptWPF 多滑块Slider简单实现（MultiRangeSlider） WPF中的MultiRangeSlider，网上有商业的，有开源的，找了几个都不太理想,那就自己写 一个吧，给大家提供点思路。 WPF中的Slider，看他的模板那就很复杂，如果想弄一个可以自定义样式的MultiRangeSl">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%20-%20UncleNull%20-%20%E5%8D%9A%E5%AE%A2%E5%9B%AD/QQ%25E6%2588%25AA%25E5%259B%25BE20161224102847.png">
+<meta property="article:published_time" content="2025-08-07T00:50:17.165Z">
+<meta property="article:modified_time" content="2025-08-07T00:50:17.165Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="WPF">
+<meta property="article:tag" content="Slider">
+<meta property="article:tag" content="RangeSlider">
+<meta property="article:tag" content="MultiRangeSlider">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%20-%20UncleNull%20-%20%E5%8D%9A%E5%AE%A2%E5%9B%AD/QQ%25E6%2588%25AA%25E5%259B%25BE20161224102847.png">
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Chemmy's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-08-07 08:50:17" itemprop="dateCreated datePublished" datetime="2025-08-07T08:50:17+08:00">2025-08-07</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/08/07/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/08/07/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="WPF-MultiRangeSlider-简单实现-UncleNull-博客园"><a href="#WPF-MultiRangeSlider-简单实现-UncleNull-博客园" class="headerlink" title="WPF MultiRangeSlider 简单实现 - UncleNull - 博客园"></a>WPF MultiRangeSlider 简单实现 - UncleNull - 博客园</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>WPF 多滑块Slider简单实现（MultiRangeSlider） WPF中的MultiRangeSlider，网上有商业的，有开源的，找了几个都不太理想,那就自己写 一个吧，给大家提供点思路。 WPF中的Slider，看他的模板那就很复杂，如果想弄一个可以自定义样式的MultiRangeSli</p>
+</blockquote>
+<hr>
+<h2 id="WPF-多滑块Slider简单实现（MultiRangeSlider）"><a href="#WPF-多滑块Slider简单实现（MultiRangeSlider）" class="headerlink" title="WPF 多滑块Slider简单实现（MultiRangeSlider）"></a>WPF 多滑块Slider简单实现（MultiRangeSlider）</h2><p>WPF中的MultiRangeSlider，网上有商业的，有开源的，找了几个都不太理想,那就自己写<br>一个吧，给大家提供点思路。</p>
+<p>WPF中的Slider，看他的模板那就很复杂，如果想弄一个可以自定义样式的MultiRangeSlider<br>那就得花大时间好好弄，粗略的想MultiRangeSlider不就是几个滑块(Thumb),加几个矩形么，<br>一个滑块对应两个矩形，滑块移动的时候，不就两边的矩形的宽度的变化么，矩形我们只想<br>关注宽度变化，不想再去调整他的其实位置，用什么容器来装矩形呢，StackPanel，里面的对象<br>总是首尾相连的嘛，可是要使Thumb能够水平移动，在StackPanel中显示不合适，那就放到Canvas<br>中，然后把这两个容器使用Grid叠在一起，Canvas在上，就是下面这个样子</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Grid</span>&gt;</span> <span class="tag">&lt;<span class="name">StackPanel</span> <span class="attr">Margin</span>=<span class="string">&quot;15,0,15,0&quot;</span> <span class="attr">x:Name</span>=<span class="string">&quot;RangeContainer&quot;</span> <span class="attr">Orientation</span>=<span class="string">&quot;Horizontal&quot;</span>&gt;</span> <span class="tag">&lt;/<span class="name">StackPanel</span>&gt;</span> <span class="tag">&lt;<span class="name">Canvas</span> <span class="attr">x:Name</span>=<span class="string">&quot;ThumbContainer&quot;</span>&gt;</span> <span class="tag">&lt;/<span class="name">Canvas</span>&gt;</span> <span class="tag">&lt;/<span class="name">Grid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>滑块为了好看，也做了样式修改</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Style</span> <span class="attr">TargetType</span>=<span class="string">&quot;local:ThumbEx&quot;</span>&gt;</span><span class="language-xml"> <span class="tag">&lt;<span class="name">Setter</span> <span class="attr">Property</span>=<span class="string">&quot;Width&quot;</span> <span class="attr">Value</span>=<span class="string">&quot;30&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">Setter</span>&gt;</span> <span class="tag">&lt;<span class="name">Setter</span> <span class="attr">Property</span>=<span class="string">&quot;Height&quot;</span> <span class="attr">Value</span>=<span class="string">&quot;150&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">Setter</span>&gt;</span> <span class="tag">&lt;<span class="name">Setter</span> <span class="attr">Property</span>=<span class="string">&quot;Template&quot;</span>&gt;</span> <span class="tag">&lt;<span class="name">Setter.Value</span>&gt;</span> <span class="tag">&lt;<span class="name">ControlTemplate</span> <span class="attr">TargetType</span>=<span class="string">&quot;Thumb&quot;</span>&gt;</span> <span class="tag">&lt;<span class="name">Grid</span>&gt;</span> <span class="tag">&lt;<span class="name">Grid.RowDefinitions</span>&gt;</span> <span class="tag">&lt;<span class="name">RowDefinition</span> <span class="attr">Height</span>=<span class="string">&quot;40&quot;</span> /&gt;</span> <span class="tag">&lt;<span class="name">RowDefinition</span> /&gt;</span> <span class="tag">&lt;<span class="name">RowDefinition</span> <span class="attr">Height</span>=<span class="string">&quot;40&quot;</span> /&gt;</span> <span class="tag">&lt;/<span class="name">Grid.RowDefinitions</span>&gt;</span> <span class="tag">&lt;<span class="name">StackPanel</span>&gt;</span> <span class="tag">&lt;<span class="name">Rectangle</span> <span class="attr">SnapsToDevicePixels</span>=<span class="string">&quot;True&quot;</span> <span class="attr">Height</span>=<span class="string">&quot;30&quot;</span> <span class="attr">StrokeThickness</span>=<span class="string">&quot;0&quot;</span> <span class="attr">Stroke</span>=<span class="string">&quot;LightGray&quot;</span> <span class="attr">Fill</span>=<span class="string">&quot;LightGray&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">Rectangle</span>&gt;</span> <span class="tag">&lt;<span class="name">Path</span> <span class="attr">Fill</span>=<span class="string">&quot;LightGray&quot;</span> <span class="attr">Stroke</span>=<span class="string">&quot;LightGray&quot;</span> <span class="attr">StrokeThickness</span>=<span class="string">&quot;1&quot;</span> <span class="attr">Data</span>=<span class="string">&quot;M0,0 L30,0 L15,10z&quot;</span>&gt;</span> <span class="tag">&lt;/<span class="name">Path</span>&gt;</span> <span class="tag">&lt;/<span class="name">StackPanel</span>&gt;</span> <span class="tag">&lt;<span class="name">Path</span> <span class="attr">Grid.Row</span>=<span class="string">&quot;1&quot;</span> <span class="attr">Data</span>=<span class="string">&quot;M15,0 L15,110&quot;</span> <span class="attr">Fill</span>=<span class="string">&quot;Black&quot;</span> <span class="attr">Stroke</span>=<span class="string">&quot;Black&quot;</span> <span class="attr">StrokeThickness</span>=<span class="string">&quot;1&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">Path</span>&gt;</span> <span class="tag">&lt;<span class="name">StackPanel</span> <span class="attr">Grid.Row</span>=<span class="string">&quot;2&quot;</span>&gt;</span> <span class="tag">&lt;<span class="name">Path</span> <span class="attr">Fill</span>=<span class="string">&quot;LightGray&quot;</span> <span class="attr">StrokeThickness</span>=<span class="string">&quot;1&quot;</span> <span class="attr">Stroke</span>=<span class="string">&quot;LightGray&quot;</span> <span class="attr">Data</span>=<span class="string">&quot;M15,0 L0,10 L30,10z&quot;</span>&gt;</span> <span class="tag">&lt;/<span class="name">Path</span>&gt;</span> <span class="tag">&lt;<span class="name">Rectangle</span> <span class="attr">Height</span>=<span class="string">&quot;30&quot;</span> <span class="attr">StrokeThickness</span>=<span class="string">&quot;0&quot;</span> <span class="attr">Stroke</span>=<span class="string">&quot;LightGray&quot;</span> <span class="attr">Fill</span>=<span class="string">&quot;LightGray&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">Rectangle</span>&gt;</span> <span class="tag">&lt;/<span class="name">StackPanel</span>&gt;</span> <span class="tag">&lt;/<span class="name">Grid</span>&gt;</span> <span class="tag">&lt;/<span class="name">ControlTemplate</span>&gt;</span> <span class="tag">&lt;/<span class="name">Setter.Value</span>&gt;</span> <span class="tag">&lt;/<span class="name">Setter</span>&gt;</span> </span><span class="tag">&lt;/<span class="name">Style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>为了简便，我用了UserControl来实现这个控件，当然得支持各种数据Binding啊，对于这个控件来说，<br>我不需要知道外面是什么样的数据结构，我只需要知道我要展现多滑块需要哪些数据就行，<br>所以得有一个描述Range的数据结构</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">RangeItem</span> &#123; <span class="meta">#<span class="keyword">region</span> 字段 private double _from; private double _to; private string _name; private double _maxDuration; private bool _isStatic; private double _duration; #<span class="keyword">endregion</span> #<span class="keyword">region</span> 属性 public double From &#123; get &#123; return _from; &#125; set &#123; _from = value; &#125; &#125; public double To &#123; get &#123; return _to; &#125; set &#123; _to = value; &#125; &#125; /// &lt;summary&gt; /// 是否静止 /// &lt;/summary&gt; public bool IsStatic &#123; get &#123; return _isStatic; &#125; set &#123; _isStatic = value; &#125; &#125; public double Duration &#123; get &#123; return _duration; &#125; set &#123; _duration = value; &#125; &#125; public double MaxDuration &#123; get &#123; return _maxDuration; &#125; set &#123; _maxDuration = value; &#125; &#125; #<span class="keyword">endregion</span> &#125; 重要的属性有From（起始值），To（结束值），MaxDuration（总长），</span></span><br></pre></td></tr></table></figure>
+
+<p>根据这一个数据，我们就能生成一个矩形。整个Slider的宽度是固定的，所以就可以根据<br>(To-From)&#x2F;MaxDuration*Slider长度，就能计算出这个矩形的宽度，直接加入StackPanel就<br>行。<br>矩形加进去了，现在加滑块，因为滑块是在Canvas中的，所以他需要确切知道Canvas.Left附加<br>属性，这个Left不就左边矩形的宽度么。在把滑块和左右两边的矩形关联起来，因为矩形的拖动事件<br>需要实时去改变两边的矩形的宽度。<br>我还是直接上代码吧，讲这么多你们也不一定清楚，哎。</p>
+<p><img src="/WPF%20MultiRangeSlider%20%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%20-%20UncleNull%20-%20%E5%8D%9A%E5%AE%A2%E5%9B%AD/QQ%25E6%2588%25AA%25E5%259B%25BE20161224102847.png" alt="pic"></p>
+<p><a target="_blank" rel="noopener" href="http://git.oschina.net/HelloMyWorld/WPF-MultiRangeSlider">WPF MultiRangeSlider</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WPF/" rel="tag"># WPF</a>
+              <a href="/tags/Slider/" rel="tag"># Slider</a>
+              <a href="/tags/RangeSlider/" rel="tag"># RangeSlider</a>
+              <a href="/tags/MultiRangeSlider/" rel="tag"># MultiRangeSlider</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20PasswordBox%20MVVM%20%E5%AE%9E%E7%8E%B0/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/08/07/WPF%20MVVM%E6%A1%86%E6%9E%B6------%20Prism%E4%B8%AD%E9%85%8D%E7%BD%AENLog/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WPF-MultiRangeSlider-%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0-UncleNull-%E5%8D%9A%E5%AE%A2%E5%9B%AD"><span class="nav-number">1.</span> <span class="nav-text">WPF MultiRangeSlider 简单实现 - UncleNull - 博客园</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WPF-%E5%A4%9A%E6%BB%91%E5%9D%97Slider%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%EF%BC%88MultiRangeSlider%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">WPF 多滑块Slider简单实现（MultiRangeSlider）</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">368</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">194</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/chemmy" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;chemmy" rel="noopener" target="_blank"><i class="fab fa-gitee fa-fw"></i>Gitee</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chemmy</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : '4MhbVwx8v3v0PdSuSMMBQ4Jv-gzGzoHsz',
+      appKey     : 'WYPThUEOwAxPJzZNBg8yuGu6',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

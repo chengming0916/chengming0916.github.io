@@ -26,6 +26,58 @@
       </tags>
   </entry>
   <entry>
+    <title>解决SuperMicro主板风扇转速过低告警</title>
+    <url>/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/</url>
+    <content><![CDATA[<h1 id="解决SuperMicro主板风扇转速过低告警"><a href="#解决SuperMicro主板风扇转速过低告警" class="headerlink" title="解决SuperMicro主板风扇转速过低告警"></a>解决SuperMicro主板风扇转速过低告警</h1><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p> 系统启动后风扇忽高忽低，进入IPMI后台可以看到，看到传感器日志里大量的告警</p>
+ <img src="/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/IMG-20250804110128732.png" class="" title="告警">
+
+<p> 造成此问题的原因是风扇转速过低，触发了超微的风扇转速允许的下限，从而强制满速运转，而在满速后主板又很快发现没有问题，且此时温度较低，风扇开始降速，直到降速到下限以下，重复此过程。</p>
+<p>在进入IPMI后台管理界面后风扇速度有四种智能模式可调</p>
+<ul>
+<li><p>Standard: zone0和zone1 风速为50%</p>
+</li>
+<li><p>Optimal: 风速为30%</p>
+</li>
+<li><p>Full: 风速为100%</p>
+</li>
+<li><p>Heavy IO: zone0 为50%，zone1 为75%</p>
+</li>
+</ul>
+<img src="/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/IMG-20250804110128774.png" class="">
+
+
+
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><h4 id="1-在服务器上安装IPMItool"><a href="#1-在服务器上安装IPMItool" class="headerlink" title="1. 在服务器上安装IPMItool"></a>1. 在服务器上安装IPMItool</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt install ipmitool <span class="comment"># Ubuntu/Debian指令</span></span><br><span class="line">yum install ipmitool <span class="comment"># CentOS指令</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-设置风扇转速"><a href="#2-设置风扇转速" class="headerlink" title="2. 设置风扇转速"></a>2. 设置风扇转速</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 风扇名可以看告警里边的对应风扇名</span></span><br><span class="line">ipmitool sensor thresh FAN1 lower 100 125 125</span><br><span class="line">ipmitool sensor thresh FANA lower 100 125 125</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-Windows-下远程操作IPMI"><a href="#3-Windows-下远程操作IPMI" class="headerlink" title="3. Windows 下远程操作IPMI"></a>3. Windows 下远程操作IPMI</h4><p>ipmitool windows 版 <a href="http://www.4008600011.com/wp-content/uploads/2019/08/IPMIToolWin.zip">下载地址</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ipmitool -H [IPMI网口IP地址] -U [IMPI账户] -P [IPMI密码] sensor thresh FAN1 lower 100 125 125</span><br><span class="line">ipmitool -H [IPMI网口IP地址] -U [IMPI账户] -P [IPMI密码] sensor thresh FANA lower 100 125 125</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>如果你运行上面的命令后，风扇转速回落后马上又返回原样，这表明服务器的自动调速覆盖了你手动设置的转速。你需要切换服务器风扇策略为全速（Full Speed），在这个策略下服务器不会使用自动调节转速，因此也不会覆盖你手动设置的转速。</p>
+<p>运行下面的命令切换到全速模式（也可以进入IPMI界面调整）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ipmitool -H [IPMI网口IP地址] -U [IMPI账户] -P [IPMI密码] 0x30 0x45 0x01 0x01</span><br><span class="line"><span class="comment"># 最后一个0x01表示全速模式。如果为0x00则表示标准（Standard）；0x02表示最优（Optimal）</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.bilibili.com/read/cv22752140/">1.解决超微 SuperMicro 主板风扇反复高低转速问题 - 哔哩哔哩 (bilibili.com)</a></p>
+<p><a href="https://www.licc.tech/article?id=33">超微服务器Supermicro X9&#x2F;X10&#x2F;X11设置风扇转速 - 辰宸的备忘录 (licc.tech)</a></p>
+<p><a href="https://blog.csdn.net/owlcity123/article/details/106620113">ipmitool常用命令详解_ipmitool lan set_owlcity123的博客-CSDN博客</a></p>
+]]></content>
+      <categories>
+        <category>杂项</category>
+      </categories>
+      <tags>
+        <tag>超微</tag>
+        <tag>SuperMicro</tag>
+        <tag>转速过低告警</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>中介者模式</title>
     <url>/2019/11/18/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[]]></content>
@@ -247,19 +299,6 @@
       </tags>
   </entry>
   <entry>
-    <title>观察者模式</title>
-    <url>/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>学习笔记</category>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-        <tag>观察者模式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>解释器模式</title>
     <url>/2019/11/24/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[]]></content>
@@ -270,6 +309,19 @@
       <tags>
         <tag>设计模式</tag>
         <tag>解释器模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>观察者模式</title>
+    <url>/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+        <tag>观察者模式</tag>
       </tags>
   </entry>
   <entry>

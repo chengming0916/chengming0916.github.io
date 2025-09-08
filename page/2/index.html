@@ -170,7 +170,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">42</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -181,7 +181,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -206,6 +206,698 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/" class="post-title-link" itemprop="url">解决SuperMicro主板风扇转速过低告警</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-10 10:23:23" itemprop="dateCreated datePublished" datetime="2023-07-10T10:23:23+08:00">2023-07-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9D%82%E9%A1%B9/" itemprop="url" rel="index"><span itemprop="name">杂项</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="解决SuperMicro主板风扇转速过低告警"><a href="#解决SuperMicro主板风扇转速过低告警" class="headerlink" title="解决SuperMicro主板风扇转速过低告警"></a>解决SuperMicro主板风扇转速过低告警</h1><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p> 系统启动后风扇忽高忽低，进入IPMI后台可以看到，看到传感器日志里大量的告警</p>
+ <img src="/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/IMG-20250804110128732.png" class="" title="告警">
+
+<p> 造成此问题的原因是风扇转速过低，触发了超微的风扇转速允许的下限，从而强制满速运转，而在满速后主板又很快发现没有问题，且此时温度较低，风扇开始降速，直到降速到下限以下，重复此过程。</p>
+<p>在进入IPMI后台管理界面后风扇速度有四种智能模式可调</p>
+<ul>
+<li><p>Standard: zone0和zone1 风速为50%</p>
+</li>
+<li><p>Optimal: 风速为30%</p>
+</li>
+<li><p>Full: 风速为100%</p>
+</li>
+<li><p>Heavy IO: zone0 为50%，zone1 为75%</p>
+</li>
+</ul>
+<img src="/2023/07/10/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3SuperMicro%E4%B8%BB%E6%9D%BF%E9%A3%8E%E6%89%87%E8%BD%AC%E9%80%9F%E8%BF%87%E4%BD%8E%E5%91%8A%E8%AD%A6/IMG-20250804110128774.png" class="">
+
+
+
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><h4 id="1-在服务器上安装IPMItool"><a href="#1-在服务器上安装IPMItool" class="headerlink" title="1. 在服务器上安装IPMItool"></a>1. 在服务器上安装IPMItool</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt install ipmitool <span class="comment"># Ubuntu/Debian指令</span></span><br><span class="line">yum install ipmitool <span class="comment"># CentOS指令</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-设置风扇转速"><a href="#2-设置风扇转速" class="headerlink" title="2. 设置风扇转速"></a>2. 设置风扇转速</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 风扇名可以看告警里边的对应风扇名</span></span><br><span class="line">ipmitool sensor thresh FAN1 lower 100 125 125</span><br><span class="line">ipmitool sensor thresh FANA lower 100 125 125</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-Windows-下远程操作IPMI"><a href="#3-Windows-下远程操作IPMI" class="headerlink" title="3. Windows 下远程操作IPMI"></a>3. Windows 下远程操作IPMI</h4><p>ipmitool windows 版 <a target="_blank" rel="noopener" href="http://www.4008600011.com/wp-content/uploads/2019/08/IPMIToolWin.zip">下载地址</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ipmitool -H [IPMI网口IP地址] -U [IMPI账户] -P [IPMI密码] sensor thresh FAN1 lower 100 125 125</span><br><span class="line">ipmitool -H [IPMI网口IP地址] -U [IMPI账户] -P [IPMI密码] sensor thresh FANA lower 100 125 125</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>如果你运行上面的命令后，风扇转速回落后马上又返回原样，这表明服务器的自动调速覆盖了你手动设置的转速。你需要切换服务器风扇策略为全速（Full Speed），在这个策略下服务器不会使用自动调节转速，因此也不会覆盖你手动设置的转速。</p>
+<p>运行下面的命令切换到全速模式（也可以进入IPMI界面调整）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ipmitool -H [IPMI网口IP地址] -U [IMPI账户] -P [IPMI密码] 0x30 0x45 0x01 0x01</span><br><span class="line"><span class="comment"># 最后一个0x01表示全速模式。如果为0x00则表示标准（Standard）；0x02表示最优（Optimal）</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv22752140/">1.解决超微 SuperMicro 主板风扇反复高低转速问题 - 哔哩哔哩 (bilibili.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.licc.tech/article?id=33">超微服务器Supermicro X9&#x2F;X10&#x2F;X11设置风扇转速 - 辰宸的备忘录 (licc.tech)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/owlcity123/article/details/106620113">ipmitool常用命令详解_ipmitool lan set_owlcity123的博客-CSDN博客</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2023/07/07/%E6%9D%82%E9%A1%B9/FRP%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/07/07/%E6%9D%82%E9%A1%B9/FRP%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">FRP配置</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-07 09:10:52" itemprop="dateCreated datePublished" datetime="2023-07-07T09:10:52+08:00">2023-07-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9D%82%E9%A1%B9/" itemprop="url" rel="index"><span itemprop="name">杂项</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="服务端配置"><a href="#服务端配置" class="headerlink" title="服务端配置"></a>服务端配置</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="comment"># TCP通信端口</span></span><br><span class="line"><span class="attr">bind_port</span> = <span class="number">7000</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">#UDP通信端口</span></span><br><span class="line"><span class="attr">bind_udp_port</span> = <span class="number">7001</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 最大连接数</span></span><br><span class="line"><span class="attr">max_pool_count</span> = <span class="number">50</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 仪表板界面配置</span></span><br><span class="line"><span class="attr">dashboard_port</span>=<span class="number">7500</span></span><br><span class="line"><span class="attr">dashboard_user</span>=admin</span><br><span class="line"><span class="attr">dashboard_pwd</span>=admin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许使用的端口号,可以指定范围也可以用‘，’分割</span></span><br><span class="line"><span class="attr">allow_ports</span> = <span class="number">18081</span>-<span class="number">18090</span>,<span class="number">8080</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="服务端开机自启配置"><a href="#服务端开机自启配置" class="headerlink" title="服务端开机自启配置"></a>服务端开机自启配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/systemd/system/frps.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> frps.service</span><br><span class="line"><span class="built_in">sudo</span> systemctl start frps.service</span><br></pre></td></tr></table></figure>
+
+<p>启动文件</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"><span class="attr">Description</span> = Frp Server Service</span><br><span class="line"><span class="attr">After</span> = network.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"><span class="attr">Type</span> = simple</span><br><span class="line"><span class="attr">User</span> = nobody</span><br><span class="line"><span class="attr">Restart</span> = <span class="literal">on</span>-failure</span><br><span class="line"><span class="attr">RestartSec</span> = <span class="number">5</span>s</span><br><span class="line"><span class="attr">ExecStart</span> = /usr/local/bin/frps -c /usr/local/etc/frp/frps.ini</span><br><span class="line"></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"><span class="attr">WantedBy</span> = multi-user.target</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="客户端配置"><a href="#客户端配置" class="headerlink" title="客户端配置"></a>客户端配置</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="comment">#替换IP地址为服务端IP</span></span><br><span class="line"><span class="attr">server_addr</span>=<span class="number">0.0</span>.<span class="number">0.0</span></span><br><span class="line"><span class="attr">server_port</span>=<span class="number">7000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># windows远程桌面</span></span><br><span class="line"><span class="section">[rdp]</span></span><br><span class="line"><span class="attr">type</span>=tcp</span><br><span class="line"><span class="comment"># 映射IP</span></span><br><span class="line"><span class="attr">local_ip</span>=<span class="number">127.0</span>.<span class="number">0.1</span> </span><br><span class="line"><span class="comment"># 映射端口（本地）</span></span><br><span class="line"><span class="attr">local_port</span>=<span class="number">3389</span></span><br><span class="line"><span class="comment"># 远程端口（服务器）注意端口要在允许端口内切未被占用</span></span><br><span class="line"><span class="attr">remote_port</span>=<span class="number">18087</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2022/11/01/%E6%9D%82%E9%A1%B9/%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%BD%E6%A0%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/11/01/%E6%9D%82%E9%A1%B9/%E7%89%A9%E8%81%94%E7%BD%91%E5%9B%BD%E6%A0%87/" class="post-title-link" itemprop="url">物联网国标</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-01 00:00:00" itemprop="dateCreated datePublished" datetime="2022-11-01T00:00:00+08:00">2022-11-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9D%82%E9%A1%B9/" itemprop="url" rel="index"><span itemprop="name">杂项</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>GB&#x2F;T 35134-2017  物联网智能家居 设备描述方法</p>
+<p>GB&#x2F;T 35143-2017  物联网智能家居 数据和设备编码</p>
+<p>GB&#x2F;T 35317-2017 公安物联网系统信息安全等级保护要求</p>
+<p>GB&#x2F;T 35318-2017 公安物联网感知终端安全防护技术要求</p>
+<p>GB&#x2F;T 35319-2017  物联网 系统接口要求</p>
+<p>GB&#x2F;T 35419-2017  物联网标识体系 Ecode在一维条码中的存储</p>
+<p>GB&#x2F;T 35420-2017  物联网标识体系 Ecode在二维码中的存储</p>
+<p>GB&#x2F;T 35421-2017  物联网标识体系 Ecode在射频标签中的存储</p>
+<p>GB&#x2F;T 35422-2017  物联网标识体系 Ecode的注册与管理</p>
+<p>GB&#x2F;T 35423-2017  物联网标识体系 Ecode在NFC标签中的存储</p>
+<p>GB&#x2F;T 35592-2017  公安物联网感知终端接入安全技术要求</p>
+<p>GB&#x2F;T 35136-2017  智能家居自动控制设备通用技术要求</p>
+<p>GB&#x2F;T 35255-2017  LED公共照明智能系统接口应用层通信协议</p>
+<p>GB&#x2F;T 35291-2017  信息安全技术 智能密码钥匙应用接口规范</p>
+<p>GB&#x2F;T 30269.502-2017  信息技术 传感器网络 第502部分：标识：传感节点标识符解析</p>
+<p>GB&#x2F;T 30269.602-2017  信息技术 传感器网络 第602部分：信息安全：低速率无线传感器网络网络层和应用支持子层安全规范</p>
+<p>GB&#x2F;T 30269.801-2017  信息技术 传感器网络 第801部分：测试：通用要求</p>
+<p>GB&#x2F;T 30269.803-2017  信息技术 传感器网络 第803部分：测试：低速无线传感器网络网络层和应用支持子层</p>
+<p>GB&#x2F;T 35129-2017  面向食品制造业的射频识别系统 环境适应性要求</p>
+<p>GB&#x2F;T 35130-2017  面向食品制造业的射频识别系统 射频标签信息与编码规范</p>
+<p>GB&#x2F;T 35135-2017  面向食品制造业的射频识别系统 应用要求</p>
+<p>GB&#x2F;T 17626.6-2017  电磁兼容 试验和测量技术 射频场感应的传导骚扰抗扰度</p>
+<p>GB&#x2F;T 35290-2017  信息安全技术 射频识别（RFID）系统通用安全技术要求</p>
+<p>GB&#x2F;T 35120-2017  制造过程物联的数字化模型信息交换规范</p>
+<p>GB&#x2F;T 35122-2017  制造过程物联的数字化模型信息表达规范</p>
+<p>GB&#x2F;T 35128-2017  集团企业经营管理信息化核心构件</p>
+<p>GB&#x2F;T 34966.1-2017  卫星导航增强信息互联网传输 第1部分：播发体制</p>
+<p>GB&#x2F;T 34966.2-2017  卫星导航增强信息互联网传输 第2部分：接口要求</p>
+<p>GB&#x2F;T 34966.3-2017  卫星导航增强信息互联网传输 第3部分：数据传输格式</p>
+<p>GB&#x2F;T 35403.1-2017  国家物品编码与基础信息通用规范 第1部分：总体框架</p>
+<p>GB&#x2F;T 35589-2017  信息技术 大数据 技术参考模型</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2022/06/24/%E6%9D%82%E9%A1%B9/ffmpeg-mp3%E8%BD%ACpcm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/06/24/%E6%9D%82%E9%A1%B9/ffmpeg-mp3%E8%BD%ACpcm/" class="post-title-link" itemprop="url">FFmpeg mp3转pcm</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-06-24 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-24T00:00:00+08:00">2022-06-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9D%82%E9%A1%B9/" itemprop="url" rel="index"><span itemprop="name">杂项</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>大端数据格式</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">ffmpeg</span> <span class="string">-i</span> <span class="string">test.mp3</span> <span class="string">-f</span> <span class="string">s16be</span> <span class="string">-ar</span> <span class="number">16000</span> <span class="string">-ac</span> <span class="number">1</span> <span class="string">-acodec</span> <span class="string">pcm_s16be</span> <span class="string">pcm16k.pcm</span></span><br></pre></td></tr></table></figure>
+
+<p>小端数据格式</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">ffmpeg</span> <span class="string">-i</span> <span class="string">test.mp3</span> <span class="string">-f</span> <span class="string">s16le</span> <span class="string">-ar</span> <span class="number">16000</span> <span class="string">-ac</span> <span class="number">1</span> <span class="string">-acodec</span> <span class="string">pcm_s16le</span> <span class="string">pcm16k.pcm</span></span><br></pre></td></tr></table></figure>
+
+<p>说明:</p>
+<ol>
+<li>-acodec pcm_s16be：输出pcm格式，采用signed 16编码，字节序为大尾端（小尾端为le)；</li>
+<li>-ar 16000: 采样率为16000</li>
+<li>-ac 1: 声道数为1</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2021/10/22/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%8D%9A%E5%AE%A2%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/22/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%8D%9A%E5%AE%A2%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Hexo 博客配置</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-22 09:32:52" itemprop="dateCreated datePublished" datetime="2021-10-22T09:32:52+08:00">2021-10-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>本地安装 Git NodeJS</p>
+<p>检查环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git -v</span><br><span class="line"></span><br><span class="line">node -v</span><br><span class="line"></span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure>
+
+<p>切换镜像站,具体参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/1903405138527384159">NPM配置国内源</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm config <span class="built_in">set</span> registry https://registry.npmmirror.com</span><br></pre></td></tr></table></figure>
+
+<h2 id="Hexo环境搭建"><a href="#Hexo环境搭建" class="headerlink" title="Hexo环境搭建"></a>Hexo环境搭建</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pnpm install -g hexo-cli                <span class="comment"># 安装Hexo cli工具</span></span><br><span class="line"></span><br><span class="line">hexo init                            <span class="comment"># 初始化博客环境</span></span><br><span class="line">npm install                          <span class="comment"># 安装依赖库</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 插件</span></span><br><span class="line">npm install hexo-asset-img           <span class="comment"># 头像</span></span><br><span class="line">npm install hexo-auto-category       <span class="comment"># 自动分类</span></span><br><span class="line">npm install hexo-generator-searchdb  <span class="comment"># 生成搜索数据库</span></span><br><span class="line">npm install hexo-backlink            <span class="comment"># Obsdian链接转换</span></span><br><span class="line">npm install hexo-deploy-git          <span class="comment"># git自动发布</span></span><br><span class="line">npm install hexo-theme-next          <span class="comment"># hexo NexT主题</span></span><br><span class="line">npm install hexo-server              <span class="comment"># hexo服务器</span></span><br><span class="line">npm install hexo-next-giscus         <span class="comment"># giscus评论组件</span></span><br><span class="line">npm install hexo-wordcount           <span class="comment"># 字数统计</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Hexo-配置"><a href="#Hexo-配置" class="headerlink" title="Hexo 配置"></a>Hexo 配置</h2><p>参考<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/configuration">官方文档</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">theme: next     # 配置主题next</span><br><span class="line"></span><br><span class="line">giscus:         # 评论配置</span><br><span class="line">  enable: true</span><br><span class="line">  repo:  # Github repository name</span><br><span class="line">  repo_id: # Github repository id</span><br><span class="line">  category: # Github discussion category</span><br><span class="line">  category_id: # Github discussion category id</span><br><span class="line">  # Available values: pathname | url | title | og:title</span><br><span class="line">  mapping: title</span><br><span class="line">  # Available values: 0 | 1</span><br><span class="line">  reactions_enabled: 1</span><br><span class="line">   # Available values: 0 | 1</span><br><span class="line">  emit_metadata: 1</span><br><span class="line">  # Available values: light | light_high_contrast | light_protanopia | light_tritanopia | dark | dark_high_contrast | dark_protanopia | dark_tritanopia | dark_dimmed | preferred_color_scheme | transparent_dark | noborder_light | noborder_dark | noborder_gray | cobalt | purple_dark</span><br><span class="line">  theme: light</span><br><span class="line">  # Available values: en | zh-CN</span><br><span class="line">  lang: zh-CN</span><br><span class="line">  # Place the comment box above the comments</span><br><span class="line">  input_position: bottom</span><br><span class="line">  # Load the comments lazily</span><br><span class="line">  loading: lazy</span><br><span class="line">  </span><br><span class="line">deploy:   # 发布配置</span><br><span class="line">  - type: git</span><br><span class="line">    repo:        # 仓库发布地址</span><br><span class="line">    branch: main # 发布分支</span><br><span class="line">    name:        # git用户名 git config user.name &lt;username&gt;</span><br><span class="line">    email:       # git邮箱 git config user.email &lt;email&gt;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>： 评论部分需要借助Github Discussions, 参考<a href="Hexo%E5%8D%9A%E5%AE%A2%E9%85%8D%E7%BD%AEGiscus%E8%AF%84%E8%AE%BA.md">Hexo博客配置Giscus评论</a></p>
+<h2 id="Hexo主题配置"><a href="#Hexo主题配置" class="headerlink" title="Hexo主题配置"></a>Hexo主题配置</h2><p>安装主题后从<code>npm_modules/&lt;主题名&gt;/</code>文件夹中复制<code>_config.yml</code>到博客根目录并重命名为<code>_config.next.yml</code>,当博客deploy时回自动应用主题配置，一下主题修改都基于此文件进行。</p>
+<h3 id="设置语言"><a href="#设置语言" class="headerlink" title="设置语言"></a>设置语言</h3><p>NexT主题支持多种语言，只需要编辑<code>_config.next.yml</code>中的<code>language</code>设置即可</p>
+<table>
+<thead>
+<tr>
+<th>语言</th>
+<th>代码</th>
+<th>设定示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>English</td>
+<td>en</td>
+<td>language: en</td>
+</tr>
+<tr>
+<td>简体中文</td>
+<td>zh-CN（注：zh-Hans已经无法使用）</td>
+<td>language: zh-CN</td>
+</tr>
+<tr>
+<td>Frangais</td>
+<td>fr-FR</td>
+<td>language: fr-FR</td>
+</tr>
+<tr>
+<td>Portugues</td>
+<td>pt</td>
+<td>language: pt  <br>或者  <br>language:pt-BR</td>
+</tr>
+<tr>
+<td>繁體中文</td>
+<td>zh-hk  <br>或者  <br>zh-tw</td>
+<td>language: zh-hk</td>
+</tr>
+<tr>
+<td>Pycckmi 93bIK</td>
+<td>ru</td>
+<td>language: ru</td>
+</tr>
+<tr>
+<td>Deutsch</td>
+<td>de</td>
+<td>language: de</td>
+</tr>
+<tr>
+<td>日本語</td>
+<td>ja</td>
+<td>language: ja</td>
+</tr>
+<tr>
+<td>Indonesian</td>
+<td>id</td>
+<td>language: id</td>
+</tr>
+<tr>
+<td>Korean</td>
+<td>ko</td>
+<td>language: ko</td>
+</tr>
+<tr>
+<td>如果需要添加非内置的字段需要手动添加翻译文件，例如中文的翻译文件路径为<code>node_modules/next/languages/zh-CN.yml</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="设置关于"><a href="#设置关于" class="headerlink" title="设置关于"></a>设置关于</h3><p>在<code>source/about/index.md</code>中添加如下内容</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: 关于</span><br><span class="line"><span class="section">date: 2025-08-27 00:00:00</span></span><br><span class="line"><span class="section">---</span></span><br><span class="line"></span><br><span class="line">&lt;个人信息&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="选择Scheme"><a href="#选择Scheme" class="headerlink" title="选择Scheme"></a>选择Scheme</h3><p>Scheme 是 NexT 提供的一种特性，借助于 Scheme，NexT 为你提供多种不同的外观。同时，几乎所有的配置都可以 在 Scheme 之间共用。目前 NexT 支持三种 Schem</p>
+<ul>
+<li>Muse - 默认 Scheme</li>
+<li>Mist - Muse 的紧凑版本</li>
+<li>Pisces - 双栏 Scheme</li>
+<li>Gemini</li>
+</ul>
+<h3 id="菜单配置"><a href="#菜单配置" class="headerlink" title="菜单配置"></a>菜单配置</h3><p>菜单配置包括三个部分，第一是菜单项（名称和链接），第二是菜单项的显示文本，第三是菜单项对应的图标。 NexT 使用的是 <a target="_blank" rel="noopener" href="http://fontawesome.io/">Font Awesome</a> 提供的图标， Font Awesome 提供了 600+ 的图标，可以满足绝大的多数的场景，同时无须担心在 Retina 屏幕下 图标模糊的问题。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">menu: home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span> </span><br><span class="line"><span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span> </span><br><span class="line"><span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span> </span><br><span class="line"><span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span> </span><br><span class="line"><span class="comment">#schedule: /schedule/ || calendar </span></span><br><span class="line"><span class="comment">#sitemap: /sitemap.xml || sitemap </span></span><br><span class="line"><span class="comment">#commonweal: /404/ || heartbeat </span></span><br><span class="line"><span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">user</span></span><br></pre></td></tr></table></figure>
+
+<p>NexT 默认的菜单项有（标注 <code>* </code>的项表示需要手动创建这个页面）：</p>
+<p><strong>注意</strong>: 若站点运行在子目录中，请将链接前缀的 &#x2F; 去掉。</p>
+<table>
+<thead>
+<tr>
+<th align="left">键值</th>
+<th align="left">设定值</th>
+<th align="left">显示文本（简体中文）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">home</td>
+<td align="left">home: &#x2F;</td>
+<td align="left">主页</td>
+</tr>
+<tr>
+<td align="left">archives</td>
+<td align="left">archives: &#x2F;archives</td>
+<td align="left">归档页</td>
+</tr>
+<tr>
+<td align="left">categories</td>
+<td align="left">categories: &#x2F;categories</td>
+<td align="left">分类页<code> *</code></td>
+</tr>
+<tr>
+<td align="left">tags</td>
+<td align="left">tags: &#x2F;tags</td>
+<td align="left">标签页 <code>*</code></td>
+</tr>
+<tr>
+<td align="left">about</td>
+<td align="left">about: &#x2F;about</td>
+<td align="left">关于页面<code>*</code></td>
+</tr>
+<tr>
+<td align="left">commonweal</td>
+<td align="left">commonweal: &#x2F;404.html</td>
+<td align="left">公益 404 !</td>
+</tr>
+</tbody></table>
+<h3 id="侧栏配置"><a href="#侧栏配置" class="headerlink" title="侧栏配置"></a>侧栏配置</h3><p>默认情况下，侧栏仅在文章页面（拥有目录列表）时才显示，并放置于右侧位置。配置具体如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">...</span></span><br><span class="line"></span><br><span class="line"><span class="attr">sidbar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span>     <span class="comment"># 配置侧栏居左</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">post</span>      <span class="comment"># 侧栏显示行为</span></span><br><span class="line"></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>侧栏显示位置支持</p>
+<ul>
+<li><code>left</code>:  居左显示</li>
+<li><code>right</code>:  居右显示</li>
+</ul>
+<p>侧栏显示行为支持</p>
+<ul>
+<li><code>post</code> 默认行为，在文章页面（拥有目录列表）时显示</li>
+<li><code>always</code> 所有页面都显示</li>
+<li><code>hide</code> 在所有页面中都隐藏（可以手动展开）</li>
+<li><code>remove</code> 完全移除</li>
+</ul>
+<p>注册Github账号,Gitea账号(可选)<br>[^注] Github由于网络问题会经常无法链接，可使用Gitea作为中转，先将代码提交道Gitea，然后Gitea配置自动推送到Github</p>
+<h3 id="设置头像"><a href="#设置头像" class="headerlink" title="设置头像"></a>设置头像</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">avatar: /images/avatar.jpg</span><br></pre></td></tr></table></figure>
+
+<p>头像地址如果是以<code>/</code>起始则表示头像图片放置在博客发布后的目录下，例如测试博客地址是<code>http://localhost:4000</code>,头像图片地址为<code>http://localhost:4000/images/avatar.jpg</code><br>此配置需要在博客的<code>source/images</code>目录中放置头像图片<code>avatar.jpg</code></p>
+<h3 id="侧边栏社交链接"><a href="#侧边栏社交链接" class="headerlink" title="侧边栏社交链接"></a>侧边栏社交链接</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">social:</span><br><span class="line">  #GitHub: https://github.com/&lt;username&gt; || fab fa-github</span><br><span class="line">  #E-Mail: &lt;email&gt; || fa fa-envelope</span><br><span class="line">  #Weibo: https://weibo.com/yourname || fab fa-weibo</span><br><span class="line">  #Twitter: https://twitter.com/yourname || fab fa-twitter</span><br><span class="line">  #FB Page: https://www.facebook.com/yourname || fab fa-facebook</span><br><span class="line">  #StackOverflow: https://stackoverflow.com/yourname || fab fa-stack-overflow</span><br><span class="line">  #YouTube: https://youtube.com/yourname || fab fa-youtube</span><br><span class="line">  #Instagram: https://instagram.com/yourname || fab fa-instagram</span><br><span class="line">  #Skype: skype:yourname?call|chat || fab fa-skype</span><br></pre></td></tr></table></figure>
+
+<p>next主题默认支持的社交链接 <code>||</code>符号后是链接的图标</p>
+<p>使用已有配置放开注释即可，如果要添加默认不存在链接示例如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="string">微信:</span> <span class="string">https://wx.qq.com</span> <span class="string">||</span> <span class="string">weixin</span></span><br></pre></td></tr></table></figure>
+
+
+<p><strong>注意</strong>: 图标对应的名称是FontAwesom图标的名称（不必带 <code>fa-</code> 前缀）</p>
+<h3 id="打赏功能"><a href="#打赏功能" class="headerlink" title="打赏功能"></a>打赏功能</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Reward </span></span><br><span class="line"><span class="attr">reward:</span> </span><br><span class="line">  <span class="attr">wechatpay:</span> <span class="string">/images/custom/wechatpay.jpg</span> </span><br><span class="line">  <span class="attr">alipay:</span> <span class="string">/images/custom/alipay.jpg</span> </span><br></pre></td></tr></table></figure>
+<p>放开此部分注释并在<code>source/images</code>中放入收款码图片</p>
+<h3 id="站点建立时间"><a href="#站点建立时间" class="headerlink" title="站点建立时间"></a>站点建立时间</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">footer:</span></span><br><span class="line">  <span class="attr">since:</span> <span class="number">2025</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="订阅微信公众号"><a href="#订阅微信公众号" class="headerlink" title="订阅微信公众号"></a>订阅微信公众号</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># Wechat Subscriber </span><br><span class="line">wechat_subscriber: </span><br><span class="line">  enabled: true </span><br><span class="line">  qcode: /images/wechat-qcode.jpg </span><br><span class="line">  description: 欢迎您扫一扫上面的微信公众号，订阅我的博客！</span><br></pre></td></tr></table></figure>
+<p>放开此部分注释，并在<code>source/images</code>中放入公众号二维码</p>
+<p><strong>注意</strong>: 此功能需要NexT版本在5.0.1之后</p>
+<h3 id="设置动画"><a href="#设置动画" class="headerlink" title="设置动画"></a>设置动画</h3><p>NexT 默认开启动画效果，效果使用 JavaScript 编写，因此需要等待 JavaScript 脚本完全加载完毕后才会显示内容。 如果您比较在乎速度，可以将设置此字段的值为 <code>false</code> 来关闭动画。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># Use velocity to animate everything. </span><br><span class="line">motion: </span><br><span class="line">  enable: true </span><br><span class="line">  async: true </span><br><span class="line">  transition: </span><br><span class="line">    # Transition variants: </span><br><span class="line">    # fadeIn | fadeOut | flipXIn | flipXOut | flipYIn | flipYOut | flipBounceXIn | flipBounceXOut | flipBounceYIn | flipBounceYOut </span><br><span class="line">    # swoopIn | swoopOut | whirlIn | whirlOut | shrinkIn | shrinkOut | expandIn | expandOut </span><br><span class="line">    # bounceIn | bounceOut | bounceUpIn | bounceUpOut | bounceDownIn | bounceDownOut | bounceLeftIn | bounceLeftOut | bounceRightIn | bounceRightOut </span><br><span class="line">    # slideUpIn | slideUpOut | slideDownIn | slideDownOut | slideLeftIn | slideLeftOut | slideRightIn | slideRightOut </span><br><span class="line">    # slideUpBigIn | slideUpBigOut | slideDownBigIn | slideDownBigOut | slideLeftBigIn | slideLeftBigOut | slideRightBigIn | slideRightBigOut </span><br><span class="line">    # perspectiveUpIn | perspectiveUpOut | perspectiveDownIn | perspectiveDownOut | perspectiveLeftIn | perspectiveLeftOut | perspectiveRightIn | perspectiveRightOut </span><br><span class="line">    post_block: fadeIn </span><br><span class="line">    post_header: slideDownIn </span><br><span class="line">    post_body: slideDownIn </span><br><span class="line">    coll_header: slideLeftIn # Only for Pisces | Gemini. </span><br><span class="line">    sidebar: slideUpIn</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置全文阅读"><a href="#设置全文阅读" class="headerlink" title="设置全文阅读"></a>设置全文阅读</h3><p>在首页显示一篇文章的部分内容，并提供一个链接跳转到全文页面是一个常见的需求。 NexT 提供三种方式来控制文章在首页的显示方式。</p>
+<ul>
+<li>在文章中使用 <code>&lt;!-- more --&gt;</code> 手动进行截断，Hexo 提供的方式 <strong>推荐</strong>。</li>
+<li>在文章的 front-matter 中添加 description，并提供文章摘录</li>
+<li>自动形成摘要，需要添加如下配置<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Automatically Excerpt. Not recommend. </span></span><br><span class="line"><span class="comment"># Please use &lt;!-- more --&gt; in the post to control excerpt accurately. </span></span><br><span class="line"><span class="attr">auto_excerpt:</span> </span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span> </span><br><span class="line">  <span class="attr">length:</span> <span class="number">150</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="设置字数统计-阅读时长"><a href="#设置字数统计-阅读时长" class="headerlink" title="设置字数统计&#x2F;阅读时长"></a>设置字数统计&#x2F;阅读时长</h3><p>在<code>_config.yml</code>中配置如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Post wordcount display settings </span></span><br><span class="line"><span class="comment"># Dependencies: https://github.com/willin/hexo-wordcount </span></span><br><span class="line"><span class="attr">post_wordcount:</span> </span><br><span class="line">  <span class="attr">item_text:</span> <span class="literal">true</span> </span><br><span class="line">  <span class="attr">wordcount:</span> <span class="literal">true</span> </span><br><span class="line">  <span class="attr">min2read:</span> <span class="literal">true</span> </span><br><span class="line">  <span class="attr">totalcount:</span> <span class="literal">false</span> </span><br><span class="line">  <span class="attr">separated_meta:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="加载进度条"><a href="#加载进度条" class="headerlink" title="加载进度条"></a>加载进度条</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Progress bar in the top during page loading.</span></span><br><span class="line"><span class="attr">pace:</span> <span class="literal">true</span></span><br><span class="line"><span class="comment"># Themes list:</span></span><br><span class="line"><span class="comment">#pace-theme-big-counter</span></span><br><span class="line"><span class="comment">#pace-theme-bounce</span></span><br><span class="line"><span class="comment">#pace-theme-barber-shop</span></span><br><span class="line"><span class="comment">#pace-theme-center-atom</span></span><br><span class="line"><span class="comment">#pace-theme-center-circle</span></span><br><span class="line"><span class="comment">#pace-theme-center-radar</span></span><br><span class="line"><span class="comment">#pace-theme-center-simple</span></span><br><span class="line"><span class="comment">#pace-theme-corner-indicator</span></span><br><span class="line"><span class="comment">#pace-theme-fill-left</span></span><br><span class="line"><span class="comment">#pace-theme-flash</span></span><br><span class="line"><span class="comment">#pace-theme-loading-bar</span></span><br><span class="line"><span class="comment">#pace-theme-mac-osx</span></span><br><span class="line"><span class="comment">#pace-theme-minimal</span></span><br><span class="line"><span class="comment"># For example</span></span><br><span class="line"><span class="comment"># pace_theme: pace-theme-center-simple</span></span><br><span class="line"><span class="attr">pace_theme:</span> <span class="string">pace-theme-minimal</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="搜索服务"><a href="#搜索服务" class="headerlink" title="搜索服务"></a>搜索服务</h3><p>在<code>_config.yml</code>中配置如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># hexo-generator-searchdb </span></span><br><span class="line"><span class="attr">search:</span> </span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span> </span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span> </span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span> </span><br><span class="line">  <span class="attr">limit:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+
+<p>在_config.next.yml中配置如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Local search </span></span><br><span class="line"><span class="comment"># Dependencies: https://github.com/flashlab/hexo-generator-search </span></span><br><span class="line"><span class="attr">local_search:</span> </span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span> </span><br><span class="line">  <span class="comment"># if auto, trigger search by changing input </span></span><br><span class="line">  <span class="comment"># if manual, trigger search by pressing enter key or search button   </span></span><br><span class="line">  <span class="attr">trigger:</span> <span class="string">auto</span> </span><br><span class="line">  <span class="comment"># show top n results per article, show all results by setting to -1 </span></span><br><span class="line">  <span class="attr">top_n_per_article:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>参考<br><a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">官方文档</a><br><a target="_blank" rel="noopener" href="https://jiz4oh.com/2020/09/hexo-next/">Hexo 博客使用 Next 主题及美化 | Jiz4oh’s Life</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -251,7 +943,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
     </span>
 
   
@@ -415,7 +1107,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -609,7 +1301,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -697,7 +1389,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -785,447 +1477,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/21/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/21/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">责任链模式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-11-21 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-21T00:00:00+08:00">2019-11-21</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/20/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/20/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">策略模式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-11-20 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-20T00:00:00+08:00">2019-11-20</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">状态模式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-11-19 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-19T00:00:00+08:00">2019-11-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/18/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/18/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">中介者模式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-11-18 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-18T00:00:00+08:00">2019-11-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">观察者模式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-11-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-17T00:00:00+08:00">2019-11-17</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-08 10:07:10" itemprop="dateModified" datetime="2025-09-08T10:07:10+08:00">2025-09-08</time>
+      <time title="修改时间：2025-09-08 10:17:41" itemprop="dateModified" datetime="2025-09-08T10:17:41+08:00">2025-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1270,7 +1522,7 @@
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

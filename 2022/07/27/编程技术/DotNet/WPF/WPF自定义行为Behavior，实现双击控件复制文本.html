@@ -1,0 +1,39 @@
+<hr>
+<h2 id="title-WPF自定义行为Behavior，实现双击控件复制文本tags-WPF-Behavior-行为categories-编程技术-DotNet-WPFdate-2017-08-04-09-12-44"><a href="#title-WPF自定义行为Behavior，实现双击控件复制文本tags-WPF-Behavior-行为categories-编程技术-DotNet-WPFdate-2017-08-04-09-12-44" class="headerlink" title="title: WPF自定义行为Behavior，实现双击控件复制文本tags:  - WPF  - Behavior  - 行为categories:  - 编程技术  - DotNet  - WPFdate: 2017-08-04 09:12:44"></a>title: WPF自定义行为Behavior，实现双击控件复制文本<br>tags:<br>  - WPF<br>  - Behavior<br>  - 行为<br>categories:<br>  - 编程技术<br>  - DotNet<br>  - WPF<br>date: 2017-08-04 09:12:44</h2><p>WPF引用xmlns:i&#x3D;”clr-namespace:System.Windows.Interactivity;assembly&#x3D;System.Windows.Interactivity”后可以设置很多自定义的行为：</p>
+<pre><code>       &lt;i:Interaction.Triggers\&gt;
+            &lt;i:EventTrigger EventName\=&quot;ValueChanged&quot;\&gt;
+                &lt;i:InvokeCommandAction Command\=&quot;{Binding ValueChangedCommand}&quot; /&gt;
+            &lt;/i:EventTrigger\&gt;
+        &lt;/i:Interaction.Triggers\&gt;
+</code></pre>
+<p>&lt;UserControl.Resources&gt;<br>        &lt;ControlTemplate x:Key=“trackThumb” TargetType=“{x:Type Slider}”&gt;<br>            &lt;Border Background=“{TemplateBinding Background}” BorderBrush=“{TemplateBinding BorderBrush}” BorderThickness=“{TemplateBinding BorderThickness}”&gt;<br>                &lt;Grid&gt;<br>                    &lt;Track x:Name=“PART_Track”&gt;<br>                        &lt;Track.Thumb&gt;<br>                            &lt;Thumb Width=“10”&gt;<br>                                &lt;i:Interaction.Triggers&gt;<br>                                    &lt;i:EventTrigger EventName=“DragCompleted”&gt;<br>                                        &lt;i:InvokeCommandAction Command=“{Binding ValueChangedCommand}” &#x2F;&gt;<br>                                    &lt;&#x2F;i:EventTrigger&gt;<br>                                &lt;&#x2F;i:Interaction.Triggers&gt;<br>                            &lt;&#x2F;Thumb&gt;<br>                        &lt;&#x2F;Track.Thumb&gt;<br>                    &lt;&#x2F;Track&gt;<br>                &lt;&#x2F;Grid&gt;<br>            &lt;&#x2F;Border&gt;<br>        &lt;&#x2F;ControlTemplate&gt;<br>    &lt;&#x2F;UserControl.Resources&gt;</p>
+<p>当时当我们有一些自定义的需求时，需要自定义行为，例如给每个控件添加一个双击复制文本的行为。</p>
+<p>1. 定义行为</p>
+<p>public class MouseDoubleClickCopyTextBehavior : Behavior<FrameworkElement> {<br>        &#x2F;&#x2F;&#x2F; <summary><br>        &#x2F;&#x2F;&#x2F; 需要复制的内容<br>        &#x2F;&#x2F;&#x2F; </summary><br>        public string CopyText<br>        { get { return (string)GetValue(CopyTextProperty); } set { SetValue(CopyTextProperty, value); }<br>        } public static readonly DependencyProperty CopyTextProperty &#x3D; DependencyProperty.Register(“CopyText”, typeof(string), typeof(MouseDoubleClickCopyTextBehavior), new PropertyMetadata(null)); protected override void OnAttached()<br>        { base.OnAttached();<br>            AssociatedObject.PreviewMouseLeftButtonDown +&#x3D; AssociatedObject_PreviewMouseLeftButtonDown;<br>        } protected override void OnDetaching()<br>        { base.OnDetaching();<br>            AssociatedObject.PreviewMouseLeftButtonDown -&#x3D; AssociatedObject_PreviewMouseLeftButtonDown;<br>        } void AssociatedObject_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)<br>        { if (e.ClickCount &gt;&#x3D; 2)<br>                Clipboard.SetDataObject(CopyText);<br>        } </p>
+<ol start="2">
+<li>控件绑定行为</li>
+</ol>
+<Style TargetType\="Label" BasedOn\="{StaticResource {x:Type Label}}"\>
+                <Setter Property\="VerticalAlignment" Value\="Center" />
+                <Setter Property\="Template"\>
+                    <Setter.Value\>
+                        <ControlTemplate TargetType\="Label"\>
+                            <Border\>
+                                <ContentPresenter Name\="ContentPresenter" HorizontalAlignment\="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment\="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey\="True" \>
+                                    <!-- 绑定自定义行为 \-->
+                                    <i:Interaction.Behaviors\>  
+ <hei:MouseDoubleClickCopyTextBehavior CopyText\="{Binding ElementName=ContentPresenter,Path=Content}"/>
+                                    </i:Interaction.Behaviors\>
+                                </ContentPresenter\>
+                            </Border\>
+                            <ControlTemplate.Triggers\>
+                                <Trigger Property\="IsEnabled" Value\="false"\>
+                                    <Setter Property\="Foreground"\><Setter.Value\>
+                                            <SolidColorBrush Color\="{DynamicResource DisabledForegroundColor}" />
+                                        </Setter.Value\>
+                                    </Setter\>
+                                </Trigger\>
+                            </ControlTemplate.Triggers\>
+                        </ControlTemplate\></Setter.Value\>
+                </Setter\>
+            </Style\>

@@ -1,6 +1,502 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Git代码提交规范</title>
+    <url>/2024/12/19/Git/Git%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83/</url>
+    <content><![CDATA[<h5 id="消息格式"><a href="#消息格式" class="headerlink" title="消息格式"></a>消息格式</h5><p>每个提交消息都由一个标题、一个正文和一个页脚组成。而标题又具有特殊格式，包括修改类型、影响范围和内容主题：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">修改类型(影响范围): 标题</span><br><span class="line">&lt;--空行--&gt;</span><br><span class="line">[正文]</span><br><span class="line">&lt;--空行--&gt;</span><br><span class="line">[页脚]</span><br></pre></td></tr></table></figure>
+
+<p>标题是<strong>强制性</strong>的，但标题的<strong>范围是可选的</strong>。</p>
+<h5 id="修改类型"><a href="#修改类型" class="headerlink" title="修改类型"></a>修改类型</h5><p>每个类型值都表示了不同的含义，类型值必须是以下的其中一个：</p>
+<ul>
+<li><strong>feat</strong>：提交新功能</li>
+<li><strong>fix</strong>：修复了bug</li>
+<li><strong>docs</strong>：只修改了文档</li>
+<li><strong>style</strong>：调整代码格式，未修改代码逻辑（比如修改空格、格式化、缺少分号等）</li>
+<li><strong>refactor</strong>：代码重构，既没修复bug也没有添加新功能</li>
+<li><strong>perf</strong>：性能优化，提高性能的代码更改</li>
+<li><strong>test</strong>：添加或修改代码测试</li>
+<li><strong>chore</strong>：对构建流程或辅助工具和依赖库（如文档生成等）的更改</li>
+</ul>
+<h5 id="代码回滚"><a href="#代码回滚" class="headerlink" title="代码回滚"></a>代码回滚</h5><p>代码回滚比较特殊，如果本次提交是为了恢复到之前的某个提交，那提交消息应该以<code>revert:</code>开头，后跟要恢复到的那个提交的标题。然后在消息正文中，应该写上<code>This reverts commit &lt;hash&gt;</code>，其中<code>&lt;hash&gt;</code>是要还原的那个提交的SHA值。</p>
+<h5 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h5><p>范围不是固定值，它可以是你提交代码实际影响到的任何内容。例如<code>$location</code>、<code>$browser</code>、<code>$compile</code>、<code>$rootScope</code>、<code>ngHref</code>、<code>ngClick</code>、<code>ngView</code>等，唯一需要注意的是它必须足够简短。</p>
+<p>当修改影响多个范围时，也可以使用<code>*</code>。</p>
+<h5 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h5><p>标题是对变更的简明描述：</p>
+<ul>
+<li>使用祈使句，现在时态：是“change”不是“changed”也不是“changes”</li>
+<li>不要大写首字母</li>
+<li>结尾不要使用句号</li>
+</ul>
+<h5 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h5><p>正文是对标题的补充，但它不是必须的。和标题一样，它也要求使用祈使句且现在时态，正文应该包含更详细的信息，如代码修改的动机，与修改前的代码对比等。</p>
+<h5 id="页脚"><a href="#页脚" class="headerlink" title="页脚"></a>页脚</h5><p>任何<strong>Breaking Changes（破坏性变更，不向下兼容）</strong>都应该在页脚中进行说明，它经常也用来引用<a href="https://link.zhihu.com/?target=https://help.github.com/articles/closing-issues-via-commit-messages/">本次提交解决的GitHub Issue</a>。</p>
+<p><strong>Breaking Changes</strong>应该以“BREAKING CHANGE:”开头，然后紧跟一个空格或两个换行符，其他要求与前面一致。</p>
+<h3 id="分支功能描述"><a href="#分支功能描述" class="headerlink" title="分支功能描述"></a>分支功能描述</h3><p><strong>master</strong>: 长期分支，用于对外版本发布，所有版本出自此版本库。此分支不允许直接提交代码，只从bugfix分支和develop分支合并。</p>
+<p><strong>develop</strong>: 长期分支，用于日常代码开发，与master分支 保持同步，当新功能开发完成后线合并到此分支，经过测试后再合并到master分支。</p>
+<p><strong>bugfix</strong>: 临时分支，当出现bug时基于master分支新建<code>bugfix/bug-1</code>,bug分支可根据bug编号命名。bug测试完毕合并进入develop分支和master分支</p>
+<p><strong>feature</strong>: 临时分支，开发新功能时从develop分支新建<code>feature/feature-1</code>,feature分支可根据功能命名。新特性开发完成合并进入develop分支并删除feature分支。</p>
+<p><strong>release</strong>: 临时分支，需要发布版本时从master分支新建<code>release/release-1.0.0</code>,release分支根据版本号命名。</p>
+<p>release分支禁止再合并功能，只提交bug修改，版本发布完成后合并进入master和develop，并再对应的提交上打版本Tag。</p>
+<h3 id="提交规范"><a href="#提交规范" class="headerlink" title="提交规范"></a>提交规范</h3><p>参考格式</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;type&gt;: &lt;subject&gt;</span><br><span class="line">&lt;BLANK LINE&gt; 空行</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;BLANK LINE&gt; 空行</span><br><span class="line">&lt;footer&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>type:  本次commit的类型，如bugfix,docs,style等</p>
+</li>
+<li><p>feat: 添加新特性</p>
+</li>
+<li><p>fix: 修复bug</p>
+</li>
+<li><p>docs: 修改文档</p>
+</li>
+<li><p>style: 修改格式缩进,不改变代码逻辑</p>
+</li>
+<li><p>refactor: 代码重构,没有添加新下功能或者修复bug</p>
+</li>
+<li><p>perf: 增加代码进行性能测试</p>
+</li>
+<li><p>test: 增加测试用例</p>
+</li>
+<li><p>chore:  改变构建流程或者增加依赖库、工具等</p>
+</li>
+<li><p>scope: 本次commit波及范围</p>
+</li>
+<li><p>subject: 简明扼要阐述本次commit的主旨</p>
+<ul>
+<li>使用祈使句</li>
+<li>首字母不要大写</li>
+<li>结尾无需添加标点</li>
+</ul>
+</li>
+<li><p>body: 详细描述本次commit,如需换行则使用<code>|</code></p>
+</li>
+<li><p>footer: 描述下与之关联的 issue 或 breadk change</p>
+</li>
+</ul>
+<p>标题行： 50个字符以内，描述主要变更内容</p>
+<p>主体内容: 更详细下说明文本，建议72个字符以内。需要描述信息包括：</p>
+<ul>
+<li>为什么这个变更是必须的，它可能是用来修复一个bug，增加一个feature,提升性能、可靠性、稳定性等</li>
+<li>如何解决这个问题，具体描述解决问题的步骤</li>
+<li>是否存在副作用、风险</li>
+</ul>
+<p>如果需要的话可以添加一个连接到issue或其他文档</p>
+<p><strong>示例</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docs(README): README添加代码提交规范</span><br><span class="line"></span><br><span class="line">添加代码规范，提升提交日志的可读性和功能</span><br><span class="line"></span><br><span class="line">#123 #没有关联的issue可以省略</span><br><span class="line"></span><br><span class="line">----------------------</span><br><span class="line">feat: 增加XXX功能</span><br><span class="line"></span><br><span class="line">增加XXX功能，实现XXX效果</span><br><span class="line"></span><br><span class="line">#21</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Git解决中文乱码</title>
+    <url>/2017/03/11/Git/Git%E8%A7%A3%E5%86%B3%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81/</url>
+    <content><![CDATA[<h2 id="解决路径显示数字问题"><a href="#解决路径显示数字问题" class="headerlink" title="解决路径显示数字问题"></a>解决路径显示数字问题</h2><ul>
+<li>命令及现象</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git status <span class="comment"># 当提交文件中有中文目录时，目录会显示为数字</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>原因</p>
+<p>在默认设置下中文名不能正常显示，而是显示为八进制的字符编码。</p>
+</li>
+<li><p>解决办法</p>
+<p>修改git配置文件<code>core.quotepath</code> 为false</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># --global 表示全局配置</span></span><br><span class="line">git config --global core.quotepath <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="终端输出中文为乱码"><a href="#终端输出中文为乱码" class="headerlink" title="终端输出中文为乱码"></a>终端输出中文为乱码</h2><ul>
+<li><p>命令及现象</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">log</span> <span class="comment"># 当log中有中文日志时，日志显示为乱码</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>原因</p>
+<p>git commit  默认的编码是UTF-8 ,cmd默认的编码是GB-2312,字符集不同显示为乱码。</p>
+</li>
+<li><p>解决办法</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置GUI编码为UTF-8</span></span><br><span class="line">git config --global gui.encoding utf-8</span><br><span class="line"><span class="comment"># 设置提交日志编码为UTF-8</span></span><br><span class="line">git config --global i18n.commitencoding  utf-8</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>配置文件默认存放路径</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">C:\Users\[用户名]\.gitconfig # 全局配置文件存放路径，修改此文件效果等价git config --global</span><br><span class="line">[存储库根目录]\.git\config    # 当前存储库配置文件，只影响当前存储库，效果等价于在此存储库执行 git config</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 全局设置</span></span><br><span class="line">[gui]  </span><br><span class="line">    encoding = utf-8 </span><br><span class="line">[core]</span><br><span class="line">	quotePath = <span class="literal">false</span></span><br><span class="line">[i18n]  </span><br><span class="line">    commitencoding = utf-8  </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>环境配置</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Git配置</title>
+    <url>/2019/04/12/Git/Git%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h3 id="配置用户信息"><a href="#配置用户信息" class="headerlink" title="配置用户信息"></a>配置用户信息</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">#配置用户名和邮箱</span></span><br><span class="line">git config --global user.name </span><br><span class="line">git config --global user.email</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="配置编码"><a href="#配置编码" class="headerlink" title="配置编码"></a>配置编码</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">#中文路径和文件名乱码</span></span><br><span class="line">git config --global core.quotePath <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#修改commit编码方式</span></span><br><span class="line">git config --global i18n.commitEncoding utf-8</span><br><span class="line">git config --global i18n.logOutputEncoding</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="配置内网域名证书"><a href="#配置内网域名证书" class="headerlink" title="配置内网域名证书"></a>配置内网域名证书</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global http.<span class="string">&quot;内网域名&quot;</span>.sslCAInfo <span class="string">&quot;证书所在路径&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例</span></span><br><span class="line">git config --global http.<span class="string">&quot;https://example.io&quot;</span>.sslCAInfo ~/.certs/selfsigned-root-ca.crt</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Git子库</title>
+    <url>/2020/04/29/Git/submodule/</url>
+    <content><![CDATA[<p>原文链接:<a href="https://www.cnblogs.com/AhuntSun-blog/p/12736934.html">Git应用详解第十讲：Git子库：submodule与subtree</a></p>
+<p>一个中大型项目往往会依赖几个模块，<code>git</code>提供了子库的概念。可以将这些子模块存放在不同的仓库中，通过<code>submodule</code>或<code>subtree</code>实现仓库的嵌套。本讲为<code>Git</code>应用详解的倒数第二讲，胜利离我们不远了！</p>
+<h3 id="一、submodule"><a href="#一、submodule" class="headerlink" title="一、submodule"></a>一、<code>submodule</code></h3><p><code>submodule</code>：子模块的意思，表示将一个版本库作为子库引入到另一个版本库中：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351334.png" class="" title="img">
+
+<h4 id="1-引入子库"><a href="#1-引入子库" class="headerlink" title="1.引入子库"></a>1.引入子库</h4><p>需要使用如下命令：</p>
+<h5 id="git-submodule-add-子库地址-保存目录"><a href="#git-submodule-add-子库地址-保存目录" class="headerlink" title="git submodule add 子库地址 保存目录"></a><code>git submodule add 子库地址 保存目录</code></h5><p>比如：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">git submodule add git@github.<span class="property">com</span>:<span class="title class_">AhuntSun</span>/git_child.<span class="property">git</span> mymodule</span><br></pre></td></tr></table></figure>
+
+<p>执行上述命令会将地址对应的远程仓库作为子库，保存到当前版本库的<code>mymodule</code>目录下：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351385.png" class="" title="img">
+
+<p>随后查看当前版本库的状态：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351455.png" class="" title="image-20200329203048016">
+
+<p>可以发现新增了两个文件。查看其中的<code>.gitmodules</code>文件：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351530.png" class="" title="image-20200329203507411">
+
+<p>可以看到当前文件的路径和子模块的<code>url</code>，随后将这两个新增文件<strong>添加</strong>、<strong>提交</strong>并<strong>推送</strong>。在当前仓库<code>git_parent</code>对应的远程仓库中多出了两个文件：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351620.png" class="" title="image-20200329203746236">
+
+<p>其中<code>mymodule</code>文件夹上的<code>3bd7f76</code> 对应的是<strong>子仓库</strong><code>git_child</code>中的<strong>最新提交</strong>：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351694.png" class="" title="image-20200329203905051">
+
+<p>点击<code>mymodule</code>文件夹，会自动跳转到<strong>子仓库</strong>中：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351761.png" class="" title="image-20200329203957392">
+
+<p>通过上述分析，可以得出结论：两个仓库已经关联起来了，并且仓库<code>git_child</code>为仓库<code>git_parent</code>的子仓库；</p>
+<h4 id="2-同步子库变化"><a href="#2-同步子库变化" class="headerlink" title="2.同步子库变化"></a>2.同步子库变化</h4><p><strong>当被依赖的子版本库发生变化时</strong>：在子版本库<code>git_child</code>中新增文件<code>world.txt</code>并提交到远程仓库：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351830.png" class="" title="image-20200329204252524">
+
+<p>这个时候依赖它的父版本库<code>git_parent</code>要如何感知这一变化呢？</p>
+<h5 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h5><p>这个时候<code>git_parent</code>只需要进入存放子库<code>git_child</code>的目录<code>mymodule</code>，执行<code>git pull</code>就能将子版本库<code>git_child</code>的更新拉取到本地：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351898.png" class="" title="image-20200330102106961">
+
+<h5 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h5><p>当父版本库<code>git_parent</code>依赖的<strong>多个子版本库</strong>都发生变化时，可以采用如下方法遍历更新所有子库：首先回到版本库主目录，执行以下指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git submodule foreach git pull</span><br></pre></td></tr></table></figure>
+
+<p>该命令会<strong>遍历</strong>当前版本库所依赖的<strong>所有</strong>子版本库，并将它们的更新<strong>拉取</strong>到父版本库<code>git_parent</code>：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173351970.png" class="" title="image-20200330102642607">
+
+<p>拉取完成后，查看状态，发现<code>mymodule</code>目录下文件发生了变化，所以需要执行一次添加、提交、推送操作：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352045.png" class="" title="image-20200330102914556">
+
+<h4 id="3-复制父版本库"><a href="#3-复制父版本库" class="headerlink" title="3.复制父版本库"></a>3.复制父版本库</h4><p>如果将使用了<code>submodule</code>添加依赖了子库的父版本库<code>git_parent</code>，克隆一份到本地的话。在克隆出来的新版本库<code>git_parent2</code>中，原父版本库存放依赖子库的目录虽在，但是内容不在：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352136.png" class="" title="image-20200330103417911">
+
+<p>进入根据<code>git_parent</code>复制出来的仓库<code>git_parent2</code>，会发现<code>mymodule</code>目录为空：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352199.png" class="" title="image-20200330103502848">
+
+<p><strong>解决方法：</strong>可采用多条命令的分步操作，也可以通过参数将多步操作进行合并。</p>
+<h5 id="分步操作"><a href="#分步操作" class="headerlink" title="分步操作"></a>分步操作</h5><p>这是在执行了<code>clone</code>操作后的额外操作，还需要做两件事：</p>
+<ul>
+<li><p>手动初始化<code>submodule</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git submodule init</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动拉取依赖的子版本库；：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git submodule update --recursive</span><br></pre></td></tr></table></figure></li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352268.png" class="" title="image-20200330103803762">
+
+<p>执行完两步操作后，子版本库中就有内容了。由此完成了<code>git_parent</code>的克隆；</p>
+<h5 id="合并操作"><a href="#合并操作" class="headerlink" title="合并操作"></a>合并操作</h5><p>分步操作相对繁琐，还可以通过添加参数的方式，将多步操作进行合并。通过以下指令基于<code>git_parent</code>克隆一份<code>git_parent3</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone git@github.com:AhuntSun/git_parent.git git_parent3 --recursive</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352329.png" class="" title="image-20200330104210732">
+
+<p><code>--recursive</code>表示递归地克隆<code>git_parent</code>依赖的所有子版本库。</p>
+<h4 id="4-删除子版本库"><a href="#4-删除子版本库" class="headerlink" title="4.删除子版本库"></a>4.删除子版本库</h4><p><code>git</code>没有提供直接删除<code>submodule</code>子库的命令，但是我们可以通过其他指令的组合来达到这一目的，分为三步：</p>
+<ul>
+<li><p>将<code>submodule</code>从版本库中删除：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git rm --cache mymodule</span><br></pre></td></tr></table></figure></li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352397.png" class="" title="image-20200330105131697">
+
+<blockquote>
+<p><code>git rm</code>的作用为删除版本库中的文件，并将这一操作纳入暂存区；</p>
+</blockquote>
+<ul>
+<li>将<code>submodule</code>从工作区中删除；</li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352456.png" class="" title="image-20200330105226923">
+
+<ul>
+<li>最后将<code>.gitmodules</code>目录删除；</li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352522.png" class="" title="image-20200330105542069">
+
+<p>完成三步操作后，再进行添加，提交，推送即可完成删除子库的操作：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352584.png" class="" title="image-20200330105614793">
+
+<h3 id="二、subtree"><a href="#二、subtree" class="headerlink" title="二、subtree"></a>二、<code>subtree</code></h3><h4 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h4><p><code>subtree</code>与<code>submodule</code>的作用是一样的，但是<code>subtree</code>出现得比<code>submodule</code>晚，它的出现是为了弥补<code>submodule</code>存在的问题：</p>
+<ul>
+<li><strong>第一：</strong><code>submodule</code>不能在父版本库中修改子版本库的代码，只能在子版本库中修改，是单向的；</li>
+<li><strong>第二：</strong><code>submodule</code>没有直接删除子版本库的功能；</li>
+</ul>
+<p>而<code>subtree</code>则可以实现双向数据修改。官方推荐使用<code>subtree</code>替代<code>submodule</code>。</p>
+<h4 id="2-创建子库"><a href="#2-创建子库" class="headerlink" title="2.创建子库"></a>2.创建子库</h4><p>首先创建两个版本库：<code>git_subtree_parent</code>和<code>git_subtree_child</code>然后在<code>git_subtree_parent</code>中执行<code>git subtree</code>会列出该指令的一些常见的参数：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352649.png" class="" title="image-20200330112616987">
+
+<h4 id="3-建立关联"><a href="#3-建立关联" class="headerlink" title="3.建立关联"></a>3.建立关联</h4><p>首先需要给<code>git_subtree_parent</code>添加一个子库<code>git_subtree_child</code>:</p>
+<p><strong>第一步：</strong>添加子库的远程地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git remote add subtree-origin git@github.com:AhuntSun/git_subtree_child.git</span><br></pre></td></tr></table></figure>
+
+<p>添加完成后，父版本库中就有两个远程地址了：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352728.png" class="" title="image-20200330113223780">
+
+<p>这里的<code>subtree-origin</code>就代表了远程仓库<code>git_subtree_child</code>的地址。</p>
+<p><strong>第二步：</strong>建立依赖关系：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git subtree add --prefix=subtree subtree-origin master --squash</span><br><span class="line">//其中的--prefix=subtree可以写成：--p subtree 或 --prefix subtree</span><br></pre></td></tr></table></figure>
+
+<p>该命令表示将远程地址为<code>subtree-origin</code>的，子版本库上<code>master</code>分支的，文件克隆到<code>subtree</code>目录下；</p>
+<blockquote>
+<p>注意：是在某一分支（如<code>master</code>）上将<code>subtree-origin</code>代表的远程仓库的某一分支（如<code>master</code>）作为子库拉取到<code>subtree</code>文件夹中。可切换到其他分支重复上述操作，也就是说子库的实质就是子分支。</p>
+</blockquote>
+<p><code>--squash</code>是可选参数，它的含义是<strong>合并，压缩</strong>的意思。</p>
+<ul>
+<li>如果不增加这个参数，则会把远程的子库中指定的分支（这里是<code>master</code>）中的提交一个一个地拉取到本地再去创建一个合并提交；</li>
+<li>如果增加了这个参数，会将远程子库指定分支上的多次提交合并压缩成一次提交再拉取到本地，这样拉取到本地的，远程子库中的，指定分支上的，历史提交记录就没有了。</li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352794.png" class="" title="image-20200330114203889">
+
+<p>拉取完成后，父版本库中会增添一个<code>subtree</code>目录，里面是子库的文件，相当于把依赖的子库代码拉取到了本地：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352867.png" class="" title="image-20200330114316257">
+
+<p>此时查看一下父版本库的提交历史：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173352932.png" class="" title="image-20200330114500554">
+
+<p>会发现其中没有子库李四的提交信息，这是因为<code>--squash</code>参数将他的提交压缩为一次提交，并由父版本库张三进行合并和提交。所以父版本库多出了两次提交。</p>
+<p>随后，我们在父版本库中进行一次推送：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353000.png" class="" title="image-20200330114730534">
+
+<p>结果远程仓库中多出了一个存放子版本库文件的<code>subtree</code>目录，并且完全脱离了版本库<code>git_subtree_child</code>，仅仅是属于父版本库<code>git_subtree_parent</code>的一个目录。而不像使用<code>submodule</code>那样，是一个点击就会自动跳转到依赖子库的<strong>指针</strong>：</p>
+<ul>
+<li><code>subtree</code>的远程父版本库：</li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353062.png" class="" title="image-20200330115004586">
+
+<ul>
+<li><code>submodule</code>的远程父版本库：</li>
+</ul>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353132.png" class="" title="image-20200329203746236">
+
+<p>即<code>submodule</code>与<code>subtree</code>子库的区别为：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353195.png" class="" title="image-20200408224805624">
+
+<h4 id="4-同步子库变化"><a href="#4-同步子库变化" class="headerlink" title="4.同步子库变化"></a>4.同步子库变化</h4><p>在子库中创建一个新文件<code>world</code>并推送到远程子库：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353257.png" class="" title="image-20200330115440136">
+
+<p>在父库中通过如下指令更新依赖的子库内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git subtree pull --prefix=subtree subtree-origin master --squash</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353320.png" class="" title="image-20200330115726052">
+
+<p>此时查看一下提交历史：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353393.png" class="" title="image-20200330115755340">
+
+<p>发现没有子库李四的提交信息，这都是<code>--squash</code>的作用。子库的修改交由父库来提交。</p>
+<h4 id="5-参数-squash"><a href="#5-参数-squash" class="headerlink" title="5.参数--squash"></a>5.参数<code>--squash</code></h4><p>该参数的作用为：防止子库指定分支上的提交历史污染父版本库。比如在子库的<code>master</code>分支上进行了三次提交分别为：<code>a</code>、<code>b</code>、<code>c</code>，并推送到远程子库。</p>
+<p>首先，复习一下合并分支时遵循的<strong>三方合并</strong>原则：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353499.png" class="" title="image-20200408003842196">
+
+<p>当提交<code>4</code>和<code>6</code>需要合并的时候，<code>git</code>会先寻找二者的公共父提交节点，如图中的<code>2</code>，然后在提交<code>2</code>的基础上进行<code>2</code>、<code>4</code>、<code>6</code>的三方合并，合并后得到提交<code>7</code>。</p>
+<p>父仓库执行<code>pull</code>操作时：如果添加参数<code>--squash</code>，就会把远程子库<code>master</code>分支上的这三次提交合并为一次新的提交<code>abc</code>；随后再与父仓库中子库的<code>master</code>分支进行合并，又产生一次提交<code>X</code>。整个<code>pull</code>的过程一共产生了五次提交，如下图所示：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353566.png" class="" title="image-20200420103912282">
+
+<p><strong>存在的问题：</strong></p>
+<p>由于<code>--squash</code>指令的合并操作，会导致远程<code>master</code>分支上的合并提交<code>abc</code>与本地<code>master</code>分支上的最新提交<code>2</code>，找不到公共父节点，从而合并失败。同时<code>push</code>操作也会出现额外的问题。</p>
+<p><strong>最佳实践：要么全部操作都使用<code>--squash</code>指令，要么全部操作都不使用该参数，这样就不会出错。</strong></p>
+<p><strong>错误示范：</strong></p>
+<p>为了验证，重新创建两个仓库<code>A</code>和<code>B</code>，并通过<code>subtree</code>将<code>B</code>设置为<code>A</code>的子库。这次全程都没有使用参数<code>--squash</code>，重复上述操作：</p>
+<ul>
+<li>首先，修改子库文件；</li>
+<li>然后，通过下列指令，在不使用参数<code>--squash</code>的情况下，将远程子库<code>A</code>变化的文件拉取到本地：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git subtree pull --prefix=subtree subtree-origin master</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353638.png" class="" title="image-20200330141920474">
+
+<p>此时查看提交历史：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353705.png" class="" title="image-20200330142000915">
+
+<p>可以看到子库<code>儿子</code>的提交信息污染了父版本库的提交信息，验证了上述的结论。</p>
+<p>所以要么都使用该指令，要么都不使用才能避免错误；如果不需要子库的提交日志，推荐使用<code>--squash</code>指令。</p>
+<blockquote>
+<p><strong>补充：</strong><code>echo &#39;new line&#39; &gt;&gt; test.txt</code>：表示在<code>test.txt</code>文件末尾追加文本<code>new line</code>；如果是一个<code>&gt;</code>表示替换掉<code>test.txt</code>内的全部内容。</p>
+</blockquote>
+<h4 id="6-修改子库"><a href="#6-修改子库" class="headerlink" title="6.修改子库"></a>6.修改子库</h4><p><code>subtree</code>的强大之处在于，它可以在父版本库中修改依赖的子版本库。以下为演示：</p>
+<p>进入父版本库存放子库的<code>subtree</code>目录，修改子库文件<code>child.txt</code>，并推送到远程父仓库：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353778.png" class="" title="image-20200330121429186">
+
+<p>此时远程父版本库中存放子库文件的<code>subtree</code>目录发生了变化，但是独立的远程子库<code>git_subtree_child</code>并没有发生变化。</p>
+<ul>
+<li><p><strong>修改独立的远程子库：</strong></p>
+<p>可执行以下命令，同步地修改远程子版本库：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git subtree push --prefix=subtree subtree-origin master</span><br></pre></td></tr></table></figure>
+
+<p>如下图所示，父库中的子库文件<code>child.txt</code>新增的<code>child2</code>内容，同步到了独立的远程子库中：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353847.png" class="" title="image-20200330125911158">
+</li>
+<li><p><strong>修改独立的本地子库：</strong></p>
+<p>回到本地子库<code>git_subtree_child</code>，将对应的远程子库进行的修改拉取到本地进行合并同步：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353920.png" class="" title="image-20200330144044823">
+
+<p>由此无论是远程的还是本地的子库都被修改了。</p>
+</li>
+</ul>
+<blockquote>
+<p>实际上使用<code>subtree</code>后，在外部看起来父仓库和子仓库是一个整体的仓库。执行<code>clone</code>操作时，不会像<code>submodule</code>那样需要遍历子库来单独克隆。而是可以将整个父仓库和它所依赖的子库当做一个整体进行克隆。</p>
+</blockquote>
+<h5 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h5><p>父版本库拉取远程子库进行更新同步会出现的问题：</p>
+<ul>
+<li><p><strong>子仓库第一次修改：</strong></p>
+<p>经历了上述操作，本地子库与远程子库的文件达到了同步，其中文件<code>child.txt</code>的内容都是<code>child~4</code>。在此基础上本地子库为该文件添加<code>child5~6</code>：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173353989.png" class="" title="image-20200330145702019">
+
+<p>然后推送到远程子库。</p>
+</li>
+<li><p><strong>父仓库第一次拉取：</strong></p>
+<p>随后父版本库通过下述指令，拉取远程子库，与本地父仓库<code>git_subtree_parent</code>中的子库进行同步：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git subtree pull --p subtree subtree-origin master --squash</span><br></pre></td></tr></table></figure>
+
+<p>结果出现了合并失败的情况：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354061.png" class="" title="image-20200330145839093">
+
+<p>我们查看冲突产生的文件：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354122.png" class="" title="image-20200330145922152">
+
+<p>发现父版本库中的子库与远程子库内容上并无冲突，但是却发生了冲突，这是为什么呢？</p>
+<p>探究冲突产生的原因之前我们先解决冲突，先删除多余的内容：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354192.png" class="" title="image-20200330150141430">
+
+<p>随后执行<code>git add</code>命令和<code>git commit</code>命令标识解决了冲突：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354255.png" class="" title="image-20200330150312944">
+
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354332.png" class="" title="image-20200330150406317">
+
+<p>解决完冲突后将该文件推送到独立的远程子库，发现文件并没有发生更新，也就是说<code>git</code>认为我们并没有解决冲突：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354398.png" class="" title="image-20200330150747452">
+</li>
+<li><p><strong>子仓库第二次修改与父仓库第二次拉取：</strong></p>
+<p>再次修改本地子库的文件并推送到对应的远程仓库，父版本库再次将远程子库更新的文件拉取到本地进行同步：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354467.png" class="" title="image-20200330151140092">
+
+<p>这次却成功了！为什么同样的操作，有的时候成功有的时候失败呢？</p>
+</li>
+</ul>
+<h5 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h5><p>原因出现在<code>--squash</code>指令中。实际上，<code>--squash</code>指令把子库中的提交信息合并了，导致父仓库在执行<code>git pull</code>操作时找不到公共的父节点，从而导致即使文件没有冲突的内容，也会出现合并冲突的情况。其实不使用<code>--squash</code>也会有这种问题，问题的根本原因仍然是<strong>三方合并时找不到公共父节点</strong>。我们打开<code>gitk</code>：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354530.png" class="" title="image-20200330154944300">
+
+<p>从图中不难看出，当使用<code>subtree</code>时，子库与父库之间是没有公共节点的，所以时常会因为找不到公共节点而出现合并冲突的情况，此时只需要解决冲突，手动合并即可。</p>
+<blockquote>
+<p>不使用<code>subtree</code>时，普通的版本库中的各分支总会有一个公共节点：</p>
+<img src="/2020/04/29/Git/submodule/IMG-20250804173354600.png" class="" title="image-20200330160206258">
+</blockquote>
+<p><strong>再次强调：</strong>使用<code>--squash</code>指令时一定要小心，要么都使用它，要么都不使用。</p>
+<h4 id="7-抽离子库"><a href="#7-抽离子库" class="headerlink" title="7.抽离子库"></a>7.抽离子库</h4><h5 id="git-subtree-split"><a href="#git-subtree-split" class="headerlink" title="git subtree split"></a><code>git subtree split</code></h5><p>当开发过程中出现某些子库完全可以复用到其他项目中时，我们希望将它独立出来。</p>
+<ul>
+<li><p><strong>方法一：</strong>可以手动将文件拷贝出来。缺点是，这样会丢失关于该子库的提交记录；</p>
+</li>
+<li><p>方法二：</p>
+<p>使用</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git subtree split</span><br></pre></td></tr></table></figure>
+
+<p>指令，该指令会把关于独立出来的子库的每次提交都记录起来。但是，这样存在弊端：</p>
+<ul>
+<li>比如该独立子库为<code>company.util</code>，当一次提交同时修改了<code>company.util</code>和<code>company.server</code>两个子库时。</li>
+<li>通过上述命令独立出来的子库<code>util</code>只会记录对自身修改的提交，而不会记录对<code>company.server</code>的修改，这样在别人看来这次提交就只修改了<code>util</code>，这是不完整的。</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+        <tag>Subtree</tag>
+        <tag>SubModule</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>git subtree教程</title>
+    <url>/2019/07/27/Git/subtree%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<p>关于子仓库或者说是仓库共用，git官方推荐的工具是git subtree。 我自己也用了一段时间的git subtree，感觉比git submodule好用，但是也有一些缺点，在可接受的范围内。<br>所以对于仓库共用，在git subtree 与 git submodule之中选择的话，我推荐git subtree。</p>
+<p>git subtree 可以实现一个仓库作为其他仓库的子仓库。</p>
+<img src="/2019/07/27/Git/subtree%E6%95%99%E7%A8%8B/IMG-20241219140954387.webp" class="">
+
+
+<p>使用git subtree 有以下几个原因：</p>
+<ul>
+<li>旧版本的git也支持(最老版本可以到 v1.5.2).</li>
+<li>git subtree与git submodule不同，它不增加任何像<code>.gitmodule</code>这样的新的元数据文件.</li>
+<li>git subtree对于项目中的其他成员透明，意味着可以不知道git subtree的存在.</li>
+</ul>
+<p>当然，git subtree也有它的缺点，但是这些缺点还在可以接受的范围内：</p>
+<ul>
+<li>必须学习新的指令(如：git subtree).</li>
+<li>子仓库的更新与推送指令相对复杂。</li>
+</ul>
+<p>git subtree的主要命令有：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git subtree add   --prefix=&lt;prefix&gt; &lt;commit&gt;</span><br><span class="line">git subtree add   --prefix=&lt;prefix&gt; &lt;repository&gt; &lt;ref&gt;</span><br><span class="line">git subtree pull  --prefix=&lt;prefix&gt; &lt;repository&gt; &lt;ref&gt;</span><br><span class="line">git subtree push  --prefix=&lt;prefix&gt; &lt;repository&gt; &lt;ref&gt;</span><br><span class="line">git subtree merge --prefix=&lt;prefix&gt; &lt;commit&gt;</span><br><span class="line">git subtree <span class="built_in">split</span> --prefix=&lt;prefix&gt; [OPTIONS] [&lt;commit&gt;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>我们先准备一个仓库叫photoshop，一个仓库叫libpng，然后我们希望把libpng作为photoshop的子仓库。<br>photoshop的路径为<code>https://github.com/test/photoshop.git</code>，仓库里的文件有：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">photoshop</span><br><span class="line">    |</span><br><span class="line">    |-- photoshop.c</span><br><span class="line">    |-- photoshop.h</span><br><span class="line">    |-- main.c</span><br><span class="line">    \-- README.md</span><br></pre></td></tr></table></figure>
+
+<p>libPNG的路径为<code>https://github.com/test/libpng.git</code>，仓库里的文件有：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">libpng</span><br><span class="line">    |</span><br><span class="line">    |-- libpng.c</span><br><span class="line">    |-- libpng.h</span><br><span class="line">    \-- README.md</span><br></pre></td></tr></table></figure>
+
+<p>以下操作均位于父仓库的根目录中。</p>
+<h2 id="在父仓库中新增子仓库"><a href="#在父仓库中新增子仓库" class="headerlink" title="在父仓库中新增子仓库"></a>在父仓库中新增子仓库</h2><p>我们执行以下命令把libpng添加到photoshop中：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git subtree add --prefix=sub/libpng https://github.com/test/libpng.git master --squash</span><br></pre></td></tr></table></figure>
+
+<p>(<code>--squash</code>参数表示不拉取历史信息，而只生成一条commit信息。)</p>
+<p>执行<code>git status</code>可以看到提示新增两条commit：  </p>
+<img src="/2019/07/27/Git/subtree%E6%95%99%E7%A8%8B/IMG-20241219140954353.webp" class="">
+
+<p>image</p>
+<p><code>git log</code>查看详细修改：  </p>
+<img src="/2019/07/27/Git/subtree%E6%95%99%E7%A8%8B/IMG-20241219140954312.webp" class="">
+
+<p>image</p>
+<p>执行<code>git push</code>把修改推送到远端photoshop仓库，现在本地仓库与远端仓库的目录结构为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">photoshop</span><br><span class="line">    |</span><br><span class="line">    |-- sub/</span><br><span class="line">    |   |</span><br><span class="line">    |   \--libpng/</span><br><span class="line">    |       |</span><br><span class="line">    |       |-- libpng.c</span><br><span class="line">    |       |-- libpng.h</span><br><span class="line">    |       \-- README.md</span><br><span class="line">    |</span><br><span class="line">    |-- photoshop.c</span><br><span class="line">    |-- photoshop.h</span><br><span class="line">    |-- main.c</span><br><span class="line">    \-- README.md</span><br></pre></td></tr></table></figure>
+
+<p>注意，现在的photoshop仓库对于其他项目人员来说，可以不需要知道libpng是一个子仓库。什么意思呢？<br>当你<code>git clone</code>或者<code>git pull</code>的时候，你拉取到的是整个photoshop(包括libpng在内，libpng就相当于photoshop里的一个普通目录)；当你修改了libpng里的内容后执行<code>git push</code>，你将会把修改push到photoshop上。<br>也就是说photoshop仓库下的libpng与其他文件无异。</p>
+<h2 id="从源仓库拉取更新"><a href="#从源仓库拉取更新" class="headerlink" title="从源仓库拉取更新"></a>从源仓库拉取更新</h2><p>如果源libpng仓库更新了，photoshop里的libpng如何拉取更新？使用<code>git subtree pull</code>，例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git subtree pull --prefix=sub/libpng https://github.com/test/libpng.git master --squash</span><br></pre></td></tr></table></figure>
+
+<h2 id="推送修改到源仓库"><a href="#推送修改到源仓库" class="headerlink" title="推送修改到源仓库"></a>推送修改到源仓库</h2><p>如果在photoshop仓库里修改了libpng，然后想把这个修改推送到源libpng仓库呢？使用<code>git subtree push</code>，例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git subtree push --prefix=sub/libpng https://github.com/test/libpng.git master</span><br></pre></td></tr></table></figure>
+
+<h2 id="简化git-subtree命令"><a href="#简化git-subtree命令" class="headerlink" title="简化git subtree命令"></a>简化git subtree命令</h2><p>我们已经知道了git subtree 的命令的基本用法，但是上述几个命令还是显得有点复杂，特别是子仓库的源仓库地址，特别不方便记忆。<br>这里我们把子仓库的地址作为一个remote，方便记忆：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote add -f libpng https://github.com/test/libpng.git</span><br></pre></td></tr></table></figure>
+
+<p>然后可以这样来使用git subtree命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git subtree add --prefix=sub/libpng libpng master --squash</span><br><span class="line">git subtree pull --prefix=sub/libpng libpng master --squash</span><br><span class="line">git subtree push --prefix=sub/libpng libpng master</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Subtree</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hexo 博客配置</title>
     <url>/2021/10/22/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%8D%9A%E5%AE%A2%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>本地安装 Git NodeJS</p>
@@ -245,9 +741,13 @@
     <content><![CDATA[<p>参考<br><a href="https://weilado.github.io/2025/06/18/%E5%A6%82%E4%BD%95%E4%B8%BA%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%EF%BC%88%E5%9F%BA%E4%BA%8Egiscus%EF%BC%89/">如何为博客添加评论系统（基于giscus） | 栞的图书馆</a><br><a href="https://blog.csdn.net/sinat_41212418/article/details/137819858">5分钟，为你的博客增加评论功能_giscus-CSDN博客</a><br><a href="https://mrh233.github.io/2024/04/17/%E5%A6%82%E4%BD%95%E5%9F%BA%E4%BA%8Egiscus%E9%85%8D%E7%BD%AE%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/">如何基于giscus配置评论功能 - 奕皓的个人博客</a></p>
 <p><a href="https://blog.lanweihong.com/posts/24011/">Hexo NexT 主题使用 utterances 搭建评论系统 | 蓝伟洪的博客</a><br><a href="https://toypipi.github.io/2024/06/21/Hexo-Next-%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE-utterances-%E8%AF%84%E8%AE%BA/">Hexo NexT 主题配置 utterances 评论 | Toypipi’s blog</a></p>
 ]]></content>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>Giscus</tag>
+      </tags>
   </entry>
   <entry>
-    <title>使用GithubActions部署Hexo博客</title>
+    <title>使用Github Actions部署Hexo博客</title>
     <url>/2021/10/22/Hexo%E5%8D%9A%E5%AE%A2/%E4%BD%BF%E7%94%A8Github-Actions%E9%83%A8%E7%BD%B2Hexo%E5%8D%9A%E5%AE%A2/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>作为技术博主，博客的高效维护与部署一直是我关注的重点。近期在维护博客时，我遇到了两个核心问题：</p>
 <ol>
@@ -367,7 +867,7 @@
 <h1 id="3-选择软件源"><a href="#3-选择软件源" class="headerlink" title="3. 选择软件源"></a>3. 选择软件源</h1><p>推荐国内的用户选择<a href="http://mirrors.ustc.edu.cn/">http://mirrors.ustc.edu.cn</a> 默认的mirrorlist是开启所有源的，因此我们使用sed先在所有源的前面加上#</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#sed -i &quot;s/^\b/#/g&quot; /etc/pacman.d/mirrorlist</span><br><span class="line">#nano /etc/pacman.d /mirrorlist</span><br></pre></td></tr></table></figure>
 <p>将mirrors.ustc.edu.cn前面的#去掉</p>
-<h1 id="4-分区-格式化-挂载"><a href="#4-分区-格式化-挂载" class="headerlink" title="4. 分区&#x2F;格式化&#x2F;挂载"></a>4. 分区&#x2F;格式化&#x2F;挂载</h1><p> 参考 <a href="/2018/03/22/Linux/Linux%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA/" title="Linux硬盘分区">Linux分区</a></p>
+<h1 id="4-分区-格式化-挂载"><a href="#4-分区-格式化-挂载" class="headerlink" title="4. 分区&#x2F;格式化&#x2F;挂载"></a>4. 分区&#x2F;格式化&#x2F;挂载</h1><p> 参考 <a href="/2018/03/22/Linux/Linux%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA/" title="Linux硬盘分区">Linux硬盘分区</a></p>
 <h1 id="5-安装基本系统"><a href="#5-安装基本系统" class="headerlink" title="5. 安装基本系统"></a>5. 安装基本系统</h1><h2 id="1-将基本系统安装到根目录上去"><a href="#1-将基本系统安装到根目录上去" class="headerlink" title="1. 将基本系统安装到根目录上去"></a>1. 将基本系统安装到根目录上去</h2><pre><code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#pacstrap /mnt base base-devel</span><br></pre></td></tr></table></figure>
     
 其实，这里安装的基本系统也肯定有自己用不到的冗余功能，例如我就用不到nano文本编辑器，但系统会默认给安上。如果知道基本系统每个文件的作用，其实也完全可以自定义安装。比如：
@@ -578,6 +1078,17 @@
       </categories>
       <tags>
         <tag>NFS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IPTables配置</title>
+    <url>/2024/12/10/Linux/IPTables%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>IPTable</tag>
       </tags>
   </entry>
   <entry>
@@ -829,17 +1340,6 @@
       </categories>
       <tags>
         <tag>Gentoo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>IPTables配置</title>
-    <url>/2024/12/10/Linux/IPTables%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>IPTable</tag>
       </tags>
   </entry>
   <entry>
@@ -1475,23 +1975,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Windows与Linux文件互传工具</title>
-    <url>/2024/03/10/Linux/Windows%E4%B8%8ELinux%E6%96%87%E4%BB%B6%E4%BA%92%E4%BC%A0%E5%B7%A5%E5%85%B7/</url>
-    <content><![CDATA[<p>参考</p>
-<p><a href="https://www.linuxidc.com/Linux/2015-02/113309.htm">pscp使用详解 Windows与Linux文件互传工具_Linux教程_Linux公社-Linux系统门户网站 (linuxidc.com)</a></p>
-<p><a href="https://blog.csdn.net/zxl315/article/details/5955202">psftp的用法（超级详细）_psftp压缩文件夹命令-CSDN博客</a></p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>pscp</tag>
-        <tag>scp</tag>
-        <tag>sftp</tag>
-        <tag>psftp</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Ubuntu部署ROS</title>
     <url>/2025/08/29/Linux/Ubuntu%E9%83%A8%E7%BD%B2ROS/</url>
     <content><![CDATA[<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>建议准备一个干净、换好源的 <strong>Ubuntu 16.04</strong> 及以上版本（建议 <a href="https://mirrors-i.tuna.tsinghua.edu.cn/help/ubuntu/">清华源</a> ），本教程也适用其他 ROS1版本。</p>
@@ -1520,6 +2003,23 @@
         <tag>Linux</tag>
         <tag>ROS</tag>
         <tag>Ubuntu</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Windows与Linux文件互传工具</title>
+    <url>/2024/03/10/Linux/Windows%E4%B8%8ELinux%E6%96%87%E4%BB%B6%E4%BA%92%E4%BC%A0%E5%B7%A5%E5%85%B7/</url>
+    <content><![CDATA[<p>参考</p>
+<p><a href="https://www.linuxidc.com/Linux/2015-02/113309.htm">pscp使用详解 Windows与Linux文件互传工具_Linux教程_Linux公社-Linux系统门户网站 (linuxidc.com)</a></p>
+<p><a href="https://blog.csdn.net/zxl315/article/details/5955202">psftp的用法（超级详细）_psftp压缩文件夹命令-CSDN博客</a></p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>pscp</tag>
+        <tag>scp</tag>
+        <tag>sftp</tag>
+        <tag>psftp</tag>
       </tags>
   </entry>
   <entry>
@@ -1726,32 +2226,6 @@
       </categories>
   </entry>
   <entry>
-    <title>K3s导出证书</title>
-    <url>/2024/04/02/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E5%AF%BC%E5%87%BA%E8%AF%81%E4%B9%A6/</url>
-    <content><![CDATA[<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 导出根证书</span><br><span class="line">kubectl get secret example-secret -o jsonpath=&#x27;&#123;.data.ca\.crt&#125;&#x27;| base64 --decode</span><br><span class="line"></span><br><span class="line">kubectl get secret example-secret -o jsonpath=&#x27;&#123;.data.tls\.crt&#125;&#x27;| base64 --decode</span><br><span class="line"></span><br><span class="line">kubectl get secret example-secret -o jsonpath=&#x27;&#123;.data.tls\.key&#125;&#x27;| base64 --decode</span><br></pre></td></tr></table></figure>
-<hr>
-<p>导出Secret</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl get secret example-secret -o yaml &gt; example-secret.yaml</span><br></pre></td></tr></table></figure>
-
-<p>导出内容格式如下</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">ca.crt:</span> <span class="string">...</span></span><br><span class="line">  <span class="attr">tls.crt:</span> <span class="string">...</span></span><br><span class="line">  <span class="attr">tls.key:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">cert-manager.io/alt-names:</span> <span class="string">&#x27;...&#x27;</span></span><br><span class="line">    <span class="attr">cert-manager.io/certificate-name:</span> <span class="string">...</span></span><br><span class="line">    <span class="attr">cert-manager.io/common-name:</span> <span class="string">Tianjin</span> <span class="string">Pengan</span></span><br><span class="line">    <span class="attr">cert-manager.io/ip-sans:</span> <span class="number">192.168</span><span class="number">.0</span><span class="number">.2</span></span><br><span class="line">    <span class="attr">cert-manager.io/issuer-group:</span> <span class="string">cert-manager.io</span></span><br><span class="line">    <span class="attr">cert-manager.io/issuer-kind:</span> <span class="string">ClusterIssuer</span></span><br><span class="line">    <span class="attr">cert-manager.io/issuer-name:</span> <span class="string">selfsigned-cluster-issuer</span></span><br><span class="line">    <span class="attr">cert-manager.io/subject-organizations:</span> <span class="string">...</span></span><br><span class="line">    <span class="attr">cert-manager.io/uri-sans:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">  <span class="attr">creationTimestamp:</span> <span class="string">&quot;2024-09-10T10:54:59Z&quot;</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">controller.cert-manager.io/fao:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tjpengan-io-secret</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">resourceVersion:</span> <span class="string">&quot;1730340&quot;</span></span><br><span class="line">  <span class="attr">uid:</span> <span class="string">1c7d877b-ed86-4a1a-ad8c-0d8466c46506</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">kubernetes.io/tls</span></span><br></pre></td></tr></table></figure>
-
-<p>Base64解码</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># cert</span></span><br><span class="line"><span class="built_in">cat</span> example-secret.yaml | grep tls.crt | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">base64</span> --decode &gt; example-secret.cert</span><br><span class="line"></span><br><span class="line"><span class="comment">#key</span></span><br><span class="line"><span class="built_in">cat</span> example-secret.yaml | grep tls.key | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">base64</span> --decode &gt; example-secret.key</span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>容器技术</category>
-      </categories>
-      <tags>
-        <tag>Https证书</tag>
-        <tag>Kubernetes</tag>
-        <tag>K3s</tag>
-        <tag>TLS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>K3s安装</title>
     <url>/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3S%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<h2 id="安装基础环境"><a href="#安装基础环境" class="headerlink" title="安装基础环境"></a>安装基础环境</h2><h3 id="新装环境"><a href="#新装环境" class="headerlink" title="新装环境"></a>新装环境</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># master安装</span></span><br><span class="line">curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | \</span><br><span class="line">    INSTALL_K3S_MIRROR=cn \</span><br><span class="line">    INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644&#x27;</span> sh -</span><br><span class="line"></span><br><span class="line"><span class="comment">#  加入其他节点</span></span><br><span class="line">curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | \</span><br><span class="line">    K3S_URL=https://&lt;k3s-server-ip&gt;:6443 \</span><br><span class="line">    K3S_TOKEN=&lt;token&gt; \</span><br><span class="line">    INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644&#x27;</span> sh -</span><br><span class="line"></span><br><span class="line"><span class="comment"># EXEC参数</span></span><br><span class="line"><span class="comment"># --write-kubeconfig-mode=644 设置配置文件权限</span></span><br><span class="line"><span class="comment"># --service-node-port-range=1-65535 解除端口限制，默认30000-32767</span></span><br><span class="line"><span class="comment"># --advertise-address=192.168.1.1 指定集群管理IP,默认端口6443</span></span><br><span class="line"><span class="comment"># --disable=traefik 禁用Traefik Ingress</span></span><br><span class="line"><span class="comment"># --default-local-storage-path=/mnt/storage/k3s # 自定义本地存储（local-path-config）的默认存储路径 </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 环境变量</span></span><br><span class="line"><span class="comment"># INSTALL_K3S_MIRROR=cn 设置未中国区镜像</span></span><br><span class="line"><span class="comment"># INSTALL_K3S_SKIP_SELINUX_RPM=true 安装由于selinux导致失败时可加此配置跳过k3s selinux配置,注意是在 INSTALL_K3S_MIRROR后添加</span></span><br></pre></td></tr></table></figure>
@@ -1823,8 +2297,34 @@
       </categories>
       <tags>
         <tag>Kubernetes</tag>
-        <tag>K3s</tag>
         <tag>K8s</tag>
+        <tag>K3s</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>K3s导出证书</title>
+    <url>/2024/04/02/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E5%AF%BC%E5%87%BA%E8%AF%81%E4%B9%A6/</url>
+    <content><![CDATA[<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 导出根证书</span><br><span class="line">kubectl get secret example-secret -o jsonpath=&#x27;&#123;.data.ca\.crt&#125;&#x27;| base64 --decode</span><br><span class="line"></span><br><span class="line">kubectl get secret example-secret -o jsonpath=&#x27;&#123;.data.tls\.crt&#125;&#x27;| base64 --decode</span><br><span class="line"></span><br><span class="line">kubectl get secret example-secret -o jsonpath=&#x27;&#123;.data.tls\.key&#125;&#x27;| base64 --decode</span><br></pre></td></tr></table></figure>
+<hr>
+<p>导出Secret</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl get secret example-secret -o yaml &gt; example-secret.yaml</span><br></pre></td></tr></table></figure>
+
+<p>导出内容格式如下</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">ca.crt:</span> <span class="string">...</span></span><br><span class="line">  <span class="attr">tls.crt:</span> <span class="string">...</span></span><br><span class="line">  <span class="attr">tls.key:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">cert-manager.io/alt-names:</span> <span class="string">&#x27;...&#x27;</span></span><br><span class="line">    <span class="attr">cert-manager.io/certificate-name:</span> <span class="string">...</span></span><br><span class="line">    <span class="attr">cert-manager.io/common-name:</span> <span class="string">Tianjin</span> <span class="string">Pengan</span></span><br><span class="line">    <span class="attr">cert-manager.io/ip-sans:</span> <span class="number">192.168</span><span class="number">.0</span><span class="number">.2</span></span><br><span class="line">    <span class="attr">cert-manager.io/issuer-group:</span> <span class="string">cert-manager.io</span></span><br><span class="line">    <span class="attr">cert-manager.io/issuer-kind:</span> <span class="string">ClusterIssuer</span></span><br><span class="line">    <span class="attr">cert-manager.io/issuer-name:</span> <span class="string">selfsigned-cluster-issuer</span></span><br><span class="line">    <span class="attr">cert-manager.io/subject-organizations:</span> <span class="string">...</span></span><br><span class="line">    <span class="attr">cert-manager.io/uri-sans:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">  <span class="attr">creationTimestamp:</span> <span class="string">&quot;2024-09-10T10:54:59Z&quot;</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">controller.cert-manager.io/fao:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tjpengan-io-secret</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">resourceVersion:</span> <span class="string">&quot;1730340&quot;</span></span><br><span class="line">  <span class="attr">uid:</span> <span class="string">1c7d877b-ed86-4a1a-ad8c-0d8466c46506</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">kubernetes.io/tls</span></span><br></pre></td></tr></table></figure>
+
+<p>Base64解码</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># cert</span></span><br><span class="line"><span class="built_in">cat</span> example-secret.yaml | grep tls.crt | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">base64</span> --decode &gt; example-secret.cert</span><br><span class="line"></span><br><span class="line"><span class="comment">#key</span></span><br><span class="line"><span class="built_in">cat</span> example-secret.yaml | grep tls.key | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">base64</span> --decode &gt; example-secret.key</span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>容器技术</category>
+      </categories>
+      <tags>
+        <tag>Https证书</tag>
+        <tag>Kubernetes</tag>
+        <tag>K3s</tag>
+        <tag>TLS</tag>
       </tags>
   </entry>
   <entry>
@@ -2069,27 +2569,12 @@
       </categories>
       <tags>
         <tag>Kubernetes</tag>
-        <tag>K3s</tag>
         <tag>K8s</tag>
+        <tag>K3s</tag>
         <tag>Drone</tag>
         <tag>Gitea</tag>
         <tag>Harbor</tag>
         <tag>DevOps</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>K3s部署Locust</title>
-    <url>/2024/06/01/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Locust/</url>
-    <content><![CDATA[<p>参考</p>
-<p><a href="https://www.cnblogs.com/lvcisco/p/10697565.html">kubernetes Traefik ingress配置详解 - lvelvis - 博客园 (cnblogs.com)</a></p>
-]]></content>
-      <categories>
-        <category>容器技术</category>
-      </categories>
-      <tags>
-        <tag>Kubernetes</tag>
-        <tag>K3s</tag>
-        <tag>Locust</tag>
       </tags>
   </entry>
   <entry>
@@ -2151,6 +2636,21 @@
       </tags>
   </entry>
   <entry>
+    <title>K3s部署Locust</title>
+    <url>/2024/06/01/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Locust/</url>
+    <content><![CDATA[<p>参考</p>
+<p><a href="https://www.cnblogs.com/lvcisco/p/10697565.html">kubernetes Traefik ingress配置详解 - lvelvis - 博客园 (cnblogs.com)</a></p>
+]]></content>
+      <categories>
+        <category>容器技术</category>
+      </categories>
+      <tags>
+        <tag>Kubernetes</tag>
+        <tag>K3s</tag>
+        <tag>Locust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>K3s部署MySQL</title>
     <url>/2024/04/26/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2MySQL/</url>
     <content><![CDATA[<p>参考</p>
@@ -2163,20 +2663,6 @@
         <tag>Kubernetes</tag>
         <tag>K3s</tag>
         <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>K3s部署PostgreSQL</title>
-    <url>/2024/04/28/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2PostgreSQL/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>容器技术</category>
-      </categories>
-      <tags>
-        <tag>PostgreSQL</tag>
-        <tag>Kubernetes</tag>
-        <tag>K3s</tag>
-        <tag>K8s</tag>
       </tags>
   </entry>
   <entry>
@@ -2210,6 +2696,20 @@
       </tags>
   </entry>
   <entry>
+    <title>K3s部署PostgreSQL</title>
+    <url>/2024/04/28/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2PostgreSQL/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>容器技术</category>
+      </categories>
+      <tags>
+        <tag>PostgreSQL</tag>
+        <tag>Kubernetes</tag>
+        <tag>K8s</tag>
+        <tag>K3s</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>K3s部署Registry镜像仓库</title>
     <url>/2024/07/08/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Registry%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93/</url>
     <content><![CDATA[<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/succing/article/details/122757052">Docker学习：部署本地私有镜像仓库registry （高级应用）_docker registry部署-CSDN博客</a></p>
@@ -2230,19 +2730,6 @@
       </tags>
   </entry>
   <entry>
-    <title>K3s部署Tekton</title>
-    <url>/2025/05/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Tekton/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>容器技术</category>
-      </categories>
-      <tags>
-        <tag>DevOps</tag>
-        <tag>Tekton</tag>
-        <tag>CI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>K3s配置NVIDIA GPU</title>
     <url>/2024/04/02/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%85%8D%E7%BD%AENVIDIA-GPU/</url>
     <content><![CDATA[<p><a href="https://fissssssh.aiursoft.cn/posts/configure-nvidia-gpus-in-k3s/">在K3s中配置使用NVIDIA GPUS | fissssssh (aiursoft.cn)</a></p>
@@ -2254,6 +2741,19 @@
         <tag>Kubernetes</tag>
         <tag>K3s</tag>
         <tag>NVIDIA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>K3s部署Tekton</title>
+    <url>/2025/05/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Tekton/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>容器技术</category>
+      </categories>
+      <tags>
+        <tag>DevOps</tag>
+        <tag>Tekton</tag>
+        <tag>CI</tag>
       </tags>
   </entry>
   <entry>
@@ -2635,7 +3135,7 @@
 <h3 id="方法2：为-Podman-服务设置配置文件"><a href="#方法2：为-Podman-服务设置配置文件" class="headerlink" title="方法2：为 Podman 服务设置配置文件"></a>方法2：为 Podman 服务设置配置文件</h3><p>通过编辑 &#x2F;etc&#x2F;containers&#x2F;registries.conf 配置文件为 Podman 服务设置代理。在该文件中添加如下内容:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[registries.search]</span><br><span class="line">registries = [<span class="string">&#x27;docker.io&#x27;</span>, <span class="string">&#x27;quay.io&#x27;</span>]</span><br><span class="line"></span><br><span class="line">[registries.insecure]</span><br><span class="line">registries = []</span><br><span class="line"></span><br><span class="line">[registries.block]</span><br><span class="line">registries = []</span><br><span class="line"></span><br><span class="line">[registries.unqualified-search-registries]</span><br><span class="line"></span><br><span class="line">[registry.mirrors]</span><br><span class="line"></span><br><span class="line">[registry.configs]</span><br><span class="line"></span><br><span class="line">[registry.configs.REGISTRY_NAME.HOSTNAME/HOSTPATH]  </span><br><span class="line">unqualified-search-registries = [<span class="string">&quot;registry.fedoraproject.org&quot;</span>, <span class="string">&quot;registry.access.redhat.com&quot;</span>, <span class="string">&quot;docker.io&quot;</span>]</span><br><span class="line">blocked=<span class="literal">false</span> </span><br><span class="line"></span><br><span class="line">[registry.configs.REGISTRY_NAME.HOSTNAME]</span><br><span class="line">http-proxy=<span class="string">&quot;http://代理地址:端口&quot;</span></span><br><span class="line">https-proxy=<span class="string">&quot;https://代理地址:端口&quot;</span></span><br></pre></td></tr></table></figure>
 
-<p>替换 REGISTRY_NAME.HOSTNAME 为您要配置的注册表,如 docker.io。如果代理需要身份验证,则使用类似 <a href="https://so.csdn.net/so/search?q=http&spm=1001.2101.3001.7020">http</a>:&#x2F;&#x2F;user:<a href="mailto:&#x70;&#97;&#x73;&#x73;&#x77;&#x6f;&#x72;&#x64;&#x40;&#x70;&#114;&#x6f;&#120;&#121;&#46;&#x65;&#x78;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#x6d;">&#x70;&#97;&#x73;&#x73;&#x77;&#x6f;&#x72;&#x64;&#x40;&#x70;&#114;&#x6f;&#120;&#121;&#46;&#x65;&#x78;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#x6d;</a>:8080 的格式。</p>
+<p>替换 REGISTRY_NAME.HOSTNAME 为您要配置的注册表,如 docker.io。如果代理需要身份验证,则使用类似 <a href="https://so.csdn.net/so/search?q=http&spm=1001.2101.3001.7020">http</a>:&#x2F;&#x2F;user:<a href="mailto:&#x70;&#97;&#x73;&#115;&#x77;&#111;&#x72;&#100;&#x40;&#112;&#x72;&#111;&#x78;&#x79;&#x2e;&#x65;&#120;&#97;&#109;&#112;&#x6c;&#x65;&#46;&#x63;&#x6f;&#109;">&#x70;&#97;&#x73;&#115;&#x77;&#111;&#x72;&#100;&#x40;&#112;&#x72;&#111;&#x78;&#x79;&#x2e;&#x65;&#120;&#97;&#109;&#112;&#x6c;&#x65;&#46;&#x63;&#x6f;&#109;</a>:8080 的格式。</p>
 <h3 id="方法3-为单个-Podman-命令设置代理"><a href="#方法3-为单个-Podman-命令设置代理" class="headerlink" title="方法3: 为单个 Podman 命令设置代理"></a>方法3: 为单个 Podman 命令设置代理</h3><p>为单个 Podman 命令临时设置代理,方法是在命令前添加 –build-arg 参数。例如:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">podman --build-arg HTTP_PROXY=<span class="string">&quot;http://代理地址:端口&quot;</span> --build-arg HTTPS_PROXY=<span class="string">&quot;https://代理地址:端口&quot;</span> pull nginx</span><br></pre></td></tr></table></figure>
 
@@ -2732,6 +3232,43 @@
         <tag>K3s</tag>
         <tag>TLS</tag>
         <tag>cert-manager</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用Podman替代DockerDesktop</title>
+    <url>/2025/06/25/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/%E4%BD%BF%E7%94%A8Podman%E6%9B%BF%E4%BB%A3DockerDesktop/</url>
+    <content><![CDATA[<ol>
+<li><p>安装依赖环境</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启用虚拟化平台</span></span><br><span class="line">dism /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart</span><br><span class="line"></span><br><span class="line"><span class="comment">#　启用linux子系统</span></span><br><span class="line">dism /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all</span><br><span class="line"></span><br><span class="line">wsl --install</span><br><span class="line">wsl --update</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装Podman </p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装DockerCLI，用于兼容Docker命令</span></span><br><span class="line">winget install --<span class="built_in">id</span> Docker.DockerCLI</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Podman</span></span><br><span class="line">winget install --<span class="built_in">id</span> RedHat.Podman</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Podman Desktop (可选)</span></span><br><span class="line">winget install --<span class="built_in">id</span> RedHat.Podman-Desktop </span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化Podman</span></span><br><span class="line">podman machine init </span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置端口转发</span></span><br><span class="line">wsl <span class="built_in">sudo</span> sysctl net.ipv4.ip_forward=1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置wsl虚拟机</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 修改默认软件源</span><br><span class="line">sudo sed -e &#x27;s|^metalink=|#metalink=|g&#x27; \</span><br><span class="line">    -e &#x27;s|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.tuna.tsinghua.edu.cn/fedora|g&#x27; \</span><br><span class="line">    -i.bak \</span><br><span class="line">    /etc/yum.repos.d/fedora.repo \</span><br><span class="line">    /etc/yum.repos.d/fedora-updates.repo</span><br><span class="line">sudo dnf makecache</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run --rm -d -p 80:80 --name httpd docker.io/library/httpd:latest</span><br></pre></td></tr></table></figure></li>
+<li><p>配置镜像加速<br>podman的配置文件在容器内 <code>/etc/containers/registries.conf</code>,配置格式如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">unqualified-search-regustrues = [&quot;docker.io&quot;]</span><br><span class="line"></span><br><span class="line">[[registry]]                      # 注意此处配置不需要加&#x27;https&#x27;</span><br><span class="line">prefix = &quot;docker.io&quot;              # 访问地址</span><br><span class="line">location = &quot;docker.m.daocloud.io&quot; # 加速地址</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置私有镜像库</p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[[registry]]</span><br><span class="line">location = &quot;harbor.example.io&quot;</span><br><span class="line">insecure = true</span><br></pre></td></tr></table></figure>
+<p>如果访问地址为<code>https</code>需要配置信任证书</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /etc/containers/certs.d</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> &lt;path to cert&gt; /etc/containers/certs.d/ca.crt</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>配置文件翻译<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 有关此配置文件的更多信息，请参阅 containers-registries.conf(5)。</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># 注意：使用未完全限定镜像名称的风险</span></span><br><span class="line"><span class="comment"># 我们建议始终使用包括注册表服务器（完整 DNS 名称）、命名空间、镜像名称和标签在内的完全限定镜像名称</span></span><br><span class="line"><span class="comment"># （例如，registry.redhat.io/ubi8/ubi:latest）。通过摘要（例如，</span></span><br><span class="line"><span class="comment"># quay.io/repository/name@digest）拉取镜像可以进一步消除标签的不确定性。</span></span><br><span class="line"><span class="comment"># 使用短名称时，始终存在镜像被伪造的风险。例如，用户想从某个注册表中拉取名为</span></span><br><span class="line"><span class="comment"># `foobar` 的镜像，并期望该镜像来自 myregistry.com。如果</span></span><br><span class="line"><span class="comment"># myregistry.com 不是搜索列表中的第一个，攻击者可能会在列表中靠前的位置</span></span><br><span class="line"><span class="comment"># 放置另一个名为 `foobar` 的镜像。用户可能会意外拉取并运行攻击者的镜像和代码，而不是</span></span><br><span class="line"><span class="comment"># 预期的内容。我们建议只添加完全可信的注册表（即，不允许未知或匿名用户</span></span><br><span class="line"><span class="comment"># 创建任意名称的账户的注册表）。这将防止镜像被伪造、抢占或以其他方式变得不安全。</span></span><br><span class="line"><span class="comment"># 如果有必要使用这些注册表，它应该添加到列表的末尾。</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # 一个主机[:端口]格式的注册表数组，当拉取未完全限定镜像时，按顺序尝试这些注册表。</span></span><br><span class="line"><span class="attr">unqualified-search-registries</span> = [<span class="string">&quot;registry.fedoraproject.org&quot;</span>, <span class="string">&quot;registry.access.redhat.com&quot;</span>, <span class="string">&quot;docker.io&quot;</span>]</span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># [[registry]]</span></span><br><span class="line"><span class="comment"># # &quot;prefix&quot; 字段用于选择相关的 [[registry]] TOML 表；</span></span><br><span class="line"><span class="comment"># # 使用输入镜像名称时，只有与该名称最长匹配的 TOML 表会被使用</span></span><br><span class="line"><span class="comment"># # （考虑到命名空间/库/标签/摘要分隔符）。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 如果缺少 prefix 字段，则默认与 &quot;location&quot; 字段相同。</span></span><br><span class="line"><span class="attr">prefix</span> = <span class="string">&quot;example.com/foo&quot;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # 如果为 true，则允许未加密的 HTTP 连接以及使用不受信任证书的 TLS 连接。</span></span><br><span class="line"><span class="attr">insecure</span> = <span class="literal">false</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # 如果为 true，则禁止拉取匹配名称的镜像。</span></span><br><span class="line"><span class="attr">blocked</span> = <span class="literal">false</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # &quot;prefix&quot; 所在命名空间的物理位置。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 默认情况下，与 &quot;prefix&quot; 相同（在这种情况下，可以省略 &quot;prefix&quot;，并且 [[registry]] TOML 表只指定 &quot;location&quot;）。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 例如：假设</span></span><br><span class="line"><span class="comment"># #   prefix = &quot;example.com/foo&quot;</span></span><br><span class="line"><span class="comment"># #   location = &quot;internal-registry-for-example.net/bar&quot;</span></span><br><span class="line"><span class="comment"># # 那么对镜像 example.com/foo/myimage:latest 的请求实际上会与</span></span><br><span class="line"><span class="comment"># # internal-registry-for-example.net/bar/myimage:latest 镜像匹配。</span></span><br><span class="line"><span class="attr">location</span> = <span class="string">&quot;internal-registry-for-example.com/bar&quot;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # &quot;prefix&quot; 所在命名空间的（可能部分的）镜像。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 将按指定顺序尝试这些镜像；第一个可以联系到并包含镜像的将被使用</span></span><br><span class="line"><span class="comment"># # （如果所有镜像都没有该镜像，则最后尝试 &quot;registry.location&quot; 字段指定的主位置，或者使用未修改的用户指定引用）。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # &quot;mirror&quot; 数组中的每个 TOML 表可以包含以下字段，语义与直接在 [[registry]] TOML 表中指定的相同：</span></span><br><span class="line"><span class="comment"># # - location</span></span><br><span class="line"><span class="comment"># # - insecure</span></span><br><span class="line"><span class="section">[[registry.mirror]]</span></span><br><span class="line"><span class="attr">location</span> = <span class="string">&quot;example-mirror-0.local/mirror-for-foo&quot;</span></span><br><span class="line"><span class="section">[[registry.mirror]]</span></span><br><span class="line"><span class="attr">location</span> = <span class="string">&quot;example-mirror-1.local/mirrors/foo&quot;</span></span><br><span class="line"><span class="attr">insecure</span> = <span class="literal">true</span></span><br><span class="line"><span class="comment"># # 根据上述配置，拉取 example.com/foo/image:latest 时将按顺序尝试：</span></span><br><span class="line"><span class="comment"># # 1. example-mirror-0.local/mirror-for-foo/image:latest</span></span><br><span class="line"><span class="comment"># # 2. example-mirror-1.local/mirrors/foo/image:latest</span></span><br><span class="line"><span class="comment"># # 3. internal-registry-for-example.net/bar/image:latest</span></span><br><span class="line"><span class="comment"># # 并使用第一个存在的镜像。</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># short-name-mode=&quot;enforcing&quot;</span></span><br><span class="line"><span class="comment"># 强制使用完全限定镜像名称</span></span><br><span class="line">​</span><br><span class="line"><span class="section">[[registry]]</span></span><br><span class="line"><span class="attr">location</span>=<span class="string">&quot;localhost:5000&quot;</span></span><br><span class="line"><span class="attr">insecure</span>=<span class="literal">true</span></span><br><span class="line"><span class="comment"># 允许使用不安全的连接拉取本地镜像。</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+]]></content>
+      <categories>
+        <category>容器技术</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+        <tag>Podman</tag>
       </tags>
   </entry>
   <entry>
@@ -2869,43 +3406,6 @@
       <categories>
         <category>容器技术</category>
       </categories>
-  </entry>
-  <entry>
-    <title>使用Podman替代DockerDesktop</title>
-    <url>/2025/06/25/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/%E4%BD%BF%E7%94%A8Podman%E6%9B%BF%E4%BB%A3DockerDesktop/</url>
-    <content><![CDATA[<ol>
-<li><p>安装依赖环境</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启用虚拟化平台</span></span><br><span class="line">dism /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart</span><br><span class="line"></span><br><span class="line"><span class="comment">#　启用linux子系统</span></span><br><span class="line">dism /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all</span><br><span class="line"></span><br><span class="line">wsl --install</span><br><span class="line">wsl --update</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装Podman </p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装DockerCLI，用于兼容Docker命令</span></span><br><span class="line">winget install --<span class="built_in">id</span> Docker.DockerCLI</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Podman</span></span><br><span class="line">winget install --<span class="built_in">id</span> RedHat.Podman</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Podman Desktop (可选)</span></span><br><span class="line">winget install --<span class="built_in">id</span> RedHat.Podman-Desktop </span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化Podman</span></span><br><span class="line">podman machine init </span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置端口转发</span></span><br><span class="line">wsl <span class="built_in">sudo</span> sysctl net.ipv4.ip_forward=1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置wsl虚拟机</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 修改默认软件源</span><br><span class="line">sudo sed -e &#x27;s|^metalink=|#metalink=|g&#x27; \</span><br><span class="line">    -e &#x27;s|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.tuna.tsinghua.edu.cn/fedora|g&#x27; \</span><br><span class="line">    -i.bak \</span><br><span class="line">    /etc/yum.repos.d/fedora.repo \</span><br><span class="line">    /etc/yum.repos.d/fedora-updates.repo</span><br><span class="line">sudo dnf makecache</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>测试</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run --rm -d -p 80:80 --name httpd docker.io/library/httpd:latest</span><br></pre></td></tr></table></figure></li>
-<li><p>配置镜像加速<br>podman的配置文件在容器内 <code>/etc/containers/registries.conf</code>,配置格式如下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">unqualified-search-regustrues = [&quot;docker.io&quot;]</span><br><span class="line"></span><br><span class="line">[[registry]]                      # 注意此处配置不需要加&#x27;https&#x27;</span><br><span class="line">prefix = &quot;docker.io&quot;              # 访问地址</span><br><span class="line">location = &quot;docker.m.daocloud.io&quot; # 加速地址</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置私有镜像库</p>
-</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[[registry]]</span><br><span class="line">location = &quot;harbor.example.io&quot;</span><br><span class="line">insecure = true</span><br></pre></td></tr></table></figure>
-<p>如果访问地址为<code>https</code>需要配置信任证书</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /etc/containers/certs.d</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> &lt;path to cert&gt; /etc/containers/certs.d/ca.crt</span><br></pre></td></tr></table></figure>
-
-<ol start="6">
-<li>配置文件翻译<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 有关此配置文件的更多信息，请参阅 containers-registries.conf(5)。</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># 注意：使用未完全限定镜像名称的风险</span></span><br><span class="line"><span class="comment"># 我们建议始终使用包括注册表服务器（完整 DNS 名称）、命名空间、镜像名称和标签在内的完全限定镜像名称</span></span><br><span class="line"><span class="comment"># （例如，registry.redhat.io/ubi8/ubi:latest）。通过摘要（例如，</span></span><br><span class="line"><span class="comment"># quay.io/repository/name@digest）拉取镜像可以进一步消除标签的不确定性。</span></span><br><span class="line"><span class="comment"># 使用短名称时，始终存在镜像被伪造的风险。例如，用户想从某个注册表中拉取名为</span></span><br><span class="line"><span class="comment"># `foobar` 的镜像，并期望该镜像来自 myregistry.com。如果</span></span><br><span class="line"><span class="comment"># myregistry.com 不是搜索列表中的第一个，攻击者可能会在列表中靠前的位置</span></span><br><span class="line"><span class="comment"># 放置另一个名为 `foobar` 的镜像。用户可能会意外拉取并运行攻击者的镜像和代码，而不是</span></span><br><span class="line"><span class="comment"># 预期的内容。我们建议只添加完全可信的注册表（即，不允许未知或匿名用户</span></span><br><span class="line"><span class="comment"># 创建任意名称的账户的注册表）。这将防止镜像被伪造、抢占或以其他方式变得不安全。</span></span><br><span class="line"><span class="comment"># 如果有必要使用这些注册表，它应该添加到列表的末尾。</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # 一个主机[:端口]格式的注册表数组，当拉取未完全限定镜像时，按顺序尝试这些注册表。</span></span><br><span class="line"><span class="attr">unqualified-search-registries</span> = [<span class="string">&quot;registry.fedoraproject.org&quot;</span>, <span class="string">&quot;registry.access.redhat.com&quot;</span>, <span class="string">&quot;docker.io&quot;</span>]</span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># [[registry]]</span></span><br><span class="line"><span class="comment"># # &quot;prefix&quot; 字段用于选择相关的 [[registry]] TOML 表；</span></span><br><span class="line"><span class="comment"># # 使用输入镜像名称时，只有与该名称最长匹配的 TOML 表会被使用</span></span><br><span class="line"><span class="comment"># # （考虑到命名空间/库/标签/摘要分隔符）。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 如果缺少 prefix 字段，则默认与 &quot;location&quot; 字段相同。</span></span><br><span class="line"><span class="attr">prefix</span> = <span class="string">&quot;example.com/foo&quot;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # 如果为 true，则允许未加密的 HTTP 连接以及使用不受信任证书的 TLS 连接。</span></span><br><span class="line"><span class="attr">insecure</span> = <span class="literal">false</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # 如果为 true，则禁止拉取匹配名称的镜像。</span></span><br><span class="line"><span class="attr">blocked</span> = <span class="literal">false</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # &quot;prefix&quot; 所在命名空间的物理位置。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 默认情况下，与 &quot;prefix&quot; 相同（在这种情况下，可以省略 &quot;prefix&quot;，并且 [[registry]] TOML 表只指定 &quot;location&quot;）。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 例如：假设</span></span><br><span class="line"><span class="comment"># #   prefix = &quot;example.com/foo&quot;</span></span><br><span class="line"><span class="comment"># #   location = &quot;internal-registry-for-example.net/bar&quot;</span></span><br><span class="line"><span class="comment"># # 那么对镜像 example.com/foo/myimage:latest 的请求实际上会与</span></span><br><span class="line"><span class="comment"># # internal-registry-for-example.net/bar/myimage:latest 镜像匹配。</span></span><br><span class="line"><span class="attr">location</span> = <span class="string">&quot;internal-registry-for-example.com/bar&quot;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># # &quot;prefix&quot; 所在命名空间的（可能部分的）镜像。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # 将按指定顺序尝试这些镜像；第一个可以联系到并包含镜像的将被使用</span></span><br><span class="line"><span class="comment"># # （如果所有镜像都没有该镜像，则最后尝试 &quot;registry.location&quot; 字段指定的主位置，或者使用未修改的用户指定引用）。</span></span><br><span class="line"><span class="comment"># #</span></span><br><span class="line"><span class="comment"># # &quot;mirror&quot; 数组中的每个 TOML 表可以包含以下字段，语义与直接在 [[registry]] TOML 表中指定的相同：</span></span><br><span class="line"><span class="comment"># # - location</span></span><br><span class="line"><span class="comment"># # - insecure</span></span><br><span class="line"><span class="section">[[registry.mirror]]</span></span><br><span class="line"><span class="attr">location</span> = <span class="string">&quot;example-mirror-0.local/mirror-for-foo&quot;</span></span><br><span class="line"><span class="section">[[registry.mirror]]</span></span><br><span class="line"><span class="attr">location</span> = <span class="string">&quot;example-mirror-1.local/mirrors/foo&quot;</span></span><br><span class="line"><span class="attr">insecure</span> = <span class="literal">true</span></span><br><span class="line"><span class="comment"># # 根据上述配置，拉取 example.com/foo/image:latest 时将按顺序尝试：</span></span><br><span class="line"><span class="comment"># # 1. example-mirror-0.local/mirror-for-foo/image:latest</span></span><br><span class="line"><span class="comment"># # 2. example-mirror-1.local/mirrors/foo/image:latest</span></span><br><span class="line"><span class="comment"># # 3. internal-registry-for-example.net/bar/image:latest</span></span><br><span class="line"><span class="comment"># # 并使用第一个存在的镜像。</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># short-name-mode=&quot;enforcing&quot;</span></span><br><span class="line"><span class="comment"># 强制使用完全限定镜像名称</span></span><br><span class="line">​</span><br><span class="line"><span class="section">[[registry]]</span></span><br><span class="line"><span class="attr">location</span>=<span class="string">&quot;localhost:5000&quot;</span></span><br><span class="line"><span class="attr">insecure</span>=<span class="literal">true</span></span><br><span class="line"><span class="comment"># 允许使用不安全的连接拉取本地镜像。</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-]]></content>
-      <categories>
-        <category>容器技术</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-        <tag>Podman</tag>
-      </tags>
   </entry>
   <entry>
     <title>制作Helm镜像</title>
@@ -3546,29 +4046,6 @@
       </tags>
   </entry>
   <entry>
-    <title>FFmpeg mp3转pcm</title>
-    <url>/2022/06/24/%E6%9D%82%E9%A1%B9/ffmpeg-mp3%E8%BD%ACpcm/</url>
-    <content><![CDATA[<p>大端数据格式</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">ffmpeg</span> <span class="string">-i</span> <span class="string">test.mp3</span> <span class="string">-f</span> <span class="string">s16be</span> <span class="string">-ar</span> <span class="number">16000</span> <span class="string">-ac</span> <span class="number">1</span> <span class="string">-acodec</span> <span class="string">pcm_s16be</span> <span class="string">pcm16k.pcm</span></span><br></pre></td></tr></table></figure>
-
-<p>小端数据格式</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">ffmpeg</span> <span class="string">-i</span> <span class="string">test.mp3</span> <span class="string">-f</span> <span class="string">s16le</span> <span class="string">-ar</span> <span class="number">16000</span> <span class="string">-ac</span> <span class="number">1</span> <span class="string">-acodec</span> <span class="string">pcm_s16le</span> <span class="string">pcm16k.pcm</span></span><br></pre></td></tr></table></figure>
-
-<p>说明:</p>
-<ol>
-<li>-acodec pcm_s16be：输出pcm格式，采用signed 16编码，字节序为大尾端（小尾端为le)；</li>
-<li>-ar 16000: 采样率为16000</li>
-<li>-ac 1: 声道数为1</li>
-</ol>
-]]></content>
-      <categories>
-        <category>杂项</category>
-      </categories>
-      <tags>
-        <tag>FFmp</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>公司常见后缀的含义</title>
     <url>/2025/05/30/%E6%9D%82%E9%A1%B9/%E5%85%AC%E5%8F%B8%E5%B8%B8%E8%A7%81%E5%90%8E%E7%BC%80%E7%9A%84%E5%90%AB%E4%B9%89/</url>
     <content><![CDATA[<h3 id="1-Co-Ltd"><a href="#1-Co-Ltd" class="headerlink" title="1. Co., Ltd."></a>1. Co., Ltd.</h3><ul>
@@ -3619,6 +4096,29 @@
       <categories>
         <category>杂项</category>
       </categories>
+  </entry>
+  <entry>
+    <title>FFmpeg mp3转pcm</title>
+    <url>/2022/06/24/%E6%9D%82%E9%A1%B9/ffmpeg-mp3%E8%BD%ACpcm/</url>
+    <content><![CDATA[<p>大端数据格式</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">ffmpeg</span> <span class="string">-i</span> <span class="string">test.mp3</span> <span class="string">-f</span> <span class="string">s16be</span> <span class="string">-ar</span> <span class="number">16000</span> <span class="string">-ac</span> <span class="number">1</span> <span class="string">-acodec</span> <span class="string">pcm_s16be</span> <span class="string">pcm16k.pcm</span></span><br></pre></td></tr></table></figure>
+
+<p>小端数据格式</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">ffmpeg</span> <span class="string">-i</span> <span class="string">test.mp3</span> <span class="string">-f</span> <span class="string">s16le</span> <span class="string">-ar</span> <span class="number">16000</span> <span class="string">-ac</span> <span class="number">1</span> <span class="string">-acodec</span> <span class="string">pcm_s16le</span> <span class="string">pcm16k.pcm</span></span><br></pre></td></tr></table></figure>
+
+<p>说明:</p>
+<ol>
+<li>-acodec pcm_s16be：输出pcm格式，采用signed 16编码，字节序为大尾端（小尾端为le)；</li>
+<li>-ar 16000: 采样率为16000</li>
+<li>-ac 1: 声道数为1</li>
+</ol>
+]]></content>
+      <categories>
+        <category>杂项</category>
+      </categories>
+      <tags>
+        <tag>FFmp</tag>
+      </tags>
   </entry>
   <entry>
     <title>在CMD命令行中切换到管理员权限模式</title>
@@ -4109,45 +4609,6 @@
       </tags>
   </entry>
   <entry>
-    <title>C#排序算法的比较</title>
-    <url>/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E7%9A%84%E6%AF%94%E8%BE%83/</url>
-    <content><![CDATA[<h1 id="C-排序算法的比较"><a href="#C-排序算法的比较" class="headerlink" title="C#排序算法的比较"></a>C#排序算法的比较</h1><p><strong>首先通过图表比较不同排序算法的时间复杂度和稳定性。</strong></p>
-<table><tbody><tr><td><p><strong>排序方法</strong></p></td><td><p><strong>平均时间</strong></p></td><td><p><strong>最坏情况</strong></p></td><td><p><strong>最好情况</strong></p></td><td><p><strong>辅助空间</strong></p></td><td><p><strong>稳定性</strong></p></td></tr><tr><td>直接插入排序</td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n)</p></td><td><p>O(1)</p></td><td>是</td></tr><tr><td>冒泡排序</td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n)</p></td><td><p>O(1)</p></td><td>是</td></tr><tr><td>简单选择排序</td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(1)</p></td><td>是</td></tr><tr><td>希尔排序</td><td>-</td><td><p>O(nlog<sub>2</sub>n)~O(n<sup>2</sup>)</p></td><td><p>O(nlog<sub>2</sub>n)~O(n<sup>2</sup>)</p></td><td><p>O(1)</p></td><td>否</td></tr><tr><td>快速排序</td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(log<sub>2</sub>n)</p></td><td>否</td></tr><tr><td>堆排序</td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(1)</p></td><td>否</td></tr><tr><td>2-路归并排序</td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(n)</p></td><td>是</td></tr><tr><td>基数排序</td><td>O(d(n + rd))</td><td>O(d(n + rd))</td><td>O(d(n + rd))</td><td>O(rd)</td><td>是</td></tr></tbody></table>
-
-<p>注：1. 算法的时间复杂度一般情况下指最坏情况下的渐近时间复杂度。</p>
-<p>        2. 排序算法的稳定性会对多关键字排序产生影响。</p>
-<p><strong>下面通过C#代码说明不同的排序算法</strong></p>
-<p><strong>插入排序</strong></p>
-<p><strong>时间复杂度：平均情况—O(n<sup><span>2</span></sup>) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(1) 稳定性：稳定</strong></p>
-<p>插入排序是在一个已经有序的小序列的基础上，一次插入一个元素。当然，刚开始这个有序的小序列只有1个元素，就是第一个元素。比较是从有序序列的末尾开始，也就是想要插入的元素和已经有序的最大者开始比起，如果比它大则直接插入在其后面，否则一直往前找直到找到它该插入的位置。如果碰见一个和插入元素相等的，那么插入元素把想插入的元素放在相等元素的后面。所以，相等元素的前后顺序没有改变，从原无序序列出去的顺序就是排好序后的顺序，所以插入排序是稳定的。</p>
-<p><strong>希尔排序(shell)</strong></p>
-<p><strong>时间复杂度：理想情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(n<sup><span>2</span></sup>) 稳定性：不稳定</strong></p>
-<p>希尔排序是按照不同步长对元素进行插入排序，当刚开始元素很无序的时候，步长最大，所以插入排序的元素个数很少，速度很快；当元素基本有序了，步长很小，插入排序对于有序的序列效率很高。所以，希尔排序的时间复杂度会比o(n^2)好一些。由于多次插入排序，我们知道一次插入排序是稳定的，不会改变相同元素的相对顺序，但在不同的插入排序过程中，相同的元素可能在各自的插入排序中移动，最后其稳定性就会被打乱，所以shell排序是不稳定的。</p>
-<p><strong>冒泡排序</strong></p>
-<p><strong>时间复杂度：平均情况—O(n<sup><span>2</span></sup>) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(1) 稳定性：稳定</strong></p>
-<p>冒泡排序就是把小的元素往前调或者把大的元素往后调。比较是相邻的两个元素比较，交换也发生在这两个元素之间。所以，如果两个元素相等，我想你是不会再无聊地把他们俩交换一下的；如果两个相等的元素没有相邻，那么即使通过前面的两两交换把两个相邻起来，这时候也不会交换，所以相同元素的前后顺序并没有改变，所以冒泡排序是一种稳定排序算法。</p>
-<p><strong>快速排序</strong></p>
-<p><strong>时间复杂度：平均情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(log<sub><span>2</span></sub>n) 稳定性：不稳定</strong></p>
-<p>快速排序有两个方向，左边的i下标一直往右走，当a[i] &lt;&#x3D; a[center_index]，其中center_index是中枢元素的数组下标，一般取为数组第0个元素。而右边的j下标一直往左走，当a[j] &gt; a[center_index]。如果i和j都走不动了，i &lt;&#x3D; j, 交换a[i]和a[j],重复上面的过程，直到i&gt;j。 交换a[j]和a[center_index]，完成一趟快速排序。在中枢元素和a[j]交换的时候，很有可能把前面的元素的稳定性打乱，比如序列为 5 3 3 4 3 8 9 10 11， 现在中枢元素5和3(第5个元素，下标从1开始计)交换就会把元素3的稳定性打乱，所以快速排序是一个不稳定的排序算法，不稳定发生在中枢元素和a[j]交换的时刻。</p>
-<p><strong>选择排序</strong></p>
-<p><strong>时间复杂度：平均情况—O(n<sup><span>2</span></sup>) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(1) 稳定性：不稳定</strong></p>
-<p>选择排序是给每个位置选择当前元素最小的，比如给第一个位置选择最小的，在剩余元素里面给第二个元素选择第二小的，依次类推，直到第n-1个元素，第n个元素不用选择了，因为只剩下它一个最大的元素了。那么，在一趟选择，如果当前元素比一个元素小，而该小的元素又出现在一个和当前元素相等的元素后面，那么交换后稳定性就被破坏了。比较拗口，举个例子，序列5 8 5 2 9， 我们知道第一遍选择第1个元素5会和2交换，那么原序列中2个5的相对前后顺序就被破坏了，所以选择排序不是一个稳定的排序算法。</p>
-<p><strong>堆排序</strong></p>
-<p><strong>时间复杂度：平均情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(nlog<sub><span>2</span></sub>n) 辅助空间：O(1) 稳定性：不稳定</strong></p>
-<p>我们知道堆的结构是节点i的孩子为2*i和2*i+1节点，大顶堆要求父节点大于等于其2个子节点，小顶堆要求父节点小于等于其2个子节点。在一个长为n的序列，堆排序的过程是从第n&#x2F;2开始和其子节点共3个值选择最大(大顶堆)或者最小(小顶堆),这3个元素之间的选择当然不会破坏稳定性。但当为n&#x2F;2-1, n&#x2F;2-2, …1这些个父节点选择元素时，就会破坏稳定性。有可能第n&#x2F;2个父节点交换把后面一个元素交换过去了，而第n&#x2F;2-1个父节点把后面一个相同的元素没有交换，那么这2个相同的元素之间的稳定性就被破坏了。所以，堆排序不是稳定的排序算法</p>
-<p><strong>归并排序</strong></p>
-<p><strong>时间复杂度：平均情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(nlog<sub><span>2</span></sub>n) 辅助空间：O(n) 稳定性：稳定</strong></p>
-<p>归并排序是把序列递归地分成短序列，递归出口是短序列只有1个元素(认为直接有序)或者2个序列(1次比较和交换),然后把各个有序的段序列合并成一个有序的长序列，不断合并直到原序列全部排好序。可以发现，在1个或2个元素时，1个元素不会交换，2个元素如果大小相等也没有人故意交换，这不会破坏稳定性。那么，在短的有序序列合并的过程中，稳定是是否受到破坏？没有，合并过程中我们可以保证如果两个当前元素相等时，我们把处在前面的序列的元素保存在结果序列的前面，这样就保证了稳定性。所以，归并排序也是稳定的排序算法。</p>
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-        <category>排序算法</category>
-      </categories>
-      <tags>
-        <tag>排序算法</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CSharp排序算法小结</title>
     <url>/2019/11/30/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E5%B0%8F%E7%BB%93/</url>
     <content><![CDATA[<p><strong>前言</strong></p>
@@ -4273,6 +4734,45 @@
       </tags>
   </entry>
   <entry>
+    <title>C#排序算法的比较</title>
+    <url>/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E7%9A%84%E6%AF%94%E8%BE%83/</url>
+    <content><![CDATA[<h1 id="C-排序算法的比较"><a href="#C-排序算法的比较" class="headerlink" title="C#排序算法的比较"></a>C#排序算法的比较</h1><p><strong>首先通过图表比较不同排序算法的时间复杂度和稳定性。</strong></p>
+<table><tbody><tr><td><p><strong>排序方法</strong></p></td><td><p><strong>平均时间</strong></p></td><td><p><strong>最坏情况</strong></p></td><td><p><strong>最好情况</strong></p></td><td><p><strong>辅助空间</strong></p></td><td><p><strong>稳定性</strong></p></td></tr><tr><td>直接插入排序</td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n)</p></td><td><p>O(1)</p></td><td>是</td></tr><tr><td>冒泡排序</td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n)</p></td><td><p>O(1)</p></td><td>是</td></tr><tr><td>简单选择排序</td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(1)</p></td><td>是</td></tr><tr><td>希尔排序</td><td>-</td><td><p>O(nlog<sub>2</sub>n)~O(n<sup>2</sup>)</p></td><td><p>O(nlog<sub>2</sub>n)~O(n<sup>2</sup>)</p></td><td><p>O(1)</p></td><td>否</td></tr><tr><td>快速排序</td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(n<sup>2</sup>)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(log<sub>2</sub>n)</p></td><td>否</td></tr><tr><td>堆排序</td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(1)</p></td><td>否</td></tr><tr><td>2-路归并排序</td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(nlog<sub>2</sub>n)</p></td><td><p>O(n)</p></td><td>是</td></tr><tr><td>基数排序</td><td>O(d(n + rd))</td><td>O(d(n + rd))</td><td>O(d(n + rd))</td><td>O(rd)</td><td>是</td></tr></tbody></table>
+
+<p>注：1. 算法的时间复杂度一般情况下指最坏情况下的渐近时间复杂度。</p>
+<p>        2. 排序算法的稳定性会对多关键字排序产生影响。</p>
+<p><strong>下面通过C#代码说明不同的排序算法</strong></p>
+<p><strong>插入排序</strong></p>
+<p><strong>时间复杂度：平均情况—O(n<sup><span>2</span></sup>) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(1) 稳定性：稳定</strong></p>
+<p>插入排序是在一个已经有序的小序列的基础上，一次插入一个元素。当然，刚开始这个有序的小序列只有1个元素，就是第一个元素。比较是从有序序列的末尾开始，也就是想要插入的元素和已经有序的最大者开始比起，如果比它大则直接插入在其后面，否则一直往前找直到找到它该插入的位置。如果碰见一个和插入元素相等的，那么插入元素把想插入的元素放在相等元素的后面。所以，相等元素的前后顺序没有改变，从原无序序列出去的顺序就是排好序后的顺序，所以插入排序是稳定的。</p>
+<p><strong>希尔排序(shell)</strong></p>
+<p><strong>时间复杂度：理想情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(n<sup><span>2</span></sup>) 稳定性：不稳定</strong></p>
+<p>希尔排序是按照不同步长对元素进行插入排序，当刚开始元素很无序的时候，步长最大，所以插入排序的元素个数很少，速度很快；当元素基本有序了，步长很小，插入排序对于有序的序列效率很高。所以，希尔排序的时间复杂度会比o(n^2)好一些。由于多次插入排序，我们知道一次插入排序是稳定的，不会改变相同元素的相对顺序，但在不同的插入排序过程中，相同的元素可能在各自的插入排序中移动，最后其稳定性就会被打乱，所以shell排序是不稳定的。</p>
+<p><strong>冒泡排序</strong></p>
+<p><strong>时间复杂度：平均情况—O(n<sup><span>2</span></sup>) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(1) 稳定性：稳定</strong></p>
+<p>冒泡排序就是把小的元素往前调或者把大的元素往后调。比较是相邻的两个元素比较，交换也发生在这两个元素之间。所以，如果两个元素相等，我想你是不会再无聊地把他们俩交换一下的；如果两个相等的元素没有相邻，那么即使通过前面的两两交换把两个相邻起来，这时候也不会交换，所以相同元素的前后顺序并没有改变，所以冒泡排序是一种稳定排序算法。</p>
+<p><strong>快速排序</strong></p>
+<p><strong>时间复杂度：平均情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(log<sub><span>2</span></sub>n) 稳定性：不稳定</strong></p>
+<p>快速排序有两个方向，左边的i下标一直往右走，当a[i] &lt;&#x3D; a[center_index]，其中center_index是中枢元素的数组下标，一般取为数组第0个元素。而右边的j下标一直往左走，当a[j] &gt; a[center_index]。如果i和j都走不动了，i &lt;&#x3D; j, 交换a[i]和a[j],重复上面的过程，直到i&gt;j。 交换a[j]和a[center_index]，完成一趟快速排序。在中枢元素和a[j]交换的时候，很有可能把前面的元素的稳定性打乱，比如序列为 5 3 3 4 3 8 9 10 11， 现在中枢元素5和3(第5个元素，下标从1开始计)交换就会把元素3的稳定性打乱，所以快速排序是一个不稳定的排序算法，不稳定发生在中枢元素和a[j]交换的时刻。</p>
+<p><strong>选择排序</strong></p>
+<p><strong>时间复杂度：平均情况—O(n<sup><span>2</span></sup>) 最坏情况—O(n<sup><span>2</span></sup>) 辅助空间：O(1) 稳定性：不稳定</strong></p>
+<p>选择排序是给每个位置选择当前元素最小的，比如给第一个位置选择最小的，在剩余元素里面给第二个元素选择第二小的，依次类推，直到第n-1个元素，第n个元素不用选择了，因为只剩下它一个最大的元素了。那么，在一趟选择，如果当前元素比一个元素小，而该小的元素又出现在一个和当前元素相等的元素后面，那么交换后稳定性就被破坏了。比较拗口，举个例子，序列5 8 5 2 9， 我们知道第一遍选择第1个元素5会和2交换，那么原序列中2个5的相对前后顺序就被破坏了，所以选择排序不是一个稳定的排序算法。</p>
+<p><strong>堆排序</strong></p>
+<p><strong>时间复杂度：平均情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(nlog<sub><span>2</span></sub>n) 辅助空间：O(1) 稳定性：不稳定</strong></p>
+<p>我们知道堆的结构是节点i的孩子为2*i和2*i+1节点，大顶堆要求父节点大于等于其2个子节点，小顶堆要求父节点小于等于其2个子节点。在一个长为n的序列，堆排序的过程是从第n&#x2F;2开始和其子节点共3个值选择最大(大顶堆)或者最小(小顶堆),这3个元素之间的选择当然不会破坏稳定性。但当为n&#x2F;2-1, n&#x2F;2-2, …1这些个父节点选择元素时，就会破坏稳定性。有可能第n&#x2F;2个父节点交换把后面一个元素交换过去了，而第n&#x2F;2-1个父节点把后面一个相同的元素没有交换，那么这2个相同的元素之间的稳定性就被破坏了。所以，堆排序不是稳定的排序算法</p>
+<p><strong>归并排序</strong></p>
+<p><strong>时间复杂度：平均情况—O(nlog<sub><span>2</span></sub>n) 最坏情况—O(nlog<sub><span>2</span></sub>n) 辅助空间：O(n) 稳定性：稳定</strong></p>
+<p>归并排序是把序列递归地分成短序列，递归出口是短序列只有1个元素(认为直接有序)或者2个序列(1次比较和交换),然后把各个有序的段序列合并成一个有序的长序列，不断合并直到原序列全部排好序。可以发现，在1个或2个元素时，1个元素不会交换，2个元素如果大小相等也没有人故意交换，这不会破坏稳定性。那么，在短的有序序列合并的过程中，稳定是是否受到破坏？没有，合并过程中我们可以保证如果两个当前元素相等时，我们把处在前面的序列的元素保存在结果序列的前面，这样就保证了稳定性。所以，归并排序也是稳定的排序算法。</p>
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+        <category>排序算法</category>
+      </categories>
+      <tags>
+        <tag>排序算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C#经典排序算法大全</title>
     <url>/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E7%BB%8F%E5%85%B8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E5%A4%A7%E5%85%A8/</url>
     <content><![CDATA[<h1 id="C-经典排序算法大全"><a href="#C-经典排序算法大全" class="headerlink" title="C# 经典排序算法大全"></a>C# 经典排序算法大全</h1><blockquote>
@@ -4302,31 +4802,6 @@
 <h3 id="排序的分类-稳定性-时间复杂度和空间复杂度总结"><a href="#排序的分类-稳定性-时间复杂度和空间复杂度总结" class="headerlink" title="排序的分类&#x2F;稳定性&#x2F;时间复杂度和空间复杂度总结"></a>排序的分类&#x2F;稳定性&#x2F;时间复杂度和空间复杂度总结</h3><img src="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E7%BB%8F%E5%85%B8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E5%A4%A7%E5%85%A8/IMG-20250704185625088.png" class="">  
 
 <p>版权声明：本文博客原创文章。博客，未经同意，不得转载。</p>
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-        <category>排序算法</category>
-      </categories>
-      <tags>
-        <tag>排序算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>冒泡排序算法CSharp实现</title>
-    <url>/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="冒泡排序算法（C-实现）-Eric-Sun-博客园"><a href="#冒泡排序算法（C-实现）-Eric-Sun-博客园" class="headerlink" title="冒泡排序算法（C#实现） - Eric Sun - 博客园"></a>冒泡排序算法（C#实现） - Eric Sun - 博客园</h1><blockquote>
-<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>简单的冒泡排序算法，代码如下：&#x2F;&#x2F;冒泡排序（从数组的起始位置开始遍历，以大数为基准：大的数向下沉一位）privatestaticvoid BubbleSortFunction(int[] array) { try { int length &#x3D; array.Length; int temp; bool</p>
-</blockquote>
-<hr>
-<p>简单的冒泡排序算法，代码如下：</p>
-<img src="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20250704185625090.gif" class="" title="复制代码">
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;span&gt;//&lt;/span&gt;&lt;span&gt;冒泡排序（从数组的起始位置开始遍历，以大数为基准：大的数向下沉一位）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;private&lt;/span&gt;&lt;span&gt;static&lt;/span&gt;&lt;span&gt;void&lt;/span&gt;&lt;span&gt; BubbleSortFunction(&lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt;[] array)&lt;br&gt;        &#123;&lt;br&gt;            &lt;/span&gt;&lt;span&gt;try&lt;/span&gt;&lt;span&gt;&lt;br&gt;            &#123;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; length &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; array.Length;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; temp;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;bool&lt;/span&gt;&lt;span&gt; hasExchangeAction; &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;记录此次大循环中相邻的两个数是否发生过互换（如果没有互换，则数组已经是有序的）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;for&lt;/span&gt;&lt;span&gt; (&lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; i &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;0&lt;/span&gt;&lt;span&gt;; i &lt;/span&gt;&lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt; length &lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;; i&lt;/span&gt;&lt;span&gt;++&lt;/span&gt;&lt;span&gt;)    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;数组有N个数，那么用N-1次大循环就可以排完&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                &#123;&lt;br&gt;                    hasExchangeAction &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;false&lt;/span&gt;&lt;span&gt;;  &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;每次大循环都假设数组有序&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;&lt;br&gt;                    &lt;/span&gt;&lt;span&gt;for&lt;/span&gt;&lt;span&gt; (&lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; j &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;0&lt;/span&gt;&lt;span&gt;; j &lt;/span&gt;&lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt; length &lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt; i &lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;; j&lt;/span&gt;&lt;span&gt;++&lt;/span&gt;&lt;span&gt;)    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;从数组下标0处开始遍历，（length - i - 1 是刨除已经排好的大数）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                    &#123;&lt;br&gt;                        &lt;/span&gt;&lt;span&gt;if&lt;/span&gt;&lt;span&gt; (array[j] &lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;&lt;span&gt; array[j &lt;/span&gt;&lt;span&gt;+&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;])    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;相邻两个数进行比较，如果前面的数大于后面的数，则将这相邻的两个数进行互换&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                        &#123;&lt;br&gt;                            temp &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; array[j];&lt;br&gt;                            array[j] &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; array[j &lt;/span&gt;&lt;span&gt;+&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;];&lt;br&gt;                            array[j &lt;/span&gt;&lt;span&gt;+&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;] &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; temp;&lt;br&gt;                            hasExchangeAction &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;true&lt;/span&gt;&lt;span&gt;;   &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;发生过互换&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                        &#125;&lt;br&gt;                    &#125;&lt;br&gt;&lt;br&gt;                    &lt;/span&gt;&lt;span&gt;if&lt;/span&gt;&lt;span&gt; (&lt;/span&gt;&lt;span&gt;!&lt;/span&gt;&lt;span&gt;hasExchangeAction) &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;如果没有发生过互换，则数组已经是有序的了，跳出循环&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                    &#123;&lt;br&gt;                        &lt;/span&gt;&lt;span&gt;break&lt;/span&gt;&lt;span&gt;;&lt;br&gt;                    &#125;&lt;br&gt;                &#125;&lt;br&gt;            &#125;&lt;br&gt;            &lt;/span&gt;&lt;span&gt;catch&lt;/span&gt;&lt;span&gt; (Exception ex)&lt;br&gt;            &#123; &#125;&lt;br&gt;        &#125;&lt;/span&gt;</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20250704185625090.gif" class="" title="复制代码">
-
-<p>。。。。。</p>
-<p>posted @ 2011-08-17 16:02  <a href="https://www.cnblogs.com/mingmingruyuedlut">Eric Sun</a>  阅读(7637)  评论()  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=2143231">编辑</a>  收藏  举报</p>
 ]]></content>
       <categories>
         <category>学习笔记</category>
@@ -4450,6 +4925,31 @@
 <img src="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20250704185625093.gif" class="" title="复制代码">
 
 <p>。。。。</p>
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+        <category>排序算法</category>
+      </categories>
+      <tags>
+        <tag>排序算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>冒泡排序算法CSharp实现</title>
+    <url>/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="冒泡排序算法（C-实现）-Eric-Sun-博客园"><a href="#冒泡排序算法（C-实现）-Eric-Sun-博客园" class="headerlink" title="冒泡排序算法（C#实现） - Eric Sun - 博客园"></a>冒泡排序算法（C#实现） - Eric Sun - 博客园</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>简单的冒泡排序算法，代码如下：&#x2F;&#x2F;冒泡排序（从数组的起始位置开始遍历，以大数为基准：大的数向下沉一位）privatestaticvoid BubbleSortFunction(int[] array) { try { int length &#x3D; array.Length; int temp; bool</p>
+</blockquote>
+<hr>
+<p>简单的冒泡排序算法，代码如下：</p>
+<img src="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20250704185625090.gif" class="" title="复制代码">
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;span&gt;//&lt;/span&gt;&lt;span&gt;冒泡排序（从数组的起始位置开始遍历，以大数为基准：大的数向下沉一位）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;private&lt;/span&gt;&lt;span&gt;static&lt;/span&gt;&lt;span&gt;void&lt;/span&gt;&lt;span&gt; BubbleSortFunction(&lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt;[] array)&lt;br&gt;        &#123;&lt;br&gt;            &lt;/span&gt;&lt;span&gt;try&lt;/span&gt;&lt;span&gt;&lt;br&gt;            &#123;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; length &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; array.Length;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; temp;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;bool&lt;/span&gt;&lt;span&gt; hasExchangeAction; &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;记录此次大循环中相邻的两个数是否发生过互换（如果没有互换，则数组已经是有序的）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;&lt;br&gt;                &lt;/span&gt;&lt;span&gt;for&lt;/span&gt;&lt;span&gt; (&lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; i &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;0&lt;/span&gt;&lt;span&gt;; i &lt;/span&gt;&lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt; length &lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;; i&lt;/span&gt;&lt;span&gt;++&lt;/span&gt;&lt;span&gt;)    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;数组有N个数，那么用N-1次大循环就可以排完&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                &#123;&lt;br&gt;                    hasExchangeAction &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;false&lt;/span&gt;&lt;span&gt;;  &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;每次大循环都假设数组有序&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;&lt;br&gt;                    &lt;/span&gt;&lt;span&gt;for&lt;/span&gt;&lt;span&gt; (&lt;/span&gt;&lt;span&gt;int&lt;/span&gt;&lt;span&gt; j &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;0&lt;/span&gt;&lt;span&gt;; j &lt;/span&gt;&lt;span&gt;&amp;lt;&lt;/span&gt;&lt;span&gt; length &lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt; i &lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;; j&lt;/span&gt;&lt;span&gt;++&lt;/span&gt;&lt;span&gt;)    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;从数组下标0处开始遍历，（length - i - 1 是刨除已经排好的大数）&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                    &#123;&lt;br&gt;                        &lt;/span&gt;&lt;span&gt;if&lt;/span&gt;&lt;span&gt; (array[j] &lt;/span&gt;&lt;span&gt;&amp;gt;&lt;/span&gt;&lt;span&gt; array[j &lt;/span&gt;&lt;span&gt;+&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;])    &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;相邻两个数进行比较，如果前面的数大于后面的数，则将这相邻的两个数进行互换&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                        &#123;&lt;br&gt;                            temp &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; array[j];&lt;br&gt;                            array[j] &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; array[j &lt;/span&gt;&lt;span&gt;+&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;];&lt;br&gt;                            array[j &lt;/span&gt;&lt;span&gt;+&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;span&gt;] &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; temp;&lt;br&gt;                            hasExchangeAction &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;true&lt;/span&gt;&lt;span&gt;;   &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;发生过互换&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                        &#125;&lt;br&gt;                    &#125;&lt;br&gt;&lt;br&gt;                    &lt;/span&gt;&lt;span&gt;if&lt;/span&gt;&lt;span&gt; (&lt;/span&gt;&lt;span&gt;!&lt;/span&gt;&lt;span&gt;hasExchangeAction) &lt;/span&gt;&lt;span&gt;//&lt;/span&gt;&lt;span&gt;如果没有发生过互换，则数组已经是有序的了，跳出循环&lt;/span&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;span&gt;                    &#123;&lt;br&gt;                        &lt;/span&gt;&lt;span&gt;break&lt;/span&gt;&lt;span&gt;;&lt;br&gt;                    &#125;&lt;br&gt;                &#125;&lt;br&gt;            &#125;&lt;br&gt;            &lt;/span&gt;&lt;span&gt;catch&lt;/span&gt;&lt;span&gt; (Exception ex)&lt;br&gt;            &#123; &#125;&lt;br&gt;        &#125;&lt;/span&gt;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/IMG-20250704185625090.gif" class="" title="复制代码">
+
+<p>。。。。。</p>
+<p>posted @ 2011-08-17 16:02  <a href="https://www.cnblogs.com/mingmingruyuedlut">Eric Sun</a>  阅读(7637)  评论()  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=2143231">编辑</a>  收藏  举报</p>
 ]]></content>
       <categories>
         <category>学习笔记</category>
@@ -4592,19 +5092,6 @@
       </tags>
   </entry>
   <entry>
-    <title>命令模式</title>
-    <url>/2019/11/15/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>学习笔记</category>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-        <tag>命令模式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>备忘录模式</title>
     <url>/2019/11/23/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[]]></content>
@@ -4615,6 +5102,19 @@
       <tags>
         <tag>设计模式</tag>
         <tag>备忘录模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>命令模式</title>
+    <url>/2019/11/15/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+        <tag>命令模式</tag>
       </tags>
   </entry>
   <entry>
@@ -4748,19 +5248,6 @@
       </tags>
   </entry>
   <entry>
-    <title>观察者模式</title>
-    <url>/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>学习笔记</category>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-        <tag>观察者模式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>解释器模式</title>
     <url>/2019/11/24/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[]]></content>
@@ -4771,6 +5258,19 @@
       <tags>
         <tag>设计模式</tag>
         <tag>解释器模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>观察者模式</title>
+    <url>/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+        <tag>观察者模式</tag>
       </tags>
   </entry>
   <entry>
@@ -4905,19 +5405,6 @@
       </tags>
   </entry>
   <entry>
-    <title>迭代器模式</title>
-    <url>/2019/11/16/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>学习笔记</category>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-        <tag>迭代器模式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>责任链模式</title>
     <url>/2019/11/21/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[]]></content>
@@ -4928,6 +5415,19 @@
       <tags>
         <tag>设计模式</tag>
         <tag>责任链模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>迭代器模式</title>
+    <url>/2019/11/16/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>学习笔记</category>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+        <tag>迭代器模式</tag>
       </tags>
   </entry>
   <entry>
@@ -7833,35 +8333,6 @@ dotnet run
       </tags>
   </entry>
   <entry>
-    <title>在 WPF 中使用 Path 路径</title>
-    <url>/2015/10/17/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%9C%A8%20WPF%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Path%20%E8%B7%AF%E5%BE%84/</url>
-    <content><![CDATA[<p>在 WPF 中总会修改 Button 的 Style，比如一个自定义的 Close 按钮。刚入门的可能会用一张 PNG 格式的图片来做这个按钮的 Icon，但这个是不优雅的。而且你要改的时候还得去操作文件，想想都痛苦。</p>
-<p>但是很多人苦于不知道去哪里获取 Path，当然网上已经有不少使用 Photoshop 获取图片的 Path ，但如果图片的质量不好，获取的 Path 歪歪曲曲的也不好看，更何况在这之前你还得会使用 Photoshop。</p>
-<p>现在分享一个我经常使用的解决方案，<a href="http://www.iconfont.cn/">阿里巴巴矢量图</a>，这上面可以说有海量的图标可以用到。</p>
-<p>流程：</p>
-<p>　　1，进入 <a href="http://www.iconfont.cn/">阿里巴巴矢量图</a> 并搜索你想要的图标</p>
-<p>　　2，下载 Icon 时使用 SVG 下载</p>
-<p>　　3，用记事本或文本编辑器打开，标签 Path 下的 d 属性就是 Path 的 Data 数据（很多复杂一点的 Icon 可能是多个 Data 组成，使用时只要用空格把几个 Data 隔开就行）</p>
-<p>　　例子：</p>
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"\>
-
-<p>　　&lt;svg t=“1491032725422” class=“icon” style=“” viewBox=“0 0 1024 1024” version=“1.1” xmlns=“<a href="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</a>“ p-id=“2372” xmlns:xlink=“<a href="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</a>“ width=“248” height=“248”&gt;<br>　　&lt;defs&gt;<br>　　　　&lt;style type=“text&#x2F;css”&gt;&lt;&#x2F;style&gt;<br>　　&lt;&#x2F;defs&gt;<br>　　&lt;path d=“M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z” p-id=“2373”&gt;&lt;&#x2F;path&gt;<br>　　&lt;path d=“M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z” p-id=“2374”&gt;&lt;&#x2F;path&gt;<br>&lt;&#x2F;svg&gt;</p>
-<p>　　在WPF中使用时：</p>
-<p>&lt;Path Data=“M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z”&#x2F;&gt;</p>
-<p>Data 也可以作为资源放在独立的资源字典里，使用的 Geometry 标签</p>
-<p>&lt;Geometry x:Key=“logo”&gt;M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z&lt;&#x2F;Geometry&gt;</p>
-<p>XAML：</p>
-<p>&lt;Path Data=“{StaticResource logo}” Fill=“White” Stretch=“Fill” Stroke=“White” StrokeThickness=“1.5” &#x2F;&gt;</p>
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>DotNet</category>
-      </categories>
-      <tags>
-        <tag>WPF</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>分布式ID生成方法生成演变</title>
     <url>/2017/01/07/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%88%86%E5%B8%83%E5%BC%8FID%E7%94%9F%E6%88%90%E6%96%B9%E6%B3%95%E7%94%9F%E6%88%90%E6%BC%94%E5%8F%98/</url>
     <content><![CDATA[<p><strong>一、需求缘起</strong></p>
@@ -7971,6 +8442,35 @@ dotnet run
       </categories>
       <tags>
         <tag>分布式ID</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在 WPF 中使用 Path 路径</title>
+    <url>/2015/10/17/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%9C%A8%20WPF%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Path%20%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<p>在 WPF 中总会修改 Button 的 Style，比如一个自定义的 Close 按钮。刚入门的可能会用一张 PNG 格式的图片来做这个按钮的 Icon，但这个是不优雅的。而且你要改的时候还得去操作文件，想想都痛苦。</p>
+<p>但是很多人苦于不知道去哪里获取 Path，当然网上已经有不少使用 Photoshop 获取图片的 Path ，但如果图片的质量不好，获取的 Path 歪歪曲曲的也不好看，更何况在这之前你还得会使用 Photoshop。</p>
+<p>现在分享一个我经常使用的解决方案，<a href="http://www.iconfont.cn/">阿里巴巴矢量图</a>，这上面可以说有海量的图标可以用到。</p>
+<p>流程：</p>
+<p>　　1，进入 <a href="http://www.iconfont.cn/">阿里巴巴矢量图</a> 并搜索你想要的图标</p>
+<p>　　2，下载 Icon 时使用 SVG 下载</p>
+<p>　　3，用记事本或文本编辑器打开，标签 Path 下的 d 属性就是 Path 的 Data 数据（很多复杂一点的 Icon 可能是多个 Data 组成，使用时只要用空格把几个 Data 隔开就行）</p>
+<p>　　例子：</p>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"\>
+
+<p>　　&lt;svg t=“1491032725422” class=“icon” style=“” viewBox=“0 0 1024 1024” version=“1.1” xmlns=“<a href="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</a>“ p-id=“2372” xmlns:xlink=“<a href="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</a>“ width=“248” height=“248”&gt;<br>　　&lt;defs&gt;<br>　　　　&lt;style type=“text&#x2F;css”&gt;&lt;&#x2F;style&gt;<br>　　&lt;&#x2F;defs&gt;<br>　　&lt;path d=“M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z” p-id=“2373”&gt;&lt;&#x2F;path&gt;<br>　　&lt;path d=“M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z” p-id=“2374”&gt;&lt;&#x2F;path&gt;<br>&lt;&#x2F;svg&gt;</p>
+<p>　　在WPF中使用时：</p>
+<p>&lt;Path Data=“M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z”&#x2F;&gt;</p>
+<p>Data 也可以作为资源放在独立的资源字典里，使用的 Geometry 标签</p>
+<p>&lt;Geometry x:Key=“logo”&gt;M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z&lt;&#x2F;Geometry&gt;</p>
+<p>XAML：</p>
+<p>&lt;Path Data=“{StaticResource logo}” Fill=“White” Stretch=“Fill” Stroke=“White” StrokeThickness=“1.5” &#x2F;&gt;</p>
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>DotNet</category>
+      </categories>
+      <tags>
+        <tag>WPF</tag>
       </tags>
   </entry>
   <entry>
@@ -8250,6 +8750,16 @@ dotnet run
       </categories>
   </entry>
   <entry>
+    <title>Golang实现Async/Await模式</title>
+    <url>/2024/07/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E5%AE%9E%E7%8E%B0Async-Await%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p><a href="https://zhuanlan.zhihu.com/p/341794161">使用 Go 实现 Async&#x2F;Await 模式 - 知乎 (zhihu.com)</a></p>
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>Golang</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Golang实现SM4</title>
     <url>/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E5%AE%9E%E7%8E%B0SM4/</url>
     <content><![CDATA[<p>ECB模式，PKCS5填充</p>
@@ -8265,16 +8775,6 @@ dotnet run
         <tag>国密</tag>
         <tag>SM4</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Golang实现Async/Await模式</title>
-    <url>/2024/07/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E5%AE%9E%E7%8E%B0Async-Await%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<p><a href="https://zhuanlan.zhihu.com/p/341794161">使用 Go 实现 Async&#x2F;Await 模式 - 知乎 (zhihu.com)</a></p>
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>Golang</category>
-      </categories>
   </entry>
   <entry>
     <title>Golang日志组件logrus使用</title>
@@ -8336,8 +8836,8 @@ dotnet run
         <category>Golang</category>
       </categories>
       <tags>
-        <tag>Golang</tag>
         <tag>环境配置</tag>
+        <tag>Golang</tag>
       </tags>
   </entry>
   <entry>
@@ -8709,46 +9209,6 @@ dotnet run
       </tags>
   </entry>
   <entry>
-    <title>Nodejs清理无用依赖包</title>
-    <url>/2019/05/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Javascript/Nodejs%E6%B8%85%E7%90%86%E6%97%A0%E7%94%A8%E4%BE%9D%E8%B5%96%E5%8C%85/</url>
-    <content><![CDATA[<p>npm-check</p>
-<p> npm-check 是一个检查依赖包是否存在过期、不正确、未使用等情况的工具。</p>
-<p> 全局安装：</p>
-<blockquote>
-<p>npm  install  -g  npm-check</p>
-</blockquote>
-<p> 使用：</p>
-<blockquote>
-<p>npm-check</p>
-</blockquote>
-<p>上述指令会自动检查当前目录下的依赖包情况。</p>
-<p> 这里我们重点关注下未使用的依赖包。npm-check 在检查依赖包是否使用时判断的依据是文件中是否存在 require（package） 这条语句，例如：</p>
-<blockquote>
-<p>const lodash &#x3D; require(‘lodash’);</p>
-</blockquote>
-<p>只要存在这条语句，即使我并未在其它任何地方使用（也就是说这是个无用的包），但是 npm-check 是不会将其判定为未使用的。</p>
-<p> ESLint</p>
-<p>为了解决上述存在的这种情况，我们可以借助 ESLint 先去检查代码是否存在未使用的变量（no-unused-vars），这样就可以检查某个包 require 了但并未在后续使用的情况。</p>
-<p>全局安装：</p>
-<blockquote>
-<p>npm install -g eslint</p>
-</blockquote>
-<p>编写 .eslintrc.js 配置文件：</p>
-<p> <img src="https://images2018.cnblogs.com/blog/1211559/201808/1211559-20180821151852625-130510713.jpg"></p>
-<blockquote>
-<p>eslint  –config  .eslintrc.js  .&#x2F;</p>
-</blockquote>
-<p>执行上述指令便会检查当前目录下的所有代码是否存在定义了但未使用的变量。删除掉未使用的变量（包含对依赖包的引用）之后，再运行 npm-check 便能正确的找出那些在项目中已不再使用的依赖包了。</p>
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>Javascript</category>
-      </categories>
-      <tags>
-        <tag>NodeJS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Shiro</title>
     <url>/2015/11/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Shiro%20%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BB%E9%99%86%E3%80%81%E6%8E%88%E6%9D%83%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8/</url>
     <content><![CDATA[<h2 id="Shiro"><a href="#Shiro" class="headerlink" title="Shiro"></a>Shiro</h2><ul>
@@ -8966,6 +9426,46 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </tags>
   </entry>
   <entry>
+    <title>Nodejs清理无用依赖包</title>
+    <url>/2019/05/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Javascript/Nodejs%E6%B8%85%E7%90%86%E6%97%A0%E7%94%A8%E4%BE%9D%E8%B5%96%E5%8C%85/</url>
+    <content><![CDATA[<p>npm-check</p>
+<p> npm-check 是一个检查依赖包是否存在过期、不正确、未使用等情况的工具。</p>
+<p> 全局安装：</p>
+<blockquote>
+<p>npm  install  -g  npm-check</p>
+</blockquote>
+<p> 使用：</p>
+<blockquote>
+<p>npm-check</p>
+</blockquote>
+<p>上述指令会自动检查当前目录下的依赖包情况。</p>
+<p> 这里我们重点关注下未使用的依赖包。npm-check 在检查依赖包是否使用时判断的依据是文件中是否存在 require（package） 这条语句，例如：</p>
+<blockquote>
+<p>const lodash &#x3D; require(‘lodash’);</p>
+</blockquote>
+<p>只要存在这条语句，即使我并未在其它任何地方使用（也就是说这是个无用的包），但是 npm-check 是不会将其判定为未使用的。</p>
+<p> ESLint</p>
+<p>为了解决上述存在的这种情况，我们可以借助 ESLint 先去检查代码是否存在未使用的变量（no-unused-vars），这样就可以检查某个包 require 了但并未在后续使用的情况。</p>
+<p>全局安装：</p>
+<blockquote>
+<p>npm install -g eslint</p>
+</blockquote>
+<p>编写 .eslintrc.js 配置文件：</p>
+<p> <img src="https://images2018.cnblogs.com/blog/1211559/201808/1211559-20180821151852625-130510713.jpg"></p>
+<blockquote>
+<p>eslint  –config  .eslintrc.js  .&#x2F;</p>
+</blockquote>
+<p>执行上述指令便会检查当前目录下的所有代码是否存在定义了但未使用的变量。删除掉未使用的变量（包含对依赖包的引用）之后，再运行 npm-check 便能正确的找出那些在项目中已不再使用的依赖包了。</p>
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>Javascript</category>
+      </categories>
+      <tags>
+        <tag>NodeJS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>npm修改全局包安装路径</title>
     <url>/2024/12/17/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Javascript/npm%E4%BF%AE%E6%94%B9%E5%85%A8%E5%B1%80%E5%8C%85%E5%AE%89%E8%A3%85%E8%B7%AF%E5%BE%84/</url>
     <content><![CDATA[<h3 id="默认配置"><a href="#默认配置" class="headerlink" title="默认配置"></a>默认配置</h3><p>默认安装路径：<code>%AppData%\Roaming\npm</code><br>全局缓存路径：<code>%AppData%\Roaming\npm_cache</code></p>
@@ -9080,25 +9580,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </tags>
   </entry>
   <entry>
-    <title>Python判断当前运行系统环境</title>
-    <url>/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/Python%E5%88%A4%E6%96%AD%E5%BD%93%E5%89%8D%E8%BF%90%E8%A1%8C%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83/</url>
-    <content><![CDATA[<h4 id="使用sys模块"><a href="#使用sys模块" class="headerlink" title="使用sys模块"></a>使用<code>sys</code>模块</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> sys.platform.startwith(<span class="string">&quot;win&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> sys.platform.startwith(<span class="string">&quot;linux&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> sys.platform.startwith(<span class="string">&quot;darwin&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是MAC OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h4 id="使用platform模块"><a href="#使用platform模块" class="headerlink" title="使用platform模块"></a>使用<code>platform</code>模块</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> platform</span><br><span class="line"></span><br><span class="line">system=platform.system()</span><br><span class="line"><span class="keyword">if</span> system==<span class="string">&quot;Windows&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system==<span class="string">&quot;Linux&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system==<span class="string">&quot;Darwin&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是MAC OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)	</span><br></pre></td></tr></table></figure>
-
-<h4 id="使用os模块"><a href="#使用os模块" class="headerlink" title="使用os模块"></a>使用<code>os</code>模块</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">system = os.name</span><br><span class="line"><span class="keyword">if</span> system == <span class="string">&quot;nt&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system == <span class="string">&quot;posix&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux或Mac OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>Python</tag>
-        <tag>运行环境</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Python对接C库</title>
     <url>/2025/03/27/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/Python%E5%AF%B9%E6%8E%A5C%E5%BA%93/</url>
     <content><![CDATA[<h4 id="1-准备环境"><a href="#1-准备环境" class="headerlink" title="1. 准备环境"></a>1. 准备环境</h4><ul>
@@ -9144,6 +9625,25 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
         <category>编程技术</category>
         <category>Python</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Python判断当前运行系统环境</title>
+    <url>/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/Python%E5%88%A4%E6%96%AD%E5%BD%93%E5%89%8D%E8%BF%90%E8%A1%8C%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83/</url>
+    <content><![CDATA[<h4 id="使用sys模块"><a href="#使用sys模块" class="headerlink" title="使用sys模块"></a>使用<code>sys</code>模块</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> sys.platform.startwith(<span class="string">&quot;win&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> sys.platform.startwith(<span class="string">&quot;linux&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> sys.platform.startwith(<span class="string">&quot;darwin&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是MAC OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用platform模块"><a href="#使用platform模块" class="headerlink" title="使用platform模块"></a>使用<code>platform</code>模块</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> platform</span><br><span class="line"></span><br><span class="line">system=platform.system()</span><br><span class="line"><span class="keyword">if</span> system==<span class="string">&quot;Windows&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system==<span class="string">&quot;Linux&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system==<span class="string">&quot;Darwin&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是MAC OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)	</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用os模块"><a href="#使用os模块" class="headerlink" title="使用os模块"></a>使用<code>os</code>模块</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">system = os.name</span><br><span class="line"><span class="keyword">if</span> system == <span class="string">&quot;nt&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system == <span class="string">&quot;posix&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux或Mac OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>运行环境</tag>
+      </tags>
   </entry>
   <entry>
     <title>Python虚拟环境使用</title>
@@ -9688,7 +10188,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
 <p>9.2 环境搭建与部署</p>
 <p>登录主机，用你刚填写的密码：</p>
 <blockquote>
-<p>ssh <a href="mailto:&#x72;&#x6f;&#x6f;&#116;&#x40;&#x31;&#x32;&#x30;&#x2e;&#x31;&#51;&#x32;">&#x72;&#x6f;&#x6f;&#116;&#x40;&#x31;&#x32;&#x30;&#x2e;&#x31;&#51;&#x32;</a>.**.75</p>
+<p>ssh <a href="mailto:&#114;&#x6f;&#x6f;&#116;&#x40;&#x31;&#50;&#48;&#46;&#x31;&#51;&#x32;">&#114;&#x6f;&#x6f;&#116;&#x40;&#x31;&#50;&#48;&#46;&#x31;&#51;&#x32;</a>.**.75</p>
 </blockquote>
 <p>CentOS 系统可以使用 yum 安装必要的包</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 如果你使用git来托管代码的话</span><br><span class="line">yum install git</span><br><span class="line"></span><br><span class="line"># 如果你要在服务器上构建前端</span><br><span class="line">yum install nodejs</span><br><span class="line">yum install npm</span><br><span class="line"></span><br><span class="line">yum install nginx</span><br></pre></td></tr></table></figure>
@@ -9764,56 +10264,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </tags>
   </entry>
   <entry>
-    <title>DotNetty完全教程（七）</title>
-    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%83%EF%BC%89/</url>
-    <content><![CDATA[<h1 id="DotNetty完全教程（七）"><a href="#DotNetty完全教程（七）" class="headerlink" title="DotNetty完全教程（七）"></a>DotNetty完全教程（七）</h1><blockquote>
-<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>ChannelPipeline和ChannelHandleContext介绍ChannelPipeline是一系列ChannelHandler连接的实例链，这个实例链构成了应用程序逻辑处理的核心。下图反映了这种关联：ChannelHandlerContext提供了一个ChannelPipeline的上下文，用于ChannelHandler在Pipeline中的交互，这种交互十分的灵活，不仅…</p>
-</blockquote>
-<hr>
-<p>版权声明：本文为博主原创文章，遵循 <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上<a href="https://blog.csdn.net/nxy_wuhao/article/details/102819946">原文出处链接</a>和本声明。</p>
-<h2 id="ChannelPipeline和ChannelHandleContext"><a href="#ChannelPipeline和ChannelHandleContext" class="headerlink" title="ChannelPipeline和ChannelHandleContext"></a>ChannelPipeline和ChannelHandleContext</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>ChannelPipeline是一系列ChannelHandler连接的实例链，这个实例链构成了应用程序逻辑处理的核心。下图反映了这种关联：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2tsa2FuYXBqMzBtbDA4YmFhcS5qcGc?x-oss-process=image/format,png"></p>
-<p>ChannelHandlerContext提供了一个ChannelPipeline的上下文，用于ChannelHandler在Pipeline中的交互，这种交互十分的灵活，不仅是信息可以交互，甚至可以改变其他<a href="https://so.csdn.net/so/search?q=Handler&spm=1001.2101.3001.7020">Handler</a>在Pipeline中的位置。</p>
-<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><ol>
-<li>每一个Channel都会被分配到一个ChannelPipeline，这种关联是永久性的。在Netty中是关联，在DotNetty中这种关联被进一步的强绑定，变成了一个Channel中存在一个Pipeline。</li>
-<li>对于Pipeline来说，入站口被当作Pipeline的头部，出站口被当作尾部。虽然我们看到有两条线，但是在Pipeline中其实是线性的，在事件传播的时候，如果Pipeline发现这个事件的属性（入站出站）跟下一个Handler不匹配，就会跳过这个Handler，前进到下一个。</li>
-<li>一个Handler可以既作为入站处理器也作为出站处理器。</li>
-<li>修改Pipeline<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2wxejY3dXJqMzB5ZDA3Njc1Zi5qcGc?x-oss-process=image/format,png"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2wxajgxdmtqMzB5czA3M2RoNi5qcGc?x-oss-process=image/format,png"></li>
-<li>为了保证ChannelHandler处理事件的高效性，在Handler中不能有阻塞代码，但是如果遇到了一些阻塞API，就需要用到DefaultEventExecutorGroup，其功能是把这个事件的处理从原先的EventLoop中移除，送到一个专门的执行事件处理器中进行处理，从而不阻塞Pipeline。</li>
-</ol>
-<h3 id="ChanelPipeline的事件"><a href="#ChanelPipeline的事件" class="headerlink" title="ChanelPipeline的事件"></a>ChanelPipeline的事件</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2wzNHdjd3pqMzB5cjBtZmdycC5qcGc?x-oss-process=image/format,png"><br>我们可以看到fire方法都是调用下一个Handler中的方法，我们可以在合适的时机调用下一个Handler中的方法以实现数据的流动。<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2w1Z2VwMTdqMzB5dTBuNWd0by5qcGc?x-oss-process=image/format,png"><br>这里我们注意一下，Write方法并不会将消息写入Socket中，而是写入消息队列中，等待Flush将数据冲刷下去。</p>
-<h3 id="Context的API支持"><a href="#Context的API支持" class="headerlink" title="Context的API支持"></a>Context的API支持</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2xhb3FrNDFqMzBrbTBtamFnaS5qcGc?x-oss-process=image/format,png"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2xhd3RwNXlqMzBrZTAydmRnNi5qcGc?x-oss-process=image/format,png"></p>
-<h3 id="Pipeline和Context"><a href="#Pipeline和Context" class="headerlink" title="Pipeline和Context"></a>Pipeline和Context</h3><p>我们可以发现，Pipeline上也有fire–的方法，Context也有类似的方法，他们的差别在于，Pipeline或者Channel上的这些方法引发的事件流将从Pipeline的头部开始移动，而Context上的方法会让事件从当前Handler开始移动，所以为了更短的事件流，我们应该尽可能的使用Context的方法。</p>
-<h3 id="使用ChannelHandlerContext"><a href="#使用ChannelHandlerContext" class="headerlink" title="使用ChannelHandlerContext"></a>使用ChannelHandlerContext</h3><ol>
-<li><p>获取当前Channel</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">IChannelHandlerContext ctx = ...;</span><br><span class="line">IChannel channel = ctx.Channel</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>获取当前pipeline</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 注意一下在Netty中可以直接通过context获取pipeline，在DotNetty中需要从Channel中获取</span><br><span class="line">// Netty</span><br><span class="line">IChannelHandlerContext ctx = ...;</span><br><span class="line">IChannel channel = ctx.pipeline</span><br><span class="line">// DotNetty</span><br><span class="line">IChannel channel = ctx.Channel;</span><br><span class="line">IChannelPipeline pipeline = channel.Pipeline;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>写入pipeline让事件从尾端开始移动</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">IChannel channel = ctx.Channel;</span><br><span class="line">IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">channel.WriteAndFlushAsync(&quot;Hello World!&quot;);</span><br><span class="line">pipeline.WriteAndFlushAsync(&quot;Hello World!&quot;);</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>注意，Write是出站事件，他的流动方向是从末尾到头部，这个一定要注意。在pipeline或者channel中写入事件，都是从最末尾开始流动，在Context中写入是从当前Handler中开始移动，这个我们已经在很多地方都说明了这样的不同。</p>
-<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><ol>
-<li>协议切换<br>因为我们可以通过Context获取Pipeline的引用，获取了pipeline之后又可以动态的加载和删除Handler，利用这个特性我们可以实现协议的切换，</li>
-<li>随时随地使用Context<br>这里我们补充一个知识，Context和Handler的关系是一对一的，而不是一个Context对应多个Handler，这就让我们可以缓存下Context的引用，在任何时候进行使用，这里的任何时候可以是不同的线程。举个例子就是我们之前写的回声程序是在收到信息之后发送，但是复杂一点我们需要在按下按钮的时候发送一条数据，这时候我们可以在连接之后缓存Context的引用，在按下按钮的时候使用Ctx.Write()；方法来发送一条数据。</li>
-</ol>
-<h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><p>在Netty中，如果想要将一个Handler用于多个Pipeline中，需要标注Shared，同时需要保证线程安全，因为这里可能有多线程的重入问题。</p>
-<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><ol>
-<li>入站异常无论在何时引发，都会顺着Pipeline继续向下流动，如果最后的Handler没有处理，则会被标记为未处理。所以为了处理所有的入站异常，我们可以在pipeline的尾端通过复写ExceptionCaught来处理所有pipeline上的异常。</li>
-<li>在出站Handler中获取异常在Netty中需要使用ChannelFuture以及ChannelPromise这里先不做叙述</li>
-</ol>
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>DotNet</category>
-        <category>DotNetty教程</category>
-      </categories>
-      <tags>
-        <tag>DotNetty</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>DotNetty完全教程（一）</title>
     <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/</url>
     <content><![CDATA[<h1 id="DotNetty完全教程（一）"><a href="#DotNetty完全教程（一）" class="headerlink" title="DotNetty完全教程（一）"></a>DotNetty完全教程（一）</h1><blockquote>
@@ -9879,6 +10329,56 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </tags>
   </entry>
   <entry>
+    <title>DotNetty完全教程（七）</title>
+    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%83%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="DotNetty完全教程（七）"><a href="#DotNetty完全教程（七）" class="headerlink" title="DotNetty完全教程（七）"></a>DotNetty完全教程（七）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>ChannelPipeline和ChannelHandleContext介绍ChannelPipeline是一系列ChannelHandler连接的实例链，这个实例链构成了应用程序逻辑处理的核心。下图反映了这种关联：ChannelHandlerContext提供了一个ChannelPipeline的上下文，用于ChannelHandler在Pipeline中的交互，这种交互十分的灵活，不仅…</p>
+</blockquote>
+<hr>
+<p>版权声明：本文为博主原创文章，遵循 <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上<a href="https://blog.csdn.net/nxy_wuhao/article/details/102819946">原文出处链接</a>和本声明。</p>
+<h2 id="ChannelPipeline和ChannelHandleContext"><a href="#ChannelPipeline和ChannelHandleContext" class="headerlink" title="ChannelPipeline和ChannelHandleContext"></a>ChannelPipeline和ChannelHandleContext</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>ChannelPipeline是一系列ChannelHandler连接的实例链，这个实例链构成了应用程序逻辑处理的核心。下图反映了这种关联：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2tsa2FuYXBqMzBtbDA4YmFhcS5qcGc?x-oss-process=image/format,png"></p>
+<p>ChannelHandlerContext提供了一个ChannelPipeline的上下文，用于ChannelHandler在Pipeline中的交互，这种交互十分的灵活，不仅是信息可以交互，甚至可以改变其他<a href="https://so.csdn.net/so/search?q=Handler&spm=1001.2101.3001.7020">Handler</a>在Pipeline中的位置。</p>
+<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><ol>
+<li>每一个Channel都会被分配到一个ChannelPipeline，这种关联是永久性的。在Netty中是关联，在DotNetty中这种关联被进一步的强绑定，变成了一个Channel中存在一个Pipeline。</li>
+<li>对于Pipeline来说，入站口被当作Pipeline的头部，出站口被当作尾部。虽然我们看到有两条线，但是在Pipeline中其实是线性的，在事件传播的时候，如果Pipeline发现这个事件的属性（入站出站）跟下一个Handler不匹配，就会跳过这个Handler，前进到下一个。</li>
+<li>一个Handler可以既作为入站处理器也作为出站处理器。</li>
+<li>修改Pipeline<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2wxejY3dXJqMzB5ZDA3Njc1Zi5qcGc?x-oss-process=image/format,png"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2wxajgxdmtqMzB5czA3M2RoNi5qcGc?x-oss-process=image/format,png"></li>
+<li>为了保证ChannelHandler处理事件的高效性，在Handler中不能有阻塞代码，但是如果遇到了一些阻塞API，就需要用到DefaultEventExecutorGroup，其功能是把这个事件的处理从原先的EventLoop中移除，送到一个专门的执行事件处理器中进行处理，从而不阻塞Pipeline。</li>
+</ol>
+<h3 id="ChanelPipeline的事件"><a href="#ChanelPipeline的事件" class="headerlink" title="ChanelPipeline的事件"></a>ChanelPipeline的事件</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2wzNHdjd3pqMzB5cjBtZmdycC5qcGc?x-oss-process=image/format,png"><br>我们可以看到fire方法都是调用下一个Handler中的方法，我们可以在合适的时机调用下一个Handler中的方法以实现数据的流动。<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2w1Z2VwMTdqMzB5dTBuNWd0by5qcGc?x-oss-process=image/format,png"><br>这里我们注意一下，Write方法并不会将消息写入Socket中，而是写入消息队列中，等待Flush将数据冲刷下去。</p>
+<h3 id="Context的API支持"><a href="#Context的API支持" class="headerlink" title="Context的API支持"></a>Context的API支持</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2xhb3FrNDFqMzBrbTBtamFnaS5qcGc?x-oss-process=image/format,png"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxa2xhd3RwNXlqMzBrZTAydmRnNi5qcGc?x-oss-process=image/format,png"></p>
+<h3 id="Pipeline和Context"><a href="#Pipeline和Context" class="headerlink" title="Pipeline和Context"></a>Pipeline和Context</h3><p>我们可以发现，Pipeline上也有fire–的方法，Context也有类似的方法，他们的差别在于，Pipeline或者Channel上的这些方法引发的事件流将从Pipeline的头部开始移动，而Context上的方法会让事件从当前Handler开始移动，所以为了更短的事件流，我们应该尽可能的使用Context的方法。</p>
+<h3 id="使用ChannelHandlerContext"><a href="#使用ChannelHandlerContext" class="headerlink" title="使用ChannelHandlerContext"></a>使用ChannelHandlerContext</h3><ol>
+<li><p>获取当前Channel</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">IChannelHandlerContext ctx = ...;</span><br><span class="line">IChannel channel = ctx.Channel</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取当前pipeline</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 注意一下在Netty中可以直接通过context获取pipeline，在DotNetty中需要从Channel中获取</span><br><span class="line">// Netty</span><br><span class="line">IChannelHandlerContext ctx = ...;</span><br><span class="line">IChannel channel = ctx.pipeline</span><br><span class="line">// DotNetty</span><br><span class="line">IChannel channel = ctx.Channel;</span><br><span class="line">IChannelPipeline pipeline = channel.Pipeline;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>写入pipeline让事件从尾端开始移动</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">IChannel channel = ctx.Channel;</span><br><span class="line">IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">channel.WriteAndFlushAsync(&quot;Hello World!&quot;);</span><br><span class="line">pipeline.WriteAndFlushAsync(&quot;Hello World!&quot;);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>注意，Write是出站事件，他的流动方向是从末尾到头部，这个一定要注意。在pipeline或者channel中写入事件，都是从最末尾开始流动，在Context中写入是从当前Handler中开始移动，这个我们已经在很多地方都说明了这样的不同。</p>
+<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><ol>
+<li>协议切换<br>因为我们可以通过Context获取Pipeline的引用，获取了pipeline之后又可以动态的加载和删除Handler，利用这个特性我们可以实现协议的切换，</li>
+<li>随时随地使用Context<br>这里我们补充一个知识，Context和Handler的关系是一对一的，而不是一个Context对应多个Handler，这就让我们可以缓存下Context的引用，在任何时候进行使用，这里的任何时候可以是不同的线程。举个例子就是我们之前写的回声程序是在收到信息之后发送，但是复杂一点我们需要在按下按钮的时候发送一条数据，这时候我们可以在连接之后缓存Context的引用，在按下按钮的时候使用Ctx.Write()；方法来发送一条数据。</li>
+</ol>
+<h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><p>在Netty中，如果想要将一个Handler用于多个Pipeline中，需要标注Shared，同时需要保证线程安全，因为这里可能有多线程的重入问题。</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><ol>
+<li>入站异常无论在何时引发，都会顺着Pipeline继续向下流动，如果最后的Handler没有处理，则会被标记为未处理。所以为了处理所有的入站异常，我们可以在pipeline的尾端通过复写ExceptionCaught来处理所有pipeline上的异常。</li>
+<li>在出站Handler中获取异常在Netty中需要使用ChannelFuture以及ChannelPromise这里先不做叙述</li>
+</ol>
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>DotNet</category>
+        <category>DotNetty教程</category>
+      </categories>
+      <tags>
+        <tag>DotNetty</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>DotNetty完全教程（三）</title>
     <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89/</url>
     <content><![CDATA[<h1 id="DotNetty完全教程（三）"><a href="#DotNetty完全教程（三）" class="headerlink" title="DotNetty完全教程（三）"></a>DotNetty完全教程（三）</h1><blockquote>
@@ -9920,48 +10420,17 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </tags>
   </entry>
   <entry>
-    <title>DotNetty完全教程（九）</title>
-    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89/</url>
-    <content><![CDATA[<h1 id="DotNetty完全教程（九）"><a href="#DotNetty完全教程（九）" class="headerlink" title="DotNetty完全教程（九）"></a>DotNetty完全教程（九）</h1><blockquote>
-<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>引导Bootstrap引导一个应用程序是指对他进行配置并且使他运行的过程。体系结构注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个浅拷贝，这就导致了拷贝的Bootstrap都会使用同一个EventLoopGr…</p>
+    <title>DotNetty完全教程（五）</title>
+    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%94%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="DotNetty完全教程（五）"><a href="#DotNetty完全教程（五）" class="headerlink" title="DotNetty完全教程（五）"></a>DotNetty完全教程（五）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>ChannelHandler本篇文章着重介绍ChannelHandlerChannel的生命周期我们复习一下，Channel是Socket的抽象，可以被注册到一个EventLoop上，EventLoop相当于Selector，每一个EventLoop又有自己的处理线程。复习了这部分的知识，我们就知道在Channel的生命中，有以下这么几个关键的时间节点。ChannelHandler的生…</p>
 </blockquote>
-<hr>
-<h2 id="引导Bootstrap"><a href="#引导Bootstrap" class="headerlink" title="引导Bootstrap"></a>引导<a href="https://so.csdn.net/so/search?q=Bootstrap&spm=1001.2101.3001.7020">Bootstrap</a></h2><p>引导一个应用程序是指对他进行配置并且使他运行的过程。</p>
-<h3 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a><a href="https://so.csdn.net/so/search?q=%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84&spm=1001.2101.3001.7020">体系结构</a></h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzQzMnVqZDZqMzBpZTA3YmFhYy5qcGc?x-oss-process=image/format,png"><br>注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个<a href="https://so.csdn.net/so/search?q=%E6%B5%85%E6%8B%B7%E8%B4%9D&spm=1001.2101.3001.7020">浅拷贝</a>，这就导致了拷贝的Bootstrap都会使用同一个EventLoopGroup，这在每个Channel生命周期很短的时候是没有太大影响的。</p>
-<p>服务器引导和普通引导有什么区别呢？区别在于，服务器接收到客户端的连接请求，会用一个Channel接受连接，然后用另一个Channel与客户端进行交流，但是客户端只需要一个Channel就可以与服务器进行交互。</p>
-<h3 id="关于链式调用"><a href="#关于链式调用" class="headerlink" title="关于链式调用"></a>关于链式调用</h3><p>我们发现Bootstrap类可以通过流式语法进行链式调用，这要归功于Bootstrap类的特殊定义。下面我们来看一下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 定义</span><br><span class="line">public abstract class AbstractBootstrap&lt;TBootstrap, TChannel&gt;</span><br><span class="line">    where TBootstrap : AbstractBootstrap&lt;TBootstrap, TChannel&gt;</span><br><span class="line">    where TChannel : IChannel</span><br><span class="line">// 定义子类</span><br><span class="line">public class Bootstrap : AbstractBootstrap&lt;Bootstrap, IChannel&gt;</span><br><span class="line">// 方法实现</span><br><span class="line">public virtual TBootstrap Group(IEventLoopGroup group)</span><br><span class="line">&#123;</span><br><span class="line">    Contract.Requires(group != null);</span><br><span class="line"></span><br><span class="line">    if (this.group != null)</span><br><span class="line">    &#123;</span><br><span class="line">        throw new InvalidOperationException(&quot;group has already been set.&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    this.group = group;</span><br><span class="line">    return (TBootstrap)this;</span><br><span class="line">&#125;</span><br><span class="line">// 使用</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
-
-<h3 id="API"><a href="#API" class="headerlink" title="API"></a>API</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzRtNG1va3NqMzBqODBmNHdrMC5qcGc?x-oss-process=image/format,png"><br><img src="https://img-blog.csdnimg.cn/20191030154635566.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70" alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-KF8h1wnu-1572421399290)(https://ws1.sinaimg.cn/large/007hF5Quly1g1o4mltliij30jr05mabe.jpg)]"></p>
-<h3 id="客户端引导"><a href="#客户端引导" class="headerlink" title="客户端引导"></a>客户端引导</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var group = new MultithreadEventLoopGroup();</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br><span class="line">IChannel clientChannel = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(&quot;10.10.10.158&quot;), 3000));</span><br><span class="line">Console.ReadLine();</span><br><span class="line">await clientChannel.CloseAsync();</span><br></pre></td></tr></table></figure>
-
-<h3 id="服务器引导"><a href="#服务器引导" class="headerlink" title="服务器引导"></a>服务器引导</h3><p>API：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzUxNmJvcnJqMzBrZjBoeG40OS5qcGc?x-oss-process=image/format,png"><br>注意上面箭头指示的是与Bootstrap不一样的方法。<br>为什么会有子Channel的概念呢，我们看下面这个图：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWQzeGp5YTBqMzBpZDA3ZmdtaS5qcGc?x-oss-process=image/format,png"><br>因为服务器是一对多的，所以有子Channel的概念。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">IEventLoopGroup eventLoop;</span><br><span class="line">eventLoop = new MultithreadEventLoopGroup();</span><br><span class="line">try</span><br><span class="line">&#123;</span><br><span class="line">    // 服务器引导程序</span><br><span class="line">    var bootstrap = new ServerBootstrap();</span><br><span class="line">    bootstrap.Group(eventLoop);</span><br><span class="line">    bootstrap.Channel&lt;TcpServerSocketChannel&gt;();</span><br><span class="line">    bootstrap.ChildHandler(new ActionChannelInitializer&lt;IChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoServerHandler());</span><br><span class="line">    &#125;));</span><br><span class="line">    IChannel boundChannel = await bootstrap.BindAsync(3000);</span><br><span class="line">    Console.ReadLine();</span><br><span class="line">    await boundChannel.CloseAsync();</span><br><span class="line">&#125;</span><br><span class="line">catch (Exception ex)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(ex);</span><br><span class="line">&#125;</span><br><span class="line">finally</span><br><span class="line">&#123;</span><br><span class="line">    await eventLoop.ShutdownGracefullyAsync();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="从Channel中引导客户端"><a href="#从Channel中引导客户端" class="headerlink" title="从Channel中引导客户端"></a>从Channel中引导客户端</h3><ul>
-<li><p>场景</p>
-<p>如果我们的服务器需要去第三方获取数据，这时候服务器就需要充当客户端去第三方取数据，这时候就需要在Channel中再开一个客户端获取数据。</p>
-</li>
-<li><p>方式</p>
-<p>我们最好是从Channel中获取当前EventLoop，这样新开的客户端就跟当前Channel在一个线程中，减少了线程切换带来的开销，尽可能的重用了EventLoop</p>
-</li>
-<li><p>实现</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 从Context创建客户端引导</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap.Group(ctx.Channel.EventLoop);</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="初始化Pipeline"><a href="#初始化Pipeline" class="headerlink" title="初始化Pipeline"></a>初始化Pipeline</h3><p>如果要添加的Handler不止一个，我们就需要用到ChannelInitializer，在DotNetty中，我们有十分简单的方法可以初始化一个pipeline</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Option(ChannelOption.TcpNodelay, true)</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line"></span><br><span class="line">        if (cert != null)</span><br><span class="line">        &#123;</span><br><span class="line">            pipeline.AddLast(&quot;tls&quot;, new TlsHandler(stream =&gt; new SslStream(stream, true, (sender, certificate, chain, errors) =&gt; true), new ClientTlsSettings(targetHost)));</span><br><span class="line">        &#125;</span><br><span class="line">        pipeline.AddLast(new LoggingHandler());</span><br><span class="line">        pipeline.AddLast(&quot;framing-enc&quot;, new LengthFieldPrepender(2));</span><br><span class="line">        pipeline.AddLast(&quot;framing-dec&quot;, new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));</span><br><span class="line"></span><br><span class="line">        pipeline.AddLast(&quot;echo&quot;, new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
-
-<h3 id="ChannelOption"><a href="#ChannelOption" class="headerlink" title="ChannelOption"></a>ChannelOption</h3><p>ChannelOption可以在引导的时候将设置批量的设置到所有Channel上，而不必要在每一个Channel建立的时候手动的去指定它的配置，应用场景是比如设置KeepAlive或者设置超时时间。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">bootstrap.Option(ChannelOption.SoKeepalive, true)</span><br><span class="line">    .Option(ChannelOption.ConnectTimeout, new TimeSpan(5000));</span><br></pre></td></tr></table></figure>
-
-<h3 id="面向无连接的用户数据报文"><a href="#面向无连接的用户数据报文" class="headerlink" title="面向无连接的用户数据报文"></a>面向无连接的用户数据报文</h3><p>UDP的全称是“User Datagram Protocol”，在DotNetty中实现了SocketDatagramChannel来创建无连接的引导，需要注意的是无连接的引导不需要Connect只需要bind即可，代码如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;SocketDatagramChannel&gt;()</span><br><span class="line">    .Option(ChannelOption.SoBroadcast, true)</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;IChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        channel.Pipeline.AddLast(&quot;Quote&quot;, new QuoteOfTheMomentClientHandler());</span><br><span class="line">    &#125;));</span><br><span class="line"></span><br><span class="line">IChannel clientChannel = await bootstrap.BindAsync(IPEndPoint.MinPort);</span><br></pre></td></tr></table></figure>
-
-<h3 id="关闭"><a href="#关闭" class="headerlink" title="关闭"></a>关闭</h3><p>Channel的关闭：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">await clientChannel.CloseAsync();</span><br></pre></td></tr></table></figure>
-
-<p>EventLoopGroup的关闭：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">await group.ShutdownGracefullyAsync();</span><br></pre></td></tr></table></figure>
+<p>版权声明：本文为博主原创文章，遵循 <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上<a href="https://blog.csdn.net/nxy_wuhao/article/details/102814738">原文出处链接</a>和本声明。</p>
+<h2 id="ChannelHandler"><a href="#ChannelHandler" class="headerlink" title="ChannelHandler"></a>ChannelHandler</h2><p>本篇文章着重介绍ChannelHandler</p>
+<h3 id="Channel的生命周期"><a href="#Channel的生命周期" class="headerlink" title="Channel的生命周期"></a>Channel的<a href="https://so.csdn.net/so/search?q=%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F&spm=1001.2101.3001.7020">生命周期</a></h3><p>我们复习一下，Channel是<a href="https://so.csdn.net/so/search?q=Socket&spm=1001.2101.3001.7020">Socket</a>的抽象，可以被注册到一个EventLoop上，EventLoop相当于Selector，每一个EventLoop又有自己的处理线程。复习了这部分的知识，我们就知道在Channel的生命中，有以下这么几个关键的时间节点。<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanF4NDk1cG5qMzBpbDAzaWdtMS5qcGc?x-oss-process=image/format,png"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanF4Yzl0bTBqMzBpdTAyaTB0NS5qcGc?x-oss-process=image/format,png"></p>
+<h3 id="ChannelHandler的生命周期"><a href="#ChannelHandler的生命周期" class="headerlink" title="ChannelHandler的生命周期"></a>ChannelHandler的生命周期</h3><p>我们复习一下，ChannelHandler是定义了如何处理数据的处理器，被串在ChannelPipeline中用于入站或者出站数据的处理。既然是处理Channel中的数据，就需要关注很多的时间节点，比如Channel被激活，比如，读取到了数据，所以，ChannelHandler不仅需要关心数据何时来，还需要关注Channel处于一个什么样的状态，所以ChannelHandler的生命周期如下：<br><img src="https://img-blog.csdnimg.cn/20191030151057835.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanI4M3ZzNmZqMzBqMDBhZjc3NS5qcGc?x-oss-process=image/format,png"></p>
+<h3 id="使用适配器类创建自己的Handler"><a href="#使用适配器类创建自己的Handler" class="headerlink" title="使用适配器类创建自己的Handler"></a>使用适配器类创建自己的<a href="https://so.csdn.net/so/search?q=Handler&spm=1001.2101.3001.7020">Handler</a></h3><p>你可以使用 ChannelInboundHandlerAdapter 和 ChannelOutboundHandlerAdapter<br>类作为自己的 ChannelHandler 的起始点。使用的时候我们只需要扩展使用这些适配器类，然后重新我们需要的方法即可。</p>
+<p>注意适配器类都有IsSharable属性，标识这个Hanlder能不能被添加到多个Pipeline中。</p>
 ]]></content>
       <categories>
         <category>编程技术</category>
@@ -10084,28 +10553,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </tags>
   </entry>
   <entry>
-    <title>DotNetty完全教程（五）</title>
-    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%94%EF%BC%89/</url>
-    <content><![CDATA[<h1 id="DotNetty完全教程（五）"><a href="#DotNetty完全教程（五）" class="headerlink" title="DotNetty完全教程（五）"></a>DotNetty完全教程（五）</h1><blockquote>
-<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>ChannelHandler本篇文章着重介绍ChannelHandlerChannel的生命周期我们复习一下，Channel是Socket的抽象，可以被注册到一个EventLoop上，EventLoop相当于Selector，每一个EventLoop又有自己的处理线程。复习了这部分的知识，我们就知道在Channel的生命中，有以下这么几个关键的时间节点。ChannelHandler的生…</p>
-</blockquote>
-<p>版权声明：本文为博主原创文章，遵循 <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上<a href="https://blog.csdn.net/nxy_wuhao/article/details/102814738">原文出处链接</a>和本声明。</p>
-<h2 id="ChannelHandler"><a href="#ChannelHandler" class="headerlink" title="ChannelHandler"></a>ChannelHandler</h2><p>本篇文章着重介绍ChannelHandler</p>
-<h3 id="Channel的生命周期"><a href="#Channel的生命周期" class="headerlink" title="Channel的生命周期"></a>Channel的<a href="https://so.csdn.net/so/search?q=%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F&spm=1001.2101.3001.7020">生命周期</a></h3><p>我们复习一下，Channel是<a href="https://so.csdn.net/so/search?q=Socket&spm=1001.2101.3001.7020">Socket</a>的抽象，可以被注册到一个EventLoop上，EventLoop相当于Selector，每一个EventLoop又有自己的处理线程。复习了这部分的知识，我们就知道在Channel的生命中，有以下这么几个关键的时间节点。<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanF4NDk1cG5qMzBpbDAzaWdtMS5qcGc?x-oss-process=image/format,png"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanF4Yzl0bTBqMzBpdTAyaTB0NS5qcGc?x-oss-process=image/format,png"></p>
-<h3 id="ChannelHandler的生命周期"><a href="#ChannelHandler的生命周期" class="headerlink" title="ChannelHandler的生命周期"></a>ChannelHandler的生命周期</h3><p>我们复习一下，ChannelHandler是定义了如何处理数据的处理器，被串在ChannelPipeline中用于入站或者出站数据的处理。既然是处理Channel中的数据，就需要关注很多的时间节点，比如Channel被激活，比如，读取到了数据，所以，ChannelHandler不仅需要关心数据何时来，还需要关注Channel处于一个什么样的状态，所以ChannelHandler的生命周期如下：<br><img src="https://img-blog.csdnimg.cn/20191030151057835.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanI4M3ZzNmZqMzBqMDBhZjc3NS5qcGc?x-oss-process=image/format,png"></p>
-<h3 id="使用适配器类创建自己的Handler"><a href="#使用适配器类创建自己的Handler" class="headerlink" title="使用适配器类创建自己的Handler"></a>使用适配器类创建自己的<a href="https://so.csdn.net/so/search?q=Handler&spm=1001.2101.3001.7020">Handler</a></h3><p>你可以使用 ChannelInboundHandlerAdapter 和 ChannelOutboundHandlerAdapter<br>类作为自己的 ChannelHandler 的起始点。使用的时候我们只需要扩展使用这些适配器类，然后重新我们需要的方法即可。</p>
-<p>注意适配器类都有IsSharable属性，标识这个Hanlder能不能被添加到多个Pipeline中。</p>
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>DotNet</category>
-        <category>DotNetty教程</category>
-      </categories>
-      <tags>
-        <tag>DotNetty</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>DotNetty完全教程（六）</title>
     <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%85%AD%EF%BC%89/</url>
     <content><![CDATA[<h1 id="DotNetty完全教程（六）"><a href="#DotNetty完全教程（六）" class="headerlink" title="DotNetty完全教程（六）"></a>DotNetty完全教程（六）</h1><blockquote>
@@ -10127,6 +10574,37 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public override void ChannelRead(IChannelHandlerContext ctx, object msg)</span><br><span class="line">&#123;</span><br><span class="line">    bool release = true;</span><br><span class="line">    try</span><br><span class="line">    &#123;</span><br><span class="line">        if (this.AcceptInboundMessage(msg))</span><br><span class="line">        &#123;</span><br><span class="line">            I imsg = (I)msg;</span><br><span class="line">            this.ChannelRead0(ctx, imsg);</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            release = false;</span><br><span class="line">            ctx.FireChannelRead(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    finally</span><br><span class="line">    &#123;</span><br><span class="line">        if (autoRelease &amp;&amp; release)</span><br><span class="line">        &#123;</span><br><span class="line">            ReferenceCountUtil.Release(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ol>
 <p>由上面的源码可以看出，Read0事实上是Read的封装，区别就是Read0方法在调用的时候，消息一定是被释放了，这就是手动释放的例子。</p>
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>DotNet</category>
+        <category>DotNetty教程</category>
+      </categories>
+      <tags>
+        <tag>DotNetty</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DotNetty完全教程（十）</title>
+    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%8D%81%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="DotNetty完全教程（十）"><a href="#DotNetty完全教程（十）" class="headerlink" title="DotNetty完全教程（十）"></a>DotNetty完全教程（十）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>单元测试EmbeddedChannel介绍EmbeddedChannel是专门为了测试ChannelHandler的传输。我们先看一下他的API用一张图来描述这样的一个模拟过程编写基于xUnit的单元测试新建一个xUnit工程 UnitTest新建一个用于测试EmbededChannel的工程 EmbededChannelTestEmbededChannelTest工程需要引用…</p>
+</blockquote>
+<p>版权声明：本文为博主原创文章，遵循 <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上<a href="https://blog.csdn.net/nxy_wuhao/article/details/102821003">原文出处链接</a>和本声明。</p>
+<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a><a href="https://so.csdn.net/so/search?q=%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95&spm=1001.2101.3001.7020">单元测试</a></h2><h3 id="EmbeddedChannel介绍"><a href="#EmbeddedChannel介绍" class="headerlink" title="EmbeddedChannel介绍"></a>EmbeddedChannel介绍</h3><p>EmbeddedChannel是专门为了测试ChannelHandler的传输。我们先看一下他的<a href="https://so.csdn.net/so/search?q=API&spm=1001.2101.3001.7020">API</a><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWtzMjhqYmRqMzBsdTBhYmdwZC5qcGc?x-oss-process=image/format,png"><br>用一张图来描述这样的一个模拟过程<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWt0dm80NHBqMzBqZTA5MG14cy5qcGc?x-oss-process=image/format,png"></p>
+<h3 id="编写基于xUnit的单元测试"><a href="#编写基于xUnit的单元测试" class="headerlink" title="编写基于xUnit的单元测试"></a>编写基于xUnit的单元测试</h3><ol>
+<li>新建一个xUnit工程 UnitTest</li>
+<li>新建一个用于测试EmbededChannel的工程 EmbededChannelTest</li>
+<li>EmbededChannelTest工程需要引用DotNetty的类库，这里因为我们需要测试一个解码器，所以除了原先的Buffer Common Transport之外我们还需要引用Codecs</li>
+<li>xUnit工程需要引用EmbededChannelTest工程</li>
+<li>在EmbededChannelTest工程之下新建FixedLengthFrameDecoder待测试类</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">using DotNetty.Buffers;</span><br><span class="line">using DotNetty.Codecs;</span><br><span class="line">using DotNetty.Transport.Channels;</span><br><span class="line">using System;</span><br><span class="line">using System.Collections.Generic;</span><br><span class="line">using System.Text;</span><br><span class="line"></span><br><span class="line">namespace EmbededChannelTest</span><br><span class="line">&#123;</span><br><span class="line">    public class FixedLengthFrameDecoder : ByteToMessageDecoder</span><br><span class="line">    &#123;</span><br><span class="line">        private int _frameLength;</span><br><span class="line">        public FixedLengthFrameDecoder(int frameLength)</span><br><span class="line">        &#123;</span><br><span class="line">            if (frameLength &lt;= 0)</span><br><span class="line">            &#123;</span><br><span class="line">                throw new Exception(&quot;不合法的参数。&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            _frameLength = frameLength;</span><br><span class="line">        &#125;</span><br><span class="line">        protected override void Decode(IChannelHandlerContext context, IByteBuffer input, List&lt;object&gt; output)</span><br><span class="line">        &#123;</span><br><span class="line">            // 解码器实现固定的帧长度</span><br><span class="line">            while (input.ReadableBytes &gt;= _frameLength)</span><br><span class="line">            &#123;</span><br><span class="line">                IByteBuffer buf = input.ReadBytes(_frameLength);</span><br><span class="line">                output.Add(buf);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到这个解码器将buffer中的字节流转化为每3个一帧。接下来我们需要编写测试类，我们在UnitTest工程下新建一个类，名字叫做UnitTester，编写如下代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">using DotNetty.Buffers;</span><br><span class="line">using DotNetty.Transport.Channels.Embedded;</span><br><span class="line">using EmbededChannelTest;</span><br><span class="line">using System;</span><br><span class="line">using System.Collections.Generic;</span><br><span class="line">using System.Text;</span><br><span class="line">using Xunit;</span><br><span class="line"></span><br><span class="line">namespace UnitTest</span><br><span class="line">&#123;</span><br><span class="line">    public class UnitTester</span><br><span class="line">    &#123;</span><br><span class="line">        [Fact]</span><br><span class="line">        public void testFrameDecoder()</span><br><span class="line">        &#123;</span><br><span class="line">            IByteBuffer buf = Unpooled.Buffer();</span><br><span class="line">            for (int i = 0; i &lt; 9; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                buf.WriteByte(i);</span><br><span class="line">            &#125;</span><br><span class="line">            IByteBuffer input = buf.Duplicate();</span><br><span class="line">            EmbeddedChannel channel = new EmbeddedChannel(new FixedLengthFrameDecoder(3));</span><br><span class="line">            // 写数据</span><br><span class="line">            // retain能够将buffer的引用计数加1，并且返回这个buffer本身</span><br><span class="line">            Assert.True(channel.WriteInbound(input.Retain()));</span><br><span class="line">            Assert.True(channel.Finish());</span><br><span class="line">            // 读数据</span><br><span class="line">            IByteBuffer read = channel.ReadInbound&lt;IByteBuffer&gt;();</span><br><span class="line">            Assert.Equal(buf.ReadSlice(3), read);</span><br><span class="line">            read.Release();</span><br><span class="line"></span><br><span class="line">            read = channel.ReadInbound&lt;IByteBuffer&gt;();</span><br><span class="line">            Assert.Equal(buf.ReadSlice(3), read);</span><br><span class="line">            read.Release();</span><br><span class="line"></span><br><span class="line">            read = channel.ReadInbound&lt;IByteBuffer&gt;();</span><br><span class="line">            Assert.Equal(buf.ReadSlice(3), read);</span><br><span class="line">            read.Release();</span><br><span class="line"></span><br><span class="line">            Assert.Null(channel.ReadInbound&lt;object&gt;());</span><br><span class="line">            buf.Release();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编写完成之后直接右键点击运行测试即可。同理我们可以测试用于出站数据的Encoder，这里不贴代码了，感兴趣的可以去工程中自己看源码进行学习。</p>
 ]]></content>
       <categories>
         <category>编程技术</category>
@@ -10177,37 +10655,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
 
 <h3 id="编解码器"><a href="#编解码器" class="headerlink" title="编解码器"></a>编解码器</h3><p>MessageToMessageCodec,它拥有encode和<a href="https://so.csdn.net/so/search?q=decode&spm=1001.2101.3001.7020">decode</a>两个方法，用于实现来回的转换数据，这种编解码器我们在后面实例的时候再举例说明。<br>这种编解码器可以把数据的转换，逆转换过程封装，但是同时他的缺点是，不如分开写重用方便。那我们就会想了，既然如此的话，为什么我们不能把一个编码器，一个解码器结合起来，作为一个编解码器呢？这样的话，编码器解码器分别可以重用，结合出来的编解码器也可以方便的使用 CombinedChannelDuplexHandler 就可以实现这样的作用。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 提供结合的编解码器</span><br><span class="line">public class CombinedCodec : CombinedChannelDuplexHandler&lt;ToIntDecoder, ShortToByteEncoder&gt;</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>编程技术</category>
-        <category>DotNet</category>
-        <category>DotNetty教程</category>
-      </categories>
-      <tags>
-        <tag>DotNetty</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>DotNetty完全教程（十）</title>
-    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%8D%81%EF%BC%89/</url>
-    <content><![CDATA[<h1 id="DotNetty完全教程（十）"><a href="#DotNetty完全教程（十）" class="headerlink" title="DotNetty完全教程（十）"></a>DotNetty完全教程（十）</h1><blockquote>
-<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>单元测试EmbeddedChannel介绍EmbeddedChannel是专门为了测试ChannelHandler的传输。我们先看一下他的API用一张图来描述这样的一个模拟过程编写基于xUnit的单元测试新建一个xUnit工程 UnitTest新建一个用于测试EmbededChannel的工程 EmbededChannelTestEmbededChannelTest工程需要引用…</p>
-</blockquote>
-<p>版权声明：本文为博主原创文章，遵循 <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上<a href="https://blog.csdn.net/nxy_wuhao/article/details/102821003">原文出处链接</a>和本声明。</p>
-<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a><a href="https://so.csdn.net/so/search?q=%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95&spm=1001.2101.3001.7020">单元测试</a></h2><h3 id="EmbeddedChannel介绍"><a href="#EmbeddedChannel介绍" class="headerlink" title="EmbeddedChannel介绍"></a>EmbeddedChannel介绍</h3><p>EmbeddedChannel是专门为了测试ChannelHandler的传输。我们先看一下他的<a href="https://so.csdn.net/so/search?q=API&spm=1001.2101.3001.7020">API</a><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWtzMjhqYmRqMzBsdTBhYmdwZC5qcGc?x-oss-process=image/format,png"><br>用一张图来描述这样的一个模拟过程<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWt0dm80NHBqMzBqZTA5MG14cy5qcGc?x-oss-process=image/format,png"></p>
-<h3 id="编写基于xUnit的单元测试"><a href="#编写基于xUnit的单元测试" class="headerlink" title="编写基于xUnit的单元测试"></a>编写基于xUnit的单元测试</h3><ol>
-<li>新建一个xUnit工程 UnitTest</li>
-<li>新建一个用于测试EmbededChannel的工程 EmbededChannelTest</li>
-<li>EmbededChannelTest工程需要引用DotNetty的类库，这里因为我们需要测试一个解码器，所以除了原先的Buffer Common Transport之外我们还需要引用Codecs</li>
-<li>xUnit工程需要引用EmbededChannelTest工程</li>
-<li>在EmbededChannelTest工程之下新建FixedLengthFrameDecoder待测试类</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">using DotNetty.Buffers;</span><br><span class="line">using DotNetty.Codecs;</span><br><span class="line">using DotNetty.Transport.Channels;</span><br><span class="line">using System;</span><br><span class="line">using System.Collections.Generic;</span><br><span class="line">using System.Text;</span><br><span class="line"></span><br><span class="line">namespace EmbededChannelTest</span><br><span class="line">&#123;</span><br><span class="line">    public class FixedLengthFrameDecoder : ByteToMessageDecoder</span><br><span class="line">    &#123;</span><br><span class="line">        private int _frameLength;</span><br><span class="line">        public FixedLengthFrameDecoder(int frameLength)</span><br><span class="line">        &#123;</span><br><span class="line">            if (frameLength &lt;= 0)</span><br><span class="line">            &#123;</span><br><span class="line">                throw new Exception(&quot;不合法的参数。&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            _frameLength = frameLength;</span><br><span class="line">        &#125;</span><br><span class="line">        protected override void Decode(IChannelHandlerContext context, IByteBuffer input, List&lt;object&gt; output)</span><br><span class="line">        &#123;</span><br><span class="line">            // 解码器实现固定的帧长度</span><br><span class="line">            while (input.ReadableBytes &gt;= _frameLength)</span><br><span class="line">            &#123;</span><br><span class="line">                IByteBuffer buf = input.ReadBytes(_frameLength);</span><br><span class="line">                output.Add(buf);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们可以看到这个解码器将buffer中的字节流转化为每3个一帧。接下来我们需要编写测试类，我们在UnitTest工程下新建一个类，名字叫做UnitTester，编写如下代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">using DotNetty.Buffers;</span><br><span class="line">using DotNetty.Transport.Channels.Embedded;</span><br><span class="line">using EmbededChannelTest;</span><br><span class="line">using System;</span><br><span class="line">using System.Collections.Generic;</span><br><span class="line">using System.Text;</span><br><span class="line">using Xunit;</span><br><span class="line"></span><br><span class="line">namespace UnitTest</span><br><span class="line">&#123;</span><br><span class="line">    public class UnitTester</span><br><span class="line">    &#123;</span><br><span class="line">        [Fact]</span><br><span class="line">        public void testFrameDecoder()</span><br><span class="line">        &#123;</span><br><span class="line">            IByteBuffer buf = Unpooled.Buffer();</span><br><span class="line">            for (int i = 0; i &lt; 9; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                buf.WriteByte(i);</span><br><span class="line">            &#125;</span><br><span class="line">            IByteBuffer input = buf.Duplicate();</span><br><span class="line">            EmbeddedChannel channel = new EmbeddedChannel(new FixedLengthFrameDecoder(3));</span><br><span class="line">            // 写数据</span><br><span class="line">            // retain能够将buffer的引用计数加1，并且返回这个buffer本身</span><br><span class="line">            Assert.True(channel.WriteInbound(input.Retain()));</span><br><span class="line">            Assert.True(channel.Finish());</span><br><span class="line">            // 读数据</span><br><span class="line">            IByteBuffer read = channel.ReadInbound&lt;IByteBuffer&gt;();</span><br><span class="line">            Assert.Equal(buf.ReadSlice(3), read);</span><br><span class="line">            read.Release();</span><br><span class="line"></span><br><span class="line">            read = channel.ReadInbound&lt;IByteBuffer&gt;();</span><br><span class="line">            Assert.Equal(buf.ReadSlice(3), read);</span><br><span class="line">            read.Release();</span><br><span class="line"></span><br><span class="line">            read = channel.ReadInbound&lt;IByteBuffer&gt;();</span><br><span class="line">            Assert.Equal(buf.ReadSlice(3), read);</span><br><span class="line">            read.Release();</span><br><span class="line"></span><br><span class="line">            Assert.Null(channel.ReadInbound&lt;object&gt;());</span><br><span class="line">            buf.Release();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编写完成之后直接右键点击运行测试即可。同理我们可以测试用于出站数据的Encoder，这里不贴代码了，感兴趣的可以去工程中自己看源码进行学习。</p>
 ]]></content>
       <categories>
         <category>编程技术</category>
@@ -10821,6 +11268,59 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
       </categories>
       <tags>
         <tag>yolov8</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DotNetty完全教程（九）</title>
+    <url>/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="DotNetty完全教程（九）"><a href="#DotNetty完全教程（九）" class="headerlink" title="DotNetty完全教程（九）"></a>DotNetty完全教程（九）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>引导Bootstrap引导一个应用程序是指对他进行配置并且使他运行的过程。体系结构注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个浅拷贝，这就导致了拷贝的Bootstrap都会使用同一个EventLoopGr…</p>
+</blockquote>
+<hr>
+<h2 id="引导Bootstrap"><a href="#引导Bootstrap" class="headerlink" title="引导Bootstrap"></a>引导<a href="https://so.csdn.net/so/search?q=Bootstrap&spm=1001.2101.3001.7020">Bootstrap</a></h2><p>引导一个应用程序是指对他进行配置并且使他运行的过程。</p>
+<h3 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a><a href="https://so.csdn.net/so/search?q=%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84&spm=1001.2101.3001.7020">体系结构</a></h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzQzMnVqZDZqMzBpZTA3YmFhYy5qcGc?x-oss-process=image/format,png"><br>注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个<a href="https://so.csdn.net/so/search?q=%E6%B5%85%E6%8B%B7%E8%B4%9D&spm=1001.2101.3001.7020">浅拷贝</a>，这就导致了拷贝的Bootstrap都会使用同一个EventLoopGroup，这在每个Channel生命周期很短的时候是没有太大影响的。</p>
+<p>服务器引导和普通引导有什么区别呢？区别在于，服务器接收到客户端的连接请求，会用一个Channel接受连接，然后用另一个Channel与客户端进行交流，但是客户端只需要一个Channel就可以与服务器进行交互。</p>
+<h3 id="关于链式调用"><a href="#关于链式调用" class="headerlink" title="关于链式调用"></a>关于链式调用</h3><p>我们发现Bootstrap类可以通过流式语法进行链式调用，这要归功于Bootstrap类的特殊定义。下面我们来看一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 定义</span><br><span class="line">public abstract class AbstractBootstrap&lt;TBootstrap, TChannel&gt;</span><br><span class="line">    where TBootstrap : AbstractBootstrap&lt;TBootstrap, TChannel&gt;</span><br><span class="line">    where TChannel : IChannel</span><br><span class="line">// 定义子类</span><br><span class="line">public class Bootstrap : AbstractBootstrap&lt;Bootstrap, IChannel&gt;</span><br><span class="line">// 方法实现</span><br><span class="line">public virtual TBootstrap Group(IEventLoopGroup group)</span><br><span class="line">&#123;</span><br><span class="line">    Contract.Requires(group != null);</span><br><span class="line"></span><br><span class="line">    if (this.group != null)</span><br><span class="line">    &#123;</span><br><span class="line">        throw new InvalidOperationException(&quot;group has already been set.&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    this.group = group;</span><br><span class="line">    return (TBootstrap)this;</span><br><span class="line">&#125;</span><br><span class="line">// 使用</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
+
+<h3 id="API"><a href="#API" class="headerlink" title="API"></a>API</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzRtNG1va3NqMzBqODBmNHdrMC5qcGc?x-oss-process=image/format,png"><br><img src="https://img-blog.csdnimg.cn/20191030154635566.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70" alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-KF8h1wnu-1572421399290)(https://ws1.sinaimg.cn/large/007hF5Quly1g1o4mltliij30jr05mabe.jpg)]"></p>
+<h3 id="客户端引导"><a href="#客户端引导" class="headerlink" title="客户端引导"></a>客户端引导</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var group = new MultithreadEventLoopGroup();</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br><span class="line">IChannel clientChannel = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(&quot;10.10.10.158&quot;), 3000));</span><br><span class="line">Console.ReadLine();</span><br><span class="line">await clientChannel.CloseAsync();</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务器引导"><a href="#服务器引导" class="headerlink" title="服务器引导"></a>服务器引导</h3><p>API：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzUxNmJvcnJqMzBrZjBoeG40OS5qcGc?x-oss-process=image/format,png"><br>注意上面箭头指示的是与Bootstrap不一样的方法。<br>为什么会有子Channel的概念呢，我们看下面这个图：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWQzeGp5YTBqMzBpZDA3ZmdtaS5qcGc?x-oss-process=image/format,png"><br>因为服务器是一对多的，所以有子Channel的概念。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">IEventLoopGroup eventLoop;</span><br><span class="line">eventLoop = new MultithreadEventLoopGroup();</span><br><span class="line">try</span><br><span class="line">&#123;</span><br><span class="line">    // 服务器引导程序</span><br><span class="line">    var bootstrap = new ServerBootstrap();</span><br><span class="line">    bootstrap.Group(eventLoop);</span><br><span class="line">    bootstrap.Channel&lt;TcpServerSocketChannel&gt;();</span><br><span class="line">    bootstrap.ChildHandler(new ActionChannelInitializer&lt;IChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoServerHandler());</span><br><span class="line">    &#125;));</span><br><span class="line">    IChannel boundChannel = await bootstrap.BindAsync(3000);</span><br><span class="line">    Console.ReadLine();</span><br><span class="line">    await boundChannel.CloseAsync();</span><br><span class="line">&#125;</span><br><span class="line">catch (Exception ex)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(ex);</span><br><span class="line">&#125;</span><br><span class="line">finally</span><br><span class="line">&#123;</span><br><span class="line">    await eventLoop.ShutdownGracefullyAsync();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="从Channel中引导客户端"><a href="#从Channel中引导客户端" class="headerlink" title="从Channel中引导客户端"></a>从Channel中引导客户端</h3><ul>
+<li><p>场景</p>
+<p>如果我们的服务器需要去第三方获取数据，这时候服务器就需要充当客户端去第三方取数据，这时候就需要在Channel中再开一个客户端获取数据。</p>
+</li>
+<li><p>方式</p>
+<p>我们最好是从Channel中获取当前EventLoop，这样新开的客户端就跟当前Channel在一个线程中，减少了线程切换带来的开销，尽可能的重用了EventLoop</p>
+</li>
+<li><p>实现</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 从Context创建客户端引导</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap.Group(ctx.Channel.EventLoop);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="初始化Pipeline"><a href="#初始化Pipeline" class="headerlink" title="初始化Pipeline"></a>初始化Pipeline</h3><p>如果要添加的Handler不止一个，我们就需要用到ChannelInitializer，在DotNetty中，我们有十分简单的方法可以初始化一个pipeline</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Option(ChannelOption.TcpNodelay, true)</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line"></span><br><span class="line">        if (cert != null)</span><br><span class="line">        &#123;</span><br><span class="line">            pipeline.AddLast(&quot;tls&quot;, new TlsHandler(stream =&gt; new SslStream(stream, true, (sender, certificate, chain, errors) =&gt; true), new ClientTlsSettings(targetHost)));</span><br><span class="line">        &#125;</span><br><span class="line">        pipeline.AddLast(new LoggingHandler());</span><br><span class="line">        pipeline.AddLast(&quot;framing-enc&quot;, new LengthFieldPrepender(2));</span><br><span class="line">        pipeline.AddLast(&quot;framing-dec&quot;, new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));</span><br><span class="line"></span><br><span class="line">        pipeline.AddLast(&quot;echo&quot;, new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
+
+<h3 id="ChannelOption"><a href="#ChannelOption" class="headerlink" title="ChannelOption"></a>ChannelOption</h3><p>ChannelOption可以在引导的时候将设置批量的设置到所有Channel上，而不必要在每一个Channel建立的时候手动的去指定它的配置，应用场景是比如设置KeepAlive或者设置超时时间。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">bootstrap.Option(ChannelOption.SoKeepalive, true)</span><br><span class="line">    .Option(ChannelOption.ConnectTimeout, new TimeSpan(5000));</span><br></pre></td></tr></table></figure>
+
+<h3 id="面向无连接的用户数据报文"><a href="#面向无连接的用户数据报文" class="headerlink" title="面向无连接的用户数据报文"></a>面向无连接的用户数据报文</h3><p>UDP的全称是“User Datagram Protocol”，在DotNetty中实现了SocketDatagramChannel来创建无连接的引导，需要注意的是无连接的引导不需要Connect只需要bind即可，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;SocketDatagramChannel&gt;()</span><br><span class="line">    .Option(ChannelOption.SoBroadcast, true)</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;IChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        channel.Pipeline.AddLast(&quot;Quote&quot;, new QuoteOfTheMomentClientHandler());</span><br><span class="line">    &#125;));</span><br><span class="line"></span><br><span class="line">IChannel clientChannel = await bootstrap.BindAsync(IPEndPoint.MinPort);</span><br></pre></td></tr></table></figure>
+
+<h3 id="关闭"><a href="#关闭" class="headerlink" title="关闭"></a>关闭</h3><p>Channel的关闭：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">await clientChannel.CloseAsync();</span><br></pre></td></tr></table></figure>
+
+<p>EventLoopGroup的关闭：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">await group.ShutdownGracefullyAsync();</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>编程技术</category>
+        <category>DotNet</category>
+        <category>DotNetty教程</category>
+      </categories>
+      <tags>
+        <tag>DotNetty</tag>
       </tags>
   </entry>
   <entry>

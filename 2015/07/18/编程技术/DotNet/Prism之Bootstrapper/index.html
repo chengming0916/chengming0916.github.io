@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在程序中使用框架必然要有一个切入点，框架会在这里进行初始化，处理相关配置信息等。在Prism中扮演这一角色的就是Bootstrapper。 Prism提供了一个抽象基类Bootstrapper，这个类里面包含了包含了许多空的虚方法，可以重写它们添加自己的逻辑。这个基类与任何容器无关，所以可以通过继承它来实现基于特定容器的Bootstrapper，不过通常我们大可不必这样做，因为Prism默认提">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prism之Bootstrapper">
+<meta property="og:url" content="http://chengming0916.github.io/2015/07/18/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BBootstrapper/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在程序中使用框架必然要有一个切入点，框架会在这里进行初始化，处理相关配置信息等。在Prism中扮演这一角色的就是Bootstrapper。 Prism提供了一个抽象基类Bootstrapper，这个类里面包含了包含了许多空的虚方法，可以重写它们添加自己的逻辑。这个基类与任何容器无关，所以可以通过继承它来实现基于特定容器的Bootstrapper，不过通常我们大可不必这样做，因为Prism默认提">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-07-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.283Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="WPF">
+<meta property="article:tag" content="Prism">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/07/18/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BBootstrapper/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/07/18/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BBootstrapper/","path":"2015/07/18/编程技术/DotNet/Prism之Bootstrapper/","title":"Prism之Bootstrapper"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Prism之Bootstrapper | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/07/18/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BBootstrapper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Prism之Bootstrapper | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Prism之Bootstrapper
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-07-18 00:00:00" itemprop="dateCreated datePublished" datetime="2015-07-18T00:00:00+08:00">2015-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>  在程序中使用框架必然要有一个切入点，框架会在这里进行初始化，处理相关配置信息等。在Prism中扮演这一角色的就是Bootstrapper。</p>
+<p>Prism提供了一个抽象基类Bootstrapper，这个类里面包含了包含了许多空的虚方法，可以重写它们添加自己的逻辑。这个基类与任何容器无关，所以可以通过继承它来实现基于特定容器的Bootstrapper，不过通常我们大可不必这样做，因为Prism默认提供了两个基于特定容器的Bootstrapper——UnityBootstrapper和MefBootstrapper，分别使用Unity和Mef来实现依赖注入。而我们需要做的工作就是在这两个类之间选择一个适合自己的，稍微配置一下就可以了。当然如果你不喜欢这两个容器或者已有的程序使用了其它容器(如Spring.Net， Castle等)，也可以通过继承Boostrapper抽象基类来实现自己的SpringBootstrapper和CastleBootstrapper。虽然UnityBootstrapper的代码看起来挺简单的，但是如果仿照这个来实现CastleBootstrapper却并不是那么容易的一件事(不信你可以试试)，所以更好的办法是用<a target="_blank" rel="noopener" href="http://compositewpfcontrib.codeplex.com/">现成</a>的。</p>
+<pre><code>那么Bootstrapper都做了些什么呢？
+</code></pre>
+<ol>
+<li><p>创建Logger：</p>
+<p> 执行CreateLogger方法，默认创建一个EmptyLogger，不会在任何地方输出log。当然是可以扩展的，比如你可以使用<a target="_blank" rel="noopener" href="http://clog.codeplex.com/">Clog</a>来做一个适配器。</p>
+</li>
+<li><p>创建并配置ModuleCatalog</p>
+</li>
+</ol>
+<p>执行CreateModuleCatalog方法，默认创建一个空的ModuleCatalog。然后执行ConfigureModuleCatalog方法，默认情况下这个方法是空的。可以重写这两个方法，加入自定义的获取ModuleCatalog的逻辑，比如在CreateModuleCatalog中可以从一个xaml文件中读取Module信息。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> IModuleCatalog <span class="title">CreateModuleCatalog</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> ModuleCatalog.CreateFromXaml(<span class="keyword">new</span> Uri(<span class="string">&quot;/AssemblyName;component/ModulesCatalog.xaml&quot;</span>,  UriKind.Relative));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>创建并配置依赖注入容器</li>
+</ol>
+<p>  Prism中使用依赖注入来管理各个组件，你可以使用任何你熟悉的容器，比如Castle, Unity等。Prism中内置了对Unity以及Mef的支持，所以有两种预定义好的Bootstrapper: UnityBootstrapper和MefBootstrapper，其中分别采用UnityContainer和CompositionContainer作为依赖注入容器。以UnityBootstrapper为例，在这一步中会先调用CreateContainer方法，返回一个UnityContainer；然后调用ConfigureContainer方法，在这个方法中主要是将一些常用的类注册到容器中。</p>
+<ol start="4">
+<li>配置默认的Region适配器映射</li>
+</ol>
+<p>  为了使xaml中的UI控件可以使用Region，需要先注册一下。Prism默认支持Region的控件类型有：TabControl, Selector, ItemsControl, ContentControl。当然你也可以通过实现IRegionAdapter接口或者直接继承RegionAdapterBase<T>来使其它控件也支持Region。</p>
+<ol start="5">
+<li>配置默认的Region 行为(Behavior)</li>
+</ol>
+<p>  为RegionBehaviorFactory添加一些默认的行为。这样可以扩展Region的行为。可以通过实现IRegionBehavior接口或继承RegionBehavior来自定义Region的行为，并重写ConfigureDefaultRegionBehaviors方法添加到Region。</p>
+<ol start="6">
+<li>注册框架异常类型</li>
+</ol>
+<p>  Prism提供了ExceptionExtensions类来帮助开发人员定位异常发生的根异常。在这一步通过调用RegisterFrameworkExceptionTypes方法向ExceptionExtensions中添加新的Root Exception。</p>
+<ol start="7">
+<li>创建并初始化Shell</li>
+</ol>
+<p>  首先调用CreateShell方法来创建一个Shell，这是一个抽象方法，通常这个方法中就是返回作为整个网站容器的页面。之后会将RegionManager attach到Shell上，然后更新定义的Regions，最后调用InitializeShell方法来初始化Shell。默认情况下这是个空方法，可以通过重写这个方法加入自定义的逻辑，可以在这个方法中将Shell作为Silverlight程序的根容器页面显示出来。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">InitializeShell</span>()`</span></span><br><span class="line">&#123;</span><br><span class="line">     Application.Current.RootVisual = Shell;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>初始化Modules</li>
+</ol>
+<p>  调用InitializeModules方法，实际上就是调用ModuleManager.Run方法，会调用ModuleCatalog中的所有InitializationMode为WhenAvailable的Module的Initialize方法。</p>
+<p>  至此，整个容器的初始化过程就完毕了。</p>
+<p>  值得一提的还有<a target="_blank" rel="noopener" href="http://commonservicelocator.codeplex.com/">CommonServiceLocator</a>，这同样是Patterns &amp; Practices小组的产品。它的作用很简单，就是统一依赖注入容器的接口，使程序不必依赖于特定的容器，只需要使用ServiceLocator，然后去间接地使用其它各种各样的容器。在Prism的内部就是使用ServiceLocator来进行管理的。所以不管使用什么样的容器，都需要提供一个实现了IServiceLocator接口的适配器，如使用Unity要提供UnityServiceLocatorAdapter，使用Mef要提供MefServiceLocatorAdapter。这样不管外部使用什么容器，内部都不需要改变。所以如果要使用Prism重头开始构架一个程序，那么在整个程序中不依赖于特定的依赖注入容器接口，而是使用ServiceLocator是一个不错的选择，这样可以在需要的情况下很容易地更换容器，只需要重写一个Bootstrapper和一个ServiceLocatorAdapter就可以了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/WPF/" rel="tag"># WPF</a>
+              <a href="/tags/Prism/" rel="tag"># Prism</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/07/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E7%AE%80%E4%BB%8B/" rel="prev" title="Prism简介">
+                  <i class="fa fa-angle-left"></i> Prism简介
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/" rel="next" title="Prism之Module">
+                  Prism之Module <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

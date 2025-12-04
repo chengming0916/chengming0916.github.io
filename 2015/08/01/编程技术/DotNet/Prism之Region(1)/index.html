@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Prism可以帮助我们开发模块化程序，将程序分割成一个个独立的Module，分别进行开发。然后在程序运行的时候，将各个Module组合到一起，为程序提供各种各样的功能。通常来说，Module是一些视图和功能的集合，那么就需要一种办法来将这些视图以某种形式，在特定的时间展现出来。Prism通过Shell + Region来组织视图的布局，完成视图间的转换等。  如上图所示，Shell相当于ASP.N">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prism之Region(1)">
+<meta property="og:url" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="Prism可以帮助我们开发模块化程序，将程序分割成一个个独立的Module，分别进行开发。然后在程序运行的时候，将各个Module组合到一起，为程序提供各种各样的功能。通常来说，Module是一些视图和功能的集合，那么就需要一种办法来将这些视图以某种形式，在特定的时间展现出来。Prism通过Shell + Region来组织视图的布局，完成视图间的转换等。  如上图所示，Shell相当于ASP.N">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101281728038372.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101301728424507.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101301728498789.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101311116493180.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101311119072583.png">
+<meta property="article:published_time" content="2015-07-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.285Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="WPF">
+<meta property="article:tag" content="Prism">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101281728038372.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/","path":"2015/08/01/编程技术/DotNet/Prism之Region(1)/","title":"Prism之Region(1)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Prism之Region(1) | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Prism之Region(1) | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Prism之Region(1)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-08-01 00:00:00" itemprop="dateCreated datePublished" datetime="2015-08-01T00:00:00+08:00">2015-08-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Prism可以帮助我们开发模块化程序，将程序分割成一个个独立的<a target="_blank" rel="noopener" href="http://www.cnblogs.com/li-xiao/archive/2011/01/20/1940161.html">Module</a>，分别进行开发。然后在程序运行的时候，将各个Module组合到一起，为程序提供各种各样的功能。通常来说，Module是一些视图和功能的集合，那么就需要一种办法来将这些视图以某种形式，在特定的时间展现出来。Prism通过Shell + Region来组织视图的布局，完成视图间的转换等。</p>
+<p><img src="/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101281728038372.png" alt="image" title="image"></p>
+<p>如上图所示，Shell相当于ASP.NET中的母版页，它定义了页面的布局、主题等。其中的导航区和内容区是预留出来的需要进行填充内容的部分，也就是Region，起到占位符的作用，程序会在运行时动态地向Region中填充内容。</p>
+<p>那么如何将一个区域定义为Region呢？</p>
+<p>首先在引入Prism的命名空间</p>
+<p><code>xmlns:prism=&quot;http://www.codeplex.com/prism&quot;</code>   如果IDE无法找到这个命名空间的话，需要先<a target="_blank" rel="noopener" href="http://www.cnblogs.com/li-xiao/archive/2011/01/13/1934564.html">注册Prism</a>。</p>
+<p>然后在需要定义为Region的控件上加上Attached Property。</p>
+<p><code>&lt;ContentControl prism:RegionManager.RegionName=&quot;MainRegion&quot; /&gt;</code></p>
+<p>并不是所有的控件都可以作为Region的，需要为需要定义为Region的控件添加RegionAdapter。RegionAdapter的作用是为特定的控件创建相应的Region，并将控件与Region进行绑定，然后为Region添加一些行为。一个RegionAdapter需要实现IRegionAdapter接口，如果你需要自定义一个RegionAdapter，可以通过继承RegionAdapterBase类来省去一些工作。Prism为Silverlight提供了几个RegionAdapter：</p>
+<ul>
+<li><code>ContentControlRegionAdapter</code>： 创建一个SingleActiveRegion并将其与ContentControl绑定</li>
+<li><code>ItemsControlRegionAdapter</code>： 创建一个AllActiveRegion并将其与ItemsControl绑定</li>
+<li><code>SelectorRegionAdapter</code>： 创建一个Region并将其与Selector绑定</li>
+<li><code>TabControlRegionAdapter</code>： 创建一个Region并将其与TabControl绑定</li>
+</ul>
+<p>从图中可以看到，导航区对应的NavigationRegion中四个视图都是亮着的，而内容区对应的ContentRegion中四个视图只有一个是亮着的(橘黄色代表显示在页面中)。ItemsControl本来就是由许多个Item组成的，因此ItemsControlRegionAdapter会创建AllActiveRegion，这种类型的Region中所有Active的视图都会显示在ItemsControl中；而ContentControl只能容纳一个Content，所以ContentControlRegionAdapter创建了一个SingleActiveRegion，其中的视图只有一个是处于Active状态的，会显示在ContentControl中，其它的都是不可见的，需要将它们激活(Active)，才能使其显示。</p>
+<p>通常我们并不直接和Region打交道，而是通过RegionManager，它实现了IRegionManager接口。IRegionManager接口包含一个只读属性Regions，是Region的集合，还有一个CreateRegionManager方法。Prism通过RegionManagerExtensions类使用扩展方法为IRegionManager添加了更多的功能。</p>
+<ul>
+<li>AddToRegion： 将一个视图添加到一个Region中。</li>
+<li>RegisterViewWithRegion： 将一个视图和一个Region进行关联。当Region显示的时候，关联的视图才会显示，也就是说，在这个Region显示之前，关联的视图是不会被创建的。</li>
+<li>RequestNavigate： 进行页面切换，将指定的Region中显示的视图切换为指定的视图。</li>
+</ul>
+<p>本文开头说过，需要在运行时将分散在各个Module的视图显示在页面特定的位置上。那么首先就需要定义页面显示的地方，即Region。然后就是要定义创建视图的时机和方式。在Prism中有两种方式来定义视图与Region之间的映射关系——View Discovery和View Injection。</p>
+<p>View Discovery是以声明式的方式来建立Region和视图之间的关系。如上图中的导航区，需要在导航区显示的时候就将各个导航视图填充到其中。而内容区中也需要一个默认显示的内容视图。因此也可以这样理解View Discovery，就是指定一个Region的默认视图。我们可以使用IRegionManager.RegisterViewWithRegion方法来声明某个Region默认应该显示哪个视图。注意这里是Register，是注册，也就是说不会马上创建该视图。当Region显示在页面中的时候，它会去寻找与自己相关联的视图，并对其进行初始化。</p>
+<p><img src="/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101301728424507.png" alt="1-30-2011 5-03-27 PM" title="1-30-2011 5-03-27 PM"></p>
+<p><img src="/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101301728498789.png" alt="1-30-2011 5-04-22 PM" title="1-30-2011 5-04-22 PM"></p>
+<p>这样做的好处是我们不必关注在什么时候创建视图，一切都会自动完成。缺点就是默认视图是确定的，当需要进行视图转换的时候，这种方式就行不通了。这时候就需要View Injection。</p>
+<p>View Injection可以让我们对于Region中显示的视图有更精确的控制。通常可以通过调用IRegionManager.AddToRegion方法或者是IRegionManager.Regions[“RegionName”].Add方法来向一个Region中添加一个视图的<strong>实例</strong>。对于SingleActiveRegion(ContentControlRegionAdapter会创建这种类型的Region)，可以通过IRegion.Activate方法将一个已经添加到Region中的视图显示出来。当然也可以通过IRegion.Deactivate方法来将视图状态置为非激活或者干脆调用IRegion.Remove方法将视图移除。可以看到，因为要添加的是视图的实例，所以需要仔细地设计在什么时候使用View Injection，以免造成不必要的开销。</p>
+<p>在Prism 4.0中新添加了一些导航API，这套API大大地简化了View Injection的流程，它使用URI来进行Region中视图的导航，然后会根据URI来创建视图，并将其添加到Region中，然后激活该视图。导航API的出现不只是为了简化View Injection的过程，它还提供了前进、后退的功能，并且对MVVM模式下的导航有良好的支持，还能够在进行导航的时候传递参数等等。所以推荐的方式是使用新的导航API，也就是使用IRegionManager.RequestNavigate方法。</p>
+<p>如果一个页面相对来说不大变化，如导航区，在程序初始化的过程完成后就不会轻易地变动，这时候就较适合于使用RegisterViewWithRegion方法，通常可以在Module的Initialize方法中完成这个过程。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Initialize</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    logger.Log(<span class="string">&quot;初始化Navigation模块&quot;</span>, Category.Debug, Priority.Low);</span><br><span class="line">    _regionManager.RegisterViewWithRegion(RegionNames.NavRegion, <span class="keyword">typeof</span>(NavigationItem));</span><br><span class="line">    _regionManager.RegisterViewWithRegion(RegionNames.MainRegion, <span class="comment">// 两种方式都可以</span></span><br><span class="line">                                            () =&gt; _container.Resolve&lt;NavigationContainer&gt;() );</span><br><span class="line">    _regionManager.RegisterViewWithRegion(RegionNames.NavDemoActionRegion, <span class="keyword">typeof</span>(ActionController));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果一个区域需要频繁地切换页面的话，如主内容区，可以使用View Injection的方式。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IRegionManager regionManager = ...;</span><br><span class="line">IRegion mainRegion = regionManager.Regions[<span class="string">&quot;MainRegion&quot;</span>];</span><br><span class="line">InboxView view = <span class="keyword">this</span>.container.Resolve&lt;InboxView&gt;();</span><br><span class="line">mainRegion.Add(view);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到，这时候已经生成了视图的实例。之前提到过，一个Region可以包含多个视图，这些视图会处于不同的状态，对于ItemsControl类型的Region来说，里面会显示很多个Item，所以添加进去就可以了；但是对于ContentControl这种Region，同一时刻只能显示一个视图，所以在添加进去之后还需要有一个Activate的过程。</p>
+<p>使用URI来进行导航只需要提供需要切换的视图的名称就可以，并不需要了解视图的类型，从而达到解耦的目的，并且可以通过URI来进行参数传递。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Initialize</span>()</span></span><br><span class="line">&#123;  </span><br><span class="line">    <span class="comment">//  因为Prism无法确定每个视图都是什么类型，所以就使用了Object，</span></span><br><span class="line">    <span class="comment">//  因此在根据ViewName获取实例时，会使用IServiceLocator.GetInstance&lt;Object&gt;(ViewName)</span></span><br><span class="line">    _container.RegisterType&lt;<span class="built_in">object</span>, ViewA&gt;(ViewNames.ViewA);</span><br><span class="line">    _container.RegisterType&lt;<span class="built_in">object</span>, ViewB&gt;(ViewNames.ViewB);</span><br><span class="line">    _container.RegisterType&lt;<span class="built_in">object</span>, ViewC&gt;(ViewNames.ViewC);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>首先注册一下视图的类型，其实就是将视图的名称与视图类型进行一下关联。在导航的时候调用RequestNavigate方法就可以了。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ToSpecifiedView</span>(<span class="params"><span class="built_in">string</span> viewName</span>)</span></span><br><span class="line">&#123;          </span><br><span class="line">    Uri uri = <span class="keyword">new</span> Uri(viewName, UriKind.Relative);</span><br><span class="line">    _regionManager.RequestNavigate(RegionNames.NavDemoShowRegion, uri);</span><br><span class="line">    logger.Log(<span class="string">&quot;跳转到视图 [&quot;</span> + viewName + <span class="string">&quot;]&quot;</span>, Category.Info, Priority.Low);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Prism提供了UriQuery类来帮助我们在导航的时候传递参数。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ToSpecifiedView</span>(<span class="params"><span class="built_in">string</span> viewName</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    UriQuery query = <span class="keyword">new</span> UriQuery();</span><br><span class="line">    <span class="keyword">if</span> (viewName == ViewNames.ViewA)</span><br><span class="line">    &#123;</span><br><span class="line">        query.Add(<span class="string">&quot;Time&quot;</span>, DateTime.Now.ToShortTimeString());</span><br><span class="line">    &#125;</span><br><span class="line">    Uri uri = <span class="keyword">new</span> Uri(viewName + query.ToString(), UriKind.Relative);</span><br><span class="line">    _regionManager.RequestNavigate(RegionNames.NavDemoShowRegion, uri, CallbackHandler);   <span class="comment">//  回调方法可加可不加</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>上面的代码判断当跳转到ViewA时，传递一个叫做Time的参数。那么怎样在视图中获取传递的参数呢？这里就要提一下INavigationAware接口了。这个接口使视图或者其对应的ViewModel也可以参与到页面导航的过程中来。所以这个接口既可以由视图来实现，也可以由视图的DataContext——通常指的就是ViewModel，来实现。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">INavigationAware</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="built_in">bool</span> <span class="title">IsNavigationTarget</span>(<span class="params">NavigationContext navigationContext</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnNavigatedTo</span>(<span class="params">NavigationContext navigationContext</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnNavigatedFrom</span>(<span class="params">NavigationContext navigationContext</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>当从本页面转到其它页面的时候，会调用OnNavigatedFrom方法，navigationContext会包含目标页面的URI。</p>
+<p>当从其它页面导航至本页面的时候，首先会调用IsNavigationTarget，IsNavigationTarget返回一个bool值，简单地说这个方法的作用就是告诉Prism，是重复使用这个视图的实例还是再创建一个。然后调用OnNavigatedTo方法。在导航到本页面的时候，就可以从navigationContext中取出传递过来的参数。</p>
+<p><img src="/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101311116493180.png" alt="image" title="image"></p>
+<p>使用导航API的另一个优点就是可以进行页面的前进和后退，一切由Prism完成。这个功能是由IRegionNavigationJournal接口提供的。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IRegionNavigationJournal</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">bool</span> CanGoBack &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">    <span class="built_in">bool</span> CanGoForward &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">    IRegionNavigationJournalEntry CurrentEntry &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">    INavigateAsync NavigationTarget &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Clear</span>()</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">GoBack</span>()</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">GoForward</span>()</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">RecordNavigation</span>(<span class="params">IRegionNavigationJournalEntry entry</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中CanGoBack和CanGoForward属性表示当前是否可以后退或前进。如果可以的话，可以使用GoBack和GoForward方法进行前进和后退。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ActionControllerViewModel</span> : <span class="title">NotificationObject</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> IRegion _demoShowRegion;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> CanGoBack</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> _demoShowRegion.NavigationService.Journal.CanGoBack;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> CanGoForward</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> _demoShowRegion.NavigationService.Journal.CanGoForward;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">ToPrevious</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _demoShowRegion.NavigationService.Journal.GoBack();</span><br><span class="line">        ResetNavigationButtonState();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">ToNext</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _demoShowRegion.NavigationService.Journal.GoForward();</span><br><span class="line">        ResetNavigationButtonState();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">ResetNavigationButtonState</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        RaisePropertyChanged(() =&gt; <span class="keyword">this</span>.CanGoBack);</span><br><span class="line">        RaisePropertyChanged(() =&gt; <span class="keyword">this</span>.CanGoForward);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2015/08/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(1)/201101311119072583.png" alt="image" title="image"></p>
+<p>导航API还可以控制视图的生命周期，在页面跳转时进行确认拦截(Confirming or Cancelling Navigation)以及其它功能，可以参考 <a target="_blank" rel="noopener" href="http://msdn.microsoft.com/en-us/library/gg430865(v=PandP.40).aspx">Developer’s Guide to Microsoft Prism</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/WPF/" rel="tag"># WPF</a>
+              <a href="/tags/Prism/" rel="tag"># Prism</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/" rel="prev" title="Prism之Module">
+                  <i class="fa fa-angle-left"></i> Prism之Module
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/08/08/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BRegion(2)/" rel="next" title="Prism之Region(2)">
+                  Prism之Region(2) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

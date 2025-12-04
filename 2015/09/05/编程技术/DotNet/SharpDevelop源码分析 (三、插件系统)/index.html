@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="**三、插件系统**    上回书说到SharpDevelop入口Main函数的结构，ServiceManager.Service在InitializeServicesSubsystem方法中首次调用了AddInTreeSingleton的AddInTree实例，AddInTree在这里进行了初始化。本回进入AddInTree着重讲述SharpDevelop的插件系统。在叙述的时候为了方便起见，对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SharpDevelop源码分析 (三、插件系统)">
+<meta property="og:url" content="http://chengming0916.github.io/2015/09/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="**三、插件系统**    上回书说到SharpDevelop入口Main函数的结构，ServiceManager.Service在InitializeServicesSubsystem方法中首次调用了AddInTreeSingleton的AddInTree实例，AddInTree在这里进行了初始化。本回进入AddInTree着重讲述SharpDevelop的插件系统。在叙述的时候为了方便起见，对">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/AddinTreeView.JPG">
+<meta property="og:image" content="http://chengming0916.github.io/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/AddinScout2.JPG">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="og:image" content="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">
+<meta property="article:published_time" content="2015-09-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.290Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="SharpDevelop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/AddinTreeView.JPG">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/09/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/09/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/","path":"2015/09/05/编程技术/DotNet/SharpDevelop源码分析 (三、插件系统)/","title":"SharpDevelop源码分析 (三、插件系统)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SharpDevelop源码分析 (三、插件系统) | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/09/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SharpDevelop源码分析 (三、插件系统) | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SharpDevelop源码分析 (三、插件系统)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-09-05 00:00:00" itemprop="dateCreated datePublished" datetime="2015-09-05T00:00:00+08:00">2015-09-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>**<br>三、插件系统**</p>
+<p>   上回书说到SharpDevelop入口Main函数的结构，ServiceManager.Service在InitializeServicesSubsystem方法中首次调用了AddInTreeSingleton的AddInTree实例，AddInTree在这里进行了初始化。本回进入AddInTree着重讲述SharpDevelop的插件系统。在叙述的时候为了方便起见，对于“插件”和插件具体的“功能模块”这两个词不会特别的区分，各位看官可以从上下文分辨具体的含义（而事实上，SharpDevelop中的“插件”是指.addin配置文件，每一个“插件”都可能会包含多个“功能模块”）。</p>
+<p><strong>1、插件的配置</strong><br>   既然说到插件系统，那么我们先来看一看SharpDevelop插件系统的组织形式。<br>   很多时候，同一个事物从不同的角度来看会得出不一样的结论，SharpDevelop的插件系统也是如此。在看SharpDevelop的代码以前，按照我对插件的理解，我认为所谓的“插件”就是代表一个功能模块，插件的配置就是描述该插件并指定如何把这个插件挂到系统中。SharpDevelop中有插件树的思想，也就是每一个插件在系统中都有一个扩展点的路径。那么按照我最初对插件的理解，编写插件需要做的就是：<br>   A、根据插件接口编写功能模块实现一个Command类<br>   B、编写一个配置文件，指定Command类的扩展点(Extension)路径，挂到插件树中</p>
+<p>   之后按照这样的理解，我编写了一个察看插件树的插件AddinTreeView，打算挂到SharpDevelop中去。根据SharpDevelop对插件的定义，我把具体插件的AddinTreeViewCommand实现了之后，编写了一个配置文件AddinTreeView.addin如下：</p>
+<p>   在配置文件中，Runtime节指定了插件功能模块所在的库文件Addins.dll的具体路径，在Extension节中指定了扩展点路径&#x2F;SharpDevelop&#x2F;Workbench&#x2F;MainMenu&#x2F;Tools（我是打算把它挂到主菜单的工具菜单下），然后在Extension内指定了它的Codon为 MenuItem以及具体的ID、标签、Command类名。这样做，SharpDevelop运行的很不错，我的插件出现在了Tools菜单下。之后，我又编写了一个SharpDevelop的资源管理器（ResourceEditor）的插件类ResourceEditor.dll并把它挂到Tool菜单下。同样的，我也写了一个ResourceEditor.addin文件来对应。系统工作的很正常。</p>
+<p>   如果我们对于每一个插件都编写这样的一个配置文件，那么插件的库文件(.dll)、插件配置文件(.addin)是一一对应的。不过这样就带来了一个小小的问题，在这样的一个以插件为基础的系统中，每一个菜单、工具栏按钮、窗体、面板都是一个插件，那么我们需要为每一个插件编写配置文件，这样就会有很多个配置文件（似乎有点太多了，不是很好管理）。SharpDevelop也想到了这个问题，于是它允许我们把多个插件的配置合并在一个插件的配置文件中。因此，我把我的两个插件库文件合并到一个Addins工程内生成了Addins.dll，又重新编写了我的插件配置文件MyAddins.addin如下：  </p>
+<p>   这样，我把两个插件的功能模块使用一个插件配置文件来进行配置。同样的，我也可以把几十个功能模块合并到一个插件配置文件中。SharpDevelop把这个插件配置文件称为“Addin(插件)”，而把具体的功能模块封装为Codon，使用Command类来包装具体的功能。SharpDevelop本身的核心配置SharpDevelopCore.addin里面就包含了所有的基本菜单、工具栏、PAD的插件配置。<br>我们回过头来看一下，现在我们有了两颗树。首先，插件树本身是一个树形的结构，这个树是根据系统所有插件的各个Codon的扩展点路径构造的，表示了各个Codon在插件树中的位置，各位看官可以通过我写的这个小小的AddinTreeView来看看SharpDevelop中实际的结构。其次，插件的配置文件本身也具有了一个树形的结构，这个树结构的根节点是系统的各个插件配置文件，其下是根据这个配置文件中的Extension节点的来构成的，描述了每个Extension节点下具有的Codon。我们可以通过SharpDevelop的Tools菜单下的AddinScout来看看这个树的结构。<br>我为了试验，把SharpDevelop的插件精简了很多，构成了一个简单的小插件系统。下面是这个精简系统的两个树的截图。各位看官可以通过这两副图理解一下插件树和插件配置文件的关系（只是看同样问题的两个角度，一个是Codon的ExtensionPath，一个是配置文件的内容）。<br><img src="/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/AddinTreeView.JPG"><br><img src="/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%89%E3%80%81%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F)/AddinScout2.JPG"><br>总结一下SharpDevelop插件的配置文件格式。首先是 <AddIn>节点，需要指定AddIn的名称、作者之类的属性。其次，在AddIn节点下的<Runtime>节点内，使用&lt;Import …&gt;来指定本插件配置中Codon所在的库文件。如果分布在多个库文件中，可以一一指明。然后，编写具体功能模块的配置。每个功能模块的配置都以扩展点<Extension>开始，指定了路径(Path)属性之后，在这个节点内配置在这个扩展点下具体的Codon。每个Codon根据具体不同的实现有不同的属性。各位看官可以研究一下SharpDevelop的核心配置文件SharpDevelopCore.addin的写法，相信很容易理解的。</p>
+<p><strong>2、插件系统的核心AddIn和AddInTree</strong><br>   前文讲到，在SharpDevelop的Main函数中，ServiceManager.Service在InitializeServicesSubsystem方法中首次调用了AddInTreeSingleton的AddInTree实例，AddinTree在这个时候进行了初始化。现在我们就来看看AddInTreeSingleton.AddInTree到底做了些什么事情，它定义在&#x2F;src&#x2F;Main&#x2F;Core&#x2F;AddIns&#x2F;AddInTreeSingleton.cs文件中。</p>
+<p>   AddInTreeSingleton是插件树的一个Singleton（具体的可以去看《设计模式》了），AddInTreeSingleton.AddInTree是一个属性，返回一个IAddinTree接口。这里我注意到一点，AddInTreeSingleton是从DefaultAddInTree继承下来的。既然它是一个单件模式，包含的方法全部都是静态方法，没有实例化的必要，而且外部是通过AddInTree属性来访问插件树，为什么要从DefaultAddInTree继承呢？这好像没有什么必要。这也许是重构过程中被遗漏的一个小问题吧。</p>
+<p>   我们先来看看IAddinTree接口的内容，它定义了这样的几个内容：<br>      A、属性ConditionFactory ConditionFactory　返回一个构造条件的工厂类，这里的条件是指插件配置中的条件，我们以后再详细说明。<br>      B、属性CodonFactory CodonFactory　返回一个构造Codon的工厂类。<br>      C、属性AddInCollection AddIns 返回插件树的根节点Addin（插件）集合。<br>      D、方法IAddInTreeNode GetTreeNode(string path) 根据扩展点路径（path）返回对应的树节点<br>      E、方法void InsertAddIn(AddIn addIn) 根据AddIn中的扩展点路径添加一个插件到树中<br>      F、方法void RemoveAddIn(AddIn addIn) 删除一个插件<br>      G、方法Assembly LoadAssembly(string assemblyFile)  读入插件中Runtime节的Import指定的Assembly，并构造相应的CodonFactory和CodonFactory类。</p>
+<p>   AddInTreeSingleton在首次调用AddInTree的时候会调用CreateAddInTree方法来进行初始化。CreateAddInTree方法是这样实现的：  </p>
+<p><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"> addInTree  =  new  DefaultAddInTree();<br><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"></p>
+<p>      初始化插件树为DefaultAddInTree的实例，这里我感受到了一点重构的痕迹。首先，DefaultAddInTree从名称上看是默认的插件树（既然是默认，那么换句话说还可以有其他的插件树）。但是SharpDevelop并没有给外部提供使用自定义插件树的接口（除非我们修改这里的代码），也就是说这个名称并不像它本身所暗示的那样。其次，按照Singleton通常的写法以及前面提到AddInTreeSingleton是从DefaultAddInTree继承下来的疑问，我猜想DefaultAddinTree的内容本来是在AddinTreeSingleton里面实现的，后来也许为了代码的条理性，把实现IAddinTree内容的代码剥离了出去，形成了DefaultAddinTree类。至于继承DefaultAddInTree的问题，也许这里本来是一个AddInTree的基类。这是题外话，也未加证实，各位看官可以不必放在心上（有兴趣的可以去找找以前SharpDevelop的老版本的代码来看看）。<br>这里有两个察看代码的线路，一个是DefaultAddInTree的构造函数的代码，在这个构造函数中构造了Codon和Condtion的工厂类。另外一个是CreateAddInTree后面的代码，搜索插件文件，并根据插件文件进行AddIn的构造。各位看官可以选择走分支线路，也可以选择先看主线（不过这样你会漏掉不少内容）。</p>
+<p><strong>2.1 支线 （DefaultAddInTree的构造函数）</strong><br>   我们把CreateAddInTree的代码中断一下压栈先，跳到DefaultAddInTree的构造函数中去看一看。DefaultAddInTree定义在&#x2F;src&#x2F;Main&#x2F;Core&#x2F;AddIns&#x2F;DefaultAddInTree.cs文件中。在DefaultAddInTree的构造函数中，注意到它具有一个修饰符internal，也就是说这个类只允许Core这个程序集中的类对DefaultAddInTree进行实例化（真狠啊）。构造函数中的代码只有一句：</p>
+<p><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif">  LoadCodonsAndConditions(Assembly.GetExecutingAssembly());</p>
+<p>   虽然只有一行代码，不过这里所包含的内容却很精巧，是全局的关键，要讲清楚我可有得写了。首先，通过全局的Assembly对象取得入口程序的Assembly，传入LoadCodonsAndConditions方法中。在该方法中，枚举传入的Assembly中的所有数据类型。如果不是抽象的，并且是AbstractCodon的子类，并且具有对应的CodonNameAttribute属性信息，那么就根据这个类的名称建立一个对应的CodonBuilder并它加入CodonFactory中（之后对Condition也进行了同样的操作，我们专注来看Codon部分，Condition跟Codon基本上是一样的）。<br>   这里的CodonFactory类和CodonBuilder类构成了SharpDevelop插件系统灵活的基础，各位看官可要看仔细了。<br>   我们以实例来演示，以前文我编写的AddinTreeViewCommand为例。在入口的Assembly中会搜索到MenuItemCodon，它是AbstractCodon的一个子类、包装MenuItem(菜单项)Command（命令）的Codon。符合条件，执行</p>
+<p><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"> codonFactory.AddCodonBuilder( new  CodonBuilder(type.FullName, assembly));</p>
+<p>   首先根据类名MenuItemCodon和assembly 构造CodonBuilder。CodonBuilder定义在&#x2F;src&#x2F;Main&#x2F;Core&#x2F;AddIns&#x2F;Codons&#x2F;CodonBuilder.cs文件中。在CodonBuilder的构造函数中根据MenuItemCodon的CodonNameAttribute属性信息取得该Codon的名称MenuItem。CodonNameAttribute描述了Codon的名称，这个MenuItem也就是在.addin配置文件中对应的<MenuItem>标签，后文会看到它的重要用途。在CodonBuilder中除了包含了该Codon的ClassName（类名）和CodonName属性之外，就只有一个方法BuildCodon了。</p>
+<p>   很明显，BuildCodon根据构造函数中传入的assembly和类型的ClassName，建立了具体的Codon的实例，并和具体的AddIn关联起来。<br>   之后，codonFactory调用AddCodonBuilder方法把这个CodonBuilder加入它的Builder集合中。我们向上一层，看看codonFactory如何使用这个CodonBuilder。<br>   在文件&#x2F;src&#x2F;Main&#x2F;Core&#x2F;AddIns&#x2F;Codons&#x2F;CodonFactory.cs中，codonFactory只有两个方法。AddCodonBuilder方法把CodonBuilder加入一个以CodonName为索引的Hashtable中。另外一个方法很重要：</p>
+<p>   在这里，addin是这个配置文件的描述（也就是插件），而这个XmlNode类型的CodonNode是什么东西？<br>   还记得配置文件中在<Extension>标签下的<Class>、<MenuItem>、<Pad>之类的标签吗？我曾经说过，这些就是Codon的描述，现在我们来看看到底是不是如此。以前文的AddinTreeView配置为例：</p>
+<p>   SharpDevelop在读入插件配置文件的<Extension>标签之后，就把它的ChildNodes（XmlElement的属性）依次传入CodonFactory的CreateCodon方法中。这里它的ChildNodes[0]就是这里的<MenuItem id = ..... />节点，也就是codonNode参数了。这个XML节点的Name是MenuItem，因此CreateCodon的第一行</p>
+<p><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"> CodonBuilder builder  =  codonHashtable[codonNode.Name]  as  CodonBuilder;<br><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"></p>
+<p>   根据节点的名称(MenuItem)查找对应的CodonBuilder。记得前面的CodonBuilder根据CodonNameAttribute取得了MenuItemCodon的CodonName吗？就是这个MenuItem了。CodonFactory找到了对应的MenuItemCodon的CodonBuilder（这个是在DefaultAddInTree的构造函数中调用LoadCodonsAndConditions方法建立并加入CodonFactory中的，还记得么？），之后使用这个CodonBuilder建立了对应的Codon，并把它返回给调用者。<br>   就这样，通过CodonNameAttribute，SharpDevelop把addin配置文件的<MenuItem>节点、CodonBulder、MenuItemCodon三部分串起来形成了一个构造Codon的路线。</p>
+<p>   我们回过头来整理一下思路，SharpDevelop进行了下面这样几步工作：<br>      A、建立各个Codon，使用CodonNameAttribute指明它在配置节点中的名称<br>      B、DefaultAddInTree的构造函数中调用LoadCodonsAndConditions方法，搜索所有的Codon，根据Codon的CodonNameAttribute建立对应的CodonBuilder加入CodonFactory中。<br>      C、读取配置文件，在<Extension>标签下遍历所有的节点，根据节点的Name使用CodonFactory建立对应的Codon。<br>   其中，Codon的CodonNameAttribute、CodonBuilder的CodonName以及<Extension>标签下XML节点的Name是一致的。对于Condition（条件）的处理也是一样。<br>   抱歉，我上网不是很方便也不太会在Blog里面贴图（都是为了省事的借口^o^），否则也许更好理解这里的脉络关系。</p>
+<p>   好了，看到这里，我们看看SharpDevelop中插件的灵活性是如何体现的。首先，addin配置中的Extension节点下的Codon节点名称并没有在代码中和具体的Codon类联系起来，而是通过CodonNameAttribute跟Codon联系起来。这样做的好处是，SharpDevelop的Codon和XML的标签一样具有无限的扩展能力。假设我们要自己定义一个Codon类SplashFormCodon作用是指定某个窗体作为系统启动时的封面窗体。要做的工作很简单：首先，在SplashFormCodon中使用CodonNameAttribute指定CodonName为Splash，并且在SplashFormCodon中定义自己需要的属性。然后，在addin配置文件使用<Splash>标签这样写：</p>
+<p>   是不是很简单？另外，对于Condition（条件）的处理也是一样，也就是说我们也可以使用类似的方法灵活的加入自己定义的条件。</p>
+<p>   这里我有个小小的疑问：不知道我对于设计模式的理解是不是有点小问题，我感觉CodonBuilder类的实现似乎并不如它的类名所暗示的是《设计模式》中的Builder模式，反而似乎应该是Proxy模式，因此我觉得改叫做CodonProxy是不是比较容易理解？各位看官觉得呢？<br>   另外，虽然稍微麻烦了一小点，不过我觉得配置如果这样写会让我们比较容易和代码中具体的类关联起来:</p>
+<p><strong>2.2 主线 (AddInTreeSingleton. CreateAddInTree)</strong><br>   啊～我写的有点累了。不过还是让我们继续AddInTreeSingleton中CreateAddInTree的代码。<br>   在建立了DefaultAddInTree的实例后，AddInTreeSingleton在插件目录中搜索后缀为.addin的文件。还记得在SharpDevelop的Main函数中曾经调用过AddInTreeSingleton. SetAddInDirectories吗，就是搜索这个传入的目录。看来SharpDevelop把在插件目录中所有后缀为.addin的文件都看做是插件了。</p>
+<p><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"> FileUtilityService fileUtilityService  =  (FileUtilityService)ServiceManager.Services.GetService( typeof (FileUtilityService));</p>
+<p>   先学习一下如何从ServiceManager取得所需要的服务，在SharpDevelop中要取得一个服务全部都是通过这种方式取得的。调用GetService传入要获取的服务类的类型作为参数，返回一个IService接口，之后转换成需要的服务。</p>
+<p>   搜索插件目录找到一个addin文件后，调用InsertAddIns把这个addin文件中的配置加入到目录树中。</p>
+<p>   InsertAddIns建立一个对应的AddIn（插件），调用AddInTree的InsertAddIn方法把它挂到插件树中。在这里有一个小小的处理，由于是通过Assembly查找和插件配置中Codon的标签对应的类，而Codon类所在的Assembly是通过Import标签导入的。因此在查找配置中某个Codon标签对应的Codon类的时候，也许Codon类所在的文件是在其他的addin文件中Import的。这个时候在前面支线中讲到CodonFactory中查找CodonBuilder会失败，因此必须等到Codon类所在的addin处理之后才能正确的找到CodonBuilder。这是一个依赖关系的处理问题。<br>   SharpDevelop在这里处理的比较简单，调用InsertAddIns方法的时候，凡是出现CodonNotFoundException的时候，都加入一个retryList列表中返回。在CreateAddinTree处理完所有的addin文件之后，再重新循环尝试处理retryList列表中的addin。如果某次循环中再也无法成功的加入retryList中的addin，那么才提示失败错误。</p>
+<p>   我们回头来看看对AddIn的处理。</p>
+<p>**2.2.1  addIn.Initialize （AddIn的初始化）<br>**   建立了AddIn的实例后，调用Initialize 方法进行初始化。AddIn是对一个.addin文件的封装，定义在&#x2F;src&#x2F;Main&#x2F;Core&#x2F;AddIns&#x2F;AddIn.cs文件中。其中包含了.addin文件的根元素<AddIn>的描述，包括名称、作者、版权之类的属性。在<AddIn>节点下包括两种节点：一个是<Runtime>节点，包含了<Import>指定要导入的Assembly；另外一个是<Extension>节点，指定Codon的扩展点。在AddIn.Initialize方法中，使用XmlDocument对象来读取对应的addin文件。首先读取name、author 、copyright之类的基本属性，之后遍历所有的ChildNodes（子节点）。</p>
+<p>   如果子节点是Runtime节点，则调用AddRuntimeLibraries方法。</p>
+<p>   通过AddInTreeSingleton.AddInTree.LoadAssembly方法把Assembly中所有的Codon和Condition的子类加入对应Factory类中（调用了LoadCodonsAndConditions方法，我们在DefaultAddInTree的构造函数中见过了），并且把该文件和对应的Assembly保存到RuntimeLibraries列表中。</p>
+<p>   如果子节点是Extension节点，则调用AddExtensions方法。</p>
+<p>   根据这个扩展点的XML描述建立Extension对象加入到AddIn的Extensions列表中，并通过AddCodonsToExtension方法把其中包括的Codon加入到建立的Extension对象中。Extension对象是AddIn的一个内嵌类，其中一个重要的属性就是CodonCollection这个列表。AddCodonsToExtension就是把在配置中出现的Codon都加入到这个列表中保存。</p>
+<p>   来看看AddCodonsToExtension方法。在代码中我略过了对Condition（条件）的处理的分析和一些无关紧要的部分，我们把注意力集中在插件的处理。首先是一个 foreach (object o in el.ChildNodes) 遍历<Extension>下所有的子节点，对于每个子节点的处理如下：</p>
+<p>   我们看到了一个期待已久的调用</p>
+<p><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"> AddInTreeSingleton.AddInTree.CodonFactory.CreateCodon( this , curEl);<br><img src="http://www.cnblogs.com/Images/OutliningIndicators/None.gif"></p>
+<p>   经过了上文支线2.1代码中的铺垫，SharpDevelop使用建立好的CodonFactory，调用CreateCodon方法根据<Extension>下的节点构造出实际的Codon对象，一切尽在不言中了吧。<br>   e.CodonCollection.Add(codon);把构造出来的Codon对象加入到Extension对象的CodonCollection列表中。<br>   之后，在形如菜单的这种允许无限嵌套的结构中，SharpDevelop对此进行了处理。如果该节点有嵌套的子节点，那么构造一个新的Extension对象，递归调用AddCodonsToExtension添加到这个Extension对象中。注意一点，这个新构造的Extension对象并不是分开保存在Codon中，而是直接保存在AddIn的扩展点列表中。这样是为了方便查找，毕竟保存在具体的Codon中也没有什么用处，我们可以通过Extension对象的Path属性得知它在插件树中的具体位置。</p>
+<p><strong>2.2.2 addInTree.InsertAddIn（把AddIn添加到AddInTree中）</strong><br>   对AddIn的构造完成之后，需要把AddIn的实例对象添加AddInTree中管理。</p>
+<p>   在DefaultAddInTree中，保存了两课树。一个是根据插件文件的结构形成的树，每个插件文件作为根节点，往下依次是Extension、Codon节点。addIns.Add(addIn);就是把插件加入到这个树结构中。另外一个树是根据Extension的Path＋Codon的ID作为路径构造出来的，每一个树节点是一个AddInTreeNode类，包含了在这个路径上的Codon对象。嵌套在这个节点中的Codon在通过它子节点来访问。在DefaultAddInTree中可以通过GetTreeNode来指定一个路径获得插件树上某一个节点的内容。<br>   AddExtensions方法很简单，遍历Extension中所有的Codon，把Extension的Path＋Codon的ID作为路径，创建这个路径上的所有节点，并把Codon连接到这个AddInTreeNode上。由于Codon的ID是全局唯一的，因此每一个AddInTreeNode都具有一个唯一的Codon。</p>
+<p><strong>3、最后一公里（Codon和Command的关联）</strong><br>   在插件树的讨论中，我们依次把AddIn－Extension－Codon的配置和他们对应的类关联了起来。不过我们一直没有涉及到Codon和它包含的Command是如何关联的。由于这个关联调用是在插件树外部的（记得在讲述SharpDevelop程序入口Main函数中，提到ServiceManager的方法InitializeServicesSubsystem么？AddServices((IService[])AddInTreeSingleton.AddInTree.GetTreeNode(servicesPath).BuildChildItems(this).ToArray(typeof(IService))); 这里就调用了BuildChildItems），因此单独在这里说明。实现这个关联的就是AddInTreeNode的BuildChildItems和BuildChildItem方法以及Codon的BuildItem方法。<br>   BuildChildItem方法和BuildChildItems方法仅有一字之差，BuildChildItem是根据指定的Codon的ID在所属AddInTreeNode的子节点下查找包含该Codon的节点并调用该Codon的BuildItem方法；而BuildChildItems则是首先遍历所属AddInTreeNode的所有子节点，依次调用各个子节点的Codon的BuildItem方法，之后再调用所属AddInTreeNode的Codon的BuildItem方法（也就是一个树的后根遍历）。<br>   重点在Codon的BuildItem方法。在AbstractCodon中，这个方法是一个抽象方法，SharpDevelop的代码注释中并没有明确说清楚这个方法是做什么用的。但是我们可以找一个Codon的实例来看看。例如ClassCodon的BuildItem：</p>
+<p>   调用AddIn的CreateObject，传入Codon的Class（类名）作为参数，建立这个类的实例。例如这个配置</p>
+<p>   而Codon的中的Class（类名）属性就是ICSharpCode.SharpDevelop.Commands.InitializeWorkbenchCommand。也就是说，Codon的Class指的是实现具体功能模块的Command类的名称。在读取addin配置中的<Runtime>节的时候，AddInTree把Assembly保存到了RuntimeLibraries中，因此CreateObject方法可以通过它们来查找并建立类的实例。<br>   各位看官可以再看看MenuItemCodon的实现，同样是建立了对应的SdMenuCommand。<br>   这样，SharpDevelop本身的插件结构可以和具体的对象建立分离开来，实际的对象建立是在各个Codon的BuildItem中进行的。因此我们可以发现在SharpDevelop整个是基础插件系统部分没有任何GUI的操作，实现了很好的解耦效果。</p>
+<p><strong>4、问题</strong><br>   好了，本文对插件树构造的分析到此告一段落。我提一个小小的问题给各位看官思考：在构造插件树的过程中，如果Codon的某一个节点路径不存在（也就是说它的依赖项不存在），那么SharpDevelop会提示失败并且终止程序运行。可是实际上可能因为部署的原因或者权限的原因，某些Codon的失败并不会影响整个系统的使用，例如试用版本仅仅提供部分插件给客户使用，而并不希望系统因此而终止运行。那么就存在一个Codon依赖项失败而允许继续运行的问题。另外，我希望各个插件不在系统启动的时候全部调入系统，而是在运行期实际调用的时候才调入系统，也就是一个缓存机制，这样就可以实现系统插件的热部署。如何修改SharpDevelop的插件系统来实现这两个功能呢？</p>
+<p>   下一回书，应某位网友的要求，分析一下SharpDevelop中的服务。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/SharpDevelop/" rel="tag"># SharpDevelop</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/08/29/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C%E3%80%81%E4%B8%BB%E7%A8%8B%E5%BA%8F+%E9%9A%90%E8%97%8F%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96)/" rel="prev" title="SharpDevelop源码分析 (二、主程序+隐藏的初始化)">
+                  <i class="fa fa-angle-left"></i> SharpDevelop源码分析 (二、主程序+隐藏的初始化)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/09/12/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%80)%20-Quartz.Net%E5%85%A5%E9%97%A8/" rel="next" title="Net作业调度(一) -Quartz.Net入门">
+                  Net作业调度(一) -Quartz.Net入门 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

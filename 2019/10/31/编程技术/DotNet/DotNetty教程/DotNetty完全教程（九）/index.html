@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="DotNetty完全教程（九） Excerpt引导Bootstrap引导一个应用程序是指对他进行配置并且使他运行的过程。体系结构注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个浅拷贝，这就导致了拷贝的Bootstra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DotNetty完全教程（九）">
+<meta property="og:url" content="http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="DotNetty完全教程（九） Excerpt引导Bootstrap引导一个应用程序是指对他进行配置并且使他运行的过程。体系结构注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个浅拷贝，这就导致了拷贝的Bootstra">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzQzMnVqZDZqMzBpZTA3YmFhYy5qcGc?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzRtNG1va3NqMzBqODBmNHdrMC5qcGc?x-oss-process=image/format,png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191030154635566.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzUxNmJvcnJqMzBrZjBoeG40OS5qcGc?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWQzeGp5YTBqMzBpZDA3ZmdtaS5qcGc?x-oss-process=image/format,png">
+<meta property="article:published_time" content="2019-10-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.280Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="DotNetty">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzQzMnVqZDZqMzBpZTA3YmFhYy5qcGc?x-oss-process=image/format,png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89/","path":"2019/10/31/编程技术/DotNet/DotNetty教程/DotNetty完全教程（九）/","title":"DotNetty完全教程（九）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>DotNetty完全教程（九） | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">DotNetty完全教程（九）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%AF%BCBootstrap"><span class="nav-number">1.2.</span> <span class="nav-text">引导Bootstrap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.1.</span> <span class="nav-text">体系结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E9%93%BE%E5%BC%8F%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">关于链式调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API"><span class="nav-number">1.2.3.</span> <span class="nav-text">API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%95%E5%AF%BC"><span class="nav-number">1.2.4.</span> <span class="nav-text">客户端引导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%95%E5%AF%BC"><span class="nav-number">1.2.5.</span> <span class="nav-text">服务器引导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8EChannel%E4%B8%AD%E5%BC%95%E5%AF%BC%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">1.2.6.</span> <span class="nav-text">从Channel中引导客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Pipeline"><span class="nav-number">1.2.7.</span> <span class="nav-text">初始化Pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ChannelOption"><span class="nav-number">1.2.8.</span> <span class="nav-text">ChannelOption</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%A2%E5%90%91%E6%97%A0%E8%BF%9E%E6%8E%A5%E7%9A%84%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%8A%A5%E6%96%87"><span class="nav-number">1.2.9.</span> <span class="nav-text">面向无连接的用户数据报文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%97%AD"><span class="nav-number">1.2.10.</span> <span class="nav-text">关闭</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B9%9D%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="DotNetty完全教程（九） | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DotNetty完全教程（九）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-31 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-31T00:00:00+08:00">2019-10-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">DotNetty教程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="DotNetty完全教程（九）"><a href="#DotNetty完全教程（九）" class="headerlink" title="DotNetty完全教程（九）"></a>DotNetty完全教程（九）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>引导Bootstrap引导一个应用程序是指对他进行配置并且使他运行的过程。体系结构注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个浅拷贝，这就导致了拷贝的Bootstrap都会使用同一个EventLoopGr…</p>
+</blockquote>
+<hr>
+<h2 id="引导Bootstrap"><a href="#引导Bootstrap" class="headerlink" title="引导Bootstrap"></a>引导<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=Bootstrap&spm=1001.2101.3001.7020">Bootstrap</a></h2><p>引导一个应用程序是指对他进行配置并且使他运行的过程。</p>
+<h3 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a><a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84&spm=1001.2101.3001.7020">体系结构</a></h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzQzMnVqZDZqMzBpZTA3YmFhYy5qcGc?x-oss-process=image/format,png"><br>注意，DotNetty没有实现Cloneable的接口，而是直接实现了一个Clone方法。Netty实现这个接口是为了创建两个有着相同配置的应用程序，可以把一个配置整体应用到另一个上面，需要注意的是EventLoopGroup是一个<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E6%B5%85%E6%8B%B7%E8%B4%9D&spm=1001.2101.3001.7020">浅拷贝</a>，这就导致了拷贝的Bootstrap都会使用同一个EventLoopGroup，这在每个Channel生命周期很短的时候是没有太大影响的。</p>
+<p>服务器引导和普通引导有什么区别呢？区别在于，服务器接收到客户端的连接请求，会用一个Channel接受连接，然后用另一个Channel与客户端进行交流，但是客户端只需要一个Channel就可以与服务器进行交互。</p>
+<h3 id="关于链式调用"><a href="#关于链式调用" class="headerlink" title="关于链式调用"></a>关于链式调用</h3><p>我们发现Bootstrap类可以通过流式语法进行链式调用，这要归功于Bootstrap类的特殊定义。下面我们来看一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">// 定义</span><br><span class="line">public abstract class AbstractBootstrap&lt;TBootstrap, TChannel&gt;</span><br><span class="line">    where TBootstrap : AbstractBootstrap&lt;TBootstrap, TChannel&gt;</span><br><span class="line">    where TChannel : IChannel</span><br><span class="line">// 定义子类</span><br><span class="line">public class Bootstrap : AbstractBootstrap&lt;Bootstrap, IChannel&gt;</span><br><span class="line">// 方法实现</span><br><span class="line">public virtual TBootstrap Group(IEventLoopGroup group)</span><br><span class="line">&#123;</span><br><span class="line">    Contract.Requires(group != null);</span><br><span class="line"></span><br><span class="line">    if (this.group != null)</span><br><span class="line">    &#123;</span><br><span class="line">        throw new InvalidOperationException(&quot;group has already been set.&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    this.group = group;</span><br><span class="line">    return (TBootstrap)this;</span><br><span class="line">&#125;</span><br><span class="line">// 使用</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
+
+<h3 id="API"><a href="#API" class="headerlink" title="API"></a>API</h3><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzRtNG1va3NqMzBqODBmNHdrMC5qcGc?x-oss-process=image/format,png"><br><img src="https://img-blog.csdnimg.cn/20191030154635566.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70" alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-KF8h1wnu-1572421399290)(https://ws1.sinaimg.cn/large/007hF5Quly1g1o4mltliij30jr05mabe.jpg)]"></p>
+<h3 id="客户端引导"><a href="#客户端引导" class="headerlink" title="客户端引导"></a>客户端引导</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">var group = new MultithreadEventLoopGroup();</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br><span class="line">IChannel clientChannel = await bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(&quot;10.10.10.158&quot;), 3000));</span><br><span class="line">Console.ReadLine();</span><br><span class="line">await clientChannel.CloseAsync();</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务器引导"><a href="#服务器引导" class="headerlink" title="服务器引导"></a>服务器引导</h3><p>API：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxbzUxNmJvcnJqMzBrZjBoeG40OS5qcGc?x-oss-process=image/format,png"><br>注意上面箭头指示的是与Bootstrap不一样的方法。<br>为什么会有子Channel的概念呢，我们看下面这个图：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxcWQzeGp5YTBqMzBpZDA3ZmdtaS5qcGc?x-oss-process=image/format,png"><br>因为服务器是一对多的，所以有子Channel的概念。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">IEventLoopGroup eventLoop;</span><br><span class="line">eventLoop = new MultithreadEventLoopGroup();</span><br><span class="line">try</span><br><span class="line">&#123;</span><br><span class="line">    // 服务器引导程序</span><br><span class="line">    var bootstrap = new ServerBootstrap();</span><br><span class="line">    bootstrap.Group(eventLoop);</span><br><span class="line">    bootstrap.Channel&lt;TcpServerSocketChannel&gt;();</span><br><span class="line">    bootstrap.ChildHandler(new ActionChannelInitializer&lt;IChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line">        pipeline.AddLast(new EchoServerHandler());</span><br><span class="line">    &#125;));</span><br><span class="line">    IChannel boundChannel = await bootstrap.BindAsync(3000);</span><br><span class="line">    Console.ReadLine();</span><br><span class="line">    await boundChannel.CloseAsync();</span><br><span class="line">&#125;</span><br><span class="line">catch (Exception ex)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(ex);</span><br><span class="line">&#125;</span><br><span class="line">finally</span><br><span class="line">&#123;</span><br><span class="line">    await eventLoop.ShutdownGracefullyAsync();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="从Channel中引导客户端"><a href="#从Channel中引导客户端" class="headerlink" title="从Channel中引导客户端"></a>从Channel中引导客户端</h3><ul>
+<li><p>场景</p>
+<p>如果我们的服务器需要去第三方获取数据，这时候服务器就需要充当客户端去第三方取数据，这时候就需要在Channel中再开一个客户端获取数据。</p>
+</li>
+<li><p>方式</p>
+<p>我们最好是从Channel中获取当前EventLoop，这样新开的客户端就跟当前Channel在一个线程中，减少了线程切换带来的开销，尽可能的重用了EventLoop</p>
+</li>
+<li><p>实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 从Context创建客户端引导</span><br><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap.Group(ctx.Channel.EventLoop);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="初始化Pipeline"><a href="#初始化Pipeline" class="headerlink" title="初始化Pipeline"></a>初始化Pipeline</h3><p>如果要添加的Handler不止一个，我们就需要用到ChannelInitializer，在DotNetty中，我们有十分简单的方法可以初始化一个pipeline</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;TcpSocketChannel&gt;()</span><br><span class="line">    .Option(ChannelOption.TcpNodelay, true)</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;ISocketChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        IChannelPipeline pipeline = channel.Pipeline;</span><br><span class="line"></span><br><span class="line">        if (cert != null)</span><br><span class="line">        &#123;</span><br><span class="line">            pipeline.AddLast(&quot;tls&quot;, new TlsHandler(stream =&gt; new SslStream(stream, true, (sender, certificate, chain, errors) =&gt; true), new ClientTlsSettings(targetHost)));</span><br><span class="line">        &#125;</span><br><span class="line">        pipeline.AddLast(new LoggingHandler());</span><br><span class="line">        pipeline.AddLast(&quot;framing-enc&quot;, new LengthFieldPrepender(2));</span><br><span class="line">        pipeline.AddLast(&quot;framing-dec&quot;, new LengthFieldBasedFrameDecoder(ushort.MaxValue, 0, 2, 0, 2));</span><br><span class="line"></span><br><span class="line">        pipeline.AddLast(&quot;echo&quot;, new EchoClientHandler());</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
+
+<h3 id="ChannelOption"><a href="#ChannelOption" class="headerlink" title="ChannelOption"></a>ChannelOption</h3><p>ChannelOption可以在引导的时候将设置批量的设置到所有Channel上，而不必要在每一个Channel建立的时候手动的去指定它的配置，应用场景是比如设置KeepAlive或者设置超时时间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bootstrap.Option(ChannelOption.SoKeepalive, true)</span><br><span class="line">    .Option(ChannelOption.ConnectTimeout, new TimeSpan(5000));</span><br></pre></td></tr></table></figure>
+
+<h3 id="面向无连接的用户数据报文"><a href="#面向无连接的用户数据报文" class="headerlink" title="面向无连接的用户数据报文"></a>面向无连接的用户数据报文</h3><p>UDP的全称是“User Datagram Protocol”，在DotNetty中实现了SocketDatagramChannel来创建无连接的引导，需要注意的是无连接的引导不需要Connect只需要bind即可，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">var bootstrap = new Bootstrap();</span><br><span class="line">bootstrap</span><br><span class="line">    .Group(group)</span><br><span class="line">    .Channel&lt;SocketDatagramChannel&gt;()</span><br><span class="line">    .Option(ChannelOption.SoBroadcast, true)</span><br><span class="line">    .Handler(new ActionChannelInitializer&lt;IChannel&gt;(channel =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        channel.Pipeline.AddLast(&quot;Quote&quot;, new QuoteOfTheMomentClientHandler());</span><br><span class="line">    &#125;));</span><br><span class="line"></span><br><span class="line">IChannel clientChannel = await bootstrap.BindAsync(IPEndPoint.MinPort);</span><br></pre></td></tr></table></figure>
+
+<h3 id="关闭"><a href="#关闭" class="headerlink" title="关闭"></a>关闭</h3><p>Channel的关闭：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">await clientChannel.CloseAsync();</span><br></pre></td></tr></table></figure>
+
+<p>EventLoopGroup的关闭：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">await group.ShutdownGracefullyAsync();</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/DotNetty/" rel="tag"># DotNetty</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="DotNetty完全教程（二）">
+                  <i class="fa fa-angle-left"></i> DotNetty完全教程（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89/" rel="next" title="DotNetty完全教程（三）">
+                  DotNetty完全教程（三） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

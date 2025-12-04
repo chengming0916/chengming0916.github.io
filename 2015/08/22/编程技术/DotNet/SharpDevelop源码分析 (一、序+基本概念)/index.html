@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="石榴刺猬 2004-10-04 18:55:00  版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。 序     最近开始学习.Net，遇到了一个比较不错的开源的IDE SharpDevelop。这个开发工具是使用C#开发的，比较吸引我的一点就是它是采用了和Eclipse类似的插件技术来实现整个系统的。而这个插件系统是我最感兴趣的地方，因此开">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SharpDevelop源码分析 (一、序+基本概念)">
+<meta property="og:url" content="http://chengming0916.github.io/2015/08/22/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80%E3%80%81%E5%BA%8F+%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5)/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="石榴刺猬 2004-10-04 18:55:00  版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。 序     最近开始学习.Net，遇到了一个比较不错的开源的IDE SharpDevelop。这个开发工具是使用C#开发的，比较吸引我的一点就是它是采用了和Eclipse类似的插件技术来实现整个系统的。而这个插件系统是我最感兴趣的地方，因此开">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-08-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.289Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="SharpDevelop">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/08/22/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80%E3%80%81%E5%BA%8F+%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5)/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/08/22/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80%E3%80%81%E5%BA%8F+%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5)/","path":"2015/08/22/编程技术/DotNet/SharpDevelop源码分析 (一、序+基本概念)/","title":"SharpDevelop源码分析 (一、序+基本概念)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SharpDevelop源码分析 (一、序+基本概念) | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/08/22/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%B8%80%E3%80%81%E5%BA%8F+%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SharpDevelop源码分析 (一、序+基本概念) | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SharpDevelop源码分析 (一、序+基本概念)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-08-22 00:00:00" itemprop="dateCreated datePublished" datetime="2015-08-22T00:00:00+08:00">2015-08-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/passos">石榴刺猬</a> 2004-10-04 18:55:00 </p>
+<p>版权声明：本文为博主原创文章，遵循 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上原文出处链接和本声明。</p>
+<p><strong>序</strong></p>
+<p>    最近开始学习.Net，遇到了一个比较不错的开源的IDE SharpDevelop。这个开发工具是使用C#开发的，比较吸引我的一点就是它是采用了和Eclipse类似的插件技术来实现整个系统的。而这个插件系统是我最感兴趣的地方，因此开始了一段代码的研究。在本篇之后，我会陆续把我研究的心得写下来。由于是在网吧上网，有诸多不便，因此可能会拖比较长的时间。</p>
+<p><strong>一、基本概念</strong></p>
+<p>    首先，我们先来对 SharpDevelop 有一个比较感性的认识。你可以从这里下载到它的可执行程序和代码包    <a target="_blank" rel="noopener" href="http://www.icsharpcode.com/">http://www.icsharpcode.com/</a>  ，安装的废话就不说了，先运行一下看看。感觉跟VS很像吧？不过目前的版本是1.0.0.1550，还有很多地方需要完善。关于代码和系统结构，SharpDevelop的三个作者写了一本书，各位看官可以参考一下，不过我看过之后还是有很多地方不太理解。</p>
+<p>    然后，让我来解释一下什么叫插件以及为什么要使用插件系统。我们以往的系统，开发人员编译发布之后，系统就不允许进行更改和扩充了，如果要进行某个功能的扩充，则必须要修改代码重新编译发布。这就给我们带来了比较大的不方便。解决的方法有很多，例如提供配置等等方法。在解决方案之中，插件是一个比较好的解决方法。大家一定知道PhotoShop、WinAmp吧，他们都有“插件”的概念，允许其他开发人员根据系统预定的接口编写扩展功能（例如PhotoShop中各种各样的滤镜）。所谓的插件就是系统的扩展功能模块，这个模块是以一个独立文件的形式出现的，与系统是相对独立。在系统设计期间并不知道插件的具体功能，仅仅是在系统中为插件留下预定的接口，系统启动的时候根据插件的配置寻找插件，根据预定的接口把插件挂接到系统中。</p>
+<p>    这样的方式带来什么样的优点呢？首先是系统的扩展性大大的增强了，如果我们在系统发布后需要对系统进行扩充，不必重新编译，只需要修改插件就可以了。其次有利与团队开发，各个功能模块由于是以插件的形式表现在系统中，系统的每日构造就很简单了，不会因为某个模块的错误而导致整个系统的BUILD失败。失败的仅仅是一个插件而已。</p>
+<p>    PhotoShop和Winamp的插件系统是比较简单的，他们首先实现了一个基本的系统，然后在这个系统的基础上挂接其他扩展的功能插件。而SharpDevelop的插件系统更加强大，它的整个系统的基础就仅仅是一个插件管理系统，而你看到的所有的界面、功能统统都是以插件的形式挂入的。在这样的一个插件系统下，我们可以不修改基本系统，仅仅使用插件就构造出各种各样不同的系统。</p>
+<p>    现在让我们来看看它的插件系统。进入到SharpDevelop的安装目录中，在Bin目录下的SharpDevelop.exe 和 SharpDevelop.Core.dll是这个系统的基本的插件系统。在Addins目录下有两个后缀是addin的文件，其中一个 SharpDevelopCore.addin 就是它的核心插件的定义（配置）文件，里面定义的各个功能模块存在于Bin&#x2F;Sharpdevelop.Base.dll 文件中，另外还有很多其他的插件定义在Addins目录下的addin文件中。</p>
+<p>    分析SharpDevelop的代码，首先要弄清楚几个基本的概念，这些概念和我以前的预想有一些区别，我深入了代码之后才发现我的困惑所在。</p>
+<p><strong>1、AddInTree  插件树</strong><br>    SharpDevelop 中的插件被组织成一棵插件树结构，树的结构是通过 Extension（扩展点）中定义的Path(路径)来定义的，类似一个文件系统的目录结构。系统中的每一个插件都在配置文件中指定了 Extension，通过Extension中指定的 Path 挂到这棵插件树上。在系统中可以通过 AddTreeSingleton对象来访问各个插件，以实现插件之间的互动。</p>
+<p><strong>2、 AddIn 插件</strong><br>    在 SharpDevelop 的概念中，插件是包含多个功能模块的集合（而不是我过去认为的一个功能模块）。在文件的表现形式上是一个addin配置文件，在系统中对应 AddIn 类。</p>
+<p><strong>3、Extension 扩展点</strong><br>    SharpDevelop中的每一个插件都会被挂到 AddInTree（插件树） 中，而具体挂接到这个插件树的哪个位置，则是由插件的 Extension 对象中的 Path 指定的。在addin 配置文件中，对应于 <Extension> 。例如下面这个功能模块的配置</p>
+<p>指定了扩展点路径为 &#x2F;SharpDevelop&#x2F;Workbench&#x2F;Ambiences ，也就是在插件树中的位置。</p>
+<p><strong>4、Codon</strong><br>    这个是一个比较不好理解的东西，在 SharpDevelop 的三个作者写的书的中译版中被翻译为<strong>密码子</strong>，真是个糟糕的翻译，可以跟Handle(句柄)有一拼了。词典中还有一个翻译叫“基码”，我觉得这个也不算好，不过还稍微有那么一点意思。（这里我原来误写为“代码子”，在评论中有位仁兄说这个翻译不错，现在我觉得也好像确实不错 ^o^）<br>    根据我对代码的理解，Codon 的功能是描述(包装)一个功能模块（一个功能模块对应一个实现了具体功能的 Command 类）。为了方便访问各个插件中的功能模块， Codon 给各种功能定义了基本的属性，分别是 ID (功能模块的标识)，Name (功能模块的类型。别误会，这个Name 是addin文件定义中Codon的XML结点的名称，ID才是真正的名称)，其中Name可能是Class(类)、MenuItem(菜单项)、Pad(面板)等等。根据具体的功能模块，可以继承Codon定义其他的一些属性，SharpDevelop中就定义了 ClassCodon、MenuItemCodon、PadCodon等等，你可以根据需要自己定义其他类型的Codon。在addin定义文件中，Codon对应于 <Extension> 标签下的内容。例如下面这个定义</p>
+<p>&lt;Extension …&gt; 内部定义了一个Codon，&lt;**Class** …&gt;  表示该Codon是一个 Class(类)，接着定义了该Codon的 ID和具体实现该Codon的类名ICSharpCode.SharpDevelop.Services.NetAmbience。运行期间将通过反射来找到对应的类并创建出来，这一点也是我们无法在以前的语言中实现的。</p>
+<p>再例如这一个定义</p>
+<p>这个扩展点中定义了三个菜单项，以及各个菜单项的名字、标签和实现的类名。这里的Codon就对应于系统中的MenuCodon对象。</p>
+<p><strong>5、Command 命令</strong><br>    正如前文所述，Codon描述了一个功能模块，而每个功能模块都是一个 ICommand 的实现。最基本的 Command 是  AbstractCommand，根据Codon的不同对应了不同的 Command。例如 MenuItemCodon 对应 MenuItemCommand 等等。</p>
+<p><strong>6、Service 服务</strong><br>    插件系统中，有一些功能是整个系统都要使用的，例如文件访问、资源、消息等等。这些功能都作为插件系统的一个基本功能为整个系统提供服务，我们就叫“服务”好了。为了便于访问，这些服务都统一通过 ServiceManager 来管理。其实服务也是一种类型的插件，它们的扩展点路径在目录树中的 &#x2F;Workspace&#x2F;Services 中。</p>
+<p>    理解了这几个基本的概念之后，就可以看看 SharpDevelop 的代码了。从 src&#x2F;main&#x2F;startup.cs 看起吧，之后是addin.cs、addinTree.cs 等等。</p>
+<p>   写了两个小时了，休息一下。且听下回分解。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/SharpDevelop/" rel="tag"># SharpDevelop</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/08/15/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8B%E4%BD%BF%E7%94%A8EventAggregation%E8%BF%9B%E8%A1%8C%E6%A8%A1%E5%9D%97%E9%97%B4%E9%80%9A%E4%BF%A1/" rel="prev" title="Prism之使用EventAggregation进行模块间通信">
+                  <i class="fa fa-angle-left"></i> Prism之使用EventAggregation进行模块间通信
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/08/29/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/SharpDevelop%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%20(%E4%BA%8C%E3%80%81%E4%B8%BB%E7%A8%8B%E5%BA%8F+%E9%9A%90%E8%97%8F%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96)/" rel="next" title="SharpDevelop源码分析 (二、主程序+隐藏的初始化)">
+                  SharpDevelop源码分析 (二、主程序+隐藏的初始化) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

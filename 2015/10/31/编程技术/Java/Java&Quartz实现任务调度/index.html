@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="1.Quartz的作用定时自动执行任务 2.预备相关包官方网站 12quartz2.2.1quartz-jobs2.2.1  POM文件 12345678910&lt;dependency&gt;    &lt;groupId&gt;org.quartz-scheduler&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;quartz&lt;&#x2F;artifactId&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java&amp;Quartz实现任务调度">
+<meta property="og:url" content="http://chengming0916.github.io/2015/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Java&Quartz%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="1.Quartz的作用定时自动执行任务 2.预备相关包官方网站 12quartz2.2.1quartz-jobs2.2.1  POM文件 12345678910&lt;dependency&gt;    &lt;groupId&gt;org.quartz-scheduler&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;quartz&lt;&#x2F;artifactId&gt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-10-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.304Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="任务调度">
+<meta property="article:tag" content="Quartz">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Java&Quartz%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Java&Quartz%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/","path":"2015/10/31/编程技术/Java/Java&Quartz实现任务调度/","title":"Java&Quartz实现任务调度"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Java&Quartz实现任务调度 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Quartz%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">1.Quartz的作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%A2%84%E5%A4%87"><span class="nav-number">2.</span> <span class="nav-text">2.预备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Quartz%E6%A0%B8%E5%BF%83"><span class="nav-number">3.</span> <span class="nav-text">3.Quartz核心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Job%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.1.</span> <span class="nav-text">3.1.Job接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-JobDetail%E7%B1%BB"><span class="nav-number">3.2.</span> <span class="nav-text">3.2.JobDetail类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-JobExecutionContext%E7%B1%BB"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 JobExecutionContext类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-JobDataMap%E7%B1%BB"><span class="nav-number">3.4.</span> <span class="nav-text">3.3 JobDataMap类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-JobListener%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.5.</span> <span class="nav-text">3.3 JobListener接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-TriggaerListener%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.6.</span> <span class="nav-text">3.3 TriggaerListener接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-JobStore"><span class="nav-number">3.7.</span> <span class="nav-text">3.3 JobStore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-Tigger%E6%8A%BD%E8%B1%A1%E7%B1%BB"><span class="nav-number">3.8.</span> <span class="nav-text">3.3.Tigger抽象类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-1-SimpleTrigger%E7%B1%BB"><span class="nav-number">3.8.1.</span> <span class="nav-text">3.3.1.SimpleTrigger类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-2-CronTrigger%E7%B1%BB"><span class="nav-number">3.8.2.</span> <span class="nav-text">3.3.2.CronTrigger类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Calendar%E5%8C%85"><span class="nav-number">3.9.</span> <span class="nav-text">3.4.Calendar包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-1-BaseCalendar%E7%B1%BB"><span class="nav-number">3.9.1.</span> <span class="nav-text">3.4.1 BaseCalendar类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-2-AnnualCalendar%E7%B1%BB"><span class="nav-number">3.9.2.</span> <span class="nav-text">3.4.2 AnnualCalendar类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-3-CalendarComparator%E7%B1%BB"><span class="nav-number">3.9.3.</span> <span class="nav-text">3.4.3 CalendarComparator类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-4-CronCalendar%E7%B1%BB"><span class="nav-number">3.9.4.</span> <span class="nav-text">3.4.4 CronCalendar类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-5-DailyCalendar%E7%B1%BB"><span class="nav-number">3.9.5.</span> <span class="nav-text">3.4.5 DailyCalendar类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-6-HolidayCalendar%E7%B1%BB"><span class="nav-number">3.9.6.</span> <span class="nav-text">3.4.6 HolidayCalendar类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-7-MonthlyCalendar%E7%B1%BB"><span class="nav-number">3.9.7.</span> <span class="nav-text">3.4.7 MonthlyCalendar类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-8-WeeklyCalendar%E7%B1%BB"><span class="nav-number">3.9.8.</span> <span class="nav-text">3.4.8 WeeklyCalendar类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-Scheduler%E7%B1%BB"><span class="nav-number">3.10.</span> <span class="nav-text">3.5.Scheduler类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6Misfire%E7%B1%BB"><span class="nav-number">3.11.</span> <span class="nav-text">3.6Misfire类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">4.实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8D%95%E4%BB%BB%E5%8A%A1%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.1.</span> <span class="nav-text">1.单任务实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A4%9A%E4%BB%BB%E5%8A%A1%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.2.</span> <span class="nav-text">2.多任务实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A4%8D%E6%9D%82%E8%A7%84%E5%88%99%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6-CronTrigger"><span class="nav-number">4.3.</span> <span class="nav-text">3.复杂规则任务调度(CronTrigger)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Cron%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">5.Cron表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%84%E5%88%99"><span class="nav-number">5.1.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E8%A7%A3%E9%87%8A"><span class="nav-number">5.2.</span> <span class="nav-text">符号解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E5%8F%96%E5%80%BC"><span class="nav-number">5.3.</span> <span class="nav-text">月取值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%A8%E5%8F%96%E5%80%BC"><span class="nav-number">5.4.</span> <span class="nav-text">周取值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.5.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Spring%E6%95%B4%E5%90%88Quartz"><span class="nav-number">6.</span> <span class="nav-text">6.Spring整合Quartz</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Java&Quartz%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Java&amp;Quartz实现任务调度 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java&Quartz实现任务调度
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-10-31 00:00:00" itemprop="dateCreated datePublished" datetime="2015-10-31T00:00:00+08:00">2015-10-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="1-Quartz的作用"><a href="#1-Quartz的作用" class="headerlink" title="1.Quartz的作用"></a>1.Quartz的作用</h2><p>定时自动执行任务</p>
+<h2 id="2-预备"><a href="#2-预备" class="headerlink" title="2.预备"></a>2.预备</h2><p>相关包<a target="_blank" rel="noopener" href="http://www.quartz-scheduler.org/">官方网站</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">quartz2.2.1</span><br><span class="line">quartz-jobs2.2.1</span><br></pre></td></tr></table></figure>
+
+<p>POM文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.quartz-scheduler&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;quartz&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.2.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">     &lt;groupId&gt;org.quartz-scheduler&lt;/groupId&gt;</span><br><span class="line">     &lt;artifactId&gt;quartz-jobs&lt;/artifactId&gt;</span><br><span class="line">     &lt;version&gt;2.2.1&lt;/version&gt;</span><br><span class="line"> &lt;/dependency&gt;   </span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Quartz核心"><a href="#3-Quartz核心" class="headerlink" title="3.Quartz核心"></a>3.Quartz核心</h2><h3 id="3-1-Job接口"><a href="#3-1-Job接口" class="headerlink" title="3.1.Job接口"></a>3.1.Job接口</h3><p>被调度的任务,只有一个方法execute(JobExecutionContext xontext),Job运行时的信息保存在JobDataMap中</p>
+<h3 id="3-2-JobDetail类"><a href="#3-2-JobDetail类" class="headerlink" title="3.2.JobDetail类"></a>3.2.JobDetail类</h3><p>实现Job接口,用来描述Job的相关信息,包含Name,Group,JobDataMap等</p>
+<h3 id="3-3-JobExecutionContext类"><a href="#3-3-JobExecutionContext类" class="headerlink" title="3.3 JobExecutionContext类"></a>3.3 JobExecutionContext类</h3><p>定时程序执行的run-time的上下文环境,用于得到Job的名字、配置的参数等</p>
+<h3 id="3-3-JobDataMap类"><a href="#3-3-JobDataMap类" class="headerlink" title="3.3 JobDataMap类"></a>3.3 JobDataMap类</h3><p>用来描述一个作业的参数,参数可以为金和基本类型或者某个对象的引用</p>
+<h3 id="3-3-JobListener接口"><a href="#3-3-JobListener接口" class="headerlink" title="3.3 JobListener接口"></a>3.3 JobListener接口</h3><p>监听作业状态</p>
+<h3 id="3-3-TriggaerListener接口"><a href="#3-3-TriggaerListener接口" class="headerlink" title="3.3 TriggaerListener接口"></a>3.3 TriggaerListener接口</h3><p>监听触发器状态</p>
+<h3 id="3-3-JobStore"><a href="#3-3-JobStore" class="headerlink" title="3.3 JobStore"></a>3.3 JobStore</h3><h3 id="3-3-Tigger抽象类"><a href="#3-3-Tigger抽象类" class="headerlink" title="3.3.Tigger抽象类"></a>3.3.Tigger抽象类</h3><p>触发器,描述执行Job的触发规则,有SimpleTrigger和CronTrigger两个子类</p>
+<h4 id="3-3-1-SimpleTrigger类"><a href="#3-3-1-SimpleTrigger类" class="headerlink" title="3.3.1.SimpleTrigger类"></a>3.3.1.SimpleTrigger类</h4><p>继承自Trigger类,每隔xx毫秒&#x2F;秒执行一次,主要实现固定一次或者固定时间<code>周期类</code>任务的触发</p>
+<h4 id="3-3-2-CronTrigger类"><a href="#3-3-2-CronTrigger类" class="headerlink" title="3.3.2.CronTrigger类"></a>3.3.2.CronTrigger类</h4><p>继承自Trigger类,使用Cron表达式,实现各种<code>复杂时间规则</code>调度方案,如每天的某个时间,或每周的某几天触发执行之类</p>
+<h3 id="3-4-Calendar包"><a href="#3-4-Calendar包" class="headerlink" title="3.4.Calendar包"></a>3.4.Calendar包</h3><p>一些日历特定时间点的集合,包内包含以下几个类</p>
+<h4 id="3-4-1-BaseCalendar类"><a href="#3-4-1-BaseCalendar类" class="headerlink" title="3.4.1 BaseCalendar类"></a>3.4.1 BaseCalendar类</h4><h4 id="3-4-2-AnnualCalendar类"><a href="#3-4-2-AnnualCalendar类" class="headerlink" title="3.4.2 AnnualCalendar类"></a>3.4.2 AnnualCalendar类</h4><p>排除每一年中指定的一天或者多天</p>
+<h4 id="3-4-3-CalendarComparator类"><a href="#3-4-3-CalendarComparator类" class="headerlink" title="3.4.3 CalendarComparator类"></a>3.4.3 CalendarComparator类</h4><h4 id="3-4-4-CronCalendar类"><a href="#3-4-4-CronCalendar类" class="headerlink" title="3.4.4 CronCalendar类"></a>3.4.4 CronCalendar类</h4><p>使用表达式排除某时间段不执行</p>
+<h4 id="3-4-5-DailyCalendar类"><a href="#3-4-5-DailyCalendar类" class="headerlink" title="3.4.5 DailyCalendar类"></a>3.4.5 DailyCalendar类</h4><p>指定的时间范围内每天不执行</p>
+<h4 id="3-4-6-HolidayCalendar类"><a href="#3-4-6-HolidayCalendar类" class="headerlink" title="3.4.6 HolidayCalendar类"></a>3.4.6 HolidayCalendar类</h4><p>排除节假日</p>
+<h4 id="3-4-7-MonthlyCalendar类"><a href="#3-4-7-MonthlyCalendar类" class="headerlink" title="3.4.7 MonthlyCalendar类"></a>3.4.7 MonthlyCalendar类</h4><p>配出月份中的数天</p>
+<h4 id="3-4-8-WeeklyCalendar类"><a href="#3-4-8-WeeklyCalendar类" class="headerlink" title="3.4.8 WeeklyCalendar类"></a>3.4.8 WeeklyCalendar类</h4><p>排除没周中的一天或者多天</p>
+<h3 id="3-5-Scheduler类"><a href="#3-5-Scheduler类" class="headerlink" title="3.5.Scheduler类"></a>3.5.Scheduler类</h3><p>任务调度器,代表一个Quartz独立容器。</p>
+<p>Scheduler可以将JobDetail和Trigger绑定,当Trigger触发时,对应的Job就会被执行,Job和Trigger是1:n(一对多)的关系</p>
+<h3 id="3-6Misfire类"><a href="#3-6Misfire类" class="headerlink" title="3.6Misfire类"></a>3.6Misfire类</h3><p>错误的任务,本该执行单没有执行的任务调度</p>
+<h2 id="4-实现"><a href="#4-实现" class="headerlink" title="4.实现"></a>4.实现</h2><h3 id="1-单任务实现"><a href="#1-单任务实现" class="headerlink" title="1.单任务实现"></a>1.单任务实现</h3><p>1.定义一个任务,新建任务类继承自Job类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat;</span><br><span class="line">import java.util.Date;</span><br><span class="line"></span><br><span class="line">import org.quartz.Job;</span><br><span class="line">import org.quartz.JobExecutionContext;</span><br><span class="line">import org.quartz.JobExecutionException;</span><br><span class="line"></span><br><span class="line">public class DemoJob implements Job &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void execute(JobExecutionContext arg0) throws JobExecutionException &#123;</span><br><span class="line">System.out.println(new SimpleDateFormat(&quot;HH:mm:ss&quot;).format(new Date()));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.新建类执行这个任务(SimpleTrigger)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import java.util.Date;</span><br><span class="line"></span><br><span class="line">import org.quartz.DateBuilder;</span><br><span class="line">import org.quartz.JobBuilder;</span><br><span class="line">import org.quartz.JobDetail;</span><br><span class="line">import org.quartz.Scheduler;</span><br><span class="line">import org.quartz.SchedulerException;</span><br><span class="line">import org.quartz.SchedulerFactory;</span><br><span class="line">import org.quartz.SimpleScheduleBuilder;</span><br><span class="line">import org.quartz.Trigger;</span><br><span class="line">import org.quartz.TriggerBuilder;</span><br><span class="line">import org.quartz.impl.StdSchedulerFactory;</span><br><span class="line"></span><br><span class="line">public class QuartzDemo &#123;</span><br><span class="line"></span><br><span class="line">public void simpleRun() throws SchedulerException &#123;</span><br><span class="line"></span><br><span class="line">SchedulerFactory factory = new StdSchedulerFactory();</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">    Date runTime = DateBuilder.evenSecondDateAfterNow();  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">JobDetail jobDetail = JobBuilder.newJob(DemoJob.class)</span><br><span class="line">.withIdentity(&quot;demo_job&quot;, &quot;demo_group&quot;)</span><br><span class="line">.build();</span><br><span class="line"></span><br><span class="line">Trigger trigger = TriggerBuilder.newTrigger()</span><br><span class="line">.withIdentity(&quot;demo_trigger&quot;, &quot;demo_group&quot;)</span><br><span class="line"></span><br><span class="line">.startAt(new Date())</span><br><span class="line">.withSchedule(</span><br><span class="line">SimpleScheduleBuilder</span><br><span class="line">.simpleSchedule()</span><br><span class="line">.withIntervalInSeconds(1)</span><br><span class="line">.withRepeatCount(5)</span><br><span class="line">).build();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Scheduler scheduler = factory.getScheduler();</span><br><span class="line"></span><br><span class="line">scheduler.scheduleJob(jobDetail,trigger);</span><br><span class="line">System.out.println(jobDetail.getKey() + &quot; 运行在: &quot; + runTime);   </span><br><span class="line">scheduler.start();  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">QuartzDemo demo = new QuartzDemo();</span><br><span class="line">try &#123;</span><br><span class="line">demo.simpleRun();</span><br><span class="line">&#125; catch (SchedulerException e) &#123;</span><br><span class="line">e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-多任务实现"><a href="#2-多任务实现" class="headerlink" title="2.多任务实现"></a>2.多任务实现</h3><ol>
+<li>测试任务类<br>新建两个DemoJonOne和DemoJobTwo,都实现Job接口,内容如下</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void execute(JobExecutionContext arg0) throws JobExecutionException &#123;</span><br><span class="line">System.out.println(new SimpleDateFormat(&quot;HH:mm:ss&quot;).format(new Date())+&quot; Runed &quot;+getClass().getName());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.新建QuartzUtil类,内容如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import org.quartz.Job;</span><br><span class="line">import org.quartz.JobBuilder;</span><br><span class="line">import org.quartz.JobDetail;</span><br><span class="line">import org.quartz.Scheduler;</span><br><span class="line">import org.quartz.SchedulerException;</span><br><span class="line">import org.quartz.SchedulerFactory;</span><br><span class="line">import org.quartz.SimpleScheduleBuilder;</span><br><span class="line">import org.quartz.Trigger;</span><br><span class="line">import org.quartz.TriggerBuilder;</span><br><span class="line">import org.quartz.impl.StdSchedulerFactory;</span><br><span class="line"></span><br><span class="line">public class QuartzUtil &#123;</span><br><span class="line">private final static String JOB_GROUP_NAME = &quot;QUARTZ_JOBGROUP_NAME&quot;;</span><br><span class="line">private final static String TRIGGER_GROUP_NAME = &quot;QUARTZ_TRIGGERGROUP_NAME&quot;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public static void addJob(String jobName, String triggerName, Class&lt;? extends Job&gt; jobClass, int seconds)</span><br><span class="line">throws SchedulerException &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">SchedulerFactory sf = new StdSchedulerFactory();</span><br><span class="line"></span><br><span class="line">Scheduler sche = sf.getScheduler();</span><br><span class="line"></span><br><span class="line">JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, JOB_GROUP_NAME).build();</span><br><span class="line"></span><br><span class="line">Trigger trigger = TriggerBuilder.newTrigger()</span><br><span class="line">.withIdentity(triggerName, TRIGGER_GROUP_NAME)</span><br><span class="line">.startNow()</span><br><span class="line">.withSchedule(</span><br><span class="line">SimpleScheduleBuilder</span><br><span class="line">.simpleSchedule()</span><br><span class="line">.withIntervalInSeconds(seconds)</span><br><span class="line">.repeatForever()</span><br><span class="line">).build();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">sche.scheduleJob(jobDetail, trigger);</span><br><span class="line"></span><br><span class="line">sche.start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">try &#123;</span><br><span class="line"></span><br><span class="line">QuartzUtil.addJob(&quot;job1&quot;, &quot;trigger1&quot;, DemoJobOne.class, 2);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">QuartzUtil.addJob(&quot;Job2&quot;, &quot;trigger2&quot;, DemoJobTwo.class, 5);</span><br><span class="line">&#125; catch (SchedulerException e) &#123;</span><br><span class="line">e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以上方法属于手动调用,如果是web项目中就不同了<br>添加POM</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;javax.servlet&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;servlet-api&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;2.5&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">package servlet;</span><br><span class="line"></span><br><span class="line">import javax.servlet.ServletException;</span><br><span class="line">import javax.servlet.http.HttpServlet;</span><br><span class="line"></span><br><span class="line">import org.quartz.SchedulerException;</span><br><span class="line"></span><br><span class="line">import com.DemoJobOne;</span><br><span class="line">import com.DemoJobTwo;</span><br><span class="line">import com.QuartzUtil;</span><br><span class="line"></span><br><span class="line">public class InitServlet extends HttpServlet &#123;</span><br><span class="line"></span><br><span class="line">private static final long serialVersionUID = 8507188690597926975L;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public void init() throws ServletException &#123;</span><br><span class="line">try &#123;</span><br><span class="line"></span><br><span class="line">QuartzUtil.addJob(&quot;job1&quot;, &quot;trigger1&quot;, DemoJobOne.class, 2);</span><br><span class="line"></span><br><span class="line">QuartzUtil.addJob(&quot;Job2&quot;, &quot;trigger2&quot;, DemoJobTwo.class, 5);</span><br><span class="line">&#125; catch (SchedulerException e) &#123;</span><br><span class="line">e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>2.注册servlet</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;servlet&gt;</span><br><span class="line">  &lt;servlet-name&gt;InitServlet&lt;/servlet-name&gt;</span><br><span class="line">  &lt;servlet-class&gt;servlet.InitServlet&lt;/servlet-class&gt;</span><br><span class="line">  </span><br><span class="line">  &lt;load-on-startup&gt;0&lt;/load-on-startup&gt;</span><br><span class="line">&lt;/servlet&gt;</span><br><span class="line"></span><br><span class="line">&lt;servlet-mapping&gt;</span><br><span class="line">  &lt;servlet-name&gt;InitServlet&lt;/servlet-name&gt;</span><br><span class="line">  &lt;url-pattern&gt;/InitServlet&lt;/url-pattern&gt;</span><br><span class="line">&lt;/servlet-mapping&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-复杂规则任务调度-CronTrigger"><a href="#3-复杂规则任务调度-CronTrigger" class="headerlink" title="3.复杂规则任务调度(CronTrigger)"></a>3.复杂规则任务调度(CronTrigger)</h3><p>在每分钟的1-30秒执行示例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import org.quartz.CronScheduleBuilder;</span><br><span class="line">import org.quartz.JobBuilder;</span><br><span class="line">import org.quartz.JobDetail;</span><br><span class="line">import org.quartz.Scheduler;</span><br><span class="line">import org.quartz.SchedulerException;</span><br><span class="line">import org.quartz.SchedulerFactory;</span><br><span class="line">import org.quartz.Trigger;</span><br><span class="line">import org.quartz.TriggerBuilder;</span><br><span class="line">import org.quartz.impl.StdSchedulerFactory;</span><br><span class="line"></span><br><span class="line">public class CronTriggerDemo &#123;</span><br><span class="line">public static void main(String[] args) throws SchedulerException &#123;</span><br><span class="line"></span><br><span class="line">SchedulerFactory factory = new StdSchedulerFactory();</span><br><span class="line">Scheduler scheduler = factory.getScheduler();</span><br><span class="line"></span><br><span class="line">JobDetail job = JobBuilder</span><br><span class="line">.newJob(DemoJobOne.class)</span><br><span class="line">.withIdentity(&quot;job&quot;,&quot;group&quot;)</span><br><span class="line">.build();</span><br><span class="line"></span><br><span class="line">Trigger trigger = TriggerBuilder</span><br><span class="line">.newTrigger()</span><br><span class="line">.withIdentity(&quot;trigger&quot;, &quot;group&quot;)</span><br><span class="line">.startNow().withSchedule(</span><br><span class="line">CronScheduleBuilder</span><br><span class="line">.cronSchedule(&quot;1-30 * * * * ?&quot;)</span><br><span class="line">).build();</span><br><span class="line"></span><br><span class="line">scheduler.scheduleJob(job,trigger);</span><br><span class="line">scheduler.start();</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-Cron表达式"><a href="#5-Cron表达式" class="headerlink" title="5.Cron表达式"></a>5.Cron表达式</h2><h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s M h d m w [y]</span><br></pre></td></tr></table></figure>
+
+<p>s:seconds,取值0-59,允许- * &#x2F;;</p>
+<p>M:minutes,取值0-59,允许- * &#x2F;;</p>
+<p>h:hour,取值0-23,允许- * &#x2F;;</p>
+<p>d:day of month,取值1-31,允许- * ? &#x2F; L W;</p>
+<p>m:month,取值1-12&#x2F;JAN-DEC,允许- * &#x2F;;</p>
+<p>w:day of week,取值1-7&#x2F;SUN-SAT,允许- * ? &#x2F; L #;</p>
+<p>y:year,可选,取值empty、1970-2099,允许- * &#x2F;;</p>
+<h3 id="符号解释"><a href="#符号解释" class="headerlink" title="符号解释"></a>符号解释</h3><p>、 指定枚举值,如在秒字段使用10、12,则表示只有第10秒和第12秒执行<br>- 指定区间范围,配合使用,如在小时字段使用10-12,表示在10、11、12时都会触发</p>
+<p>* 代表所有值,单独使用,如在秒字段使用,表示每秒触发</p>
+<p>? 代表不确定值,单独使用,不用关心的值</p>
+<p>&#x2F; 用于递增触发,配合使用,n&#x2F;m,从n开始,每次增加m,如在秒字段设置5&#x2F;15,表示从第5秒开始,每15秒触发一次</p>
+<p>L 表示最后,单独使用,如在秒字段使用,代表第59秒触发,如果在前面加上数字,则表示该数据的最后一个,如在周字段使用6L,则表示本月最后一个周五<br>W 表示最近的工作日,不会跨月,比如30W，30号是周六，则不会顺延至下周一来执行,如在月字段使用15W,则表示到本月15日最近的工作日(周一到周五)<br># 用来指定x的第n个工作日,如在周字段使用6#3则表示该月的第三个星期五</p>
+<h3 id="月取值"><a href="#月取值" class="headerlink" title="月取值"></a>月取值</h3><p>一月:JAN&#x2F;0<br>二月:FEB&#x2F;1<br>三月:MAR&#x2F;2<br>四月:APR&#x2F;3<br>五月:MAY&#x2F;4<br>六月:JUN&#x2F;5<br>七月:JUL&#x2F;6<br>八月:AUG&#x2F;7<br>九月:SEP&#x2F;8<br>十月:OCT&#x2F;9<br>十一月:NOV&#x2F;10<br>十二月:DEC&#x2F;11</p>
+<h3 id="周取值"><a href="#周取值" class="headerlink" title="周取值"></a>周取值</h3><p>周日:SUN&#x2F;1<br>周一:MON&#x2F;2<br>周二:TUE&#x2F;3<br>周三:WED&#x2F;4<br>周四:THU&#x2F;5<br>周五:FRI&#x2F;6<br>周六:SAT&#x2F;7</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">0/20 * * * * ? 每20秒执行一次</span><br><span class="line">1-30 * * * * ? 在1-30秒执行</span><br><span class="line">15 0/2 * * * ? 偶数分钟的第15秒执行</span><br><span class="line">0 0/2 8-17 * * ? 从8时到17时 ,每个偶数分钟执行一次</span><br><span class="line">0 0/3 17-23 * * ? 从17时到23时,每3分钟运行一次</span><br><span class="line">0 0 10am 1,15 * ? 每个月的1号和15号的上午10点 运行</span><br><span class="line">0,30 * * ? * MON-FRI 周一至周五,每30秒运行一次</span><br><span class="line">0,30 * * ? * SAT,SUN 周六、周日,每30秒运行一次</span><br><span class="line">0 0 12 * * ? 每天12点触发</span><br><span class="line">0 15 10 ? * * 每天10点15分触发</span><br><span class="line">0 15 10 * * ? 每天10点15分触发</span><br><span class="line">0 15 10 * * ? * 每天10点15分触发</span><br><span class="line">0 15 10 * * ? 2005 2005年每天10点15分触发</span><br><span class="line">0 * 14 * * ? 每天下午的 2点到2点59分每分触发</span><br><span class="line">0 0/5 14 * * ? 每天下午的 2点到2点59分(整点开始，每隔5分触发)</span><br><span class="line">0 0/5 14,18 * * ? 每天下午的 2点到2点59分(整点开始，每隔5分触发) 每天下午的 18点到18点59分(整点开始，每隔5分触发)</span><br><span class="line">0 0-5 14 * * ?  每天下午的 2点到2点05分每分触发</span><br><span class="line">0 10,44 14 ? 3 WED 3月分每周三下午的 2点10分和2点44分触发</span><br><span class="line">0 15 10 ? * MON-FRI 从周一到周五每天上午的10点15分触发</span><br><span class="line">0 15 10 15 * ? 每月15号上午10点15分触发</span><br><span class="line">0 15 10 L * ? 每月最后一天的10点15分触发</span><br><span class="line">0 15 10 ? * 6L 每月最后一周的星期五的10点15分触发</span><br><span class="line">0 15 10 ? * 6L 2002-2005 从2002年到2005年每月最后一周的星期五的10点15分触发</span><br><span class="line">0 15 10 ? * 6#3 每月的第三周的星期五开始触发</span><br><span class="line">0 0 12 1/5 * ? 每月的第一个中午开始每隔5天触发一次</span><br><span class="line">0 11 11 11 11 ? 每年的11月11号 11点11分触发(光棍节)</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-Spring整合Quartz"><a href="#6-Spring整合Quartz" class="headerlink" title="6.Spring整合Quartz"></a>6.Spring整合Quartz</h2><p>需要Spring-context-support包支持,POM如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-context-support&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;4.3.5.RELEASE&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>新建两种Job测试类–&gt;DemoSimpleJob类和DemoCronJob类,并继承自QuartzJobBean,代码如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat;</span><br><span class="line">import java.util.Date;</span><br><span class="line"></span><br><span class="line">import org.quartz.JobExecutionContext;</span><br><span class="line">import org.quartz.JobExecutionException;</span><br><span class="line">import org.springframework.scheduling.quartz.QuartzJobBean;</span><br><span class="line"></span><br><span class="line">public class DemoJob extends QuartzJobBean &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void executeInternal(JobExecutionContext arg0) throws JobExecutionException &#123;</span><br><span class="line">        System.out.println(new SimpleDateFormat(&quot;hh:mm:ss&quot;).format(new Date()) + &quot; 输出自:&quot; + getClass().getName());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置spring bean如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">    xmlns:aop=&quot;http://www.springframework.org/schema/aop&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;</span><br><span class="line">    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans</span><br><span class="line">       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span><br><span class="line">       http://www.springframework.org/schema/context</span><br><span class="line">       http://www.springframework.org/schema/context/spring-context-4.3.xsd</span><br><span class="line">       http://www.springframework.org/schema/aop</span><br><span class="line">       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd</span><br><span class="line">       http://www.springframework.org/schema/tx</span><br><span class="line">       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    &lt;bean id=&quot;demoCronJob&quot;</span><br><span class="line">        class=&quot;org.springframework.scheduling.quartz.JobDetailFactoryBean&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;jobClass&quot; value=&quot;com.DemoCronJob&quot; /&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line">    &lt;bean id=&quot;demoSimpleJob&quot;</span><br><span class="line">        class=&quot;org.springframework.scheduling.quartz.JobDetailFactoryBean&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;jobClass&quot; value=&quot;com.DemoSimpleJob&quot; /&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    &lt;bean id=&quot;simpleTrigger&quot;</span><br><span class="line">        class=&quot;org.springframework.scheduling.quartz.SimpleTriggerFactoryBean&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;jobDetail&quot; ref=&quot;demoSimpleJob&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;startDelay&quot; value=&quot;1000&quot; /&gt;  </span><br><span class="line">        &lt;property name=&quot;repeatInterval&quot; value=&quot;2000&quot; /&gt;  </span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line">    &lt;bean id=&quot;cornTrigger&quot;</span><br><span class="line">        class=&quot;org.springframework.scheduling.quartz.CronTriggerFactoryBean&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;jobDetail&quot; ref=&quot;demoCronJob&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;cronExpression&quot; value=&quot;1-30 * * * * ?&quot; /&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;bean class=&quot;org.springframework.scheduling.quartz.SchedulerFactoryBean&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;triggers&quot;&gt;</span><br><span class="line">            &lt;list&gt;</span><br><span class="line">                &lt;ref bean=&quot;cornTrigger&quot; /&gt;</span><br><span class="line">                &lt;ref bean=&quot;simpleTrigger&quot; /&gt;</span><br><span class="line">            &lt;/list&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>启动</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import org.springframework.context.ApplicationContext;</span><br><span class="line">import org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line">public class Demo &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ApplicationContext context = new ClassPathXmlApplicationContext(&quot;applicationContext.xml&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>有待补充</code></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/" rel="tag"># 任务调度</a>
+              <a href="/tags/Quartz/" rel="tag"># Quartz</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/10/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/C#%E4%BD%BF%E7%94%A8EmguCV%E5%AE%9E%E7%8E%B0%E8%A7%86%E9%A2%91%E8%AF%BB%E5%8F%96%E5%92%8C%E6%92%AD%E6%94%BE%EF%BC%8C%E5%8F%8A%E5%A4%9A%E4%B8%AA%E8%A7%86%E9%A2%91%E4%B8%80%E8%B5%B7%E6%92%AD%E6%94%BE%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="C#使用EmguCV实现视频读取和播放，及多个视频一起播放的问题">
+                  <i class="fa fa-angle-left"></i> C#使用EmguCV实现视频读取和播放，及多个视频一起播放的问题
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/11/02/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" rel="next" title="单例模式">
+                  单例模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

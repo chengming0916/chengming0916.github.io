@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="介绍在实际项目使用中quartz.net中，都希望有一个管理界面可以动态添加job，而避免每次都要上线发布。  也看到有园子的同学问过。这里就介绍下实现动态添加job的几种方式， 也是二次开发的核心模块。 阅读目录： 传统方式 框架反射方式 进程方式 URL方式 框架配置方式  传统方式 继承IJob，实现业务逻辑，添加到scheduler。 public class MonitorJob : I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Net作业调度(五)—quartz.net动态添加job设计">
+<meta property="og:url" content="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="介绍在实际项目使用中quartz.net中，都希望有一个管理界面可以动态添加job，而避免每次都要上线发布。  也看到有园子的同学问过。这里就介绍下实现动态添加job的几种方式， 也是二次开发的核心模块。 阅读目录： 传统方式 框架反射方式 进程方式 URL方式 框架配置方式  传统方式 继承IJob，实现业务逻辑，添加到scheduler。 public class MonitorJob : I">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181839415731718.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181849136677228.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181853563397152.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181858070583283.png">
+<meta property="article:published_time" content="2015-10-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.281Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Quartz.NET">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181839415731718.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/","path":"2015/10/10/编程技术/DotNet/Net作业调度(五)—quartz.net动态添加job设计/","title":"Net作业调度(五)—quartz.net动态添加job设计"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Net作业调度(五)—quartz.net动态添加job设计 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%85%E8%AF%BB%E7%9B%AE%E5%BD%95%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">阅读目录：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">传统方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%86%E6%9E%B6%E5%8F%8D%E5%B0%84%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">框架反射方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">进程方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#URL%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">URL方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%86%E6%9E%B6%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F"><span class="nav-number"></span> <span class="nav-text">框架配置方式</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Net作业调度(五)—quartz.net动态添加job设计 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Net作业调度(五)—quartz.net动态添加job设计
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-10-10 00:00:00" itemprop="dateCreated datePublished" datetime="2015-10-10T00:00:00+08:00">2015-10-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>在实际项目使用中quartz.net中，都希望有一个管理界面可以动态添加job，而避免每次都要上线发布。 </p>
+<p>也看到有园子的同学问过。这里就介绍下实现动态添加job的几种方式， 也是二次开发的核心模块。</p>
+<h4 id="阅读目录："><a href="#阅读目录：" class="headerlink" title="阅读目录："></a>阅读目录：</h4><ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#one">传统方式</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#two">框架反射方式</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#three">进程方式</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#four">URL方式</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#five">框架配置方式</a></li>
+</ol>
+<h2 id="传统方式"><a href="#传统方式" class="headerlink" title="传统方式"></a>传统方式</h2><p> 继承IJob，实现业务逻辑，添加到scheduler。</p>
+<p>public class MonitorJob : IJob<br>    { public void Execute(IJobExecutionContext context)<br>        { &#x2F;&#x2F;do something<br>            Console.WriteLine(“test”);<br>        }<br>    } &#x2F;&#x2F;var job &#x3D; JobBuilder.Create<MonitorJob>() &#x2F;&#x2F; .WithIdentity(“test”, “value”) &#x2F;&#x2F; .Build(); &#x2F;&#x2F;var trigger &#x3D; (ICronTrigger) TriggerBuilder.Create() &#x2F;&#x2F; .WithIdentity(“test”, “value”) &#x2F;&#x2F; .WithCronSchedule(“0 0&#x2F;5 * * * ?”) &#x2F;&#x2F; .Build(); &#x2F;&#x2F;scheduler.ScheduleJob(job, trigger);</p>
+<p>也可以使用CrystalQuartz远程管理暂停取消。之前的博客<a target="_blank" rel="noopener" href="http://www.cnblogs.com/mushroom/p/4067558.html">CrystalQuartz远程管理(二)</a>。</p>
+<h2 id="框架反射方式"><a href="#框架反射方式" class="headerlink" title="框架反射方式"></a>框架反射方式</h2><p>这种方式需要定义一套接口框架。 比如：</p>
+<p>  interface IcustomJob<br>    { void Excute(string context); void Failed(string error); void Complete(string msg);<br>    }</p>
+<p>1：当我们写job时同一实现这个框架接口，类库形式。</p>
+<p>2：写完后编译成DLL，上传到我们的作业执行节点。</p>
+<p>3：在执行节点中，通过反射拿到DLL的job信息。</p>
+<p>4：然后构建quartz的job，添加到scheduler。</p>
+<p>这种方式缺点： 耦合性太高，开发量较大。 优点：集中式管理。</p>
+<p>系统结构如图：</p>
+<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181839415731718.png"></p>
+<h2 id="进程方式"><a href="#进程方式" class="headerlink" title="进程方式"></a>进程方式</h2><p>这个方式和windows任务计划类似。</p>
+<p>1：使用方编写自己的job，无需实现任何接口，可执行应用程序形式。</p>
+<p>2：将程序发送到执行节点，由执行节点起进程调用job程序。</p>
+<p>执行节点调用，示例如下：</p>
+<p> public class ConsoleJob:IJob<br>    { public void Execute(IJobExecutionContext context)<br>        {<br>            JobDataMap dataMap = context.JobDetail.JobDataMap; string content &#x3D; dataMap.GetString(“jobData”); var jd &#x3D; new JavaScriptSerializer().Deserialize<ConsoleJobData>(content);</p>
+<pre><code>        Process p \= new Process();
+        p.StartInfo.UseShellExecute \= true;
+        p.StartInfo.FileName \= jd.Path;
+        p.StartInfo.Arguments \= jd.Parameters;   //空格分割
+        p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+        p.Start();
+    &#125;
+&#125;
+</code></pre>
+<p>这种方式相对来说： 耦合性中等，执行节点和job相互不关心，没有依赖，开发量较小。</p>
+<p>系统结构如图：</p>
+<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181849136677228.png"></p>
+<h2 id="URL方式"><a href="#URL方式" class="headerlink" title="URL方式"></a>URL方式</h2><p>URL方式和第三种类似，不过调用的不在是执行程序，而是URL。</p>
+<p>1： 使用方在网页或服务中，实现业务逻辑。</p>
+<p>2： 然后将Url，交给执行节点post或get执行。</p>
+<p>执行节点调用，示例如下：</p>
+<p> public class HttpJob : IJob<br>    { public void Execute(IJobExecutionContext context)<br>        { var dataMap &#x3D; context.JobDetail.JobDataMap; var content &#x3D; dataMap.GetString(“jobData”); var jd &#x3D; new JavaScriptSerializer().Deserialize<HttpJobData>(content); if (jd.Parameters &#x3D;&#x3D; null)<br>                jd.Parameters = string.Empty; if (jd.Timeout &#x3D;&#x3D; 0)<br>                jd.Timeout = 5*60; var result &#x3D; RequestHelper.Post(jd.Url, jd.ContentType, jd.Timeout, jd.Parameters, jd.heads);<br>        }<br>    }</p>
+<p>这种方式耦合比较低，使用方不需要单独写应用程序了，和平常业务开发一样。</p>
+<p>执行节点的职权，仅仅作为一个触发器。</p>
+<p>有2点需要注意的是：</p>
+<p>1：请求URL时，注意双方约定token加密，防止非执行节点执行调用。</p>
+<p>2：使用方，如果有耗时操作，建议异步执行。 </p>
+<p>系统结构如图：</p>
+<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181853563397152.png"></p>
+<h2 id="框架配置方式"><a href="#框架配置方式" class="headerlink" title="框架配置方式"></a>框架配置方式</h2><p>1：使用方直接使用quartz.net框架，实现自己的job。从管理方拉取执行节点配置，然后自行管理执行节点。</p>
+<p>2：使用方也可以暴露端口给管理方，以实现监控，修改配置。</p>
+<p>这种形式，耦合性最低。是把管理方当成一个配置中心。 ps：几乎和传统方式+CrystalQuartz一样了。</p>
+<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181858070583283.png"></p>
+<p>通过context.JobDetail.JobDataMap，可以保存job的需要的信息。</p>
+<p>本篇介绍主流的几种实现方案，供大家参考使用。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Quartz-NET/" rel="tag"># Quartz.NET</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/10/03/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E5%9B%9B)%E2%80%94quartz.net%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E9%9B%86%E7%BE%A4/" rel="prev" title="Net作业调度(四)—quartz.net持久化和集群">
+                  <i class="fa fa-angle-left"></i> Net作业调度(四)—quartz.net持久化和集群
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/10/17/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%9C%A8%20WPF%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Path%20%E8%B7%AF%E5%BE%84/" rel="next" title="在 WPF 中使用 Path 路径">
+                  在 WPF 中使用 Path 路径 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Qt配置onnx_runtime首先，onnx_runtime官方也给编译好的release版本，下载即可。但是在qt中配置有一个坑。在Qt Creator中正常添加外部库，但是你会发现构建会找不到onnxruntime.lib，这是如果你替换成全路径，即把注释的部分换成下面的lib路径，直接指明onnxruntime.lib。这时构建成功，可以include &lt;onnxruntime_cx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qt使用ONNX调用YOLOv8模型">
+<meta property="og:url" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="Qt配置onnx_runtime首先，onnx_runtime官方也给编译好的release版本，下载即可。但是在qt中配置有一个坑。在Qt Creator中正常添加外部库，但是你会发现构建会找不到onnxruntime.lib，这是如果你替换成全路径，即把注释的部分换成下面的lib路径，直接指明onnxruntime.lib。这时构建成功，可以include &lt;onnxruntime_cx">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/f285649ef971a256a02a12c80d3121c0.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/9998c7279c23cb3384a6682c150d6eb5.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/IMG-20250804110742710.png">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/c85d6456e082a061090d525060d438ef.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/03731735e1a578e9586e4907e895b56d.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/ffea42604dabb996f785e64e414b6d74.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/be2ce60fe3c19cd759a0b07821799600.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/97d0a21ce1306722fe5c6726ec18e730.pngpic_center">
+<meta property="og:image" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/IMG-20250804110742884.png">
+<meta property="article:published_time" content="2024-09-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.306Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="yolov8">
+<meta property="article:tag" content="onnx">
+<meta property="article:tag" content="qt">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/f285649ef971a256a02a12c80d3121c0.pngpic_center">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/","path":"2024/09/04/编程技术/Python/YOLOv8/Qt使用ONNX调用YOLOv8模型/","title":"Qt使用ONNX调用YOLOv8模型"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Qt使用ONNX调用YOLOv8模型 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Qt%E9%85%8D%E7%BD%AEonnx-runtime"><span class="nav-number">1.</span> <span class="nav-text">Qt配置onnx_runtime</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#opencv%E8%AF%BB%E5%8F%96%E8%A7%86%E9%A2%91%E6%B5%81"><span class="nav-number">2.</span> <span class="nav-text">opencv读取视频流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QCamra"><span class="nav-number">3.</span> <span class="nav-text">QCamra</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#yolov8-onnx-%E6%8E%A8%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">yolov8 onnx 推理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%EF%BC%88onnx%E6%8E%A8%E7%90%86%E7%BA%BF%E7%A8%8B%E5%92%8C%E7%95%8C%E9%9D%A2%E4%B8%BB%E7%BA%BF%E7%A8%8B%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">多线程（onnx推理线程和界面主线程）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Qt使用ONNX调用YOLOv8模型 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Qt使用ONNX调用YOLOv8模型
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-04 00:00:00" itemprop="dateCreated datePublished" datetime="2024-09-04T00:00:00+08:00">2024-09-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/" itemprop="url" rel="index"><span itemprop="name">YOLOv8</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Qt配置onnx-runtime"><a href="#Qt配置onnx-runtime" class="headerlink" title="Qt配置onnx_runtime"></a>Qt配置onnx_runtime</h2><p>首先，onnx_runtime官方也给编译好的release版本，下载即可。但是在qt中配置有一个坑。<br><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/f285649ef971a256a02a12c80d3121c0.pngpic_center" alt="在这里插入图片描述"><br>在Qt Creator中正常添加外部库，但是你会发现构建会找不到onnxruntime.lib，这是如果你替换成全路径，即把注释的部分换成下面的lib路径，直接指明onnxruntime.lib。这时构建成功，可以include &lt;onnxruntime_cxx_api.h&gt;，但是在运行你会遇到应用程序无法启动。<br><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/9998c7279c23cb3384a6682c150d6eb5.pngpic_center" alt="在这里插入图片描述"><br>根据百度把onnxruntime.dll复制到.exe目录下。<br><img src="/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/IMG-20250804110742710.png" alt="在这里插入图片描述"><br>OK，启动成功。</p>
+<h2 id="opencv读取视频流"><a href="#opencv读取视频流" class="headerlink" title="opencv读取视频流"></a>opencv读取视频流</h2><p>居中显示，随意拉伸。<br><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/c85d6456e082a061090d525060d438ef.pngpic_center" alt="在这里插入图片描述"><br><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/03731735e1a578e9586e4907e895b56d.pngpic_center" alt="在这里插入图片描述"><br>实现居中的逻辑：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调整QImage的大小以匹配QLabel的大小 QPixmap scaledPixmap = QPixmap::fromImage(qimg).scaled(ui-&gt;Origin_Video-&gt;size(), Qt::KeepAspectRatio, Qt::FastTransformation);</span></span><br></pre></td></tr></table></figure>
+
+<p>而在界面当中需要对窗口随意拉伸，这是就需要界面允许缩放。修改QLabel的属性：<br><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/ffea42604dabb996f785e64e414b6d74.pngpic_center" alt="在这里插入图片描述"><br>修改成minimum，并给定最小宽度和高度。（还不知道原因，等有空学习一下）</p>
+<p>最后opencv读取视频流并拉取每一帧显示在QLabel中，这里采用的是用一个Qtimer，定时去获取视频帧。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建定时器，每隔一定时间显示下一帧 timer = new QTimer(this); connect(timer, &amp;QTimer::timeout, this, &amp;MainWindow::showNextFrame); timer-&gt;start(33); // 设置帧率为30FPS，即每隔33毫秒显示一帧</span></span><br></pre></td></tr></table></figure>
+
+<p>完整代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在槽函数中处理视频的加载和显示 void MainWindow::on_actionvideo_triggered() &#123; camera-&gt;stop(); viewfinder-&gt;close(); QString curPath = QDir::homePath(); QString dlgTitle = &quot;选择视频文件&quot;; QString filter = &quot;视频文件(*.wmv *.mp4);;所有文件(*.*)&quot;; QString aFile = QFileDialog::getOpenFileName(this, dlgTitle, curPath, filter); if (aFile.isEmpty()) &#123; return; &#125; ui-&gt;dir_Edit-&gt;setText(aFile); currentSource = File; // 更新当前视频源为视频文件 displayVideo(); // 显示视频 &#125; // 根据当前视频源显示视频的函数 void MainWindow::displayVideo() &#123; if (currentSource == File) &#123; std::string video_path = ui-&gt;dir_Edit-&gt;text().toLocal8Bit().constData(); cap.open(video_path); if (!cap.isOpened()) &#123; qDebug() &lt;&lt; &quot;Error: Unable to open the video file&quot;; return; &#125; // 创建定时器，每隔一定时间显示下一帧 timer = new QTimer(this); connect(timer, &amp;QTimer::timeout, this, &amp;MainWindow::showNextFrame); timer-&gt;start(33); // 设置帧率为30FPS，即每隔33毫秒显示一帧 &#125; else if (currentSource == Camera) &#123; // 创建定时器，每隔一定时间显示下一帧 timer = new QTimer(this); connect(timer, &amp;QTimer::timeout, this, &amp;MainWindow::viewfinderchange); timer-&gt;start(33); // 设置帧率为30FPS，即每隔33毫秒显示一帧 // cameras = QCameraInfo::availableCameras(); //获取所有相机的列表 // camera = new QCamera(cameras[0]); //camera指向指定的摄像头 camera-&gt;setCaptureMode(QCamera::CaptureStillImage); //设定捕获模式 camera-&gt;setViewfinder(viewfinder); //设置取景器 camera-&gt;start(); &#125; &#125; // 显示下一帧的槽函数 void MainWindow::showNextFrame() &#123; cv::Mat frame; cap &gt;&gt; frame; // 从视频流中获取一帧 if (frame.empty()) &#123; cap.set(cv::CAP_PROP_POS_FRAMES, 0); // 如果视频结束，重新开始播放 cap &gt;&gt; frame; &#125; currentFrame = frame; // 保存当前帧 displayCurrentFrame(); // 显示当前帧 &#125; void MainWindow::displayCurrentFrame() &#123; // 将OpenCV帧转换为QImage QImage qimg(currentFrame.data, currentFrame.cols, currentFrame.rows, currentFrame.step, QImage::Format_RGB888); qimg = qimg.rgbSwapped(); // 将格式从BGR转换为RGB // 调整QImage的大小以匹配QLabel的大小 QPixmap scaledPixmap = QPixmap::fromImage(qimg).scaled(ui-&gt;Origin_Video-&gt;size(), Qt::KeepAspectRatio, Qt::FastTransformation); // 将调整大小后的图像居中显示在QLabel中 centerImageInLabel(ui-&gt;Origin_Video, scaledPixmap); &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="QCamra"><a href="#QCamra" class="headerlink" title="QCamra"></a>QCamra</h2><p>居中显示，随意拉伸<br><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/be2ce60fe3c19cd759a0b07821799600.pngpic_center" alt="在这里插入图片描述"><br>QCamera其实同理，中间拉伸也用了一个QTimer定时获取QLabel的size。<br>QCamera的使用包括初始化一个camera和设置取景器viewfinder，viewfinder的作用就是控制图像在空间中的展示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">MainWindow::on_actioncamera_triggered</span><span class="params">()</span> &#123; cameras = QCameraInfo::availableCameras(); <span class="comment">//获取所有相机的列表 //qDebug() &lt;&lt; &quot;this is camera: &quot;; if (cameras.count() &gt; 0) &#123; for(const QCameraInfo &amp;cameraInfo:cameras) &#123; qDebug() &lt;&lt; cameraInfo.description(); &#125; camera = new QCamera(cameras.at(0)); //初始化实例化一个相机对象 &#125; //设置取景器 viewfinder = new QCameraViewfinder(ui-&gt;Origin_Video); camera-&gt;setViewfinder(viewfinder); centerCameraViewfinderInLabel(viewfinder, ui-&gt;Origin_Video); camera-&gt;start(); //开启相机 //设置默认摄像头参数 QCameraViewfinderSettings set; // set.setResolution(640, 480); //设置显示分辨率 set.setMaximumFrameRate(30); //设置帧率 camera-&gt;setViewfinderSettings(set); stopVideo(); ui-&gt;Origin_Video-&gt;setPixmap(QPixmap(&quot;&quot;)); currentSource = Camera; // 更新当前视频源为摄像头 viewfinder-&gt;show(); displayVideo(); // 显示视频 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="yolov8-onnx-推理"><a href="#yolov8-onnx-推理" class="headerlink" title="yolov8 onnx 推理"></a>yolov8 onnx 推理</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">MainWindow::on_actionTest_triggered</span><span class="params">()</span> &#123; <span class="comment">// std::string projectBasePath = &quot;./&quot;; // Set your ultralytics base path QString qs = QCoreApplication::applicationDirPath(); std::string projectBasePath = qs.toLocal8Bit().constData(); bool runOnGPU = false; // Note that in this example the classes are hard-coded and &#x27;classes.txt&#x27; is a place holder. Inference inf(projectBasePath + &quot;/moust_best.onnx&quot;, cv::Size(640, 640), &quot;mouse.txt&quot;, runOnGPU); std::string video_path = ui-&gt;dir_Edit-&gt;text().toLocal8Bit().constData(); // 读取视频文件 // cv::VideoCapture cap(projectBasePath + &quot;/video/video.mp4&quot;); cv::VideoCapture cap(video_path); if (!cap.isOpened()) &#123; std::cout &lt;&lt; &quot;Error opening video file&quot; &lt;&lt; std::endl; return ; &#125; cv::Mat frame; while (cap.read(frame)) &#123; // 推断开始... std::vector&lt;Detection&gt; output = inf.runInference(frame); int detections = output.size(); std::cout &lt;&lt; &quot;Number of detections:&quot; &lt;&lt; detections &lt;&lt; std::endl; for (int i = 0; i &lt; detections; ++i) &#123; Detection detection = output[i]; cv::Rect box = detection.box; cv::Scalar color = detection.color; // Detection box cv::rectangle(frame, box, color, 2); // Detection box text std::string classString = detection.className + &#x27; &#x27; + std::to_string(detection.confidence).substr(0, 4); cv::Size textSize = cv::getTextSize(classString, cv::FONT_HERSHEY_DUPLEX, 1, 2, 0); cv::Rect textBox(box.x, box.y - 40, textSize.width + 10, textSize.height + 20); cv::rectangle(frame, textBox, color, cv::FILLED); cv::putText(frame, classString, cv::Point(box.x + 5, box.y - 10), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 0, 0), 2, 0); &#125; // 推断结束... // 仅用于预览 float scale = 0.8; cv::resize(frame, frame, cv::Size(frame.cols*scale, frame.rows*scale)); cv::imshow(&quot;Inference&quot;, frame); if (cv::waitKey(1) == 27) &#123; break; &#125; &#125; cap.release(); cv::destroyAllWindows(); &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="多线程（onnx推理线程和界面主线程）"><a href="#多线程（onnx推理线程和界面主线程）" class="headerlink" title="多线程（onnx推理线程和界面主线程）"></a>多线程（onnx推理线程和界面主线程）</h2><p><img src="/%E3%80%90%E9%A1%B9%E7%9B%AE%E3%80%91yolov8+qt+onnx_yolov8%20onnx%20qt-CSDN%E5%8D%9A%E5%AE%A2/97d0a21ce1306722fe5c6726ec18e730.pngpic_center" alt="在这里插入图片描述"><br>摄像头与onnx互不干扰，说明主界面线程与onnx推理是分开线程进行的，ok！</p>
+<p>######################### 2024 05 09 更新 ##############################################<br><img src="/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/Qt%E4%BD%BF%E7%94%A8ONNX%E8%B0%83%E7%94%A8YOLOv8%E6%A8%A1%E5%9E%8B/IMG-20250804110742884.png" alt="在这里插入图片描述"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/yolov8/" rel="tag"># yolov8</a>
+              <a href="/tags/onnx/" rel="tag"># onnx</a>
+              <a href="/tags/qt/" rel="tag"># qt</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E8%AE%AD%E7%BB%83%E5%B9%B6%E6%B5%8B%E8%AF%95VisDrone%E6%95%B0%E6%8D%AE%E9%9B%86/" rel="prev" title="YOLOv8训练并测试VisDrone数据集">
+                  <i class="fa fa-angle-left"></i> YOLOv8训练并测试VisDrone数据集
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" rel="next" title="插入排序算法CSharp实现">
+                  插入排序算法CSharp实现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

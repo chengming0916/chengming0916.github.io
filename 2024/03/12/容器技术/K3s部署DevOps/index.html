@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="K3s安装参考 K3S安装 组件配置信息开放端口    端口 用途    53 CoreDNS服务，替代修改Hosts方式实现内网域名访问   5432&#x2F;3306 PostgreSQL&#x2F;MySQL数据库（二选一即可）   443，80 HTTPS、HTTP访问入口，Traefik   6379 Redis缓存   8022 SSH管理端口   22 git+ssh方式代码上传">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于K3S搭建DevOps">
+<meta property="og:url" content="http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2DevOps/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="K3s安装参考 K3S安装 组件配置信息开放端口    端口 用途    53 CoreDNS服务，替代修改Hosts方式实现内网域名访问   5432&#x2F;3306 PostgreSQL&#x2F;MySQL数据库（二选一即可）   443，80 HTTPS、HTTP访问入口，Traefik   6379 Redis缓存   8022 SSH管理端口   22 git+ssh方式代码上传">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.272Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="K8s">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="Drone">
+<meta property="article:tag" content="Gitea">
+<meta property="article:tag" content="Harbor">
+<meta property="article:tag" content="DevOps">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2DevOps/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2DevOps/","path":"2024/03/12/容器技术/K3s部署DevOps/","title":"基于K3S搭建DevOps"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于K3S搭建DevOps | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#K3s%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">K3s安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">组件配置信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%83%A8%E7%BD%B2"><span class="nav-number">3.</span> <span class="nav-text">组件部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Traefik"><span class="nav-number">3.1.</span> <span class="nav-text">Traefik</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL"><span class="nav-number">3.2.</span> <span class="nav-text">MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PostgresSQL"><span class="nav-number">3.3.</span> <span class="nav-text">PostgresSQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cert-manager"><span class="nav-number">3.4.</span> <span class="nav-text">cert-manager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Harbor"><span class="nav-number">3.5.</span> <span class="nav-text">Harbor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gitea"><span class="nav-number">3.6.</span> <span class="nav-text">Gitea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tekton"><span class="nav-number">3.7.</span> <span class="nav-text">Tekton</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SonarQube"><span class="nav-number">3.8.</span> <span class="nav-text">SonarQube</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E8%81%94%E5%8A%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">组件之间联动配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2DevOps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于K3S搭建DevOps | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于K3S搭建DevOps
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-03-12 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-12T00:00:00+08:00">2024-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">容器技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="K3s安装"><a href="#K3s安装" class="headerlink" title="K3s安装"></a>K3s安装</h2><p>参考 <a href="/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3S%E5%AE%89%E8%A3%85/" title="K3s安装">K3S安装</a></p>
+<h2 id="组件配置信息"><a href="#组件配置信息" class="headerlink" title="组件配置信息"></a>组件配置信息</h2><p>开放端口</p>
+<table>
+<thead>
+<tr>
+<th>端口</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>53</td>
+<td>CoreDNS服务，替代修改Hosts方式实现内网域名访问</td>
+</tr>
+<tr>
+<td>5432&#x2F;3306</td>
+<td>PostgreSQL&#x2F;MySQL数据库（二选一即可）</td>
+</tr>
+<tr>
+<td>443，80</td>
+<td>HTTPS、HTTP访问入口，Traefik</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>Redis缓存</td>
+</tr>
+<tr>
+<td>8022</td>
+<td>SSH管理端口</td>
+</tr>
+<tr>
+<td>22</td>
+<td>git+ssh方式代码上传</td>
+</tr>
+</tbody></table>
+<p>域名规划</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>访问地址</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cert-Manager</td>
+<td></td>
+<td>证书管理服务，有公网域名推荐使用，内网部署可生成自签名证书</td>
+</tr>
+<tr>
+<td>Traefik Dashboard</td>
+<td><a target="_blank" rel="noopener" href="https://dashboard.example.io/">https://dashboard.example.io</a></td>
+<td>反向代理&#x2F;负载均衡</td>
+</tr>
+<tr>
+<td>Harbor</td>
+<td><a target="_blank" rel="noopener" href="https://harbor.example.io/">https://harbor.example.io</a></td>
+<td>私有镜像库,镜像缓存</td>
+</tr>
+<tr>
+<td>Gitea</td>
+<td><a target="_blank" rel="noopener" href="https://gitea.example.io/">https://gitea.example.io</a></td>
+<td>源代码仓库</td>
+</tr>
+<tr>
+<td>Tekton</td>
+<td><a target="_blank" rel="noopener" href="https://tekton.example.io/">https://tekton.example.io</a></td>
+<td>云原生持续集成</td>
+</tr>
+<tr>
+<td>Drone</td>
+<td><a target="_blank" rel="noopener" href="https://drone.example.io/">https://drone.example.io</a></td>
+<td>容器化持续集成</td>
+</tr>
+<tr>
+<td>Sonar Qube</td>
+<td><a target="_blank" rel="noopener" href="https://sonar.example.io/">https://sonar.example.io</a></td>
+<td>静态代码审查。</td>
+</tr>
+<tr>
+<td>ArgoCD</td>
+<td><a target="_blank" rel="noopener" href="https://argocd.example.io/">https://argocd.example.io</a></td>
+<td>持续部署组件</td>
+</tr>
+</tbody></table>
+<h2 id="组件部署"><a href="#组件部署" class="headerlink" title="组件部署"></a>组件部署</h2><h3 id="Traefik"><a href="#Traefik" class="headerlink" title="Traefik"></a>Traefik</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line">### ArgoCD</span><br><span class="line"></span><br><span class="line">Helm方式部署</span><br><span class="line"></span><br><span class="line">```bash</span><br></pre></td></tr></table></figure>
+
+<h3 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h3><p>参考 <a href="K3s%E9%83%A8%E7%BD%B2MySQL.md">K3s部署MySQL</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># k3s使用 local-path 部署</span></span><br><span class="line">kubectl apply -f https://gitee.com/Chemmy/kube-template/MySQL/mysql-pvc-local-path.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署mysql-config</span></span><br><span class="line">kubectl apply -f https://gitee.com/Chemmy/kube-template/MySQL/mysql-config.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署deploy</span></span><br><span class="line">kubectl apply -f https://gitee.com/Chemmy/kube-template/MySQL/mysql-deployment.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署service(NodePort 方式)</span></span><br><span class="line">kubectl apply -f https://gitee.com/Chemmy/kube-template/MySQL/mysql-service.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="PostgresSQL"><a href="#PostgresSQL" class="headerlink" title="PostgresSQL"></a>PostgresSQL</h3><p>参考 <a href="K3s%E9%83%A8%E7%BD%B2PostgreSQL.md">K3s部署PostgreSQL</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># k3s使用 local-path 部署</span></span><br><span class="line">kubectl apply -f https://gitee.com/Chemmy/kube-template/PostgreSQL/postgres-pvc-local-path.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署config</span></span><br><span class="line">kubectl apply -fhttps://gitee.com/Chemmy/kube-template/PostgreSQL/postgres-config.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署deploy</span></span><br><span class="line">kubectl apply -fhttps://gitee.com/Chemmy/kube-template/PostgreSQL/postgres-deployment.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署service(NodePort 方式)</span></span><br><span class="line">kubectl apply -fhttps://gitee.com/Chemmy/kube-template/PostgreSQL/postgres-service.yaml</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="cert-manager"><a href="#cert-manager" class="headerlink" title="cert-manager"></a>cert-manager</h3><p>参考<a href="/2024/04/02/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/k3s%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/" title="K3s证书管理">k3s证书管理</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加镜像源</span></span><br><span class="line">helm repo add jetstack https://charts.jetstack.io</span><br><span class="line"></span><br><span class="line">helm upgrade cert-manager jetstack/cert-manager \</span><br><span class="line">	--namespace cert-manager \</span><br><span class="line">	--install --create-namespace \</span><br><span class="line">	--<span class="built_in">set</span> crds.enabled=<span class="literal">true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="Harbor"><a href="#Harbor" class="headerlink" title="Harbor"></a>Harbor</h3><p>参考<a href="K3s%E9%83%A8%E7%BD%B2Harbor%E7%A7%81%E6%9C%89%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93.md">K3s部署Harbor私有镜像仓库</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="Gitea"><a href="#Gitea" class="headerlink" title="Gitea"></a>Gitea</h3><p>参考<a href="K3s%E9%83%A8%E7%BD%B2Gitea.md">K3s部署Gitea</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="Tekton"><a href="#Tekton" class="headerlink" title="Tekton"></a>Tekton</h3><p>参考[[K3s部署Tenton]]</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line">### Drone (已弃用)</span><br><span class="line"></span><br><span class="line">参考[K3s部署Drone](K3s部署Drone.md)</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="SonarQube"><a href="#SonarQube" class="headerlink" title="SonarQube"></a>SonarQube</h3><p>参考<a href="K3s%E9%83%A8%E7%BD%B2SonarQube.md">K3s部署SonarQube</a></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="组件之间联动配置"><a href="#组件之间联动配置" class="headerlink" title="组件之间联动配置"></a>组件之间联动配置</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://docs.gitea.com/">Gitea官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://gitea.cn/gitea/gitea">Gitea README</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.drone.io/">Drone官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://helm.sh/zh/docs">Helm官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://goharbor.io/docs/2.11.0">Harbor官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://doc.traefik.io/traefik/">Traefik Proxy Documentation - Traefik</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_21233759/article/details/125947303">k3s 部署gitea+drone_golang k3s-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1839419">Harbor 结合 Traefik 的 HA 安装配置-腾讯云开发者社区-腾讯云 (tencent.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2014106">Traefik - Kubernetes 配置TCP&#x2F;HTTP服务-腾讯云开发者社区-腾讯云 (tencent.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wosperry/p/17202852.html">Drone CI使用docker插件构建和推送镜像 - wosperry - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://hanggi.me/post/deployment/drone-ci-k8s/">在 Kubernetes 上部署 Drone 持续集成环境 | Hanggi - NGNL</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Gitea/p/drone.html">Gitea 与 Drone 集成实践：完全基于 Docker 搭建的轻量级 CI&#x2F;CD 系统 - Gitea - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46660849/article/details/133386989">Helm Chart Kubernetes安装SonarQube_helm安装sunaqube-CSDN博客</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+              <a href="/tags/K8s/" rel="tag"># K8s</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/Drone/" rel="tag"># Drone</a>
+              <a href="/tags/Gitea/" rel="tag"># Gitea</a>
+              <a href="/tags/Harbor/" rel="tag"># Harbor</a>
+              <a href="/tags/DevOps/" rel="tag"># DevOps</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3S%E5%AE%89%E8%A3%85/" rel="prev" title="K3s安装">
+                  <i class="fa fa-angle-left"></i> K3s安装
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/04/01/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/%E5%9B%BD%E5%86%85%E5%B8%B8%E7%94%A8%E6%BA%90%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80/" rel="next" title="国内常用源镜像地址">
+                  国内常用源镜像地址 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

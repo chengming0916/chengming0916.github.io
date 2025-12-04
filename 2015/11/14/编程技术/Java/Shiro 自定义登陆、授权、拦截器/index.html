@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Shiro 登陆、授权、拦截 按钮权限控制  一、目标 Maven+Spring+shiro 自定义登陆、授权 自定义拦截器 加载数据库资源构建拦截链  使用总结： 1、需要设计的数据库：用户、角色、权限、资源 2、可以通过，角色，权限，两个拦截器同时确定是否能访问 3、角色与权限的关系，role1&#x3D;permission1,permission2，多级的权限：sys:permission">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shiro">
+<meta property="og:url" content="http://chengming0916.github.io/2015/11/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Shiro%20%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BB%E9%99%86%E3%80%81%E6%8E%88%E6%9D%83%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="Shiro 登陆、授权、拦截 按钮权限控制  一、目标 Maven+Spring+shiro 自定义登陆、授权 自定义拦截器 加载数据库资源构建拦截链  使用总结： 1、需要设计的数据库：用户、角色、权限、资源 2、可以通过，角色，权限，两个拦截器同时确定是否能访问 3、角色与权限的关系，role1&#x3D;permission1,permission2，多级的权限：sys:permission">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images2017.cnblogs.com/blog/990457/201711/990457-20171122183041446-117461293.jpg">
+<meta property="article:published_time" content="2015-11-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.305Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Shiro">
+<meta property="article:tag" content="权限管理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/11/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Shiro%20%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BB%E9%99%86%E3%80%81%E6%8E%88%E6%9D%83%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/11/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Shiro%20%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BB%E9%99%86%E3%80%81%E6%8E%88%E6%9D%83%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8/","path":"2015/11/14/编程技术/Java/Shiro 自定义登陆、授权、拦截器/","title":"Shiro"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Shiro | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Shiro"><span class="nav-number">1.</span> <span class="nav-text">Shiro</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%9B%AE%E6%A0%87"><span class="nav-number">2.</span> <span class="nav-text">一、目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">二、代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81Pom-xml"><span class="nav-number">3.1.</span> <span class="nav-text">1、Pom.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81web-xml"><span class="nav-number">3.2.</span> <span class="nav-text">2、web.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81Spring-shiro-xml"><span class="nav-number">3.3.</span> <span class="nav-text">3、Spring-shiro.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81Ehcache-xml-%E7%BC%93%E5%AD%98"><span class="nav-number">3.4.</span> <span class="nav-text">4、Ehcache.xml 缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E7%99%BB%E9%99%86Servlet"><span class="nav-number">3.5.</span> <span class="nav-text">5、登陆Servlet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BB%E9%99%86%E3%80%81%E6%8E%88%E6%9D%83%E3%80%82"><span class="nav-number">3.6.</span> <span class="nav-text">6、自定义登陆、授权。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8%E3%80%82"><span class="nav-number">3.7.</span> <span class="nav-text">7、自定义拦截器。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8%E3%80%81%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE%E5%BA%93%E8%B5%84%E6%BA%90%E6%9E%84%E5%BB%BA%E6%8B%A6%E6%88%AA%E5%99%A8%E9%93%BE"><span class="nav-number">4.</span> <span class="nav-text">8、加载数据库资源构建拦截器链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0"><span class="nav-number">5.</span> <span class="nav-text">三、  学习笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81INI%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">5.1.</span> <span class="nav-text">1、INI文件配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8%E9%93%BE"><span class="nav-number">6.</span> <span class="nav-text">2、拦截器链</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8%E9%93%BE%E6%BA%90%E7%A0%81%E7%B1%BB%E5%85%B3%E7%B3%BB%E5%9B%BE"><span class="nav-number">6.1.</span> <span class="nav-text">3、拦截器链源码类关系图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%9C%AA%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-number">7.</span> <span class="nav-text">四、未实现的功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">8.</span> <span class="nav-text">五、参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/11/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Shiro%20%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BB%E9%99%86%E3%80%81%E6%8E%88%E6%9D%83%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Shiro | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Shiro
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-11-14 00:00:00" itemprop="dateCreated datePublished" datetime="2015-11-14T00:00:00+08:00">2015-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Shiro"><a href="#Shiro" class="headerlink" title="Shiro"></a>Shiro</h2><ul>
+<li>登陆、授权、拦截</li>
+<li>按钮权限控制</li>
+</ul>
+<h2 id="一、目标"><a href="#一、目标" class="headerlink" title="一、目标"></a>一、目标</h2><ul>
+<li>Maven+Spring+shiro</li>
+<li>自定义登陆、授权</li>
+<li>自定义拦截器</li>
+<li>加载数据库资源构建拦截链</li>
+</ul>
+<p>使用总结：</p>
+<p>1、需要设计的数据库：用户、角色、权限、资源</p>
+<p>2、可以通过，角色，权限，两个拦截器同时确定是否能访问</p>
+<p>3、角色与权限的关系，role1&#x3D;permission1,permission2，多级的权限：sys:permission1,拥有高级权限同时用于低级权限。</p>
+<p>4、perms[“permission1”] 为权限</p>
+<p>5、拦截器机制介绍了拦截角色还是权限</p>
+<p>6、角色与权限 是两个概念</p>
+<p>7、权限-资源，一对一。资源分为上下级，因此权限分为父权限，子权限。创建资源的时候，创建权限。权限里资源的别名</p>
+<p>8、角色-权限，一对多。角色里权限的别名</p>
+<p>9、按钮是通过权限来控制的</p>
+<p>10、防止有父级资源可以访问，子级资源不能访问的情况，不适用 sys:add 权限写法</p>
+<h2 id="二、代码"><a href="#二、代码" class="headerlink" title="二、代码"></a>二、代码</h2><h3 id="1、Pom-xml"><a href="#1、Pom-xml" class="headerlink" title="1、Pom.xml"></a>1、Pom.xml</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1     &lt;properties&gt;<br> 2         &lt;spring.version&gt;4.3.4.RELEASE&lt;&#x2F;spring.version&gt;<br> 3     &lt;&#x2F;properties&gt;<br> 4         &lt;dependency&gt;<br> 5             &lt;groupId&gt;junit&lt;&#x2F;groupId&gt;<br> 6             &lt;artifactId&gt;junit&lt;&#x2F;artifactId&gt;<br> 7             &lt;version&gt;4.9&lt;&#x2F;version&gt;<br> 8         &lt;&#x2F;dependency&gt;<br> 9         &lt;dependency&gt;<br>10             &lt;groupId&gt;commons-logging&lt;&#x2F;groupId&gt;<br>11             &lt;artifactId&gt;commons-logging&lt;&#x2F;artifactId&gt;<br>12             &lt;version&gt;1.1.3&lt;&#x2F;version&gt;<br>13         &lt;&#x2F;dependency&gt;<br>14         &lt;dependency&gt;<br>15             &lt;groupId&gt;org.apache.shiro&lt;&#x2F;groupId&gt;<br>16             &lt;artifactId&gt;shiro-core&lt;&#x2F;artifactId&gt;<br>17             &lt;version&gt;1.2.2&lt;&#x2F;version&gt;<br>18         &lt;&#x2F;dependency&gt;<br>19         &lt;dependency&gt;<br>20             &lt;groupId&gt;org.apache.shiro&lt;&#x2F;groupId&gt;<br>21             &lt;artifactId&gt;shiro-spring&lt;&#x2F;artifactId&gt;<br>22             &lt;version&gt;1.2.2&lt;&#x2F;version&gt;<br>23         &lt;&#x2F;dependency&gt;<br>24         &lt;dependency&gt;<br>25             &lt;groupId&gt;javax.servlet&lt;&#x2F;groupId&gt;<br>26             &lt;artifactId&gt;javax.servlet-api&lt;&#x2F;artifactId&gt;<br>27             &lt;version&gt;3.0.1&lt;&#x2F;version&gt;<br>28             &lt;scope&gt;provided&lt;&#x2F;scope&gt;<br>29         &lt;&#x2F;dependency&gt;<br>30         &lt;dependency&gt;<br>31             &lt;groupId&gt;org.springframework&lt;&#x2F;groupId&gt;<br>32             &lt;artifactId&gt;spring-web&lt;&#x2F;artifactId&gt;<br>33             &lt;version&gt;${spring.version}&lt;&#x2F;version&gt;<br>34         &lt;&#x2F;dependency&gt;<br>35         <dependency><br>36             <groupId>org.apache.shiro</groupId><br>37             <artifactId>shiro-ehcache</artifactId><br>38             <version>1.2.2</version><br>39         </dependency><br>40         <dependency><br>41             <groupId>org.springframework</groupId><br>42             <artifactId>spring-context</artifactId><br>43             <version>${spring.version}</version><br>44         </dependency><br>45         <dependency><br>46             <groupId>org.apache.shiro</groupId><br>47             <artifactId>shiro-web</artifactId><br>48             <version>1.2.2</version><br>49         </dependency><br>50         <dependency><br>51             <groupId>net.sf.ehcache</groupId><br>52             <artifactId>ehcache</artifactId><br>53             <version>2.10.1</version><br>54     </dependency> </p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="2、web-xml"><a href="#2、web-xml" class="headerlink" title="2、web.xml"></a>2、web.xml</h3><p>　　Servlet拦截访问，使用注解更方便，需要删除项目中的servlet使用javax.servlet-api 3.0 包</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 package com.cyd.shiro;<br> 2<br> 3 import java.io.IOException;<br> 4<br> 5 import javax.servlet.ServletException;<br> 6 import javax.servlet.annotation.WebServlet;<br> 7 import javax.servlet.http.HttpServlet;<br> 8 import javax.servlet.http.HttpServletRequest;<br> 9 import javax.servlet.http.HttpServletResponse;<br>10<br>11 import org.apache.shiro.SecurityUtils;<br>12 import org.apache.shiro.authc.AuthenticationException;<br>13 import org.apache.shiro.authc.IncorrectCredentialsException;<br>14 import org.apache.shiro.authc.UnknownAccountException;<br>15 import org.apache.shiro.authc.UsernamePasswordToken;<br>16 import org.apache.shiro.subject.Subject;<br>17 import org.apache.shiro.web.util.SavedRequest;<br>18 import org.apache.shiro.web.util.WebUtils;<br>19 import org.junit.Test;<br>20<br>21 @WebServlet(name &#x3D; “loginServlet”, urlPatterns &#x3D; “&#x2F;loginController”)<br>22 public class LoginServlet extends HttpServlet {<br>23     @Override<br>24     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>25         req.getRequestDispatcher(“login.jsp”).forward(req, resp);<br>26     }<br>27<br>28     @Override<br>29     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>30         System.out.println(LoginServlet.class.toString());<br>31         String error &#x3D; null;<br>32         String username &#x3D; req.getParameter(“username”);<br>33         String password &#x3D; req.getParameter(“password”);<br>34         Subject subject &#x3D; SecurityUtils.getSubject();<br>35         UsernamePasswordToken token &#x3D; new UsernamePasswordToken(username, password);<br>36         try {<br>37             subject.login(token);<br>38         } catch (UnknownAccountException e) {<br>39             error &#x3D; “用户名&#x2F;密码错误”;<br>40         } catch (IncorrectCredentialsException e) {<br>41             error &#x3D; “用户名&#x2F;密码错误”;<br>42         } catch (AuthenticationException e) {<br>43             &#x2F;&#x2F; 其他错误，比如锁定，如果想单独处理请单独catch处理<br>44             error &#x3D; “其他错误：” + e.getMessage();<br>45         }<br>46         if (error !&#x3D; null) {&#x2F;&#x2F; 出错了，返回登录页面<br>47             req.setAttribute(“error”, error);<br>48             req.getRequestDispatcher(“login.jsp”).forward(req, resp);<br>49         } else {&#x2F;&#x2F; 登录成功<br>50             &#x2F;&#x2F;跳转到拦截登陆前的地址<br>51             SavedRequest request&#x3D;WebUtils.getSavedRequest(req);<br>52             String url &#x3D;request.getRequestURI();<br>53             req.getRequestDispatcher(url.substring(url.lastIndexOf(‘&#x2F;‘))).forward(req, resp);<br>54         }<br>55     }<br>56<br>57 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="3、Spring-shiro-xml"><a href="#3、Spring-shiro-xml" class="headerlink" title="3、Spring-shiro.xml"></a>3、Spring-shiro.xml</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<?xml version="1.0" encoding="UTF-8"?>
+<p>&lt;beans xmlns=“<a target="_blank" rel="noopener" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>“ xmlns:xsi=“<a target="_blank" rel="noopener" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>“ xmlns:context=“<a target="_blank" rel="noopener" href="http://www.springframework.org/schema/context">http://www.springframework.org/schema/context</a>“ xmlns:util=“<a target="_blank" rel="noopener" href="http://www.springframework.org/schema/util">http://www.springframework.org/schema/util</a>“ xsi:schemaLocation=“<a target="_blank" rel="noopener" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a><br>    <a target="_blank" rel="noopener" href="http://www.springframework.org/schema/beans/spring-beans.xsd">http://www.springframework.org/schema/beans/spring-beans.xsd</a><br>    <a target="_blank" rel="noopener" href="http://www.springframework.org/schema/context">http://www.springframework.org/schema/context</a><br>    <a target="_blank" rel="noopener" href="http://www.springframework.org/schema/context/spring-context.xsd">http://www.springframework.org/schema/context/spring-context.xsd</a><br>    <a target="_blank" rel="noopener" href="http://www.springframework.org/schema/util">http://www.springframework.org/schema/util</a><br>    <a target="_blank" rel="noopener" href="http://www.springframework.org/schema/util/spring-util-4.2.xsd%22/%3E">http://www.springframework.org/schema/util/spring-util-4.2.xsd&quot;\&gt;</a></p>
+<pre><code>&lt;context:component-scan base-package\=&quot;com.cyd.shiro.\*&quot;\&gt;&lt;/context:component-scan\&gt;
+
+&lt;!-- Shiro的Web过滤器 \--&gt;
+&lt;bean id\=&quot;shiroFilter&quot; class\=&quot;com.cyd.shiro.ExtendShiroFilterFactoryBean&quot;\&gt;
+    &lt;property name\=&quot;securityManager&quot; ref\=&quot;securityManager&quot; /&gt;
+    &lt;property name\=&quot;loginUrl&quot; value\=&quot;/login.jsp&quot; /&gt;
+    &lt;!-- &lt;property name=&quot;successUrl&quot; value=&quot;/index.jsp&quot; /&gt; \--&gt;
+    &lt;property name\=&quot;unauthorizedUrl&quot; value\=&quot;/unauthorized.jsp&quot; /&gt;
+    &lt;property name\=&quot;filters&quot;\&gt;
+        &lt;util:map\&gt;
+            &lt;!-- &lt;entry key=&quot;onperms&quot; value-ref=&quot;URLPermissionsFilter&quot; /&gt; \--&gt;
+            &lt;entry key\=&quot;onrole&quot; value-ref\=&quot;ExtendRolesAuthorizationFilter&quot; /&gt;
+        &lt;/util:map\&gt;
+    &lt;/property\&gt; 
+    &lt;property name\=&quot;filterChainDefinitions&quot;\&gt;
+        &lt;value\&gt; /unauthorized.jsp = anon
+            /logoutController=anon
+            /login.jsp=authc
+        &lt;/value\&gt;
+    &lt;/property\&gt;
+&lt;/bean\&gt;
+
+&lt;!-- 安全管理器 \--&gt;
+&lt;bean id\=&quot;securityManager&quot; class\=&quot;org.apache.shiro.web.mgt.DefaultWebSecurityManager&quot;\&gt;
+    &lt;property name\=&quot;realm&quot; ref\=&quot;myRealm&quot; /&gt;
+    &lt;property name\=&quot;cacheManager&quot; ref\=&quot;cacheManager&quot; /&gt;
+&lt;/bean\&gt;
+&lt;!-- 自定义认证，授权 \--&gt;
+&lt;bean id\=&quot;myRealm&quot; class\=&quot;com.cyd.shiro.AdminRealm&quot;\&gt;&lt;/bean\&gt;
+
+&lt;!-- 注册ehcache，不然每次访问都要登陆 \--&gt;
+&lt;bean id\=&quot;cacheManager&quot; class\=&quot;org.apache.shiro.cache.ehcache.EhCacheManager&quot;\&gt;
+    &lt;property name\=&quot;cacheManagerConfigFile&quot; value\=&quot;classpath:ehcache.xml&quot; /&gt;
+&lt;/bean\&gt;
+&lt;!-- 自定义鉴权拦截器 \--&gt;
+&lt;bean id\=&quot;URLPermissionsFilter&quot; class\=&quot;com.cyd.shiro.URLPermissionsFilter&quot; /&gt;
+&lt;bean id\=&quot;ExtendRolesAuthorizationFilter&quot; class\=&quot;com.cyd.shiro.ExtendRolesAuthorizationFilter&quot; /&gt;
+</code></pre>
+<p>&lt;&#x2F;beans&gt;</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="4、Ehcache-xml-缓存"><a href="#4、Ehcache-xml-缓存" class="headerlink" title="4、Ehcache.xml 缓存"></a>4、Ehcache.xml 缓存</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<?xml version="1.0" encoding="UTF-8"?>
+<p>&lt;ehcache xmlns:xsi=“<a target="_blank" rel="noopener" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>“ xsi:noNamespaceSchemaLocation=“..&#x2F;config&#x2F;ehcache.xsd”&gt;<br>&lt;diskStore path=“java.io.tmpdir”&#x2F;&gt;<br>&lt;defaultCache<br>        maxElementsInMemory=“10000” eternal=“false” timeToIdleSeconds=“600” timeToLiveSeconds=“600” overflowToDisk=“true” maxElementsOnDisk=“10000000” diskPersistent=“false” diskExpiryThreadIntervalSeconds=“120” memoryStoreEvictionPolicy=“LRU”<br>        &#x2F;&gt;</p>
+<!-- 内存中最多可以存储多少个数据 
+    是否永久有效
+    空闲时间
+    存活时间
+    内存空间不够是否存储到磁盘
+    磁盘最大存储个数
+    服务器重启,磁盘数据是否需要
+    线程
+    淘汰策略(最近最少使用)  
+ \-->  
+<p>&lt;&#x2F;ehcache&gt;</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="5、登陆Servlet"><a href="#5、登陆Servlet" class="headerlink" title="5、登陆Servlet"></a>5、登陆Servlet</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>package com.cyd.shiro;</p>
+<p>import java.io.IOException;</p>
+<p>import javax.servlet.ServletException;<br>import javax.servlet.annotation.WebServlet;<br>import javax.servlet.http.HttpServlet;<br>import javax.servlet.http.HttpServletRequest;<br>import javax.servlet.http.HttpServletResponse;</p>
+<p>import org.apache.shiro.SecurityUtils;<br>import org.apache.shiro.authc.AuthenticationException;<br>import org.apache.shiro.authc.IncorrectCredentialsException;<br>import org.apache.shiro.authc.UnknownAccountException;<br>import org.apache.shiro.authc.UsernamePasswordToken;<br>import org.apache.shiro.subject.Subject;<br>import org.apache.shiro.web.util.SavedRequest;<br>import org.apache.shiro.web.util.WebUtils;</p>
+<p>@WebServlet(name &#x3D; “loginServlet”, urlPatterns &#x3D; “&#x2F;loginController”)<br>public class LoginServlet extends HttpServlet {<br>    @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        req.getRequestDispatcher(“login.jsp”).forward(req, resp);<br>    }</p>
+<pre><code>@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException &#123;
+    System.out.println(LoginServlet.class.toString());
+    String error = null;
+    String username = req.getParameter(&quot;username&quot;);
+    String password = req.getParameter(&quot;password&quot;);
+    Subject subject = SecurityUtils.getSubject();
+    UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+    try &#123;
+        subject.login(token); 
+    &#125; catch (UnknownAccountException e) &#123; 
+        error = &quot;用户名/密码错误&quot;;
+    &#125; catch (IncorrectCredentialsException e) &#123;
+        error = &quot;用户名/密码错误&quot;;
+    &#125; catch (AuthenticationException e) &#123;
+        // 其他错误，比如锁定，如果想单独处理请单独catch处理
+        error = &quot;其他错误：&quot; + e.getMessage();
+    &#125;
+    if (error != null) &#123;// 出错了，返回登录页面
+        req.setAttribute(&quot;error&quot;, error);
+        req.getRequestDispatcher(&quot;login.jsp&quot;).forward(req, resp);
+    &#125; else &#123;// 登录成功
+        //跳转到拦截登陆前的地址
+        SavedRequest request=WebUtils.getSavedRequest(req);
+        String url =request.getRequestURI();
+        req.getRequestDispatcher(url.substring(url.lastIndexOf(&#39;/&#39;))).forward(req, resp);
+    &#125;
+&#125;
+</code></pre>
+<p>}</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="6、自定义登陆、授权。"><a href="#6、自定义登陆、授权。" class="headerlink" title="6、自定义登陆、授权。"></a>6、自定义登陆、授权。</h3><p>　　根据需求自定义登陆异常。从数据库查询出当前用户拥有的权限并授权</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 package com.cyd.shiro;<br> 2<br> 3 import java.util.HashSet;<br> 4 import java.util.LinkedList;<br> 5 import java.util.List;<br> 6 import java.util.Set;<br> 7<br> 8 import org.apache.shiro.authc.AuthenticationException;<br> 9 import org.apache.shiro.authc.AuthenticationInfo;<br>10 import org.apache.shiro.authc.AuthenticationToken;<br>11 import org.apache.shiro.authc.SimpleAuthenticationInfo;<br>12 import org.apache.shiro.authc.UnknownAccountException;<br>13 import org.apache.shiro.authz.AuthorizationInfo;<br>14 import org.apache.shiro.authz.SimpleAuthorizationInfo;<br>15 import org.apache.shiro.realm.AuthorizingRealm;<br>16 import org.apache.shiro.subject.PrincipalCollection;<br>17 import org.springframework.beans.factory.annotation.Autowired;<br>18<br>19 import com.cyd.helloworld.SysRoles;<br>20 import com.cyd.helloworld.SysUsers;<br>21 import com.cyd.shiro.admin.SysUsersService;<br>22<br>23 public class AdminRealm extends AuthorizingRealm {<br>24<br>25     @Autowired<br>26     private SysUsersService    sysusersservice;<br>27     &#x2F;&#x2F; 认证登陆<br>28     @Override<br>29     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {<br>30         System.out.println(“do doGetAuthenticationInfo”);<br>31         String username &#x3D; (String) token.getPrincipal();<br>32         SysUsers user &#x3D; sysusersservice.getSysUsers(username);<br>33         if (user &#x3D;&#x3D; null) {<br>34             throw new UnknownAccountException();&#x2F;&#x2F; 没找到帐号<br>35         }<br>36         SimpleAuthenticationInfo authenticationInfo &#x3D; new SimpleAuthenticationInfo(user.getUserName(), &#x2F;&#x2F; 用户名<br>37                 user.getPassWorld(), &#x2F;&#x2F; 密码<br>38                 getName() &#x2F;&#x2F; realm name<br>39         );<br>40         return authenticationInfo;<br>41     }<br>42<br>43     &#x2F;&#x2F; 用户授权<br>44     @Override<br>45     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {<br>46         System.out.println(“do doGetAuthorizationInfo”);<br>47         String username &#x3D; (String)principals.getPrimaryPrincipal();<br>48         SimpleAuthorizationInfo authorizationInfo &#x3D; new SimpleAuthorizationInfo();<br>49         &#x2F;&#x2F;从数据库加载当前用户的角色，例如：[admin]<br>50         authorizationInfo.setRoles(new HashSet<String>(sysusersservice.getSysRoles(username)));<br>51         &#x2F;&#x2F;从数据库加载当前用户可以访问的资源，例如：[index.jsp, abc.jsp]<br>52         authorizationInfo.setStringPermissions(new HashSet<String>(sysusersservice.getSysResource(username)));<br>53<br>54         return authorizationInfo;<br>55     }<br>56 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h3 id="7、自定义拦截器。"><a href="#7、自定义拦截器。" class="headerlink" title="7、自定义拦截器。"></a>7、自定义拦截器。</h3><p>　　重写拦截器是因为shiro 验证是否有权限访问是需要当前用户拥有拦截器链的所有权限。一般需求只需要拥有部分权限即可。</p>
+<p>       角色验证拦截，hasRole和hasAllRoles 验证是否有权限。</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 package com.cyd.shiro;<br> 2<br> 3 import java.io.IOException;<br> 4 import java.util.Set;<br> 5<br> 6 import javax.servlet.ServletRequest;<br> 7 import javax.servlet.ServletResponse;<br> 8<br> 9 import org.apache.shiro.subject.Subject;<br>10 import org.apache.shiro.util.CollectionUtils;<br>11 import org.apache.shiro.web.filter.authz.RolesAuthorizationFilter;<br>12<br>13 &#x2F;**<br>14  * 通过角色验证权限<br>15  * @author chenyd<br>16  * 2017年11月21日<br>17  *&#x2F;<br>18 public class ExtendRolesAuthorizationFilter extends RolesAuthorizationFilter{<br>19<br>20     @Override<br>21     public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws IOException {<br>22<br>23         System.out.println(ExtendRolesAuthorizationFilter.class.toString());<br>24         Subject subject &#x3D; getSubject(request, response);<br>25         String[] rolesArray &#x3D; (String[]) mappedValue;<br>26<br>27         if (rolesArray &#x3D;&#x3D; null || rolesArray.length &#x3D;&#x3D; 0) {<br>28             &#x2F;&#x2F;no roles specified, so nothing to check - allow access.<br>29             return true;<br>30         }<br>31         &#x2F;&#x2F;AbstractFilter<br>32         Set<String> roles &#x3D; CollectionUtils.asSet(rolesArray);<br>33<br>34         boolean flag&#x3D;false;<br>35         for(String role: roles){<br>36             if(subject.hasRole(role)){<br>37                 flag&#x3D;true;<br>38                 break;<br>39             }<br>40         }<br>41         return flag;<br>42     }<br>43 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>       url拦截校验，isPermitted和isPermittedAll验证是否有权限访问，</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 package com.cyd.shiro;<br> 2<br> 3 import java.io.IOException;<br> 4<br> 5 import javax.servlet.ServletRequest;<br> 6 import javax.servlet.ServletResponse;<br> 7 import javax.servlet.http.HttpServletRequest;<br> 8<br> 9 import org.apache.shiro.subject.Subject;<br>10 import org.apache.shiro.web.filter.authz.PermissionsAuthorizationFilter;<br>11 &#x2F;**<br>12  * 通过字符串验证权限<br>13  * @author chenyd<br>14  * 2017年11月21日<br>15  *&#x2F;<br>16 public class URLPermissionsFilter extends PermissionsAuthorizationFilter {<br>17<br>18     &#x2F;**<br>19      * mappedValue 访问该url时需要的权限<br>20      * subject.isPermitted 判断访问的用户是否拥有mappedValue权限<br>21      * 重写拦截器，只要符合配置的一个权限，即可通过<br>22      *&#x2F;<br>23     @Override<br>24     public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)<br>25             throws IOException {<br>26         System.out.println(URLPermissionsFilter.class.toString());<br>27         Subject subject &#x3D; getSubject(request, response);<br>28         &#x2F;&#x2F; DefaultFilterChainManager<br>29         &#x2F;&#x2F; PathMatchingFilterChainResolver<br>30         String[] perms &#x3D; (String[]) mappedValue;<br>31         boolean isPermitted &#x3D; false;<br>32         if (perms !&#x3D; null &amp;&amp; perms.length &gt; 0) {<br>33             for (String str : perms) {<br>34                 if (subject.isPermitted(str)) {<br>35                     isPermitted &#x3D; true;<br>36                 }<br>37             }<br>38         }<br>39<br>40         return isPermitted;<br>41     }<br>42 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h2 id="8、加载数据库资源构建拦截器链"><a href="#8、加载数据库资源构建拦截器链" class="headerlink" title="8、加载数据库资源构建拦截器链"></a>8、加载数据库资源构建拦截器链</h2><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p> 1 package com.cyd.shiro;<br> 2<br> 3 import java.util.Map;<br> 4<br> 5 import org.apache.shiro.config.Ini;<br> 6 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;<br> 7 import org.apache.shiro.util.CollectionUtils;<br> 8 import org.apache.shiro.web.config.IniFilterChainResolverFactory;<br> 9 import org.springframework.beans.factory.annotation.Autowired;<br>10<br>11 import com.cyd.shiro.admin.SysUsersService;<br>12<br>13 public class ExtendShiroFilterFactoryBean extends ShiroFilterFactoryBean{<br>14<br>15     @Autowired<br>16     private SysUsersService    sysusersservice;<br>17     &#x2F;&#x2F;PathMatchingFilter<br>18     @Override<br>19     public void setFilterChainDefinitions(String definitions) {<br>20         &#x2F;&#x2F;数据库中获取权限，{&#x2F;index.jsp&#x3D;authc,onrole[“admin2”,”admin”], &#x2F;abc.jsp&#x3D;authc,onrole[“admin2”,”admin”]}<br>21         Map&lt;String, String&gt; otherChains &#x3D; sysusersservice.getFilterChain();<br>22         Ini ini &#x3D; new Ini();<br>23         ini.load(definitions);<br>24         Ini.Section section &#x3D; ini.getSection(IniFilterChainResolverFactory.URLS);<br>25         if (CollectionUtils.isEmpty(section)) {<br>26             section &#x3D; ini.getSection(Ini.DEFAULT_SECTION_NAME);<br>27         }<br>28         section.putAll(otherChains);<br>29         setFilterChainDefinitionMap(section);<br>30     }<br>31<br>32 }</p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h2 id="三、-学习笔记"><a href="#三、-学习笔记" class="headerlink" title="三、  学习笔记"></a>三、  学习笔记</h2><h3 id="1、INI文件配置"><a href="#1、INI文件配置" class="headerlink" title="1、INI文件配置"></a>1、INI文件配置</h3><p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<p>[users]  #提供了对用户&#x2F;密码及其角色的配置，用户名&#x3D;密码，角色1，角色2  </p>
+<p>zhang&#x3D;123,admin</p>
+<p>[roles]  #提供了角色及权限之间关系的配置，角色&#x3D;权限1，权限2  </p>
+<p>admin&#x3D;index.jsp</p>
+<p>[urls] #配置拦截器链，&#x2F;** 为拦截器链名称（filterChain），authc,roles[admin],perms[“index.jsp”]拦截器列表名</p>
+<p>&#x2F;login.jsp&#x3D;anon</p>
+<p>&#x2F;loginController&#x3D;anon</p>
+<p>&#x2F;unauthorized.jsp&#x3D;anon</p>
+<p>&#x2F;**&#x3D;authc,roles[admin],perms[“index.jsp”] </p>
+<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
+<h2 id="2、拦截器链"><a href="#2、拦截器链" class="headerlink" title="2、拦截器链"></a>2、拦截器链</h2><p>　　Shiro的所有拦截器链名定义在源码DefaultFilter中。</p>
+<p>anon            </p>
+<p>例子&#x2F;admins&#x2F;**&#x3D;anon 没有参数，表示可以匿名使用。 </p>
+<p>authc</p>
+<p>例如&#x2F;admins&#x2F;user&#x2F;**&#x3D;authc表示需要认证(登录)才能使用，没有参数  </p>
+<p>roles</p>
+<p> 例子&#x2F;admins&#x2F;user&#x2F;**&#x3D;roles[admin],参数可以写多个，多个时必须加上引号，  </p>
+<p> 并且参数之间用逗号分割，当有多个参数时，例如admins&#x2F;user&#x2F;**&#x3D;roles[“admin,guest”],  </p>
+<p> 每个参数通过才算通过，相当于hasAllRoles()方法。  </p>
+<p>perms</p>
+<p>例子&#x2F;admins&#x2F;user&#x2F;**&#x3D;perms[user:add:*],参数可以写多个，多个时必须加上引号，并且参数之间用逗号分割，  </p>
+<p>例如&#x2F;admins&#x2F;user&#x2F;**&#x3D;perms[“user:add:*,user:modify:*“]，当有多个参数时必须每个参数都通过才通过，  </p>
+<p>想当于isPermitedAll()方法。</p>
+<p>rest</p>
+<p>例子&#x2F;admins&#x2F;user&#x2F;**&#x3D;rest[user],根据请求的方法，相当于&#x2F;admins&#x2F;user&#x2F;**&#x3D;perms[user:method] ,  </p>
+<p> 其中method为post，get，delete等。</p>
+<p>port</p>
+<p>例子&#x2F;admins&#x2F;user&#x2F;**&#x3D;port[8081],当请求的url的端口不是8081是跳转到schemal:&#x2F;&#x2F;serverName:8081?queryString,  其中schmal是协议http或https等，serverName是你访问的host,8081是url配置里port的端口，queryString是你访问的url里的？后面的参数。</p>
+<p>authcBasic                                 </p>
+<p>例如&#x2F;admins&#x2F;user&#x2F;**&#x3D;authcBasic没有参数表示httpBasic认证</p>
+<p>ssl</p>
+<p>例子&#x2F;admins&#x2F;user&#x2F;**&#x3D;ssl没有参数，表示安全的url请求，协议为https</p>
+<p>user</p>
+<p>例如&#x2F;admins&#x2F;user&#x2F;**&#x3D;user没有参数表示必须存在用户，当登入操作时不做检查  </p>
+<p><strong>注：anon，authcBasic，auchc，user是认证过滤器，</strong> </p>
+<p> <strong>perms，roles，ssl，rest，port是授权过滤器</strong> </p>
+<h3 id="3、拦截器链源码类关系图"><a href="#3、拦截器链源码类关系图" class="headerlink" title="3、拦截器链源码类关系图"></a>3、拦截器链源码类关系图</h3><p> <img src="https://images2017.cnblogs.com/blog/990457/201711/990457-20171122183041446-117461293.jpg"> </p>
+<p>①   NameableFilter有一个name属性，定义每一个filter的名字。</p>
+<p>②   OncePerRequestFilter保证客户端请求后该filter的doFilter只会执行一次。</p>
+<p>　　doFilterInternal非常重要，在shiro整个filter体系中的核心方法及实质入口。另外，shiro是通过在request中设置一个该filter特定的属性值来保证该filter只会执行一次的。</p>
+<p>③   AdviceFilter中主要是对doFilterInternal做了更细致的切分。</p>
+<p>　　springmvc中的Interceptor，doFilterInternal会先调用preHandle做一些前置判断，如果返回false则filter链不继续往下执行，</p>
+<p>④   AccessControlFilter中的对onPreHandle方法做了进一步细化。</p>
+<p>　　isAccessAllowed方法和onAccessDenied方法达到控制效果。这两个方法都是抽象方法，由子类去实现。到这一层应该明白。isAccessAllowed和onAccessDenied方法会影响到onPreHandle方法，而onPreHandle方法会影响到preHandle方法，而preHandle方法会达到控制filter链是否执行下去的效果。所以如果正在执行的filter中isAccessAllowed和onAccessDenied都返回false，则整个filter控制链都将结束，不会到达目标方法（客户端请求的接口），而是直接跳转到某个页面（由filter定义的，将会在authc中看到）。</p>
+<p>⑤   FormAuthenticationFiltershiro提供的登录的filter，</p>
+<p>　　saveRequestAndRedirectToLogin保存request并拦截到登陆页面，登陆成功后可从WebUtils.getSavedRequest(req);中取出。</p>
+<h2 id="四、未实现的功能"><a href="#四、未实现的功能" class="headerlink" title="四、未实现的功能"></a>四、未实现的功能</h2><ul>
+<li>动态URL权限控制。当修改权限时，重新加载拦截器链。</li>
+<li>密码加密</li>
+<li>记住我</li>
+<li>在线人数控制</li>
+<li>集成验证码</li>
+</ul>
+<p>　</p>
+<h2 id="五、参考链接"><a href="#五、参考链接" class="headerlink" title="五、参考链接"></a>五、参考链接</h2><blockquote>
+<ul>
+<li> spring mvc整合shiro登录 权限验证 　　<a target="_blank" rel="noopener" href="http://blog.csdn.net/rongku/article/details/51336424">http://blog.csdn.net/rongku/article/details/51336424</a></li>
+<li>Shiro（4）默认鉴权与自定义鉴权 　　<a target="_blank" rel="noopener" href="http://blog.csdn.net/zhengwei223/article/details/9981741">http://blog.csdn.net/zhengwei223/article/details/9981741</a></li>
+<li>拦截器机制-跟我学shiro 　　　　<a target="_blank" rel="noopener" href="http://jinnianshilongnian.iteye.com/blog/2025656">http://jinnianshilongnian.iteye.com/blog/2025656</a></li>
+<li>shiro Filter–拦截器源码解释　　 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/yoohot/p/6085830.html">https://www.cnblogs.com/yoohot/p/6085830.html</a></li>
+<li>动态URL　　 <a target="_blank" rel="noopener" href="http://blog.csdn.net/shadowsick/article/details/39001273">http://blog.csdn.net/shadowsick/article/details/39001273</a></li>
+<li>重写shirofilterbean方式加载数据库资源权限　　 <a target="_blank" rel="noopener" href="http://blog.csdn.net/qq_18333833/article/details/70243620">http://blog.csdn.net/qq_18333833&#x2F;article&#x2F;details&#x2F;70243620</a></li>
+</ul>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Shiro/" rel="tag"># Shiro</a>
+              <a href="/tags/%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/" rel="tag"># 权限管理</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/11/07/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Java/Mybatis%20Generator%E6%9C%80%E5%AE%8C%E6%95%B4%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/" rel="prev" title="Mybatis Generator最完整配置详解">
+                  <i class="fa fa-angle-left"></i> Mybatis Generator最完整配置详解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017/01/07/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%88%86%E5%B8%83%E5%BC%8FID%E7%94%9F%E6%88%90%E6%96%B9%E6%B3%95%E7%94%9F%E6%88%90%E6%BC%94%E5%8F%98/" rel="next" title="分布式ID生成方法生成演变">
+                  分布式ID生成方法生成演变 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

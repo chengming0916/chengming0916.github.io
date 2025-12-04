@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="先决条件本教程假定 RabbitMQ 已经安装，并运行在localhost 标准端口（5672）。如果你使用不同的主机、端口或证书，则需要调整连接设置。 从哪里获得帮助如果您在阅读本教程时遇到困难，可以通过邮件列表 联系我们。  路由#（使用.NET客户端） 在 教程[3] 中，我们构建了一个简单的日志系统，可以向多个接收者广播消息。 在本教程中，我们会为日志系统再添加一个特性，使其可以只订阅消">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[译]RabbitMQ教程C#版 - 路由">
+<meta property="og:url" content="http://chengming0916.github.io/2018/05/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E8%B7%AF%E7%94%B1/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="先决条件本教程假定 RabbitMQ 已经安装，并运行在localhost 标准端口（5672）。如果你使用不同的主机、端口或证书，则需要调整连接设置。 从哪里获得帮助如果您在阅读本教程时遇到困难，可以通过邮件列表 联系我们。  路由#（使用.NET客户端） 在 教程[3] 中，我们构建了一个简单的日志系统，可以向多个接收者广播消息。 在本教程中，我们会为日志系统再添加一个特性，使其可以只订阅消">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231746073-139207930.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231813076-1280701060.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231857862-1124037273.png">
+<meta property="article:published_time" content="2018-05-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.289Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="RabbitMQ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231746073-139207930.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2018/05/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E8%B7%AF%E7%94%B1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2018/05/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E8%B7%AF%E7%94%B1/","path":"2018/05/05/编程技术/DotNet/RabbitMQ教程C#版 - 路由/","title":"[译]RabbitMQ教程C#版 - 路由"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>[译]RabbitMQ教程C#版 - 路由 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1"><span class="nav-number">1.</span> <span class="nav-text">路由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%91%E5%AE%9A"><span class="nav-number">2.</span> <span class="nav-text">绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Direct%E4%BA%A4%E6%8D%A2%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">Direct交换器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E9%87%8D%E7%BB%91%E5%AE%9A"><span class="nav-number">4.</span> <span class="nav-text">多重绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E6%97%A5%E5%BF%97"><span class="nav-number">5.</span> <span class="nav-text">发送日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A2%E9%98%85"><span class="nav-number">6.</span> <span class="nav-text">订阅</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="nav-number">7.</span> <span class="nav-text">组合在一起</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">8.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2018/05/05/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E8%B7%AF%E7%94%B1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="[译]RabbitMQ教程C#版 - 路由 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          [译]RabbitMQ教程C#版 - 路由
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-05-05 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-05T00:00:00+08:00">2018-05-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p><strong>先决条件</strong><br>本教程假定 RabbitMQ 已经安装，并运行在<code>localhost</code> 标准端口（5672）。如果你使用不同的主机、端口或证书，则需要调整连接设置。</p>
+<p><strong>从哪里获得帮助</strong><br>如果您在阅读本教程时遇到困难，可以通过邮件列表 <a target="_blank" rel="noopener" href="https://groups.google.com/forum/#!forum/rabbitmq-users">联系我们</a>。</p>
+</blockquote>
+<h2 id="路由"><a href="#路由" class="headerlink" title="路由#"></a>路由<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E8%B7%AF%E7%94%B1">#</a></h2><p><strong>（使用.NET客户端）</strong></p>
+<p>在 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-publish-subscribe.html">教程[3]</a> 中，我们构建了一个简单的日志系统，可以向多个接收者广播消息。</p>
+<p>在本教程中，我们会为日志系统再添加一个特性，使其可以只订阅消息的一个子集。例如，将所有日志消息打印到<br>控制台，同时只会将严重错误消息写入日志文件（保存到磁盘空间）。</p>
+<h2 id="绑定"><a href="#绑定" class="headerlink" title="绑定#"></a>绑定<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E7%BB%91%E5%AE%9A">#</a></h2><p>在前面的例子中，我们创建过_绑定_。不知道您是否还记得下面的代码：</p>
+<pre><code>channel.QueueBind(queue: queueName,
+                  exchange: &quot;logs&quot;,
+                  routingKey: &quot;&quot;);
+</code></pre>
+<p>绑定是指交换器和队列之间的关联关系。可以简单地理解为：某个队列对来自此交换器的消息感兴趣。</p>
+<p>绑定可以采用额外的<code>routingKey</code>参数，为了避免与<code>BasicPublish</code>方法中相同参数混淆，我们将其称为<code>binding key</code>（这里是指路由键从声明角度的一种别称，绑定键）。下面即是如何使用绑定键 建立一个绑定：</p>
+<pre><code>channel.QueueBind(queue: queueName,
+                  exchange: &quot;direct_logs&quot;,
+                  routingKey: &quot;black&quot;);
+</code></pre>
+<p>绑定键的含义取决于交换器类型。像我们前面使用的<code>fanout</code> 交换器，忽略了它的值（依据<code>fanout</code>交换器的特性，它会把消息广播到所有订阅的队列，所以就算指定<code>routingKey</code>也不会根据其过滤消息）。</p>
+<h2 id="Direct交换器"><a href="#Direct交换器" class="headerlink" title="Direct交换器#"></a>Direct交换器<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#direct%E4%BA%A4%E6%8D%A2%E5%99%A8">#</a></h2><p>在上篇教程中，我们的日志系统会把所有消息广播给所有消费者，现在我们想要扩展使其可以根据消息的严重性过滤消息。例如，我们希望将日志消息写入磁盘的脚本仅接收严重错误的消息，而不是在警告或者信息类型的消息上浪费磁盘空间。</p>
+<p>之前我们使用的是<code>fanout</code>交换器，它没有给我们足够的灵活性 - 它只能进行无意识的广播。</p>
+<p>现在我们要用<code>direct</code>交换器替换它，<code>direct</code>交换器背后的路由算法很简单 - 消息会进入其<code>binding key</code>恰好与<code>routing key</code>相匹配的队列。<br>为了说明这一点，请参考以下设置：</p>
+<p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231746073-139207930.png"><img src="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231746073-139207930.png"></a></p>
+<p>在上面的设置中，我们可以看到<code>direct</code>交换器<code>X</code>与两个队列绑定。第一个队列通过键<code>orange</code>绑定，第二个队列有两个绑定，一个通过键<code>black</code>绑定、另外一个通过键<code>green</code>绑定。</p>
+<p>如此设置，发布使用路由键<code>orange</code>的消息到交换器最终会被路由到队列<code>Q1</code>，路由键为<code>black</code>或<code>green</code>的消息会去向队列<code>Q2</code>，而其他所有的消息会被丢弃。</p>
+<h2 id="多重绑定"><a href="#多重绑定" class="headerlink" title="多重绑定#"></a>多重绑定<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E5%A4%9A%E9%87%8D%E7%BB%91%E5%AE%9A">#</a></h2><p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231813076-1280701060.png"><img src="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231813076-1280701060.png"></a></p>
+<p>使用相同的绑定键绑定多个队列是完全合法的。在示例中，我们可以在<code>X</code>和<code>Q1</code>之间添加一个键为<code>black</code>的绑定。这种情况下，<code>direct</code>交换器会像<code>fanout</code>交换器一样，把消息广播到所有匹配的队列，路由键为<code>black</code>的消息会被分别发送到队列<code>Q1</code>和<code>Q2</code>。</p>
+<h2 id="发送日志"><a href="#发送日志" class="headerlink" title="发送日志#"></a>发送日志<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E5%8F%91%E9%80%81%E6%97%A5%E5%BF%97">#</a></h2><p>我们将在日志系统中使用上述消息模型，在发送消息时使用<code>direct</code>交换机来替换<code>fanout</code>交换器。同时我们会把日志的严重性作为路由键，这样的话，接收脚本就可以选择性地接收它期望严重性的消息。首先我们来关注如何发送日志。</p>
+<p>同样地，我们需要先创建一个交换器：</p>
+<pre><code>channel.ExchangeDeclare(exchange: &quot;direct_logs&quot;, type: ExchangeType.Direct);
+</code></pre>
+<p>准备好发送消息：</p>
+<pre><code>var body = Encoding.UTF8.GetBytes(message);
+channel.BasicPublish(exchange: &quot;direct_logs&quot;,
+                     routingKey: severity,
+                     basicProperties: null,
+                     body: body);
+</code></pre>
+<p>简单起见，我们先假定<code>severity</code>可以是<code>info</code>、<code>warning</code>或<code>error</code>任意一值。</p>
+<h2 id="订阅"><a href="#订阅" class="headerlink" title="订阅#"></a>订阅<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E8%AE%A2%E9%98%85">#</a></h2><p>马上就可以像前面的教程接收消息了，但有一点不同， 我们需要为我们感兴趣的每种日志严重性级别的消息建立一个新的绑定。</p>
+<pre><code>var queueName = channel.QueueDeclare().QueueName;
+
+foreach(var severity in args)
+&#123;
+    channel.QueueBind(queue: queueName,
+                      exchange: &quot;direct_logs&quot;,
+                      routingKey: severity);
+&#125;
+</code></pre>
+<h2 id="组合在一起"><a href="#组合在一起" class="headerlink" title="组合在一起#"></a>组合在一起<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E7%BB%84%E5%90%88%E5%9C%A8%E4%B8%80%E8%B5%B7">#</a></h2><p><a target="_blank" rel="noopener" href="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231857862-1124037273.png"><img src="https://img2018.cnblogs.com/blog/785976/201811/785976-20181117231857862-1124037273.png"></a></p>
+<p><code>EmitLogDirect.cs</code>类的代码：</p>
+<pre><code>using System;
+using System.Linq;
+using RabbitMQ.Client;
+using System.Text;
+
+class EmitLogDirect
+&#123;
+    public static void Main(string[] args)
+    &#123;
+        var factory = new ConnectionFactory() &#123; HostName = &quot;localhost&quot; &#125;;
+        using(var connection = factory.CreateConnection())
+        using(var channel = connection.CreateModel())
+        &#123;
+            channel.ExchangeDeclare(exchange: &quot;direct_logs&quot;,
+                                    type: &quot;direct&quot;);
+
+            var severity = (args.Length &gt; 0) ? args[0] : &quot;info&quot;;
+            var message = (args.Length &gt; 1)
+                          ? string.Join(&quot; &quot;, args.Skip(1).ToArray())
+                          : &quot;Hello World!&quot;;
+            var body = Encoding.UTF8.GetBytes(message);
+            channel.BasicPublish(exchange: &quot;direct_logs&quot;,
+                                 routingKey: severity,
+                                 basicProperties: null,
+                                 body: body);
+            Console.WriteLine(&quot; [x] Sent &#39;&#123;0&#125;&#39;:&#39;&#123;1&#125;&#39;&quot;, severity, message);
+        &#125;
+
+        Console.WriteLine(&quot; Press [enter] to exit.&quot;);
+        Console.ReadLine();
+    &#125;
+&#125;
+</code></pre>
+<p><code>ReceiveLogsDirect.cs</code>类的代码：</p>
+<pre><code>using System;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+
+class ReceiveLogsDirect
+&#123;
+    public static void Main(string[] args)
+    &#123;
+        var factory = new ConnectionFactory() &#123; HostName = &quot;localhost&quot; &#125;;
+        using(var connection = factory.CreateConnection())
+        using(var channel = connection.CreateModel())
+        &#123;
+            channel.ExchangeDeclare(exchange: &quot;direct_logs&quot;,
+                                    type: &quot;direct&quot;);
+            var queueName = channel.QueueDeclare().QueueName;
+
+            if(args.Length &lt; 1)
+            &#123;
+                Console.Error.WriteLine(&quot;Usage: &#123;0&#125; [info] [warning] [error]&quot;,
+                                        Environment.GetCommandLineArgs()[0]);
+                Console.WriteLine(&quot; Press [enter] to exit.&quot;);
+                Console.ReadLine();
+                Environment.ExitCode = 1;
+                return;
+            &#125;
+
+            foreach(var severity in args)
+            &#123;
+                channel.QueueBind(queue: queueName,
+                                  exchange: &quot;direct_logs&quot;,
+                                  routingKey: severity);
+            &#125;
+
+            Console.WriteLine(&quot; [*] Waiting for messages.&quot;);
+
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (model, ea) =&gt;
+            &#123;
+                var body = ea.Body;
+                var message = Encoding.UTF8.GetString(body);
+                var routingKey = ea.RoutingKey;
+                Console.WriteLine(&quot; [x] Received &#39;&#123;0&#125;&#39;:&#39;&#123;1&#125;&#39;&quot;,
+                                  routingKey, message);
+            &#125;;
+            channel.BasicConsume(queue: queueName,
+                                 autoAck: true,
+                                 consumer: consumer);
+
+            Console.WriteLine(&quot; Press [enter] to exit.&quot;);
+            Console.ReadLine();
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<p>请像往常一样创建项目（请参阅 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-hello-world.html">教程[1]</a>）。</p>
+<p>如果您想将<code>warning</code>和<code>error</code>（不包括<code>info</code>）日志消息保存到文件，只需打开控制台并输入：</p>
+<pre><code>cd ReceiveLogsDirect
+dotnet run warning error &gt; logs_from_rabbit.log
+</code></pre>
+<p>如果您想在屏幕上看到所有日志消息，请打开一个新终端并执行以下操作：</p>
+<pre><code>cd ReceiveLogsDirect
+dotnet run info warning error
+</code></pre>
+<p>​    </p>
+<p>例如，想要发出<code>error</code>日志消息，只需要输入：</p>
+<pre><code>cd EmitLogDirect
+dotnet run error &quot;Run. Run. Or it will explode.&quot;
+</code></pre>
+<p>​    </p>
+<p><a target="_blank" rel="noopener" href="https://github.com/rabbitmq/rabbitmq-tutorials/blob/master/dotnet/EmitLogDirect/EmitLogDirect.cs">EmitLogDirect.cs</a> 和 <a target="_blank" rel="noopener" href="https://github.com/rabbitmq/rabbitmq-tutorials/blob/master/dotnet/ReceiveLogsDirect/ReceiveLogsDirect.cs">ReceiveLogsDirect.cs</a> 的完整源代码。</p>
+<p>跳转到 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-topics.html">教程[5]</a>，了解如何基于模式监听消息。</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后#"></a>写在最后<a target="_blank" rel="noopener" href="https://www.cnblogs.com/esofar/p/rabbitmq-routing.html#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E">#</a></h2><p>本文翻译自 RabbitMQ 官方教程 C# 版本。如本文介绍内容与官方有所出入，请以官方最新内容为准。水平有限，翻译的不好请见谅，如有翻译错误还请指正。</p>
+<ul>
+<li>原文链接：<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/tutorials/tutorial-four-dotnet.html">RabbitMQ tutorial - Routing</a></li>
+<li>实验环境：RabbitMQ 3.7.4 、.NET Core 2.1.3、Visual Studio Code</li>
+<li>最后更新：2018-08-31</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/RabbitMQ/" rel="tag"># RabbitMQ</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/28/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E5%B7%A5%E4%BD%9C%E9%98%9F%E5%88%97/" rel="prev" title="[译]RabbitMQ教程C#版 - 工作队列">
+                  <i class="fa fa-angle-left"></i> [译]RabbitMQ教程C#版 - 工作队列
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/05/12/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E8%BF%9C%E7%A8%8B%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8(RPC)/" rel="next" title="[译]RabbitMQ教程C#版 - 远程过程调用(RPC)">
+                  [译]RabbitMQ教程C#版 - 远程过程调用(RPC) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="介绍前面介绍Quartz.Net的基本用法，但在实际应用中，往往有更多的特性需求，比如记录job执行的执行历史，发邮件等。 阅读目录 Quartz.Net插件 TriggerListener,JobListener Cron表达式 Quartz.Net线程池 总结  Quartz.Net插件     Quartz.net 自身提供了一个插件接口(ISchedulerPlugin)用来增加附加功能，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Net作业调度(三) — Quartz.Net进阶">
+<meta property="og:url" content="http://chengming0916.github.io/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="介绍前面介绍Quartz.Net的基本用法，但在实际应用中，往往有更多的特性需求，比如记录job执行的执行历史，发邮件等。 阅读目录 Quartz.Net插件 TriggerListener,JobListener Cron表达式 Quartz.Net线程池 总结  Quartz.Net插件     Quartz.net 自身提供了一个插件接口(ISchedulerPlugin)用来增加附加功能，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/172151135196757.png">
+<meta property="article:published_time" content="2015-09-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.281Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Quartz.NET">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/172151135196757.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/","path":"2015/09/26/编程技术/DotNet/Net作业调度(三) — Quartz.Net进阶/","title":"Net作业调度(三) — Quartz.Net进阶"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Net作业调度(三) — Quartz.Net进阶 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%85%E8%AF%BB%E7%9B%AE%E5%BD%95"><span class="nav-number">1.0.1.</span> <span class="nav-text">阅读目录</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Quartz-Net%E6%8F%92%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">Quartz.Net插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TriggerListener%EF%BC%8CJobListener"><span class="nav-number">3.</span> <span class="nav-text">TriggerListener，JobListener</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cron%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">Cron表达式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number"></span> <span class="nav-text"></span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E4%BB%8B%E7%BB%8D"><span class="nav-number">0.0.1.</span> <span class="nav-text">实例介绍</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Quartz-Net%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="nav-number">0.1.</span> <span class="nav-text">Quartz.Net线程池</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Net作业调度(三) — Quartz.Net进阶 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Net作业调度(三) — Quartz.Net进阶
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-09-26 00:00:00" itemprop="dateCreated datePublished" datetime="2015-09-26T00:00:00+08:00">2015-09-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>前面介绍Quartz.Net的基本用法，但在实际应用中，往往有更多的特性需求，比如记录job执行的执行历史，发邮件等。</p>
+<h4 id="阅读目录"><a href="#阅读目录" class="headerlink" title="阅读目录"></a>阅读目录</h4><ol>
+<li>Quartz.Net插件</li>
+<li>TriggerListener,JobListener</li>
+<li>Cron表达式</li>
+<li>Quartz.Net线程池</li>
+<li>总结</li>
+</ol>
+<h2 id="Quartz-Net插件"><a href="#Quartz-Net插件" class="headerlink" title="Quartz.Net插件"></a>Quartz.Net插件</h2><p>     Quartz.net 自身提供了一个插件接口(ISchedulerPlugin)用来增加附加功能，看下官方定义：</p>
+<p>1</p>
+<p>2</p>
+<p>3</p>
+<p>4</p>
+<p>5</p>
+<p>6</p>
+<p>7</p>
+<p>8</p>
+<p><code>public</code> <code>interface</code> <code>ISchedulerPlugin</code></p>
+<p> <code>&#123;</code></p>
+<p> <code>void</code> <code>Initialize(``string</code> <code>pluginName, IScheduler sched);</code></p>
+<p> <code>void</code> <code>Shutdown();</code></p>
+<p> <code>void</code> <code>Start();</code></p>
+<p> <code>&#125;</code></p>
+<p>　继承接口，实现自己的插件。</p>
+<p>1</p>
+<p>2</p>
+<p>3</p>
+<p>4</p>
+<p>5</p>
+<p>6</p>
+<p>7</p>
+<p>8</p>
+<p>9</p>
+<p>10</p>
+<p>11</p>
+<p>12</p>
+<p>13</p>
+<p>14</p>
+<p>15</p>
+<p><code>public</code> <code>class</code> <code>MyPlugin : ISchedulerPlugin</code></p>
+<p> <code>&#123;</code></p>
+<p> <code>public</code> <code>void</code>  <code>Initialize(``string</code> <code>pluginName, IScheduler sched)</code></p>
+<p> <code>&#123;</code></p>
+<p> <code>Console.WriteLine(``&quot;实例化&quot;``);</code></p>
+<p> <code>&#125;</code></p>
+<p> <code>public</code>  <code>void</code> <code>Start()</code></p>
+<p> <code>&#123;</code></p>
+<p> <code>Console.WriteLine(``&quot;启动&quot;``);</code></p>
+<p> <code>&#125;</code></p>
+<p> <code>public</code>  <code>void</code> <code>Shutdown()</code></p>
+<p> <code>&#123;</code></p>
+<p> <code>Console.WriteLine(``&quot;关闭&quot;``);</code></p>
+<p> <code>&#125;</code></p>
+<p> <code>&#125;</code></p>
+<p>　　主函数里面配置要实现的插件，注释部分，一句话搞定。</p>
+<p>1</p>
+<p>2</p>
+<p>3</p>
+<p>4</p>
+<p>5</p>
+<p>6</p>
+<p>7</p>
+<p>8</p>
+<p>9</p>
+<p>10</p>
+<p>11</p>
+<p>12</p>
+<p>13</p>
+<p>14</p>
+<p>15</p>
+<p>16</p>
+<p>17</p>
+<p>18</p>
+<p>19</p>
+<p>20</p>
+<p>21</p>
+<p>22</p>
+<p>23</p>
+<p>24</p>
+<p>25</p>
+<p><code>static</code> <code>void</code> <code>Main(``string``[] args)</code></p>
+<p> <code>&#123;</code></p>
+<p> <code>var</code> <code>properties =</code> <code>new</code> <code>NameValueCollection();</code></p>
+<p> <code>properties[``&quot;quartz.plugin.MyPlugin.type&quot;``] =</code> <code>&quot;QuartzDemo3.MyPlugin,QuartzDemo3&quot;``;</code></p>
+<p> <code>var</code> <code>schedulerFactory =</code> <code>new</code> <code>StdSchedulerFactory(properties);</code></p>
+<p> <code>var</code> <code>scheduler = schedulerFactory.GetScheduler();</code></p>
+<p> <code>var</code> <code>job = JobBuilder.Create&lt;HelloJob&gt;()</code></p>
+<p> <code>.WithIdentity(``&quot;myJob&quot;``,</code> <code>&quot;group1&quot;``)</code></p>
+<p> <code>.Build();</code></p>
+<p> <code>var</code> <code>trigger = TriggerBuilder.Create()</code></p>
+<p> <code>.WithIdentity(``&quot;mytrigger&quot;``,</code> <code>&quot;group1&quot;``)</code></p>
+<p> <code>.WithCronSchedule(``&quot;/2 * * ? * *&quot;``)</code></p>
+<p> <code>.Build();</code></p>
+<p> <code>scheduler.ScheduleJob(job, trigger);</code></p>
+<p> <code>scheduler.Start();</code></p>
+<p> <code>Thread.Sleep(6000);</code></p>
+<p> <code>scheduler.Shutdown(``true``);</code></p>
+<p> <code>Console.ReadLine();</code></p>
+<p> <code>&#125;</code></p>
+<p>运行结果如下：</p>
+<p> <img src="/2015/09/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%B8%89)%20%E2%80%94%20Quartz.Net%E8%BF%9B%E9%98%B6/172151135196757.png"></p>
+<h2 id="TriggerListener，JobListener"><a href="#TriggerListener，JobListener" class="headerlink" title="TriggerListener，JobListener"></a>TriggerListener，JobListener</h2><p>这2个是对触发器和job本身的行为监听器，这样更好方便跟踪Job的状态及运行情况。  </p>
+<p>ITriggerListener是官方定义的接口，这里我们直接继承实现。 </p>
+<p>public class MyTriggerListener : ITriggerListener<br>    { private string name; public void TriggerComplete(ITrigger trigger, IJobExecutionContext context, SchedulerInstruction triggerInstructionCode)<br>        {<br>            Console.WriteLine(“job完成时调用”);<br>        } public void TriggerFired(ITrigger trigger, IJobExecutionContext context)<br>        {<br>            Console.WriteLine(“job执行时调用”);<br>        } public void TriggerMisfired(ITrigger trigger)<br>        {<br>            Console.WriteLine(“错过触发时调用(例：线程不够用的情况下)”);<br>        } public bool VetoJobExecution(ITrigger trigger, IJobExecutionContext context)<br>        { &#x2F;&#x2F;Trigger触发后，job执行时调用本方法。true即否决，job后面不执行。<br>            return false;<br>        } public string Name { get { return name; } set { name &#x3D; value; } }<br>    }</p>
+<p>主函数添加：</p>
+<p>1</p>
+<p>2</p>
+<p>3</p>
+<p>4</p>
+<p>5</p>
+<p>6</p>
+<p>7</p>
+<p>8</p>
+<p>9</p>
+<p>10</p>
+<p>11</p>
+<p>12</p>
+<p>13</p>
+<p>14</p>
+<p>15</p>
+<p>16</p>
+<p> <code>scheduler.ListenerManager.AddTriggerListener(myJobListener, KeyMatcher&lt;TriggerKey&gt;.KeyEquals(``new</code> <code>TriggerKey(``&quot;mytrigger&quot;``,</code> <code>&quot;group1&quot;``)));</code></p>
+<p> <code>////添加监听器到指定分类的所有监听器。</code></p>
+<p> <code>////添加监听器到指定分类的所有监听器。</code></p>
+<p><code>////添加监听器到指定的2个分组。</code></p>
+<p> <code>////添加监听器到所有的触发器上。</code></p>
+<p> <code>scheduler.Start();</code></p>
+<p><strong>JobListener同理，这里不多做描述。</strong></p>
+<h2 id="Cron表达式"><a href="#Cron表达式" class="headerlink" title="Cron表达式"></a>Cron表达式</h2><p>quartz中的cron表达式和Linux下的很类似，比如 “&#x2F;5 * * ? * * *“ 这样的7位表达式，最后一位年非必选。</p>
+<p>表达式从左到右，依此是秒、分、时、月第几天、月、周几、年。下面表格是要遵守的规范：</p>
+<p><strong>字段名</strong></p>
+<p>允许的值</p>
+<p>允许的特殊字符</p>
+<p>Seconds</p>
+<p>0-59</p>
+<p>, - * &#x2F;</p>
+<p>Minutes</p>
+<p>0-59</p>
+<p>, - * &#x2F;</p>
+<p>Hours</p>
+<p>0-23</p>
+<p>, - * &#x2F;</p>
+<p>Day of month</p>
+<p>1-31</p>
+<p>, - * ? &#x2F; L W</p>
+<p>Month</p>
+<p>1-12 or JAN-DEC</p>
+<p>, - * &#x2F;</p>
+<p>Day of week</p>
+<p>1-7 or SUN-SAT</p>
+<p>, - * ? &#x2F; L #</p>
+<p>Year</p>
+<p>空, 1970-2099</p>
+<p>, - * &#x2F;</p>
+<p>特殊字符</p>
+<p>解释</p>
+<p>,</p>
+<p>或的意思。例：分钟位 5,10  即第5分钟或10分都触发。 </p>
+<p>&#x2F;</p>
+<p>a&#x2F;b。 a：代表起始时间，b频率时间。 例； 分钟位  3&#x2F;5，  从第三分钟开始，每5分钟执行一次。</p>
+<p>*</p>
+<p>频率。 即每一次波动。    例；分钟位 *  即表示每分钟 </p>
+<p>-</p>
+<p>区间。  例： 分钟位   5-10 即5到10分期间。 </p>
+<p>?</p>
+<p>任意值 。   即每一次波动。只能用在DayofMonth和DayofWeek，二者冲突。指定一个另一个一个要用?</p>
+<p>L</p>
+<p>表示最后。 只能用在DayofMonth和DayofWeek，4L即最后一个星期三</p>
+<p>W</p>
+<p>工作日。  表示最后。 只能用在DayofWeek</p>
+<h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>4#2。 只能用DayofMonth。 某月的第二个星期三  </p>
+<h4 id="实例介绍"><a href="#实例介绍" class="headerlink" title="实例介绍"></a>实例介绍</h4><p>”0 0 10,14,16 * * ?”    每天10点，14点，16点 触发。</p>
+<p>“0 0&#x2F;5 14,18 * * ?”    每天14点或18点中，每5分钟触发 。</p>
+<p>“0 4&#x2F;15 14-18 * * ?”       每天14点到18点期间,  从第四分钟触发，每15分钟一次。</p>
+<p>“0 15 10 ? * 6L”        每月的最后一个星期五上午10:15触发。</p>
+<h3 id="Quartz-Net线程池"><a href="#Quartz-Net线程池" class="headerlink" title="Quartz.Net线程池"></a>Quartz.Net线程池</h3><p>线程池数量设置：</p>
+<p>properties[“quartz.threadPool.threadCount”] &#x3D; “5”;  </p>
+<p>这个线程池的设置，是指同时间，调度器能执行Job的最大数量。</p>
+<p>quartz是用每个线程跑一个job。上面的设置可以解释是job并发时能执行5个job，剩下的job如果触发时间恰好到了，当前job会进入暂停状态，直到有可用的线程。</p>
+<p>如果在指定的时间范围依旧没有可用线程，会触发misfired时间。</p>
+<p>quartz 提供了IThreadPool接口，也可以用自定义线程池来实现。</p>
+<p>配置如下：</p>
+<p>properties[“quartz.threadPool.type”] &#x3D; “Quartz.Simpl.SimpleThreadPool, Quartz”; </p>
+<p>一般来说作业调度很少并发触发大量job，如果有上百个JOB，可在服务器承受范围内适量增加线程数量。     </p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>官方有LoggingTriggerHistoryPlugin，LoggingJobHistoryPlugin  已实现的，触发器和job历史记录的插件。</p>
+<p>Quartz.Plugin 命名空间下有官方实现的其他一些插件，也可以自己增加扩展。</p>
+<p>quartz中监听器还有SchedulerListener，使用方法基本一样。 </p>
+<p>本文基于自用经验和官方文档代码来写的，部分是直接翻译的。 </p>
+<p>Quartz.Net官方教程<a target="_blank" rel="noopener" href="http://www.quartz-scheduler.net/documentation/quartz-2.x/tutorial/index.html">http://www.quartz-scheduler.net/documentation/quartz-2.x/tutorial/index.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Quartz-NET/" rel="tag"># Quartz.NET</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/09/19/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%8C)%20-CrystalQuartz%E8%BF%9C%E7%A8%8B%E7%AE%A1%E7%90%86/" rel="prev" title="Net作业调度(二) -CrystalQuartz远程管理">
+                  <i class="fa fa-angle-left"></i> Net作业调度(二) -CrystalQuartz远程管理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/10/03/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E5%9B%9B)%E2%80%94quartz.net%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E9%9B%86%E7%BE%A4/" rel="next" title="Net作业调度(四)—quartz.net持久化和集群">
+                  Net作业调度(四)—quartz.net持久化和集群 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

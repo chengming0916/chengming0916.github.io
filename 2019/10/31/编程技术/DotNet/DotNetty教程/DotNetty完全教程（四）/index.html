@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="DotNetty完全教程（四） ExcerptByteBufferNetty中ByteBuffer的介绍Netty 的数据处理 API 通过两个组件暴露——abstract class ByteBuf 和 interfaceByteBufHolderDotNetty中有AbstractByteBuffer  IByteBuffer IByteBufferHolder优点：它可以被用户自定义的缓冲区">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DotNetty完全教程（四）">
+<meta property="og:url" content="http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="DotNetty完全教程（四） ExcerptByteBufferNetty中ByteBuffer的介绍Netty 的数据处理 API 通过两个组件暴露——abstract class ByteBuf 和 interfaceByteBufHolderDotNetty中有AbstractByteBuffer  IByteBuffer IByteBufferHolder优点：它可以被用户自定义的缓冲区">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191030095627667.png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanBvMDlqaWRqMzBqdzA2c2FicC5qcGc?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanB0Z2Z2MTBqMzBqaTA0MmFheS5qcGc?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanB3NW96NmhqMzBrMzBhdWFjei5qcGc?x-oss-process=image/format,png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191030103446350.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2019-10-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.281Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="DotNetty">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20191030095627667.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89/","path":"2019/10/31/编程技术/DotNet/DotNetty教程/DotNetty完全教程（四）/","title":"DotNetty完全教程（四）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>DotNetty完全教程（四） | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">DotNetty完全教程（四）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ByteBuffer"><span class="nav-number">1.2.</span> <span class="nav-text">ByteBuffer</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Netty%E4%B8%ADByteBuffer%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.2.1.</span> <span class="nav-text">Netty中ByteBuffer的介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86%EF%BC%9A"><span class="nav-number">1.2.2.</span> <span class="nav-text">原理：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8ByteBuf"><span class="nav-number">1.2.3.</span> <span class="nav-text">使用ByteBuf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%BA%A7%E6%93%8D%E4%BD%9C"><span class="nav-number">1.2.4.</span> <span class="nav-text">字节级操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ByteBufHolder"><span class="nav-number">1.2.5.</span> <span class="nav-text">ByteBufHolder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E7%90%86ByteBuffer"><span class="nav-number">1.2.6.</span> <span class="nav-text">管理ByteBuffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0"><span class="nav-number">1.2.7.</span> <span class="nav-text">引用计数</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="DotNetty完全教程（四） | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DotNetty完全教程（四）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-31 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-31T00:00:00+08:00">2019-10-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">DotNetty教程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="DotNetty完全教程（四）"><a href="#DotNetty完全教程（四）" class="headerlink" title="DotNetty完全教程（四）"></a>DotNetty完全教程（四）</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>ByteBufferNetty中ByteBuffer的介绍Netty 的数据处理 API 通过两个组件暴露——abstract class ByteBuf 和 interfaceByteBufHolderDotNetty中有AbstractByteBuffer  IByteBuffer IByteBufferHolder优点：它可以被用户自定义的缓冲区类型扩展；通过内置的复合缓冲区…</p>
+</blockquote>
+<hr>
+<h2 id="ByteBuffer"><a href="#ByteBuffer" class="headerlink" title="ByteBuffer"></a>ByteBuffer</h2><h3 id="Netty中ByteBuffer的介绍"><a href="#Netty中ByteBuffer的介绍" class="headerlink" title="Netty中ByteBuffer的介绍"></a>Netty中ByteBuffer的介绍</h3><p>Netty 的数据处理 <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=API&spm=1001.2101.3001.7020">API</a> 通过两个组件暴露——abstract class ByteBuf 和 interface<br>ByteBufHolder</p>
+<p>DotNetty中有AbstractByteBuffer IByteBuffer IByteBufferHolder</p>
+<p>优点：</p>
+<ul>
+<li>它可以被用户自定义的缓冲区类型扩展；</li>
+<li>通过内置的复合缓冲区类型实现了透明的零拷贝；</li>
+<li>容量可以按需增长（类似于 JDK 的 StringBuilder）；</li>
+<li>在读和写这两种模式之间切换不需要调用 ByteBuffer 的 flip()方法；</li>
+<li>读和写使用了不同的索引；</li>
+<li>支持方法的链式调用；</li>
+<li>支持引用计数；</li>
+<li>支持池化</li>
+</ul>
+<h3 id="原理："><a href="#原理：" class="headerlink" title="原理："></a>原理：</h3><p>每一个ByteBuf都有两个索引，读索引和写索引，read和write会移动索引，set和get不会引动索引。</p>
+<h3 id="使用ByteBuf"><a href="#使用ByteBuf" class="headerlink" title="使用ByteBuf"></a>使用ByteBuf</h3><ol>
+<li>堆缓冲区(使用数组的方式展示和操作数据)</li>
+</ol>
+<p>使用支撑数组给ByteBuf提供快速的分配和释放的能力。适用于有遗留数据需要处理的情况。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public override void ChannelRead(IChannelHandlerContext ctx, object msg)</span><br><span class="line">&#123;</span><br><span class="line">    IByteBuffer message = msg as IByteBuffer;</span><br><span class="line">    // 检查是否有支撑数组</span><br><span class="line">    if (message.HasArray)</span><br><span class="line">    &#123;</span><br><span class="line">        // 获取数组</span><br><span class="line">        byte[] array = message.Array;</span><br><span class="line">        // 计算第一个字节的偏移</span><br><span class="line">        int offset = message.ArrayOffset + message.ReaderIndex;</span><br><span class="line">        // 获取可读字节数</span><br><span class="line">        int length = message.ReadableBytes;</span><br><span class="line">        // 调用方法，处理数据</span><br><span class="line">        HandleArray(array, offset, length);</span><br><span class="line">    &#125;</span><br><span class="line">    Console.WriteLine(&quot;收到信息：&quot; + message.ToString(Encoding.UTF8));</span><br><span class="line">    ctx.WriteAsync(message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>直接缓冲区</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public override void ChannelRead(IChannelHandlerContext ctx, object msg)</span><br><span class="line">&#123;</span><br><span class="line">    IByteBuffer message = msg as IByteBuffer;</span><br><span class="line">    if (message.HasArray)</span><br><span class="line">    &#123;</span><br><span class="line">        int length = message.ReadableBytes;</span><br><span class="line">        byte[] array = new byte[length];</span><br><span class="line">        message.GetBytes(message.ReaderIndex, array);</span><br><span class="line">        HandleArray(array, 0, length);</span><br><span class="line">    &#125;</span><br><span class="line">    Console.WriteLine(&quot;收到信息：&quot; + message.ToString(Encoding.UTF8));</span><br><span class="line">    ctx.WriteAsync(message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>CompositeByteBuffer 复合缓冲区</li>
+</ol>
+<p>如果要发送的命令是由两个ByteBuf拼接构成的，那么就需要复合缓冲区，比如Http协议中一个数据流由头跟内容构成这样的逻辑。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public override void ChannelRead(IChannelHandlerContext ctx, object msg)</span><br><span class="line">&#123;</span><br><span class="line">    IByteBuffer message = msg as IByteBuffer;</span><br><span class="line">    // 创建一个复合缓冲区</span><br><span class="line">    CompositeByteBuffer messageBuf = Unpooled.CompositeBuffer();</span><br><span class="line">    // 创建两个ByteBuffer</span><br><span class="line">    IByteBuffer headBuf = Unpooled.CopiedBuffer(message);</span><br><span class="line">    IByteBuffer bodyBuf = Unpooled.CopiedBuffer(message);</span><br><span class="line">    // 添加到符合缓冲区中</span><br><span class="line">    messageBuf.AddComponents(headBuf, bodyBuf);</span><br><span class="line">    // 删除</span><br><span class="line">    messageBuf.RemoveComponent(0);</span><br><span class="line"></span><br><span class="line">    Console.WriteLine(&quot;收到信息：&quot; + message.ToString(Encoding.UTF8));</span><br><span class="line">    ctx.WriteAsync(message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="字节级操作"><a href="#字节级操作" class="headerlink" title="字节级操作"></a>字节级操作</h3><ol>
+<li>读取(不移动索引)</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public override void ChannelRead(IChannelHandlerContext ctx, object msg)</span><br><span class="line">&#123;</span><br><span class="line">    IByteBuffer message = msg as IByteBuffer;</span><br><span class="line">    for (int i = 0; i &lt; message.Capacity; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        // 如此使用索引访问不会改变读索引也不会改变写索引</span><br><span class="line">        byte b = message.GetByte(i);</span><br><span class="line">        Console.WriteLine(b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Console.WriteLine(&quot;收到信息：&quot; + message.ToString(Encoding.UTF8));</span><br><span class="line">    ctx.WriteAsync(message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>丢弃可丢弃字节<br>所谓可丢弃字节就是调用read方法之后，readindex已经移动过了的区域，这段区域的字节称为可丢弃字节。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">message.DiscardReadBytes();</span><br></pre></td></tr></table></figure>
+
+<p>只有在内存十分宝贵需要清理的时候再调用这个方法，随便调用有可能会造成内存的复制，降低效率。<br>3. 读取所有可读字节（移动读索引）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">while (message.IsReadable())</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(message.ReadByte());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>写入数据</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 使用随机数填充可写区域</span><br><span class="line">while (message.WritableBytes &gt; 4)</span><br><span class="line">&#123;</span><br><span class="line">    message.WriteInt(new Random().Next(0, 100));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>管理索引</li>
+</ol>
+<ul>
+<li>MarkReaderIndex ResetReaderIndex 标记和恢复读索引</li>
+<li>MarkWriterIndex ResetWriterIndex 标记和恢复写索引</li>
+<li>SetReaderIndex(int) SetWriterIndex(int) 直接移动索引</li>
+<li>clear() 重置两个索引都为0，但是不会清除内容</li>
+</ul>
+<ol start="6">
+<li>查找</li>
+</ol>
+<ul>
+<li>IndexOf()</li>
+<li>使用Processor</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 查找\r</span><br><span class="line">message.ForEachByte(ByteProcessor.FindCR);</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>派生</li>
+</ol>
+<p>派生的意思是创建一个新的ByteBuffer，这个ByteBuf派生于其他的ByteBuf，派生出来的子ByteBuf具有自己的读写索引，但是本质上指向同一个对象，这样就导致了改变一个，另一个也会改变。</p>
+<ul>
+<li>duplicate()；</li>
+<li>slice()；</li>
+<li>slice(int, int)；</li>
+<li>Unpooled.unmodifiableBuffer(…)；</li>
+<li>order(ByteOrder)；</li>
+<li>readSlice(int)。</li>
+</ul>
+<ol start="8">
+<li>复制<br>复制不同于派生，会复制出一个独立的ByteBuf，修改其中一个不会改变另一个。</li>
+</ol>
+<ul>
+<li>copy</li>
+</ul>
+<ol start="9">
+<li>释放</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 显式丢弃消息</span><br><span class="line">ReferenceCountUtil.release(msg);</span><br></pre></td></tr></table></figure>
+
+<ol start="10">
+<li>增加引用计数防止释放</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReferenceCountUtil.retain(message)</span><br></pre></td></tr></table></figure>
+
+<ol start="11">
+<li>其他api<br><img src="https://img-blog.csdnimg.cn/20191030095627667.png" alt="在这里插入图片描述"><br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanBvMDlqaWRqMzBqdzA2c2FicC5qcGc?x-oss-process=image/format,png"></li>
+</ol>
+<h3 id="ByteBufHolder"><a href="#ByteBufHolder" class="headerlink" title="ByteBufHolder"></a>ByteBufHolder</h3><ol>
+<li>目的<br>再数据处理的过程中不仅仅有字节数据内容本身，还会有一些附加信息，比如HTTP响应的状态码，Cookie等。<strong>给ByteBuf附加信息就要用到ByteBufHolder</strong>.</li>
+<li>API<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanB0Z2Z2MTBqMzBqaTA0MmFheS5qcGc?x-oss-process=image/format,png"></li>
+</ol>
+<h3 id="管理ByteBuffer"><a href="#管理ByteBuffer" class="headerlink" title="管理ByteBuffer"></a>管理ByteBuffer</h3><ol>
+<li><p>按需分配 ByteBufAllocator<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly93czEuc2luYWltZy5jbi9sYXJnZS8wMDdoRjVRdWx5MWcxanB3NW96NmhqMzBrMzBhdWFjei5qcGc?x-oss-process=image/format,png"><br>注意分配是池化的，最大程度上降低分配和释放内存的开销。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 获取Allocator</span><br><span class="line">// 1</span><br><span class="line">IChannelHandlerContext ctx = null;</span><br><span class="line">IByteBufferAllocator allocator = ctx.Allocator;</span><br><span class="line">// 2</span><br><span class="line">IChannel channel = null;</span><br><span class="line">allocator = channel.Allocator;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>有两种ByteBufAllocator的实现：PooledByteBufAllocator和UnpooledByteBufAllocator，前者池化了ByteBuf的实例，极大限度的提升了性能减少了内存碎片。<br>2. Unpooled缓冲区<br>获取不到 ByteBufAllocator的引用的时候我们可以使用Unpooled工具类来操作ByteBuf。<br><img src="https://img-blog.csdnimg.cn/20191030103446350.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L254eV93dWhhbw==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<ol start="3">
+<li>ByteBufUtil<br>这个类提供了一些通用的API，都是静态的辅助方法，例如hexdump方法可以以十六进制的方式打印ByteBuf的内容。还有equal方法判断bytebuf是否相等。</li>
+</ol>
+<h3 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h3><ol>
+<li><p>目的</p>
+<p>ByteBuf和ByteBufHolder都有计数的机制。引用计数都从1开始，如果计数大于0则不被释放，如果等于0就会被释放。它的目的是为了支持池化的实现，降低了内存分配的开销。</p>
+</li>
+<li><p>异常</p>
+<p>如果访问一个计数为0的对象就会引发IllegalReferenceCountException。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/DotNetty/" rel="tag"># DotNetty</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E7%B3%BB%E5%88%97%E4%B8%89%EF%BC%9A%E7%BC%96%E7%A0%81%E8%A7%A3%E7%A0%81%E5%99%A8,IdleStateHandler%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6/" rel="prev" title="DotNetty系列三：编码解码器,IdleStateHandler心跳机制">
+                  <i class="fa fa-angle-left"></i> DotNetty系列三：编码解码器,IdleStateHandler心跳机制
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/10/31/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNetty%E6%95%99%E7%A8%8B/DotNetty%E5%AE%8C%E5%85%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%8D%81%EF%BC%89/" rel="next" title="DotNetty完全教程（十）">
+                  DotNetty完全教程（十） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

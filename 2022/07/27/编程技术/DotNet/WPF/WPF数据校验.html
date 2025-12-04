@@ -1,0 +1,224 @@
+<hr>
+<h2 id="title-WPF-数据校验tags-WPF-数据校验categories-编程技术-DotNet-WPFdate-2017-02-12-09-24-49"><a href="#title-WPF-数据校验tags-WPF-数据校验categories-编程技术-DotNet-WPFdate-2017-02-12-09-24-49" class="headerlink" title="title: WPF 数据校验tags:  - WPF  - 数据校验categories:  - 编程技术  - DotNet  - WPFdate: 2017-02-12 09:24:49"></a>title: WPF 数据校验<br>tags:<br>  - WPF<br>  - 数据校验<br>categories:<br>  - 编程技术<br>  - DotNet<br>  - WPF<br>date: 2017-02-12 09:24:49</h2><p>只要是有表单存在，那么就有可能有对数据的校验需求。如：判断是否为整数、判断电子邮件格式等等。</p>
+<p>WPF采用一种全新的方式 - Binding，来实现前台显示与后台数据进行交互，当然数据校验方式也不一样了。</p>
+<p>本专题全面介绍一下WPF中4种Validate方法，帮助你了解如何在WPF中对binding的数据进行校验，并处理错误显示。</p>
+<h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>正常情况下，只要是绑定过程中出现异常或者在converter中出现异常，都会造成绑定失败。</p>
+<p>但是WPF不会出现任何异常，只会显示一片空白（当然有些Converter中的异常会造成程序崩溃）。</p>
+<p>这是因为默认情况下，Binding.ValidatesOnException为false，所以WPF忽视了这些绑定错误。</p>
+<p>但是如果我们把Binding.ValidatesOnException为true，那么WPF会对错误做出以下反应：</p>
+<ol>
+<li>设置绑定元素的附加属性 Validation.HasError为true（如TextBox，如果Text被绑定，并出现错误）。</li>
+<li>创建一个包含错误详细信息（如抛出的Exception对象）的ValidationError对象。</li>
+<li>将上面产生的对象添加到绑定对象的Validation.Errors附加属性当中。</li>
+<li>如果Binding.NotifyOnValidationError是true，那么绑定元素的附加属性中的Validation.Error附加事件将被触发。（这是一个冒泡事件）</li>
+</ol>
+<p>我们的Binding对象，维护着一个ValidationRule的集合，当设置ValidatesOnException为true时，</p>
+<p>默认会添加一个ExceptionValidationRule到这个集合当中。</p>
+<p>PS：对于绑定的校验只在Binding.Mode 为TwoWay和OneWayToSource才有效，</p>
+<p>即当需要从target控件将值传到source属性时，很容易理解，当你的值不需要被别人使用时，就很可能校验也没必要。</p>
+<h2 id="二、四种实现方法"><a href="#二、四种实现方法" class="headerlink" title="二、四种实现方法"></a>二、四种实现方法</h2><h4 id="1、在Setter方法中进行判断"><a href="#1、在Setter方法中进行判断" class="headerlink" title="1、在Setter方法中进行判断"></a>1、在Setter方法中进行判断</h4><p>直接在Setter方法中，对value进行校验，如果不符合规则，那么就抛出异常。然后修改XAML不忽视异常。</p>
+<pre><code class="c#">
+public class PersonValidateInSetter : ObservableObject
+    { private string name; private int age; public string Name
+        { get   {  return this.name;   } set { if (string.IsNullOrWhiteSpace(value))
+                { throw new ArgumentException(&quot;Name cannot be empty!&quot;);
+                } if (value.Length &lt; 4)
+                { throw new ArgumentException(&quot;Name must have more than 4 char!&quot;);
+                } this.name = value; this.OnPropertyChanged(() =&gt; this.Name);
+            }
+        } public int Age
+        { get { return this.age;  } set { if (value &lt; 18)
+                { throw new ArgumentException(&quot;You must be an adult!&quot;);
+                } this.age = value; this.OnPropertyChanged(() =&gt; this.Age);
+            }
+        }
+    }
+</code></pre>
+<pre><code class="yaml">
+ &lt;Grid DataContext=&quot;{Binding PersonValidateInSetter}&quot;&gt;
+                &lt;Grid.RowDefinitions&gt;
+                    &lt;RowDefinition /&gt;
+                    &lt;RowDefinition /&gt;
+                &lt;/Grid.RowDefinitions&gt;
+                &lt;Grid.ColumnDefinitions&gt;
+                    &lt;ColumnDefinition Width\=&quot;Auto&quot; /&gt;
+                    &lt;ColumnDefinition /&gt;
+                &lt;/Grid.ColumnDefinitions&gt;
+                &lt;TextBlock Text=&quot;Name:&quot; /&gt;
+                &lt;TextBox Grid.Column=&quot;1&quot; Margin=&quot;1&quot; Text=&quot;{Binding Name,
+                                        ValidatesOnExceptions=True,
+                                        UpdateSourceTrigger=PropertyChanged}&quot; /&gt;
+                &lt;TextBlock Grid.Row=&quot;1&quot; Text=&quot;Age:&quot; /&gt;
+                &lt;TextBox Grid.Row=&quot;1&quot; Grid.Column=&quot;1&quot; Margin=&quot;1&quot; Text\=&quot;{Binding Age,
+                                        ValidatesOnExceptions=True,
+                                        UpdateSourceTrigger=PropertyChanged}&quot; /&gt;
+            &lt;/Grid&gt;
+            
+</code></pre>
+<p>当输入的值，在setter方法中校验时出现错误，就会出现一个红色的错误框。</p>
+<p>关键代码：<code>ValidatesOnExceptions=True, UpdateSourceTrigger=PropertyChanged</code>。</p>
+<p><strong>注意</strong>: 这种方式有一个BUG，首次加载时不会对默认数据进行检验。</p>
+<h4 id="2、继承IDataErrorInfo接口"><a href="#2、继承IDataErrorInfo接口" class="headerlink" title="2、继承IDataErrorInfo接口"></a>2、继承IDataErrorInfo接口</h4><p>使Model对象继承IDataErrorInfo接口，并实现一个索引进行校验。如果索引返回空表示没有错误，如果返回不为空，</p>
+<p>表示有错误。另外一个Erro属性，但是在WPF中没有被用到。</p>
+<pre><code class="c#">
+public class PersonDerivedFromIDataErrorInfo : ObservableObject, IDataErrorInfo
+    { private string name; private int age; public string Name
+        { get { return this.name;
+            } set { this.name = value; this.OnPropertyChanged(() =&gt; this.Name);
+            }
+        } public int Age
+        { get { return this.age;
+            } set { this.age = value; this.OnPropertyChanged(() =&gt; this.Age);
+            }
+        } // never called by WPF
+        public string Error
+        { get { return null;
+            }
+        } public string this\[string propertyName\]
+        { get { switch (propertyName)
+                { case &quot;Name&quot;: if (string.IsNullOrWhiteSpace(this.Name))
+                        { return &quot;Name cannot be empty!&quot;;
+                        } if (this.Name.Length &lt; 4)
+                        { return &quot;Name must have more than 4 char!&quot;;
+                        } break; case &quot;Age&quot;: if (this.Age &lt; 18)
+                        { return &quot;You must be an adult!&quot;;
+                        } break;
+                } return null;
+            }
+        }
+    }
+</code></pre>
+<pre><code class="yaml">&lt;Grid  DataContext=&quot;{Binding PersonDerivedFromIDataErrorInfo}&quot;\&gt;
+                &lt;Grid.RowDefinitions\&gt;
+                    &lt;RowDefinition /&gt;
+                    &lt;RowDefinition /&gt;
+                &lt;/Grid.RowDefinitions\&gt;
+                &lt;Grid.ColumnDefinitions\&gt;
+                    &lt;ColumnDefinition Width\=&quot;Auto&quot; /&gt;
+                    &lt;ColumnDefinition /&gt;
+                &lt;/Grid.ColumnDefinitions\&gt;
+                &lt;TextBlock Text\=&quot;Name:&quot; /&gt;
+                &lt;TextBox Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot; Text\=&quot;{Binding Name,
+                                        NotifyOnValidationError=True,
+                                        ValidatesOnDataErrors=True,
+                                        UpdateSourceTrigger=PropertyChanged}&quot; /&gt;
+                &lt;TextBlock Grid.Row\=&quot;1&quot; Text\=&quot;Age:&quot; /&gt;
+                &lt;TextBox Grid.Row\=&quot;1&quot; Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot; Text\=&quot;{Binding Age,
+                                        NotifyOnValidationError=True,
+                                        ValidatesOnDataErrors=True,
+                                        UpdateSourceTrigger=PropertyChanged}&quot; /&gt;
+</code></pre>
+<p>PS：这种方式，没有了第一种方法的BUG，但是相对很麻烦，既需要继承接口，又需要添加一个索引，如果遗留代码，那么这种方式就不太好。</p>
+<h4 id="3、自定义校验规则"><a href="#3、自定义校验规则" class="headerlink" title="3、自定义校验规则"></a>3、自定义校验规则</h4><p>一个数据对象或许不能包含一个应用要求的所有不同验证规则，但是通过自定义验证规则就可以解决这个问题。</p>
+<p>在需要的地方，添加我们创建的规则，并进行检测。</p>
+<p>通过继承<code>ValidationRule</code>抽象类，并实现<code>Validate</code>方法，并添加到绑定元素的<code>Binding.ValidationRules</code>中。</p>
+<pre><code class="c#">
+public class MinAgeValidation : ValidationRule
+    { public int MinAge { get; set; } public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            ValidationResult result \= null; if (value != null)
+            { int age; if (int.TryParse(value.ToString(), out age))
+                { if (age &lt; this.MinAge)
+                    {
+                        result \= new ValidationResult(false, &quot;Age must large than &quot; + this.MinAge.ToString(CultureInfo.InvariantCulture));
+                    }
+                } else {
+                    result \= new ValidationResult(false, &quot;Age must be a number!&quot;);
+                }
+            } else {
+                result \= new ValidationResult(false, &quot;Age must not be null!&quot;);
+            } return new ValidationResult(true, null);
+        }
+    }
+</code></pre>
+<pre><code class="yaml">
+&lt;Grid\&gt;
+                &lt;Grid.RowDefinitions\&gt;
+                    &lt;RowDefinition /&gt;
+                    &lt;RowDefinition /&gt;
+                &lt;/Grid.RowDefinitions\&gt;
+                &lt;Grid.ColumnDefinitions\&gt;
+                    &lt;ColumnDefinition Width\=&quot;Auto&quot; /&gt;
+                    &lt;ColumnDefinition /&gt;
+                &lt;/Grid.ColumnDefinitions\&gt;
+                &lt;TextBlock Text\=&quot;Name:&quot; /&gt;
+                &lt;TextBox Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot; Text\=&quot;{Binding Name}&quot;\&gt;
+                &lt;/TextBox\&gt;
+                &lt;TextBlock Grid.Row\=&quot;1&quot; Text\=&quot;Age:&quot; /&gt;
+                &lt;TextBox Grid.Row\=&quot;1&quot; Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot;\&gt;
+                    &lt;TextBox.Text\&gt;
+                        &lt;Binding Path\=&quot;Age&quot; UpdateSourceTrigger\=&quot;PropertyChanged&quot; ValidatesOnDataErrors\=&quot;True&quot;\&gt;
+                            &lt;Binding.ValidationRules\&gt;
+                                &lt;validations:MinAgeValidation MinAge\=&quot;18&quot; /&gt;
+                            &lt;/Binding.ValidationRules\&gt;
+                        &lt;/Binding\&gt;
+                    &lt;/TextBox.Text\&gt;
+                &lt;/TextBox\&gt;
+            &lt;/Grid\&gt;
+</code></pre>
+<p>这种方式，也会有第一种方法的BUG，暂时还不知道如何解决，但是这个能够灵活的实现校验，并且能传参数。</p>
+<p>效果图：<br>![[WPF数据校验&#x2F;IMG-20250804110742687.png]]</p>
+<h4 id="4、使用数据注解-特性方式"><a href="#4、使用数据注解-特性方式" class="headerlink" title="4、使用数据注解(特性方式)"></a>4、使用数据注解(特性方式)</h4><p>在System.ComponentModel.DataAnnotaions命名空间中定义了很多特性，</p>
+<p>它们可以被放置在属性前面，显示验证的具体需要。放置了这些特性之后，</p>
+<p>属性中的Setter方法就可以使用Validator静态类了，来用于验证数据。</p>
+<pre><code class="c#">
+public class PersonUseDataAnnotation : ObservableObject
+    { private int age; private string name;
+        \[Range(18, 120, ErrorMessage = &quot;Age must be a positive integer&quot;)\] public int Age
+        { get { return this.age;
+            } set { this.ValidateProperty(value, &quot;Age&quot;); this.SetProperty(ref this.age, value, () =&gt; this.Age);
+            }
+        }
+        \[Required(ErrorMessage \= &quot;A name is required&quot;)\]
+        \[StringLength(100, MinimumLength = 3, ErrorMessage = &quot;Name must have at least 3 characters&quot;)\] public string Name
+        { get { return this.name;
+            } set { this.ValidateProperty(value, &quot;Name&quot;); this.SetProperty(ref this.name, value, () =&gt; this.Name);
+            }
+        } protected void ValidateProperty&lt;T&gt;(T value, string propertyName)
+        {
+            Validator.ValidateProperty(value,                new ValidationContext(this, null, null) { MemberName = propertyName }); } ___}___
+</code></pre>
+<pre><code class="yaml">
+&lt;Grid\&gt;
+                &lt;Grid.RowDefinitions\&gt;
+                    &lt;RowDefinition /&gt;
+                    &lt;RowDefinition /&gt;
+                &lt;/Grid.RowDefinitions\&gt;
+                &lt;Grid.ColumnDefinitions\&gt;
+                    &lt;ColumnDefinition Width\=&quot;Auto&quot; /&gt;
+                    &lt;ColumnDefinition /&gt;
+                &lt;/Grid.ColumnDefinitions\&gt;
+                &lt;TextBlock Text\=&quot;Name:&quot; /&gt;
+                &lt;TextBox Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot; Text\=&quot;{Binding Name,
+                                        ValidatesOnExceptions=True,
+                                        UpdateSourceTrigger=PropertyChanged}&quot; /&gt;
+                &lt;TextBlock Grid.Row\=&quot;1&quot; Text\=&quot;Age:&quot; /&gt;
+                &lt;TextBox Grid.Row\=&quot;1&quot; Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot; Text\=&quot;{Binding Age,
+                                        ValidatesOnExceptions=True,
+                                        UpdateSourceTrigger=PropertyChanged}&quot; /&gt;
+            &lt;/Grid\&gt;
+</code></pre>
+<p>使用特性的方式，能够很自由的使用自定义的规则，而且在.Net4.5中新增了很多特性，可以很方便的对数据进行校验。</p>
+<p>例如：EmailAddress, Phone, and Url等。</p>
+<h2 id="三、自定义错误显示模板"><a href="#三、自定义错误显示模板" class="headerlink" title="三、自定义错误显示模板"></a>三、自定义错误显示模板</h2><p>在上面的例子中，我们可以看到当出现验证不正确时，绑定控件会被一圈红色错误线包裹住。</p>
+<p>这种方式一般不能够正确的展示出，错误的原因等信息，所以有可能需要自己的错误显示方式。</p>
+<p>前面，我们已经讲过了。当在检测过程中，出现错误时，WPF会把错误信息封装为一个ValidationError对象，</p>
+<p>并添加到Validation.Errors中，所以我们可以取出错误详细信息，并显示出来。</p>
+<h4 id="1、为控件创建ErrorTemplate"><a href="#1、为控件创建ErrorTemplate" class="headerlink" title="1、为控件创建ErrorTemplate"></a>1、为控件创建ErrorTemplate</h4><p>下面就是一个简单的例子，每次都把错误信息以红色展示在空间上面。这里的AdornedElementPlaceholder相当于</p>
+<p>控件的占位符，表示控件的真实位置。这个例子是在书上直接拿过来的，只能做基本展示用。</p>
+<pre><code class="yaml">
+&lt;ControlTemplate x:Key\=&quot;ErrorTemplate&quot;\&gt;
+            &lt;Border BorderBrush\=&quot;Red&quot; BorderThickness\=&quot;2&quot;\&gt;
+                &lt;Grid\&gt;
+                    &lt;AdornedElementPlaceholder x:Name\=&quot;\_el&quot; /&gt;
+                    &lt;TextBlock Margin\=&quot;0,0,6,0&quot; HorizontalAlignment\=&quot;Right&quot; VerticalAlignment\=&quot;Center&quot; Foreground\=&quot;Red&quot; Text\=&quot;{Binding \[0\].ErrorContent}&quot; /&gt;
+                &lt;/Grid\&gt;
+            &lt;/Border\&gt;
+        &lt;/ControlTemplate\&gt;
+</code></pre>
+<pre><code class="yaml">
+&lt;TextBox x:Name\=&quot;AgeTextBox&quot; Grid.Row\=&quot;1&quot; Grid.Column\=&quot;1&quot; Margin\=&quot;1&quot; Validation.ErrorTemplate\=&quot;{StaticResource ErrorTemplate}&quot; \&gt;
+</code></pre>
+<p>使用方式非常简单，将上面的模板作为逻辑资源加入项目中，然后像上面一样引用即可。</p>
+<p>效果图：</p>
+<p>![[WPF数据校验&#x2F;IMG-20250804110742879.png]]</p>

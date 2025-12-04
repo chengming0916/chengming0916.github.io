@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="YOLOv8目标检测：使用ONNX模型进行推理_onnx模型推理-CSDN博客 Excerpt文章浏览阅读8.2k次，点赞46次，收藏119次。本文详细介绍了如何在COCO数据集上使用YOLOv8目标检测模型进行推理，涉及环境配置、代码实现（包括图像、视频和摄像头检测），以及展示ONNX模型在不同大小版本（YOLOv8n,YOLOv8s,YOLOv8m,YOLOv8l,YOLOv8x）上的实验结果">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLOv8目标检测：使用ONNX模型进行推理">
+<meta property="og:url" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="YOLOv8目标检测：使用ONNX模型进行推理_onnx模型推理-CSDN博客 Excerpt文章浏览阅读8.2k次，点赞46次，收藏119次。本文详细介绍了如何在COCO数据集上使用YOLOv8目标检测模型进行推理，涉及环境配置、代码实现（包括图像、视频和摄像头检测），以及展示ONNX模型在不同大小版本（YOLOv8n,YOLOv8s,YOLOv8m,YOLOv8l,YOLOv8x）上的实验结果">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/IMG-20250804110742712.jpeg">
+<meta property="og:image" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/IMG-20250804110742889.jpeg">
+<meta property="article:published_time" content="2024-09-04T01:56:40.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.310Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="onnx模型推理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/IMG-20250804110742712.jpeg">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/","path":"2024/09/04/编程技术/Python/YOLOv8/YOLOv8目标检测：使用ONNX模型进行推理_onnx模型推理-CSDN博客/","title":"YOLOv8目标检测：使用ONNX模型进行推理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>YOLOv8目标检测：使用ONNX模型进行推理 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86-onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2"><span class="nav-number">1.</span> <span class="nav-text">YOLOv8目标检测：使用ONNX模型进行推理_onnx模型推理-CSDN博客</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.1.</span> <span class="nav-text">Excerpt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8ECOCO%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8Bonnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">基于COCO数据集的YOLOv8目标检测onnx模型推理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">1.2.1.</span> <span class="nav-text">环境配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85%E5%BF%85%E8%A6%81%E7%9A%84Python%E5%BA%93"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">1. 安装必要的Python库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">2. 验证安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%8F%E8%B4%B4%E5%A3%AB"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">小贴士</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.2.2.</span> <span class="nav-text">权重下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.3.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%B1%95%E7%A4%BA"><span class="nav-number">1.2.4.</span> <span class="nav-text">结果展示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="YOLOv8目标检测：使用ONNX模型进行推理 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          YOLOv8目标检测：使用ONNX模型进行推理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-04 09:56:40" itemprop="dateCreated datePublished" datetime="2024-09-04T09:56:40+08:00">2024-09-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/" itemprop="url" rel="index"><span itemprop="name">YOLOv8</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="YOLOv8目标检测：使用ONNX模型进行推理-onnx模型推理-CSDN博客"><a href="#YOLOv8目标检测：使用ONNX模型进行推理-onnx模型推理-CSDN博客" class="headerlink" title="YOLOv8目标检测：使用ONNX模型进行推理_onnx模型推理-CSDN博客"></a>YOLOv8目标检测：使用ONNX模型进行推理_onnx模型推理-CSDN博客</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>文章浏览阅读8.2k次，点赞46次，收藏119次。本文详细介绍了如何在COCO数据集上使用YOLOv8目标检测模型进行推理，涉及环境配置、代码实现（包括图像、视频和摄像头检测），以及展示ONNX模型在不同大小版本（YOLOv8n,YOLOv8s,YOLOv8m,YOLOv8l,YOLOv8x）上的实验结果。</p>
+</blockquote>
+<hr>
+<h2 id="基于COCO数据集的YOLOv8目标检测onnx模型推理"><a href="#基于COCO数据集的YOLOv8目标检测onnx模型推理" class="headerlink" title="基于COCO数据集的YOLOv8目标检测onnx模型推理"></a>基于COCO数据集的YOLOv8目标检测onnx模型推理</h2><p>在本博客中，我们将探讨如何使用YOLOv8目标检测模型进行推理，包括图片，视频文件，摄像头实时检测，特别是ONNX在不同大小（YOLOv8n, YOLOv8s, YOLOv8m, YOLOv8l, YOLOv8x）的模型上进行的实验。我们还将讨论所需的环境配置，代码实现，以及如何展示推理结果。</p>
+<h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><p>在详细描述环境配置和安装步骤之前，请确保您的系统已经安装了Python和pip。下面是详细的环境配置步骤，适用于基于YOLOv8模型进行目标检测的项目。</p>
+<h4 id="1-安装必要的Python库"><a href="#1-安装必要的Python库" class="headerlink" title="1. 安装必要的Python库"></a>1. 安装必要的Python库</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install onnxruntime-gpu==1.13.1 opencv-python==4.7.0.68 numpy==1.24.1 Pillow==9.4.0 -i https://pypi.tuna.tsinghua.edu.cn/simple/</span><br></pre></td></tr></table></figure>
+
+<p>如果您没有GPU或者不打算使用GPU，可以安装<code>onnxruntime</code>而不是<code>onnxruntime-gpu</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install onnxruntime==1.13.1 opencv-python==4.7.0.68 numpy==1.24.1 Pillow==9.4.0 -i https://pypi.tuna.tsinghua.edu.cn/simple/</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-验证安装"><a href="#2-验证安装" class="headerlink" title="2. 验证安装"></a>2. 验证安装</h4><p>安装完成后，您可以通过运行Python并尝试导入安装的包来验证是否成功安装了所有必要的库：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> onnxruntime <span class="keyword">import</span> cv2 <span class="keyword">import</span> numpy <span class="keyword">import</span> PIL</span><br></pre></td></tr></table></figure>
+
+<p>如果上述命令没有引发任何错误，那么恭喜您，您已成功配置了运行环境。</p>
+<h4 id="小贴士"><a href="#小贴士" class="headerlink" title="小贴士"></a>小贴士</h4><ul>
+<li>如果您在安装过程中遇到任何问题，可能需要更新pip到最新版本：<code>pip install --upgrade pip</code>。</li>
+<li>对于使用NVIDIA GPU的用户，确保您的系统已安装CUDA和cuDNN。<code>onnxruntime-gpu</code>要求系统预装这些NVIDIA库以利用GPU加速。</li>
+</ul>
+<p>按照这些步骤，您应该能够成功配置环境并运行基于YOLOv8的目标检测项目了。</p>
+<h3 id="权重下载"><a href="#权重下载" class="headerlink" title="权重下载"></a>权重下载</h3><p>YOLOv8模型的权重可以通过以下百度网盘链接下载：</p>
+<ul>
+<li>链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1xpAdN7C9CS-L4XBLgBG8Kw">https://pan.baidu.com/s/1xpAdN7C9CS-L4XBLgBG8Kw</a></li>
+<li>提取码：8dm8</li>
+</ul>
+<p>请确保下载适合您需求的模型版本。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>以下是进行目标检测的整体代码流程，包括模型加载、图像预处理、推理执行、后处理及结果展示的步骤。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2 <span class="keyword">import</span> onnxruntime <span class="keyword">as</span> ort <span class="keyword">from</span> PIL <span class="keyword">import</span> Image <span class="keyword">import</span> numpy <span class="keyword">as</span> np <span class="comment"># 置信度 confidence_thres = 0.35 # iou阈值 iou_thres = 0.5 # 类别 classes = &#123;0: &#x27;person&#x27;, 1: &#x27;bicycle&#x27;, 2: &#x27;car&#x27;, 3: &#x27;motorcycle&#x27;, 4: &#x27;airplane&#x27;, 5: &#x27;bus&#x27;, 6: &#x27;train&#x27;, 7: &#x27;truck&#x27;, 8: &#x27;boat&#x27;, 9: &#x27;traffic light&#x27;, 10: &#x27;fire hydrant&#x27;, 11: &#x27;stop sign&#x27;, 12: &#x27;parking meter&#x27;, 13: &#x27;bench&#x27;, 14: &#x27;bird&#x27;, 15: &#x27;cat&#x27;, 16: &#x27;dog&#x27;, 17: &#x27;horse&#x27;, 18: &#x27;sheep&#x27;, 19: &#x27;cow&#x27;, 20: &#x27;elephant&#x27;, 21: &#x27;bear&#x27;, 22: &#x27;zebra&#x27;, 23: &#x27;giraffe&#x27;, 24: &#x27;backpack&#x27;, 25: &#x27;umbrella&#x27;, 26: &#x27;handbag&#x27;, 27: &#x27;tie&#x27;, 28: &#x27;suitcase&#x27;, 29: &#x27;frisbee&#x27;, 30: &#x27;skis&#x27;, 31: &#x27;snowboard&#x27;, 32: &#x27;sports ball&#x27;, 33: &#x27;kite&#x27;, 34: &#x27;baseball bat&#x27;, 35: &#x27;baseball glove&#x27;, 36: &#x27;skateboard&#x27;, 37: &#x27;surfboard&#x27;, 38: &#x27;tennis racket&#x27;, 39: &#x27;bottle&#x27;, 40: &#x27;wine glass&#x27;, 41: &#x27;cup&#x27;, 42: &#x27;fork&#x27;, 43: &#x27;knife&#x27;, 44: &#x27;spoon&#x27;, 45: &#x27;bowl&#x27;, 46: &#x27;banana&#x27;, 47: &#x27;apple&#x27;, 48: &#x27;sandwich&#x27;, 49: &#x27;orange&#x27;, 50: &#x27;broccoli&#x27;, 51: &#x27;carrot&#x27;, 52: &#x27;hot dog&#x27;, 53: &#x27;pizza&#x27;, 54: &#x27;donut&#x27;, 55: &#x27;cake&#x27;, 56: &#x27;chair&#x27;, 57: &#x27;couch&#x27;, 58: &#x27;potted plant&#x27;, 59: &#x27;bed&#x27;, 60: &#x27;dining table&#x27;, 61: &#x27;toilet&#x27;, 62: &#x27;tv&#x27;, 63: &#x27;laptop&#x27;, 64: &#x27;mouse&#x27;, 65: &#x27;remote&#x27;, 66: &#x27;keyboard&#x27;, 67: &#x27;cell phone&#x27;, 68: &#x27;microwave&#x27;, 69: &#x27;oven&#x27;, 70: &#x27;toaster&#x27;, 71: &#x27;sink&#x27;, 72: &#x27;refrigerator&#x27;, 73: &#x27;book&#x27;, 74: &#x27;clock&#x27;, 75: &#x27;vase&#x27;, 76: &#x27;scissors&#x27;, 77: &#x27;teddy bear&#x27;, 78: &#x27;hair drier&#x27;, 79: &#x27;toothbrush&#x27;&#125; # 随机颜色 color_palette = np.random.uniform(100, 255, size=(len(classes), 3)) # 判断是使用GPU或CPU providers = [ (&#x27;CUDAExecutionProvider&#x27;, &#123; &#x27;device_id&#x27;: 0, # 可以选择GPU设备ID，如果你有多个GPU &#125;), &#x27;CPUExecutionProvider&#x27;, # 也可以设置CPU作为备选 ] def calculate_iou(box, other_boxes): &quot;&quot;&quot; 计算给定边界框与一组其他边界框之间的交并比（IoU）。 参数： - box: 单个边界框，格式为 [x1, y1, width, height]。 - other_boxes: 其他边界框的数组，每个边界框的格式也为 [x1, y1, width, height]。 返回值： - iou: 一个数组，包含给定边界框与每个其他边界框的IoU值。 &quot;&quot;&quot; # 计算交集的左上角坐标 x1 = np.maximum(box[0], np.array(other_boxes)[:, 0]) y1 = np.maximum(box[1], np.array(other_boxes)[:, 1]) # 计算交集的右下角坐标 x2 = np.minimum(box[0] + box[2], np.array(other_boxes)[:, 0] + np.array(other_boxes)[:, 2]) y2 = np.minimum(box[1] + box[3], np.array(other_boxes)[:, 1] + np.array(other_boxes)[:, 3]) # 计算交集区域的面积 intersection_area = np.maximum(0, x2 - x1) * np.maximum(0, y2 - y1) # 计算给定边界框的面积 box_area = box[2] * box[3] # 计算其他边界框的面积 other_boxes_area = np.array(other_boxes)[:, 2] * np.array(other_boxes)[:, 3] # 计算IoU值 iou = intersection_area / (box_area + other_boxes_area - intersection_area) return iou def custom_NMSBoxes(boxes, scores, confidence_threshold, iou_threshold): # 如果没有边界框，则直接返回空列表 if len(boxes) == 0: return [] # 将得分和边界框转换为NumPy数组 scores = np.array(scores) boxes = np.array(boxes) # 根据置信度阈值过滤边界框 mask = scores &gt; confidence_threshold filtered_boxes = boxes[mask] filtered_scores = scores[mask] # 如果过滤后没有边界框，则返回空列表 if len(filtered_boxes) == 0: return [] # 根据置信度得分对边界框进行排序 sorted_indices = np.argsort(filtered_scores)[::-1] # 初始化一个空列表来存储选择的边界框索引 indices = [] # 当还有未处理的边界框时，循环继续 while len(sorted_indices) &gt; 0: # 选择得分最高的边界框索引 current_index = sorted_indices[0] indices.append(current_index) # 如果只剩一个边界框，则结束循环 if len(sorted_indices) == 1: break # 获取当前边界框和其他边界框 current_box = filtered_boxes[current_index] other_boxes = filtered_boxes[sorted_indices[1:]] # 计算当前边界框与其他边界框的IoU iou = calculate_iou(current_box, other_boxes) # 找到IoU低于阈值的边界框，即与当前边界框不重叠的边界框 non_overlapping_indices = np.where(iou &lt;= iou_threshold)[0] # 更新sorted_indices以仅包含不重叠的边界框 sorted_indices = sorted_indices[non_overlapping_indices + 1] # 返回选择的边界框索引 return indices def draw_detections(img, box, score, class_id): &quot;&quot;&quot; 在输入图像上绘制检测到的对象的边界框和标签。 参数: img: 要在其上绘制检测结果的输入图像。 box: 检测到的边界框。 score: 对应的检测得分。 class_id: 检测到的对象的类别ID。 返回: 无 &quot;&quot;&quot; # 提取边界框的坐标 x1, y1, w, h = box # 根据类别ID检索颜色 color = color_palette[class_id] # 在图像上绘制边界框 cv2.rectangle(img, (int(x1), int(y1)), (int(x1 + w), int(y1 + h)), color, 2) # 创建标签文本，包括类名和得分 label = f&#x27;&#123;classes[class_id]&#125;: &#123;score:.2f&#125;&#x27; # 计算标签文本的尺寸 (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1) # 计算标签文本的位置 label_x = x1 label_y = y1 - 10 if y1 - 10 &gt; label_height else y1 + 10 # 绘制填充的矩形作为标签文本的背景 cv2.rectangle(img, (label_x, label_y - label_height), (label_x + label_width, label_y + label_height), color, cv2.FILLED) # 在图像上绘制标签文本 cv2.putText(img, label, (label_x, label_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA) def preprocess(img, input_width, input_height): &quot;&quot;&quot; 在执行推理之前预处理输入图像。 返回: image_data: 为推理准备好的预处理后的图像数据。 &quot;&quot;&quot; # 获取输入图像的高度和宽度 img_height, img_width = img.shape[:2] # 将图像颜色空间从BGR转换为RGB img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # 将图像大小调整为匹配输入形状 img = cv2.resize(img, (input_width, input_height)) # 通过除以255.0来归一化图像数据 image_data = np.array(img) / 255.0 # 转置图像，使通道维度为第一维 image_data = np.transpose(image_data, (2, 0, 1)) # 通道首 # 扩展图像数据的维度以匹配预期的输入形状 image_data = np.expand_dims(image_data, axis=0).astype(np.float32) # 返回预处理后的图像数据 return image_data, img_height, img_width def postprocess(input_image, output, input_width, input_height, img_width, img_height): &quot;&quot;&quot; 对模型输出进行后处理，提取边界框、得分和类别ID。 参数: input_image (numpy.ndarray): 输入图像。 output (numpy.ndarray): 模型的输出。 input_width (int): 模型输入宽度。 input_height (int): 模型输入高度。 img_width (int): 原始图像宽度。 img_height (int): 原始图像高度。 返回: numpy.ndarray: 绘制了检测结果的输入图像。 &quot;&quot;&quot; # 转置和压缩输出以匹配预期的形状 outputs = np.transpose(np.squeeze(output[0])) # 获取输出数组的行数 rows = outputs.shape[0] # 用于存储检测的边界框、得分和类别ID的列表 boxes = [] scores = [] class_ids = [] # 计算边界框坐标的缩放因子 x_factor = img_width / input_width y_factor = img_height / input_height # 遍历输出数组的每一行 for i in range(rows): # 从当前行提取类别得分 classes_scores = outputs[i][4:] # 找到类别得分中的最大得分 max_score = np.amax(classes_scores) # 如果最大得分高于置信度阈值 if max_score &gt;= confidence_thres: # 获取得分最高的类别ID class_id = np.argmax(classes_scores) # 从当前行提取边界框坐标 x, y, w, h = outputs[i][0], outputs[i][1], outputs[i][2], outputs[i][3] # 计算边界框的缩放坐标 left = int((x - w / 2) * x_factor) top = int((y - h / 2) * y_factor) width = int(w * x_factor) height = int(h * y_factor) # 将类别ID、得分和框坐标添加到各自的列表中 class_ids.append(class_id) scores.append(max_score) boxes.append([left, top, width, height]) # 应用非最大抑制过滤重叠的边界框 indices = custom_NMSBoxes(boxes, scores, confidence_thres, iou_thres) # 遍历非最大抑制后的选定索引 for i in indices: # 根据索引获取框、得分和类别ID box = boxes[i] score = scores[i] class_id = class_ids[i] # 在输入图像上绘制检测结果 draw_detections(input_image, box, score, class_id) # 返回修改后的输入图像 return input_image def init_detect_model(model_path): # 使用ONNX模型文件创建一个推理会话，并指定执行提供者 session = ort.InferenceSession(model_path, providers=providers) # 获取模型的输入信息 model_inputs = session.get_inputs() # 获取输入的形状，用于后续使用 input_shape = model_inputs[0].shape # 从输入形状中提取输入宽度 input_width = input_shape[2] # 从输入形状中提取输入高度 input_height = input_shape[3] # 返回会话、模型输入信息、输入宽度和输入高度 return session, model_inputs, input_width, input_height def detect_object(image, session, model_inputs, input_width, input_height): # 如果输入的图像是PIL图像对象，将其转换为NumPy数组 if isinstance(image, Image.Image): result_image = np.array(image) else: # 否则，直接使用输入的图像（假定已经是NumPy数组） result_image = image # 预处理图像数据，调整图像大小并可能进行归一化等操作 img_data, img_height, img_width = preprocess(result_image, input_width, input_height) # 使用预处理后的图像数据进行推理 outputs = session.run(None, &#123;model_inputs[0].name: img_data&#125;) # 对推理结果进行后处理，例如解码检测框，过滤低置信度的检测等 output_image = postprocess(result_image, outputs, input_width, input_height, img_width, img_height) # 返回处理后的图像 return output_image if __name__ == &#x27;__main__&#x27;: # 模型文件的路径 model_path = &quot;yolov8n.onnx&quot; # 初始化检测模型，加载模型并获取模型输入节点信息和输入图像的宽度、高度 session, model_inputs, input_width, input_height = init_detect_model(model_path) # 三种模式 1为图片预测，并显示结果图片；2为摄像头检测，并实时显示FPS； 3为视频检测，并保存结果视频 mode = 1 if mode == 1: # 读取图像文件 image_data = cv2.imread(&quot;street.jpg&quot;) # 使用检测模型对读入的图像进行对象检测 result_image = detect_object(image_data, session, model_inputs, input_width, input_height) # 将检测后的图像保存到文件 cv2.imwrite(&quot;output_image.jpg&quot;, result_image) # 在窗口中显示检测后的图像 cv2.imshow(&#x27;Output&#x27;, result_image) # 等待用户按键，然后关闭显示窗口 cv2.waitKey(0) elif mode == 2: # 打开摄像头 cap = cv2.VideoCapture() # 0表示默认摄像头，如果有多个摄像头可以尝试使用1、2等 # 检查摄像头是否成功打开 if not cap.isOpened(): print(&quot;Error: Could not open camera.&quot;) exit() # 初始化帧数计数器和起始时间 frame_count = 0 start_time = time.time() # 循环读取摄像头视频流 while True: # 读取一帧 ret, frame = cap.read() # 检查帧是否成功读取 if not ret: print(&quot;Error: Could not read frame.&quot;) break # 使用检测模型对读入的帧进行对象检测 output_image = detect_object(frame, session, model_inputs, input_width, input_height) # 计算帧速率 frame_count += 1 end_time = time.time() elapsed_time = end_time - start_time fps = frame_count / elapsed_time print(f&quot;FPS: &#123;fps:.2f&#125;&quot;) # 将FPS绘制在图像上 cv2.putText(output_image, f&quot;FPS: &#123;fps:.2f&#125;&quot;, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA) # 在窗口中显示当前帧 cv2.imshow(&quot;Video&quot;, output_image) # 按下 &#x27;q&#x27; 键退出循环 if cv2.waitKey(1) &amp; 0xFF == ord(&#x27;q&#x27;): break # 释放摄像头资源 cap.release() # 关闭窗口 cv2.destroyAllWindows() elif mode == 3: # 输入视频路径 input_video_path = &#x27;kun.mp4&#x27; # 输出视频路径 output_video_path = &#x27;kun_det.mp4&#x27; # 打开视频文件 cap = cv2.VideoCapture(input_video_path) # 检查视频是否成功打开 if not cap.isOpened(): print(&quot;Error: Could not open video.&quot;) exit() # 读取视频的基本信息 frame_width = int(cap.get(3)) frame_height = int(cap.get(4)) fps = cap.get(cv2.CAP_PROP_FPS) # 定义视频编码器和创建VideoWriter对象 fourcc = cv2.VideoWriter_fourcc(*&#x27;mp4v&#x27;) # 根据文件名后缀使用合适的编码器 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height)) # 初始化帧数计数器和起始时间 frame_count = 0 start_time = time.time() while True: ret, frame = cap.read() if not ret: print(&quot;Info: End of video file.&quot;) break # 对读入的帧进行对象检测 output_image = detect_object(frame, session, model_inputs, input_width, input_height) # 计算并打印帧速率 frame_count += 1 end_time = time.time() elapsed_time = end_time - start_time if elapsed_time &gt; 0: fps = frame_count / elapsed_time print(f&quot;FPS: &#123;fps:.2f&#125;&quot;) # 将处理后的帧写入输出视频 out.write(output_image) #（可选）实时显示处理后的视频帧 cv2.imshow(&quot;Output Video&quot;, output_image) if cv2.waitKey(1) &amp; 0xFF == ord(&#x27;q&#x27;): break # 释放资源 cap.release() out.release() cv2.destroyAllWindows() else: print(&quot;输入错误，请检查mode的赋值&quot;)</span></span><br></pre></td></tr></table></figure>
+
+<p>请根据您的需求调整置信度阈值、IOU阈值以及模型和mode的值（1为图片预测；2为摄像头检测； 3为视频检测）。</p>
+<h3 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h3><p>推理完成后，您可以查看处理后的图像，如下所示：</p>
+<ul>
+<li><p>原始图片：<img src="/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/IMG-20250804110742712.jpeg" alt="待检测图片"></p>
+</li>
+<li><p>检测后的图片：<img src="/2024/09/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/YOLOv8/YOLOv8%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E4%BD%BF%E7%94%A8ONNX%E6%A8%A1%E5%9E%8B%E8%BF%9B%E8%A1%8C%E6%8E%A8%E7%90%86_onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86-CSDN%E5%8D%9A%E5%AE%A2/IMG-20250804110742889.jpeg" alt="检测后的图片"></p>
+</li>
+</ul>
+<p>请替换为您自己的图像路径来查看效果；或者其他两种模式（摄像头实时检测、视频文件检测）进行尝试。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过以上步骤，我们展示了如何使用YOLOv8进行目标检测的完整流程，从环境配置到代码实现和结果展示。此过程适用于YOLOv8目标检测任意模型进行检测任务。</p>
+<hr>
+<p>希望这篇博客能够帮助您理解和实现基于YOLOv8的目标检测项目。如果有任何问题或需要进一步的帮助，请随时留言讨论。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/onnx%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86/" rel="tag"># onnx模型推理</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/CSharp%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E7%9A%84%E6%AF%94%E8%BE%83/" rel="prev" title="C#排序算法的比较">
+                  <i class="fa fa-angle-left"></i> C#排序算法的比较
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%A0%86%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" rel="next" title="堆排序算法CSharp实现">
+                  堆排序算法CSharp实现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

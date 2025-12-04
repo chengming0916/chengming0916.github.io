@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content=".NET 中定时器的使用方法在.NET 开发中，定时器是实现周期性任务的核心组件。根据是否依赖 UI 线程，可将其分为 “与 UI 无关联” 和 “与 UI 相关” 两大类，不同类型的定时器适用场景、线程模型及使用方式差异显著。本文将详细讲解各类定时器的特点、核心属性、正确用法及注意事项。 一、与 UI 无关联的定时器此类定时器运行于非 UI 线程（默认使用线程池），适用于后台计算、数据同步等无需">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DotNET中定时器的使用方法">
+<meta property="og:url" content="http://chengming0916.github.io/2015/04/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNET%E4%B8%AD%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content=".NET 中定时器的使用方法在.NET 开发中，定时器是实现周期性任务的核心组件。根据是否依赖 UI 线程，可将其分为 “与 UI 无关联” 和 “与 UI 相关” 两大类，不同类型的定时器适用场景、线程模型及使用方式差异显著。本文将详细讲解各类定时器的特点、核心属性、正确用法及注意事项。 一、与 UI 无关联的定时器此类定时器运行于非 UI 线程（默认使用线程池），适用于后台计算、数据同步等无需">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-04-01T01:24:49.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.280Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="定时器">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/04/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNET%E4%B8%AD%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/04/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNET%E4%B8%AD%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/","path":"2015/04/01/编程技术/DotNet/DotNET中定时器的使用方法/","title":"DotNET中定时器的使用方法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>DotNET中定时器的使用方法 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NET-%E4%B8%AD%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">.NET 中定时器的使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%8E-UI-%E6%97%A0%E5%85%B3%E8%81%94%E7%9A%84%E5%AE%9A%E6%97%B6%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">一、与 UI 无关联的定时器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-System-Timers-Timer"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. System.Timers.Timer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">核心特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%B1%9E%E6%80%A7%E4%BF%AE%E6%AD%A3"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">关键属性修正</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">正确代码示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-System-Threading-Timer"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. System.Threading.Timer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9-1"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">核心特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">关键参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-1"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">正确代码示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">注意事项</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8E-UI-%E7%9B%B8%E5%85%B3%E7%9A%84%E5%AE%9A%E6%97%B6%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">二、与 UI 相关的定时器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-System-Windows-Forms-Timer%EF%BC%88WinForms-%E4%B8%93%E7%94%A8%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. System.Windows.Forms.Timer（WinForms 专用）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9-2"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">核心特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%B1%9E%E6%80%A7"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">关键属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-2"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">正确代码示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-2"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-System-Windows-DispatcherTimer%EF%BC%88WPF-%E4%B8%93%E7%94%A8%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. System.Windows.DispatcherTimer（WPF 专用）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9-3"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">核心特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">关键属性与方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-3"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">正确代码示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-3"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">注意事项</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%9A%E6%97%B6%E5%99%A8%E9%80%89%E6%8B%A9%E6%8C%87%E5%8D%97"><span class="nav-number">1.3.</span> <span class="nav-text">三、定时器选择指南</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/04/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/DotNET%E4%B8%AD%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="DotNET中定时器的使用方法 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DotNET中定时器的使用方法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-04-01 09:24:49" itemprop="dateCreated datePublished" datetime="2015-04-01T09:24:49+08:00">2015-04-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="NET-中定时器的使用方法"><a href="#NET-中定时器的使用方法" class="headerlink" title=".NET 中定时器的使用方法"></a>.NET 中定时器的使用方法</h1><p>在.NET 开发中，定时器是实现周期性任务的核心组件。根据是否依赖 UI 线程，可将其分为 “与 UI 无关联” 和 “与 UI 相关” 两大类，不同类型的定时器适用场景、线程模型及使用方式差异显著。本文将详细讲解各类定时器的特点、核心属性、正确用法及注意事项。</p>
+<h2 id="一、与-UI-无关联的定时器"><a href="#一、与-UI-无关联的定时器" class="headerlink" title="一、与 UI 无关联的定时器"></a>一、与 UI 无关联的定时器</h2><p>此类定时器运行于非 UI 线程（默认使用线程池），适用于后台计算、数据同步等无需操作 UI 的场景，时间精度相对较高。</p>
+<h3 id="1-System-Timers-Timer"><a href="#1-System-Timers-Timer" class="headerlink" title="1. System.Timers.Timer"></a>1. System.Timers.Timer</h3><h4 id="核心特点"><a href="#核心特点" class="headerlink" title="核心特点"></a>核心特点</h4><ul>
+<li><p>支持线程同步配置，可通过<code>SynchronizingObject</code>指定执行线程；</p>
+</li>
+<li><p>事件驱动模式（通过<code>Elapsed</code>事件触发任务）；</p>
+</li>
+<li><p>适用于对执行精度有一定要求的后台任务。</p>
+</li>
+</ul>
+<h4 id="关键属性修正"><a href="#关键属性修正" class="headerlink" title="关键属性修正"></a>关键属性修正</h4><ul>
+<li><p><strong>AutoReset</strong>：原始描述颠倒，正确逻辑为：</p>
+<ul>
+<li><p><code>true</code>（默认）：定时器触发后自动重置，持续周期性执行；</p>
+</li>
+<li><p><code>false</code>：定时器仅触发一次，执行后自动停止。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>SynchronizingObject</strong>：默认值为<code>null</code>，任务运行于线程池（CPU 自动分配线程）；若指定为 UI 控件（如 WinForms 的 Form），则任务会切换到 UI 线程执行。</p>
+</li>
+<li><p><strong>Interval</strong>：任务执行间隔（单位：毫秒），最小值为 1。</p>
+</li>
+<li><p><strong>Enabled</strong>：控制定时器是否启用（<code>true</code>启用，<code>false</code>禁用）。</p>
+</li>
+</ul>
+<h4 id="正确代码示例"><a href="#正确代码示例" class="headerlink" title="正确代码示例"></a>正确代码示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">using System.Threading;</span><br><span class="line"></span><br><span class="line">public class TimersTimerExample</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">   // 声明定时器与线程同步锁（确保多线程安全）</span><br><span class="line"></span><br><span class="line">   private readonly System.Timers.Timer \_timer = new System.Timers.Timer();</span><br><span class="line"></span><br><span class="line">   private readonly object \_syncRoot = new object();</span><br><span class="line"></span><br><span class="line">   public TimersTimerExample()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       // 绑定Elapsed事件（任务执行逻辑）</span><br><span class="line"></span><br><span class="line">       \_timer.Elapsed += OnTimerTick;</span><br><span class="line"></span><br><span class="line">       // 设置执行间隔为100毫秒</span><br><span class="line"></span><br><span class="line">       \_timer.Interval = 100;</span><br><span class="line"></span><br><span class="line">       // 配置为持续执行（AutoReset=true）</span><br><span class="line"></span><br><span class="line">       \_timer.AutoReset = true;</span><br><span class="line"></span><br><span class="line">       // 初始禁用，需手动启动</span><br><span class="line"></span><br><span class="line">       \_timer.Enabled = false;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // 启动定时器</span><br><span class="line"></span><br><span class="line">   public void StartTimer()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       \_timer.Enabled = true;</span><br><span class="line"></span><br><span class="line">       // 或使用\_timer.Start()（与Enabled=true等效）</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // 停止定时器</span><br><span class="line"></span><br><span class="line">   public void StopTimer()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       \_timer.Enabled = false;</span><br><span class="line"></span><br><span class="line">       // 或使用\_timer.Stop()</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // Elapsed事件回调（默认运行于线程池）</span><br><span class="line"></span><br><span class="line">   private void OnTimerTick(object sender, System.Timers.ElapsedEventArgs e)</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       // 加锁确保多线程下任务逻辑安全（避免并发问题）</span><br><span class="line"></span><br><span class="line">       lock (\_syncRoot)</span><br><span class="line"></span><br><span class="line">       &#123;</span><br><span class="line"></span><br><span class="line">           Console.WriteLine(\$&quot;后台任务执行：&#123;DateTime.Now:HH:mm:ss.fff&#125;&quot;);</span><br><span class="line"></span><br><span class="line">           // TODO：添加实际业务逻辑（如数据同步、日志记录）</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><p>若任务逻辑涉及共享资源，需通过<code>lock</code>等方式保证线程安全；</p>
+</li>
+<li><p>若需在 UI 线程更新内容，需将<code>SynchronizingObject</code>指定为 UI 控件（如<code>_timer.SynchronizingObject = this</code>，需在 WinForms 环境中）。</p>
+</li>
+</ul>
+<h3 id="2-System-Threading-Timer"><a href="#2-System-Threading-Timer" class="headerlink" title="2. System.Threading.Timer"></a>2. System.Threading.Timer</h3><h4 id="核心特点-1"><a href="#核心特点-1" class="headerlink" title="核心特点"></a>核心特点</h4><ul>
+<li><p>轻量级定时器，完全基于线程池实现；</p>
+</li>
+<li><p>无事件模型，通过回调函数（<code>TimerCallback</code>）执行任务；</p>
+</li>
+<li><p>不支持直接指定同步对象，需手动处理线程切换。</p>
+</li>
+</ul>
+<h4 id="关键参数"><a href="#关键参数" class="headerlink" title="关键参数"></a>关键参数</h4><p>构造函数<code>System.Threading.Timer(TimerCallback callback, object state, int dueTime, int period)</code>参数说明：</p>
+<ul>
+<li><p><code>callback</code>：定时器触发时执行的回调函数；</p>
+</li>
+<li><p><code>state</code>：传递给回调函数的参数（无需参数时设为<code>null</code>）；</p>
+</li>
+<li><p><code>dueTime</code>：定时器启动延迟时间（单位：毫秒），<code>0</code>表示立即启动；</p>
+</li>
+<li><p><code>period</code>：任务执行间隔（单位：毫秒），<code>Timeout.Infinite</code>表示仅执行一次。</p>
+</li>
+</ul>
+<h4 id="正确代码示例-1"><a href="#正确代码示例-1" class="headerlink" title="正确代码示例"></a>正确代码示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">using System.Threading;</span><br><span class="line"></span><br><span class="line">public class ThreadingTimerExample</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">   // 声明线程定时器（需注意释放资源）</span><br><span class="line"></span><br><span class="line">   private System.Threading.Timer \_timer;</span><br><span class="line"></span><br><span class="line">   public ThreadingTimerExample()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       // 初始化定时器：立即启动（dueTime=0），间隔1000毫秒执行一次</span><br><span class="line"></span><br><span class="line">       \_timer = new System.Threading.Timer(</span><br><span class="line"></span><br><span class="line">           callback: TimerCallback,</span><br><span class="line"></span><br><span class="line">           state: null,</span><br><span class="line"></span><br><span class="line">           dueTime: 0,</span><br><span class="line"></span><br><span class="line">           period: 1000</span><br><span class="line"></span><br><span class="line">       );</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // 定时器回调函数（运行于线程池）</span><br><span class="line"></span><br><span class="line">   private void TimerCallback(object state)</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       Console.WriteLine(\$&quot;轻量级后台任务：&#123;DateTime.Now:HH:mm:ss&#125;&quot;);</span><br><span class="line"></span><br><span class="line">       // TODO：添加轻量级业务逻辑（如心跳检测、缓存清理）</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // 释放定时器资源（避免内存泄漏）</span><br><span class="line"></span><br><span class="line">   public void DisposeTimer()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       \_timer?.Change(Timeout.Infinite, Timeout.Infinite); // 先停止定时器</span><br><span class="line"></span><br><span class="line">       \_timer?.Dispose(); // 释放资源</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><p>若任务执行时间超过<code>period</code>，线程池会分配新线程执行下一次任务，需自行控制并发；</p>
+</li>
+<li><p>不再使用时必须调用<code>Dispose</code>释放资源，避免线程泄漏；</p>
+</li>
+<li><p>无法直接更新 UI，需通过<code>Dispatcher</code>（WPF）或<code>Invoke</code>（WinForms）切换到 UI 线程。</p>
+</li>
+</ul>
+<h2 id="二、与-UI-相关的定时器"><a href="#二、与-UI-相关的定时器" class="headerlink" title="二、与 UI 相关的定时器"></a>二、与 UI 相关的定时器</h2><p>此类定时器绑定 UI 线程，适用于 WinForms、WPF 等桌面应用的 UI 更新场景，无需手动处理线程安全，但时间精度较低（受 UI 线程繁忙程度影响）。</p>
+<h3 id="1-System-Windows-Forms-Timer（WinForms-专用）"><a href="#1-System-Windows-Forms-Timer（WinForms-专用）" class="headerlink" title="1. System.Windows.Forms.Timer（WinForms 专用）"></a>1. System.Windows.Forms.Timer（WinForms 专用）</h3><h4 id="核心特点-2"><a href="#核心特点-2" class="headerlink" title="核心特点"></a>核心特点</h4><ul>
+<li><p>仅适用于 WinForms 应用，支持可视化拖拽（从工具箱拖到 Form 上）；</p>
+</li>
+<li><p>任务运行于 UI 线程，可直接更新 UI 控件（如 Label、TextBox）；</p>
+</li>
+<li><p>精度较低（约 10-55 毫秒），不适用于高时效任务。</p>
+</li>
+</ul>
+<h4 id="关键属性"><a href="#关键属性" class="headerlink" title="关键属性"></a>关键属性</h4><ul>
+<li><p><strong>Interval</strong>：执行间隔（单位：毫秒），最小值为 1；</p>
+</li>
+<li><p><strong>Enabled</strong>：控制定时器启用 &#x2F; 禁用（<code>true</code>启用，<code>false</code>禁用）；</p>
+</li>
+<li><p><strong>Tick</strong>：定时器触发时执行的事件（运行于 UI 线程）。</p>
+</li>
+</ul>
+<h4 id="正确代码示例-2"><a href="#正确代码示例-2" class="headerlink" title="正确代码示例"></a>正确代码示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">using System.Windows.Forms;</span><br><span class="line"></span><br><span class="line">public partial class TimerForm : Form</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">   // 声明WinForms定时器（可通过设计器拖拽生成）</span><br><span class="line"></span><br><span class="line">   private readonly System.Windows.Forms.Timer \_uiTimer;</span><br><span class="line"></span><br><span class="line">   public TimerForm()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       InitializeComponent();</span><br><span class="line"></span><br><span class="line">       // 初始化定时器（代码方式，非拖拽）</span><br><span class="line"></span><br><span class="line">       \_uiTimer = new System.Windows.Forms.Timer();</span><br><span class="line"></span><br><span class="line">       \_uiTimer.Interval = 1000; // 1秒更新一次UI</span><br><span class="line"></span><br><span class="line">       \_uiTimer.Tick += UITimer\_Tick;</span><br><span class="line"></span><br><span class="line">       \_uiTimer.Enabled = true; // 启用定时器</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // Tick事件（运行于UI线程，可直接操作控件）</span><br><span class="line"></span><br><span class="line">   private void UITimer\_Tick(object sender, EventArgs e)</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       // 直接更新Label文本（无需线程同步）</span><br><span class="line"></span><br><span class="line">       lblTime.Text = \$&quot;当前时间：&#123;DateTime.Now:HH:mm:ss&#125;&quot;;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // 关闭窗体时释放定时器</span><br><span class="line"></span><br><span class="line">   private void TimerForm\_FormClosing(object sender, FormClosingEventArgs e)</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       \_uiTimer?.Dispose();</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意事项-2"><a href="#注意事项-2" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><p>仅能在 WinForms 项目中使用，无法跨框架（如 WPF）；</p>
+</li>
+<li><p>若<code>Tick</code>事件中执行耗时操作（如循环计算），会导致 UI 卡顿；</p>
+</li>
+<li><p>无需手动处理线程安全，因事件始终在 UI 线程执行。</p>
+</li>
+</ul>
+<h3 id="2-System-Windows-DispatcherTimer（WPF-专用）"><a href="#2-System-Windows-DispatcherTimer（WPF-专用）" class="headerlink" title="2. System.Windows.DispatcherTimer（WPF 专用）"></a>2. System.Windows.DispatcherTimer（WPF 专用）</h3><h4 id="核心特点-3"><a href="#核心特点-3" class="headerlink" title="核心特点"></a>核心特点</h4><ul>
+<li><p>仅适用于 WPF 应用，基于<code>Dispatcher</code>（WPF 线程调度器）实现；</p>
+</li>
+<li><p>任务运行于 UI 线程，支持直接更新 WPF 控件（如 TextBlock）；</p>
+</li>
+<li><p>可通过<code>DispatcherPriority</code>调整任务优先级（默认<code>Normal</code>）。</p>
+</li>
+</ul>
+<h4 id="关键属性与方法"><a href="#关键属性与方法" class="headerlink" title="关键属性与方法"></a>关键属性与方法</h4><ul>
+<li><p><strong>Interval</strong>：执行间隔（类型：<code>TimeSpan</code>，支持秒、毫秒等单位）；</p>
+</li>
+<li><p><strong>Tick</strong>：定时器触发事件（运行于 UI 线程）；</p>
+</li>
+<li><p>**Start()&#x2F;Stop()**：启动 &#x2F; 停止定时器（替代<code>Enabled</code>属性）；</p>
+</li>
+<li><p><strong>DispatcherPriority</strong>：任务在 UI 线程中的执行优先级（如<code>Background</code>表示后台优先级，不阻塞 UI）。</p>
+</li>
+</ul>
+<h4 id="正确代码示例-3"><a href="#正确代码示例-3" class="headerlink" title="正确代码示例"></a>正确代码示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line"></span><br><span class="line">using System.Windows;</span><br><span class="line"></span><br><span class="line">using System.Windows.Threading;</span><br><span class="line"></span><br><span class="line">public partial class MainWindow : Window</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">   // 声明WPF调度定时器</span><br><span class="line"></span><br><span class="line">   private readonly DispatcherTimer \_dispatcherTimer;</span><br><span class="line"></span><br><span class="line">   public MainWindow()</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       InitializeComponent();</span><br><span class="line"></span><br><span class="line">       // 初始化定时器</span><br><span class="line"></span><br><span class="line">       \_dispatcherTimer = new DispatcherTimer();</span><br><span class="line"></span><br><span class="line">       // 设置间隔为1秒（使用TimeSpan）</span><br><span class="line"></span><br><span class="line">       \_dispatcherTimer.Interval = TimeSpan.FromSeconds(1);</span><br><span class="line"></span><br><span class="line">       // 绑定Tick事件</span><br><span class="line"></span><br><span class="line">       \_dispatcherTimer.Tick += DispatcherTimer\_Tick;</span><br><span class="line"></span><br><span class="line">       // 启动定时器</span><br><span class="line"></span><br><span class="line">       \_dispatcherTimer.Start();</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // Tick事件（运行于UI线程，可直接更新WPF控件）</span><br><span class="line"></span><br><span class="line">   private void DispatcherTimer\_Tick(object sender, EventArgs e)</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       // 直接更新TextBlock内容</span><br><span class="line"></span><br><span class="line">       tbTime.Text = \$&quot;当前时间：&#123;DateTime.Now:HH:mm:ss.fff&#125;&quot;;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   // 关闭窗口时停止定时器</span><br><span class="line"></span><br><span class="line">   private void MainWindow\_Closing(object sender, System.ComponentModel.CancelEventArgs e)</span><br><span class="line"></span><br><span class="line">   &#123;</span><br><span class="line"></span><br><span class="line">       \_dispatcherTimer?.Stop();</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意事项-3"><a href="#注意事项-3" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><p>仅能在 WPF 项目中使用，依赖<code>System.Windows</code>程序集；</p>
+</li>
+<li><p>若需降低任务对 UI 的影响，可设置<code>_dispatcherTimer.DispatcherPriority = DispatcherPriority.Background</code>；</p>
+</li>
+<li><p>若任务耗时较长，仍会导致 UI 响应缓慢，需结合<code>Task</code>开启后台线程处理（处理完后通过<code>Dispatcher.Invoke</code>更新 UI）。</p>
+</li>
+</ul>
+<h2 id="三、定时器选择指南"><a href="#三、定时器选择指南" class="headerlink" title="三、定时器选择指南"></a>三、定时器选择指南</h2><table>
+<thead>
+<tr>
+<th>定时器类型</th>
+<th>适用框架</th>
+<th>线程模型</th>
+<th>精度</th>
+<th>核心场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System.Timers.Timer</td>
+<td>通用（非 UI）</td>
+<td>线程池（可指定同步对象）</td>
+<td>较高</td>
+<td>后台任务、数据同步</td>
+</tr>
+<tr>
+<td>System.Threading.Timer</td>
+<td>通用（非 UI）</td>
+<td>线程池</td>
+<td>高</td>
+<td>轻量级后台任务（如心跳检测）</td>
+</tr>
+<tr>
+<td>System.Windows.Forms.Timer</td>
+<td>WinForms</td>
+<td>UI 线程</td>
+<td>较低</td>
+<td>WinForms UI 更新</td>
+</tr>
+<tr>
+<td>System.Windows.DispatcherTimer</td>
+<td>WPF</td>
+<td>UI 线程</td>
+<td>较低</td>
+<td>WPF UI 更新</td>
+</tr>
+</tbody></table>
+<p>总结：需根据项目框架（WinForms&#x2F;WPF&#x2F; 控制台）、是否操作 UI、精度要求三大因素选择定时器，避免因线程模型不匹配导致 UI 卡顿或数据安全问题。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" rel="tag"># 定时器</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/01/01/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/MySQL%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/" rel="prev" title="MySQL权限管理">
+                  <i class="fa fa-angle-left"></i> MySQL权限管理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/07/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%BE%AE%E8%BD%AF%E5%AE%98%E6%96%B9%E7%9A%84SQLHelper%E7%B1%BB(%E5%90%AB%E5%AE%8C%E6%95%B4%E4%B8%AD%E6%96%87%E6%B3%A8%E9%87%8A)/" rel="next" title="微软官方提供的SqlHelper类，完整版并附中文注释详解">
+                  微软官方提供的SqlHelper类，完整版并附中文注释详解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

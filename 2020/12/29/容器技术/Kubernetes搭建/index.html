@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="官方文档(中文)    节点名称 节点IP 配置 系统版本    VIP 192.168.50.220 虚拟IP    k8s-master-221 192.168.50.221 4核 2G debian 11   k8s-master-222 192.168.50.222 4核 2G debian 11   k8s-master-223 192.168.50.223 4核 2G debian 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes搭建">
+<meta property="og:url" content="http://chengming0916.github.io/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="官方文档(中文)    节点名称 节点IP 配置 系统版本    VIP 192.168.50.220 虚拟IP    k8s-master-221 192.168.50.221 4核 2G debian 11   k8s-master-222 192.168.50.222 4核 2G debian 11   k8s-master-223 192.168.50.223 4核 2G debian 1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/IMG-20250804110102409.png">
+<meta property="article:published_time" content="2020-12-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T08:58:11.272Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="环境搭建">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/IMG-20250804110102409.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/","path":"2020/12/29/容器技术/Kubernetes搭建/","title":"Kubernetes搭建"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Kubernetes搭建 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">主机配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="nav-number">1.1.</span> <span class="nav-text">时间同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-hostname"><span class="nav-number">1.2.</span> <span class="nav-text">配置 hostname</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">1.3.</span> <span class="nav-text">配置防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%97%AD%E4%BA%A4%E6%8D%A2%E5%88%86%E5%8C%BA"><span class="nav-number">1.4.</span> <span class="nav-text">关闭交换分区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEhosts"><span class="nav-number">1.5.</span> <span class="nav-text">配置hosts</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%80%E5%90%AF-bridge-%E7%BD%91%E6%A1%A5%E8%BF%87%E6%BB%A4%E5%8A%9F%E8%83%BD"><span class="nav-number">1.6.</span> <span class="nav-text">开启 bridge 网桥过滤功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-IPVS"><span class="nav-number">1.7.</span> <span class="nav-text">配置 IPVS</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7"><span class="nav-number">2.</span> <span class="nav-text">安装工具</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-Containerd"><span class="nav-number">2.1.</span> <span class="nav-text">安装 Containerd</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-keadm-kubelete-kubectl"><span class="nav-number">2.2.</span> <span class="nav-text">安装 keadm,kubelete,kubectl</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E9%AB%98%E5%8F%AF%E7%94%A8-%E4%BB%85-master-%E8%8A%82%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">部署高可用(仅 master 节点)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">3.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9haproxy%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">修改haproxy配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-keepalived"><span class="nav-number">3.3.</span> <span class="nav-text">配置 keepalived</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95vip%E6%BC%82%E7%A7%BB"><span class="nav-number">3.4.</span> <span class="nav-text">测试vip漂移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E9%9B%86%E7%BE%A4"><span class="nav-number">4.</span> <span class="nav-text">初始化集群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F"><span class="nav-number">4.1.</span> <span class="nav-text">拉取镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#master-%E8%8A%82%E7%82%B9%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.2.</span> <span class="nav-text">master 节点初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#master-%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">4.3.</span> <span class="nav-text">master 节点加入集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#worker-%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">4.4.</span> <span class="nav-text">worker 节点加入集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%8C%E7%94%A8%E4%BA%8E%E8%AE%BF%E9%97%AE%E9%9B%86%E7%BE%A4"><span class="nav-number">4.5.</span> <span class="nav-text">配置环境变量，用于访问集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E7%BB%84%E4%BB%B6-%E5%8F%AA%E5%9C%A8master-221%E8%8A%82%E7%82%B9%E6%93%8D%E4%BD%9C"><span class="nav-number">4.6.</span> <span class="nav-text">安装网络组件(只在master-221节点操作)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%BB%E9%99%A4-master%E8%8A%82%E7%82%B9%E6%B1%A1%E7%82%B9"><span class="nav-number">4.7.</span> <span class="nav-text">去除 master节点污点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E9%9B%86%E7%BE%A4"><span class="nav-number">4.8.</span> <span class="nav-text">测试集群</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">183</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Kubernetes搭建 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kubernetes搭建
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-29 00:00:00" itemprop="dateCreated datePublished" datetime="2020-12-29T00:00:00+08:00">2020-12-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-12-04 16:58:11" itemprop="dateModified" datetime="2025-12-04T16:58:11+08:00">2025-12-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">容器技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/home/">官方文档(中文)</a></p>
+<table>
+<thead>
+<tr>
+<th>节点名称</th>
+<th>节点IP</th>
+<th>配置</th>
+<th>系统版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VIP</td>
+<td>192.168.50.220</td>
+<td>虚拟IP</td>
+<td></td>
+</tr>
+<tr>
+<td>k8s-master-221</td>
+<td>192.168.50.221</td>
+<td>4核 2G</td>
+<td>debian 11</td>
+</tr>
+<tr>
+<td>k8s-master-222</td>
+<td>192.168.50.222</td>
+<td>4核 2G</td>
+<td>debian 11</td>
+</tr>
+<tr>
+<td>k8s-master-223</td>
+<td>192.168.50.223</td>
+<td>4核 2G</td>
+<td>debian 11</td>
+</tr>
+<tr>
+<td>k8s-node-224</td>
+<td>192.168.50.224</td>
+<td>4核 2G</td>
+<td>debian 11</td>
+</tr>
+<tr>
+<td>k8s-node-225</td>
+<td>192.168.50.225</td>
+<td>4核 2G</td>
+<td>debian 11</td>
+</tr>
+</tbody></table>
+<h3 id="主机配置"><a href="#主机配置" class="headerlink" title="主机配置"></a>主机配置</h3><h4 id="时间同步"><a href="#时间同步" class="headerlink" title="时间同步"></a>时间同步</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="配置-hostname"><a href="#配置-hostname" class="headerlink" title="配置 hostname"></a>配置 hostname</h4><p><strong>注意节名称不能重复</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl --static set-hostname k8s-master-221</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置防火墙"><a href="#配置防火墙" class="headerlink" title="配置防火墙"></a>配置防火墙</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">service iptables stop </span><br><span class="line"></span><br><span class="line">iptables -F</span><br><span class="line"></span><br><span class="line">systemctl stop firewalld &amp;&amp; systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
+<p>如果需要打开防火墙，执行以下配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># master节点执行</span></span><br><span class="line">ufw allow 6443/tcp</span><br><span class="line">ufw allow 2379/tcp</span><br><span class="line">ufw allow 2380/tcp</span><br><span class="line">ufw allow 10250/tcp</span><br><span class="line">ufw allow 10251/tcp</span><br><span class="line">ufw allow 10252/tcp</span><br><span class="line">ufw allow 10255/tcp</span><br><span class="line">ufw reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># worker节点执行</span></span><br><span class="line">ufw allow 10250/tcp</span><br><span class="line">ufw allow 30000:32767/tcp</span><br><span class="line">ufw reload</span><br></pre></td></tr></table></figure>
+
+<h4 id="关闭交换分区"><a href="#关闭交换分区" class="headerlink" title="关闭交换分区"></a>关闭交换分区</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">swapoff -a</span><br><span class="line"><span class="built_in">set</span> -ri <span class="string">&#x27;s/.*swap.*/#&amp;/&#x27;</span> /etc/fstab</span><br></pre></td></tr></table></figure>
+<p>若需允许交换分区参考<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/">官方文档</a> 交换分区的配置</p>
+<h4 id="配置hosts"><a href="#配置hosts" class="headerlink" title="配置hosts"></a>配置hosts</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt;&gt; /etc/hosts &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">192.168.50.221 k8s-master-221</span></span><br><span class="line"><span class="string">192.168.50.222 k8s-master-222</span></span><br><span class="line"><span class="string">192.168.50.223 k8s-master-223</span></span><br><span class="line"><span class="string">192.168.50.224 k8s-worker-224</span></span><br><span class="line"><span class="string">192.168.50.225 k8s-worker-225</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="开启-bridge-网桥过滤功能"><a href="#开启-bridge-网桥过滤功能" class="headerlink" title="开启 bridge 网桥过滤功能"></a>开启 bridge 网桥过滤功能</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 桥接的ipv4流量转到iptables</span></span><br><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF | sudo tee /etc/modules-load.d/k8s.conf</span></span><br><span class="line"><span class="string">overlay</span></span><br><span class="line"><span class="string">br_netfilter</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> modprobe overlay</span><br><span class="line"><span class="built_in">sudo</span> modprobe br_netfilter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置所需的 sysctl 参数,参数在重新启动后保持不变</span></span><br><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF | sudo tee /etc/sysctl.d/k8s.conf</span></span><br><span class="line"><span class="string">net.bridge.bridge-nf-call-iptables  = 1 # 开启网桥模式(必须)</span></span><br><span class="line"><span class="string">net.bridge.bridge-nf-call-ip6tables = 1 # 开启网桥模式(必须)</span></span><br><span class="line"><span class="string">net.ipv4.ip_forward                 = 1 # 转发模式(默认开启)</span></span><br><span class="line"><span class="string">vm.panic_on_oom                     = 0 # 开启OOM(默认开启)</span></span><br><span class="line"><span class="string">vm.swappiness                       = 0 # 禁止使用swap空间</span></span><br><span class="line"><span class="string">vm.overcommit_memory                = 1 # 不检查物理内存是否够用</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用 sysctl 参数而不重新启动</span></span><br><span class="line"><span class="built_in">sudo</span> sysctl --system</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置-IPVS"><a href="#配置-IPVS" class="headerlink" title="配置 IPVS"></a>配置 IPVS</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">modprobe br_netfilter</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/sysconfig/modules/ipvs.modules &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">#!/bin/bash</span></span><br><span class="line"><span class="string">modprobe -- ip_vs</span></span><br><span class="line"><span class="string">modprobe -- ip_vs_rr</span></span><br><span class="line"><span class="string">modprobe -- ip_vs_wrr</span></span><br><span class="line"><span class="string">modprobe -- ip_vs_sh</span></span><br><span class="line"><span class="string">modprobe -- nf_conntrack_ipv</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="安装工具"><a href="#安装工具" class="headerlink" title="安装工具"></a>安装工具</h3><h4 id="安装-Containerd"><a href="#安装-Containerd" class="headerlink" title="安装 Containerd"></a>安装 Containerd</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装</span></span><br><span class="line">apt update </span><br><span class="line">apt install -y containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出默认配置</span></span><br><span class="line">containerd config default | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/config.toml &gt;/dev/null 2&gt;&amp;1</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>设置<code>cgroupdriver</code>为<code>systemd</code>,编辑 <code>/etc/containerd/config.toml</code> 文件，找到 <code>[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.runc.options]</code> 部分，添加一行内容：<code>SystemdCgroup = true</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/SystemdCgroup \= false/SystemdCgroup \= true/g&#x27;</span> /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/12/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E6%90%AD%E5%BB%BA/IMG-20250804110102409.png"></p>
+<p>重启containerd并设置开机启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart containerd</span><br><span class="line">systemctl <span class="built_in">enable</span> containerd</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装-keadm-kubelete-kubectl"><a href="#安装-keadm-kubelete-kubectl" class="headerlink" title="安装 keadm,kubelete,kubectl"></a>安装 keadm,kubelete,kubectl</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加安装源</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">apt update </span><br><span class="line">apt install -y kubelet kubeadm kubectl </span><br><span class="line">apt-mark hold kubelet kubeadm kubectl</span><br></pre></td></tr></table></figure>
+<h3 id="部署高可用-仅-master-节点"><a href="#部署高可用-仅-master-节点" class="headerlink" title="部署高可用(仅 master 节点)"></a>部署高可用(仅 master 节点)</h3><h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install keepalived haproxy</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改haproxy配置"><a href="#修改haproxy配置" class="headerlink" title="修改haproxy配置"></a>修改haproxy配置</h4><p><code>/etc/haproxy/haproxy.cfg</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">global</span><br><span class="line">  maxconn  2000</span><br><span class="line">  ulimit-n  16384</span><br><span class="line">  log  127.0.0.1 local0 err</span><br><span class="line">  stats timeout 30s</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  log global</span><br><span class="line">  mode  http</span><br><span class="line">  option  httplog</span><br><span class="line">  timeout connect 5000</span><br><span class="line">  timeout client  50000</span><br><span class="line">  timeout server  50000</span><br><span class="line">  timeout http-request 15s</span><br><span class="line">  timeout http-keep-alive 15s</span><br><span class="line"></span><br><span class="line">frontend monitor-in</span><br><span class="line">  bind *:33305</span><br><span class="line">  mode http</span><br><span class="line">  option httplog</span><br><span class="line">  monitor-uri /monitor</span><br><span class="line"></span><br><span class="line">frontend k8s-master</span><br><span class="line">  bind 0.0.0.0:16443</span><br><span class="line">  bind 127.0.0.1:16443</span><br><span class="line">  mode tcp</span><br><span class="line">  option tcplog</span><br><span class="line">  tcp-request inspect-delay 5s</span><br><span class="line">  default_backend k8s-master</span><br><span class="line"></span><br><span class="line">backend k8s-master</span><br><span class="line">  mode tcp</span><br><span class="line">  option tcplog</span><br><span class="line">  option tcp-check</span><br><span class="line">  balance roundrobin</span><br><span class="line">  default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100</span><br><span class="line">  server k8s-master1	172.16.12.111:6443  check  </span><br><span class="line">  server k8s-master2	172.16.12.112:6443  check</span><br><span class="line">  server k8s-master3	172.16.12.113:6443  check</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="配置-keepalived"><a href="#配置-keepalived" class="headerlink" title="配置 keepalived"></a>配置 keepalived</h4><blockquote>
+<p>interface         # 网卡名称<br>mcast_src_ip      # 节点ip<br>virtual_ipaddress # vip地址</p>
+</blockquote>
+<p>k8s-master-221配置文件<code>/etc/keepalived/keepalived.conf</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    router_id LVS_DEVEL</span><br><span class="line">script_user root</span><br><span class="line">    enable_script_security</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_apiserver &#123;</span><br><span class="line">    script &quot;/etc/keepalived/check_apiserver.sh&quot; #健康检查脚本</span><br><span class="line">    interval 5</span><br><span class="line">    weight -5</span><br><span class="line">    fall 2  </span><br><span class="line">    rise 1</span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER					#高可用主1</span><br><span class="line">    interface eth0					#网卡名称</span><br><span class="line">    mcast_src_ip 192.168.50.221		#该节点 IP</span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 100				    #设置最高级优先级</span><br><span class="line">    advert_int 2</span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass K8SHA_KA_AUTH</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.50.220			    #vip地址</span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">       chk_apiserver</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>k8s-master-222配置文件<code>/etc/keepalived/keepalived.conf</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    router_id LVS_DEVEL</span><br><span class="line">script_user root</span><br><span class="line">    enable_script_security</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_apiserver &#123;</span><br><span class="line">    script &quot;/etc/keepalived/check_apiserver.sh&quot;</span><br><span class="line">    interval 5</span><br><span class="line">    weight -5</span><br><span class="line">    fall 2  </span><br><span class="line">    rise 1</span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP					#高可用 从1</span><br><span class="line">    interface ens33					#网卡名称</span><br><span class="line">    mcast_src_ip 192.168.50.222	    #该节点 IP</span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 50				        #设置优先级</span><br><span class="line">    advert_int 2</span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass K8SHA_KA_AUTH</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.50.220			    #vip地址</span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">       chk_apiserver</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>k8s-master-222配置文件<code>/etc/keepalived/keepalived.conf</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    router_id LVS_DEVEL</span><br><span class="line">script_user root</span><br><span class="line">    enable_script_security</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_apiserver &#123;</span><br><span class="line">    script &quot;/etc/keepalived/check_apiserver.sh&quot;</span><br><span class="line">    interval 5</span><br><span class="line">    weight -5</span><br><span class="line">    fall 2  </span><br><span class="line">    rise 1</span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP					#高可用从2</span><br><span class="line">    interface ens33					#网卡名称</span><br><span class="line">    mcast_src_ip 192.168.50.223		#该节点 IP</span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 49				        #设置优先级</span><br><span class="line">    advert_int 2</span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass K8SHA_KA_AUTH</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.50.220			    #vip地址</span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">       chk_apiserver</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>健康检查脚本 <code>/etc/keepalived/check_apiserver.sh</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">err=0</span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 3);<span class="keyword">do</span></span><br><span class="line">    check_code=$(pgrep haproxy)</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="variable">$check_code</span> == <span class="string">&quot;&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        err=$(<span class="built_in">expr</span> <span class="variable">$err</span> + 1)</span><br><span class="line">        <span class="built_in">sleep</span> 1</span><br><span class="line">        <span class="built_in">continue</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        err=0</span><br><span class="line">        <span class="built_in">break</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [[ <span class="variable">$err</span> != <span class="string">&quot;0&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;systemctl stop keepalived&quot;</span></span><br><span class="line">    /usr/bin/systemctl stop keepalived</span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>给监测脚本添加执行权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x /etc/keepalived/check_apiserver.sh</span><br></pre></td></tr></table></figure>
+<p>启动keepalive和haproxy</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line"><span class="comment"># 启动并设置开机启动</span></span><br><span class="line"><span class="comment"># systemctl enable --now haproxy</span></span><br><span class="line">systemctl start haproxy &amp;&amp; systemctl <span class="built_in">enable</span> haproxy</span><br><span class="line"><span class="comment"># systemctl enable --now keepalived</span></span><br><span class="line">systemctl start keepalived &amp;&amp; systemctl enbale keepalived</span><br></pre></td></tr></table></figure>
+<h4 id="测试vip漂移"><a href="#测试vip漂移" class="headerlink" title="测试vip漂移"></a>测试vip漂移</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看ip与vip</span></span><br><span class="line">hostname -I</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试vip的16443端口是否通</span></span><br><span class="line">nc -v 192.168.50.220 16443</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化集群"><a href="#初始化集群" class="headerlink" title="初始化集群"></a>初始化集群</h3><h4 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看需要的镜像文件</span></span><br><span class="line">kubeadm config images list </span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取镜像</span></span><br><span class="line">kubeadm config images pull </span><br></pre></td></tr></table></figure>
+
+<h4 id="master-节点初始化"><a href="#master-节点初始化" class="headerlink" title="master 节点初始化"></a>master 节点初始化</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导出默认初始化配置</span></span><br><span class="line">kubeadm config <span class="built_in">print</span> init-defaults &gt; kubeadm-config.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># token过期后生成信息token</span></span><br><span class="line">kubeadm token create --print-join-command</span><br></pre></td></tr></table></figure>
+
+<h4 id="master-节点加入集群"><a href="#master-节点加入集群" class="headerlink" title="master 节点加入集群"></a>master 节点加入集群</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># master节点需要生成certificate-key</span></span><br><span class="line">kubeadm init --control-plane-endpoint=192.168.50.220:16443</span><br><span class="line"></span><br><span class="line">kubeadm <span class="built_in">join</span> 192.168.50.220:16443 --token &#123;token&#125; \</span><br><span class="line">    --discovery-token-ca-cert-hash &#123;&#125; \</span><br><span class="line">    --control-plane --certificate-key &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="worker-节点加入集群"><a href="#worker-节点加入集群" class="headerlink" title="worker 节点加入集群"></a>worker 节点加入集群</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubeadm <span class="built_in">join</span> 192.168.50.220:16643 --token &#123;token&#125; \</span><br><span class="line">    --discovery-token-ca-cert-hash &#123;&#125; </span><br></pre></td></tr></table></figure>
+
+<p>从集群种移除节点</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete node &#123;node-name&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置环境变量，用于访问集群"><a href="#配置环境变量，用于访问集群" class="headerlink" title="配置环境变量，用于访问集群"></a>配置环境变量，用于访问集群</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF &gt;&gt; ~/.bashrc</span></span><br><span class="line"><span class="string">export KUBECONFIG=/etc/kubernetes/admin/conf</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p>查看集群节点状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看节点状态</span></span><br><span class="line">kubectl get nodes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看系统组件</span></span><br><span class="line">kubectl get all -n kube-system -o wide</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="安装网络组件-只在master-221节点操作"><a href="#安装网络组件-只在master-221节点操作" class="headerlink" title="安装网络组件(只在master-221节点操作)"></a>安装网络组件(只在master-221节点操作)</h4><p>Calico<br>Flannel</p>
+<h4 id="去除-master节点污点"><a href="#去除-master节点污点" class="headerlink" title="去除 master节点污点"></a>去除 master节点污点</h4><p>如果你打算让Master节点也参与到平常的Pod调度(生产环境一般不会这样做，以保证master节点的稳定性)，那么你需要使用以下命令将Master节点上的 taint(污点标记)解除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</span><br></pre></td></tr></table></figure>
+
+<p>最后我们使用以下命令查看当前集群的状态，发现Scheduler和Controller Manager组件处理不健康状态：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get cs</span><br></pre></td></tr></table></figure>
+<p>解决上述问题需要将每个Master节点上的 &#x2F;etc&#x2F;kubernetes&#x2F;manifests&#x2F;kube-scheduler.yaml 和 &#x2F;etc&#x2F;kubernetes&#x2F;manifests&#x2F;kube-controller-manager.yaml 文件中的- –port&#x3D;0注释掉,然后重启一下各Master节点上的kubelet即可.</p>
+<h4 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl create deployment nginx --image nginx --replicas 2</span><br><span class="line">kubectl expose deployment nginx --name nginx --<span class="built_in">type</span> NodePort --port 80 --target-port 80 --node-port 8080</span><br><span class="line"></span><br><span class="line">curl http://192.168.50.220:8080</span><br></pre></td></tr></table></figure>
+
+
+<p>参考<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/587922250">如何用 Kubeadm 在 Debian 11 上安装 Kubernetes 集群 | Linux 中国 - 知乎 (zhihu.com)</a><br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000040132460">Kubernetes多主多从高可用集群部署 - 个人文章 - SegmentFault 思否</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_53667818/article/details/132702544">搭建多主节点k8s高可用集群(三主两从一VIP）_kubernetes部署多主多从集群-CSDN博客</a><br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000045271028">github - 基于Ubuntu22.04部署KubeEdge-v1.18.0环境 - 云原生_KubeEdge - SegmentFault 思否</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+              <a href="/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="tag"># 环境搭建</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/04/29/Git/submodule/" rel="prev" title="Git子库">
+                  <i class="fa fa-angle-left"></i> Git子库
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/10/22/Hexo%E5%8D%9A%E5%AE%A2/%E4%BD%BF%E7%94%A8Github-Actions%E9%83%A8%E7%BD%B2Hexo%E5%8D%9A%E5%AE%A2/" rel="next" title="使用Github Actions部署Hexo博客">
+                  使用Github Actions部署Hexo博客 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Longhorn 单机部署指南Longhorn 支持单机部署，它是一款基于 Kubernetes 的分布式块存储系统，同时也可以在单节点 Kubernetes 集群中完成部署和使用，适合开发测试、边缘计算等轻量场景。 一、单机部署的核心前提 环境要求  单节点 Kubernetes 集群（如 Minikube、k3s、MicroK8s 或手动搭建的单节点集群）  节点满足 Longhorn 基础条">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K3s部署Longhorn">
+<meta property="og:url" content="http://chengming0916.github.io/2025/12/16/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Longhorn/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="Longhorn 单机部署指南Longhorn 支持单机部署，它是一款基于 Kubernetes 的分布式块存储系统，同时也可以在单节点 Kubernetes 集群中完成部署和使用，适合开发测试、边缘计算等轻量场景。 一、单机部署的核心前提 环境要求  单节点 Kubernetes 集群（如 Minikube、k3s、MicroK8s 或手动搭建的单节点集群）  节点满足 Longhorn 基础条">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-16T05:34:46.000Z">
+<meta property="article:modified_time" content="2025-12-16T09:35:07.978Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="Longhorn">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/12/16/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Longhorn/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/12/16/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Longhorn/","path":"2025/12/16/容器技术/K3s部署Longhorn/","title":"K3s部署Longhorn"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>K3s部署Longhorn | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Longhorn-%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97"><span class="nav-number">1.</span> <span class="nav-text">Longhorn 单机部署指南</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2%E7%9A%84%E6%A0%B8%E5%BF%83%E5%89%8D%E6%8F%90"><span class="nav-number">1.0.1.</span> <span class="nav-text">一、单机部署的核心前提</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2%E7%9A%84%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4%EF%BC%88%E4%BB%A5-k3s-%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">1.0.2.</span> <span class="nav-text">二、单机部署的具体步骤（以 k3s 为例）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E9%83%A8%E7%BD%B2%E5%8D%95%E8%8A%82%E7%82%B9-k3s-%E9%9B%86%E7%BE%A4"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">1. 部署单节点 k3s 集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E7%BB%84%E4%BB%B6-open-iscsi"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">2. 安装依赖组件 open-iscsi</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%83%A8%E7%BD%B2-Longhorn"><span class="nav-number">1.0.2.3.</span> <span class="nav-text">3. 部署 Longhorn</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%8A%B6%E6%80%81"><span class="nav-number">1.0.2.4.</span> <span class="nav-text">4. 验证部署状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.0.3.</span> <span class="nav-text">三、单机部署的注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.0.4.</span> <span class="nav-text">四、单机部署的适用场景</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">201</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">192</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/12/16/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Longhorn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="K3s部署Longhorn | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          K3s部署Longhorn
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-12-16 13:34:46 / 修改时间：17:35:07" itemprop="dateCreated datePublished" datetime="2025-12-16T13:34:46+08:00">2025-12-16</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Longhorn-单机部署指南"><a href="#Longhorn-单机部署指南" class="headerlink" title="Longhorn 单机部署指南"></a>Longhorn 单机部署指南</h1><p>Longhorn <strong>支持单机部署</strong>，它是一款基于 Kubernetes 的分布式块存储系统，同时也可以在单节点 Kubernetes 集群中完成部署和使用，适合开发测试、边缘计算等轻量场景。</p>
+<h3 id="一、单机部署的核心前提"><a href="#一、单机部署的核心前提" class="headerlink" title="一、单机部署的核心前提"></a>一、单机部署的核心前提</h3><ol>
+<li><p><strong>环境要求</strong></p>
+<ol>
+<li><p>单节点 Kubernetes 集群（如 Minikube、k3s、MicroK8s 或手动搭建的单节点集群）</p>
+</li>
+<li><p>节点满足 Longhorn 基础条件：</p>
+<ul>
+<li><p>操作系统：Linux（内核 4.14+）</p>
+</li>
+<li><p>容器运行时：Docker、containerd 等</p>
+</li>
+<li><p>磁盘：至少 1 块空闲磁盘或目录（用于存储数据）</p>
+</li>
+<li><p>依赖工具：<code>open-iscsi</code>（必须安装并启动）</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p><strong>网络要求</strong></p>
+<ol>
+<li><p>节点能访问互联网（用于拉取 Longhorn 镜像）</p>
+</li>
+<li><p>Kubernetes 集群网络插件正常运行（如 Calico、Flannel）</p>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="二、单机部署的具体步骤（以-k3s-为例）"><a href="#二、单机部署的具体步骤（以-k3s-为例）" class="headerlink" title="二、单机部署的具体步骤（以 k3s 为例）"></a>二、单机部署的具体步骤（以 k3s 为例）</h3><h4 id="1-部署单节点-k3s-集群"><a href="#1-部署单节点-k3s-集群" class="headerlink" title="1. 部署单节点 k3s 集群"></a>1. 部署单节点 k3s 集群</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 k3s（禁用默认存储，避免冲突）</span></span><br><span class="line">curl -sfL https://get.k3s.io | sh -s - --<span class="built_in">disable</span> traefik --<span class="built_in">disable</span> servicelb --<span class="built_in">disable</span> local-storage</span><br><span class="line"><span class="comment"># 配置 kubectl 环境变量</span></span><br><span class="line"><span class="built_in">export</span> KUBECONFIG=/etc/rancher/k3s/k3s.yaml</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-安装依赖组件-open-iscsi"><a href="#2-安装依赖组件-open-iscsi" class="headerlink" title="2. 安装依赖组件 open-iscsi"></a>2. 安装依赖组件 <code>open-iscsi</code></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu/Debian</span></span><br><span class="line"><span class="built_in">sudo</span> apt update &amp;&amp; <span class="built_in">sudo</span> apt install -y open-iscsi</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now iscsid</span><br><span class="line"></span><br><span class="line"><span class="comment"># CentOS/RHEL</span></span><br><span class="line"><span class="built_in">sudo</span> yum install -y iscsi-initiator-utils</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now iscsid</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-部署-Longhorn"><a href="#3-部署-Longhorn" class="headerlink" title="3. 部署 Longhorn"></a>3. 部署 Longhorn</h4><p>推荐使用 Helm 部署（更易管理）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 Helm 3</span></span><br><span class="line">curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 Longhorn Helm 仓库</span></span><br><span class="line">helm repo add longhorn https://charts.longhorn.io</span><br><span class="line">helm repo update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署 Longhorn 到 longhorn-system 命名空间</span></span><br><span class="line">helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-验证部署状态"><a href="#4-验证部署状态" class="headerlink" title="4. 验证部署状态"></a>4. 验证部署状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查 Pod 是否全部 Running</span></span><br><span class="line">kubectl -n longhorn-system get pods</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查 Longhorn 存储类是否创建</span></span><br><span class="line">kubectl get sc</span><br><span class="line"><span class="comment"># 正常会看到 longhorn 存储类，且标注为 default</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="三、单机部署的注意事项"><a href="#三、单机部署的注意事项" class="headerlink" title="三、单机部署的注意事项"></a>三、单机部署的注意事项</h3><ol>
+<li><p><strong>高可用限制</strong></p>
+<ol>
+<li><p>单机部署下，Longhorn 无法提供数据冗余（默认副本数为 3，需手动调整为 1），节点故障会导致数据丢失，仅适合非生产环境。</p>
+</li>
+<li><p>修改副本数：在 Longhorn UI 中设置默认副本数为 1，或在 PVC 注解中指定 <code>numberOfReplicas: 1</code>。</p>
+</li>
+</ol>
+</li>
+<li><p><strong>存储路径配置</strong></p>
+<ol>
+<li><p>如果节点没有空闲磁盘，可以指定目录作为存储后端：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建本地目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /data/longhorn</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 777 /data/longhorn</span><br><span class="line"><span class="comment"># 部署时通过 Helm 参数指定</span></span><br><span class="line">helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace \</span><br><span class="line">  --<span class="built_in">set</span> defaultSettings.defaultDataPath=/data/longhorn</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p><strong>访问 Longhorn UI</strong></p>
+<ol>
+<li><p>单机环境下可通过 NodePort 访问 UI：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n longhorn-system get svc longhorn-frontend</span><br><span class="line"><span class="comment"># 访问 http://&lt;节点IP&gt;:&lt;NodePort&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="四、单机部署的适用场景"><a href="#四、单机部署的适用场景" class="headerlink" title="四、单机部署的适用场景"></a>四、单机部署的适用场景</h3><ul>
+<li><p>开发&#x2F;测试环境：快速验证 Longhorn 功能、测试存储与应用的兼容性。</p>
+</li>
+<li><p>边缘节点：资源受限的边缘设备，仅需单节点提供块存储。</p>
+</li>
+<li><p>个人学习：熟悉 Kubernetes 存储编排和 Longhorn 运维操作。</p>
+</li>
+</ul>
+<p>是否需要我为你整理<strong>单机部署 Longhorn 后的测试用例</strong>，比如创建 PVC 并挂载到 Nginx 容器进行验证？</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/Longhorn/" rel="tag"># Longhorn</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/12/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Qt/%E6%90%AD%E5%BB%BAQt4.8.7-armv7%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/" rel="prev" title="搭建Qt4.8.7-armv7交叉编译环境">
+                  <i class="fa fa-angle-left"></i> 搭建Qt4.8.7-armv7交叉编译环境
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/12/16/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Ollama%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E7%94%A8CLI%E5%91%BD%E4%BB%A4/" rel="next" title="Ollama环境变量与常用CLI命令">
+                  Ollama环境变量与常用CLI命令 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

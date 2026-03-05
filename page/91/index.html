@@ -170,7 +170,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">939</span>
+          <span class="site-state-item-count">942</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -181,7 +181,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">198</span>
+        <span class="site-state-item-count">205</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -206,6 +206,368 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/" class="post-title-link" itemprop="url">Prism之Module</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-07-25 00:00:00" itemprop="dateCreated datePublished" datetime="2015-07-25T00:00:00+08:00">2015-07-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-05 17:14:18" itemprop="dateModified" datetime="2026-03-05T17:14:18+08:00">2026-03-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Prism的核心功能之一就是支持模块化应用程序开发(Modular Application Development)，并且在运行时对各个模块进行动态管理。</p>
+<p>使用Prism进行模块化开发首先要了解几个概念：</p>
+<p>1.Module: Module是一些逻辑上相关的程序集或者资源文件的集合，在Silverlight程序中通常以xap文件为单位存在。而每一个Module中都需要有一个负责进行初始化工作以及与系统进行集成的角色，它需要实现IModule接口。IModule接口中只有一个Initialize方法，一方面这个接口将这个工程标记为一个Module，另一方面你可以在Initialize方法中实现一些逻辑，比如向容器中注册一些Service，或者将视图集成到程序中等等。</p>
+<p>2.ModuleInfo: 在创建了一个Module之后，需要通知Prism这个Module的存在，也就是要注册一下。在Prism中，Module是以ModuleInfo的形式存在的。ModuleInfo记录了Module的信息，ModuleName属性是Module的标识符，相当于Module的ID；ModuleType是Module的AssemblyQualifiedName；DependsOn属性是该Module依赖的其它Module的ModuleName的集合，在加载该Module时，如果有依赖项没有加载的话，会先将依赖项加载；InitializationMode，有两种情况——WhenAvailable和OnDemand，当选择了WhenAvailable时，该Module会在程序启动时自动加载，如果选择了OnDemand，则会按需加载，默认情况下是WhenAvailable；Ref，存储该Module的位置，如XXX.xap；State，定义了Module从注册到加载到初始化的整个过程中的状态。</p>
+<p>3.ModuleCatalog: ModuleCatalog实现了IModuleCatalog接口，它是ModuleInfo的容器，保存着系统中所有Module的信息，不仅会管理哪些Module需要加载，什么时候加载以什么顺序加载等问题，还要检查各个Module之间是否存在着循环依赖、是否有重复的Module等等。ModuleCatalog提供了含参构造方法和AddModule方法，可以通过代码将Module注册进去，同时也可以在xaml文件中配置好Module，然后通过ModuleCatalog.CreateFromXaml方法来加载。</p>
+<p>4.ModuleManager: ModuleManager实现了IModuleManager接口。顾名思义就是管理Module的类。IModuleManager中含有两个方法和两个事件：Run方法会将所有InitializationMode为WhenAvailable的Module加载，然后进行初始化，初始化的工作委托给了IModuleInitializer来完成，它会获取到Module类(上面提到的实现了IModule接口的类)的实例，然后调用其Initialize方法。LoadModule方法用来加载InitializationMode为OnDemand的Module。两个事件分别用来通知下载Module的进度变化以及Module加载完成。</p>
+<p>下面用一个示例程序来说明如何在Prism中进行模块化程序开发。</p>
+<p>1.创建一个Silverlight Application，叫做PrismModule。</p>
+<p>2.在Solution中添加三个Silverlight Application，分别叫做ModuleA, ModuleB, ModuleC。然后删除这三个工程中的App文件和MainPage文件。</p>
+<p>3.在ModuleA工程下添加一个UserControl，叫做ViewA，然后再添加一个类，叫做ModuleA。并添加Microsoft.Practices.Prism和Microsoft.Practices.ServiceLocation引用。下面是ViewA和ModuleA的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;UserControl x:Class=&quot;ModuleA.ViewA&quot;</span><br><span class="line">    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span><br><span class="line">    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span><br><span class="line">    xmlns:d=&quot;http://schemas.microsoft.com/expression/blend/2008&quot;</span><br><span class="line">    xmlns:mc=&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;</span><br><span class="line">    mc:Ignorable=&quot;d&quot;</span><br><span class="line">    d:DesignHeight=&quot;300&quot; d:DesignWidth=&quot;400&quot;&gt;</span><br><span class="line">     </span><br><span class="line">    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot;&gt;</span><br><span class="line">        &lt;TextBlock Text=&quot;Module A&quot; FontSize=&quot;22&quot; /&gt;</span><br><span class="line">    &lt;/Grid&gt;</span><br><span class="line">&lt;/UserControl&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ModuleA</span> : <span class="title">IModule</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Initialize</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>4.对ModuleB和ModuleC重复做步骤3的操作，只是将文本改成相应模块。</p>
+<p>5.在PrismModule中添加对ModuleA、ModuleB、ModuleC、Prism、UnityExtensions还有Unity for Silverlight的引用，然后创建Shell和<a target="_blank" rel="noopener" href="http://www.cnblogs.com/li-xiao/archive/2011/01/18/1935713.html">Bootstrapper</a>。添加一个UserControl，叫做Shell；再添加一个类，叫做Bootstrapper。</p>
+<p>Shell代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;UserControl x:Class=&quot;PrismModule.Shell&quot;</span><br><span class="line">    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span><br><span class="line">    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span><br><span class="line">    xmlns:d=&quot;http://schemas.microsoft.com/expression/blend/2008&quot;</span><br><span class="line">    xmlns:mc=&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;</span><br><span class="line">    xmlns:prism=&quot;http://www.codeplex.com/prism&quot;</span><br><span class="line">    mc:Ignorable=&quot;d&quot;</span><br><span class="line">    d:DesignHeight=&quot;600&quot; d:DesignWidth=&quot;800&quot;&gt;</span><br><span class="line">     </span><br><span class="line">    &lt;StackPanel Margin=&quot;50&quot;&gt;</span><br><span class="line">        &lt;StackPanel Orientation=&quot;Horizontal&quot; HorizontalAlignment=&quot;Center&quot;&gt;</span><br><span class="line">            &lt;Border VerticalAlignment=&quot;Top&quot; BorderBrush=&quot;Red&quot; BorderThickness=&quot;2&quot; Width=&quot;200&quot; Height=&quot;100&quot;&gt;</span><br><span class="line">                &lt;ContentControl prism:RegionManager.RegionName=&quot;RegionA&quot; /&gt;</span><br><span class="line">            &lt;/Border&gt;</span><br><span class="line">            &lt;Border VerticalAlignment=&quot;Top&quot; BorderBrush=&quot;Red&quot; BorderThickness=&quot;2&quot; Width=&quot;200&quot; Height=&quot;100&quot;&gt;</span><br><span class="line">                &lt;ContentControl prism:RegionManager.RegionName=&quot;RegionB&quot; /&gt;</span><br><span class="line">            &lt;/Border&gt;</span><br><span class="line">            &lt;StackPanel&gt;</span><br><span class="line">                &lt;Border BorderBrush=&quot;Red&quot; BorderThickness=&quot;2&quot; Width=&quot;200&quot; Height=&quot;100&quot;&gt;</span><br><span class="line">                    &lt;ContentControl prism:RegionManager.RegionName=&quot;RegionC&quot; /&gt;</span><br><span class="line">                &lt;/Border&gt;</span><br><span class="line">                &lt;Button Content=&quot;Load Module C&quot; Click=&quot;LoadModuleC&quot; Width=&quot;120&quot; Height=&quot;25&quot; /&gt;</span><br><span class="line">            &lt;/StackPanel&gt;</span><br><span class="line">        &lt;/StackPanel&gt;</span><br><span class="line">    &lt;/StackPanel&gt;</span><br><span class="line">&lt;/UserControl&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Shell.xaml.cs代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;UserControl x:Class=&quot;PrismModule.Shell&quot;</span><br><span class="line">    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span><br><span class="line">    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span><br><span class="line">    xmlns:d=&quot;http://schemas.microsoft.com/expression/blend/2008&quot;</span><br><span class="line">    xmlns:mc=&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;</span><br><span class="line">    xmlns:prism=&quot;http://www.codeplex.com/prism&quot;</span><br><span class="line">    mc:Ignorable=&quot;d&quot;</span><br><span class="line">    d:DesignHeight=&quot;600&quot; d:DesignWidth=&quot;800&quot;&gt;</span><br><span class="line">     </span><br><span class="line">    &lt;StackPanel Margin=&quot;50&quot;&gt;</span><br><span class="line">        &lt;StackPanel Orientation=&quot;Horizontal&quot; HorizontalAlignment=&quot;Center&quot;&gt;</span><br><span class="line">            &lt;Border VerticalAlignment=&quot;Top&quot; BorderBrush=&quot;Red&quot; BorderThickness=&quot;2&quot; Width=&quot;200&quot; Height=&quot;100&quot;&gt;</span><br><span class="line">                &lt;ContentControl prism:RegionManager.RegionName=&quot;RegionA&quot; /&gt;</span><br><span class="line">            &lt;/Border&gt;</span><br><span class="line">            &lt;Border VerticalAlignment=&quot;Top&quot; BorderBrush=&quot;Red&quot; BorderThickness=&quot;2&quot; Width=&quot;200&quot; Height=&quot;100&quot;&gt;</span><br><span class="line">                &lt;ContentControl prism:RegionManager.RegionName=&quot;RegionB&quot; /&gt;</span><br><span class="line">            &lt;/Border&gt;</span><br><span class="line">            &lt;StackPanel&gt;</span><br><span class="line">                &lt;Border BorderBrush=&quot;Red&quot; BorderThickness=&quot;2&quot; Width=&quot;200&quot; Height=&quot;100&quot;&gt;</span><br><span class="line">                    &lt;ContentControl prism:RegionManager.RegionName=&quot;RegionC&quot; /&gt;</span><br><span class="line">                &lt;/Border&gt;</span><br><span class="line">                &lt;Button Content=&quot;Load Module C&quot; Click=&quot;LoadModuleC&quot; Width=&quot;120&quot; Height=&quot;25&quot; /&gt;</span><br><span class="line">            &lt;/StackPanel&gt;</span><br><span class="line">        &lt;/StackPanel&gt;</span><br><span class="line">    &lt;/StackPanel&gt;</span><br><span class="line">&lt;/UserControl&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Bootstrapper代码如下：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Bootstrapper</span> : <span class="title">UnityBootstrapper</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> DependencyObject <span class="title">CreateShell</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.Container.TryResolve&lt;Shell&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">InitializeShell</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        App.Current.RootVisual = (UIElement)<span class="keyword">this</span>.Shell;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> IModuleCatalog <span class="title">CreateModuleCatalog</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ModuleCatalog();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">ConfigureModuleCatalog</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Type typeA = <span class="keyword">typeof</span>(ModuleA.ModuleA);</span><br><span class="line">        ModuleInfo moduleA = <span class="keyword">new</span> ModuleInfo</span><br><span class="line">        &#123;   <span class="comment">//  ModuleA没有设置InitializationMode,默认为WhenAvailable</span></span><br><span class="line">            ModuleName = typeA.Name,</span><br><span class="line">            ModuleType = typeA.AssemblyQualifiedName,</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        Type typeB = <span class="keyword">typeof</span>(ModuleB.ModuleB);</span><br><span class="line">        ModuleInfo moduleB = <span class="keyword">new</span> ModuleInfo</span><br><span class="line">        &#123;</span><br><span class="line">            ModuleName = typeB.Name,</span><br><span class="line">            ModuleType = typeB.AssemblyQualifiedName,</span><br><span class="line">            InitializationMode = InitializationMode.OnDemand,</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        Type typeC = <span class="keyword">typeof</span>(ModuleC.ModuleC);</span><br><span class="line">        ModuleInfo moduleC = <span class="keyword">new</span> ModuleInfo</span><br><span class="line">        &#123;</span><br><span class="line">            ModuleName = typeC.Name,</span><br><span class="line">            ModuleType = typeC.AssemblyQualifiedName,</span><br><span class="line">            InitializationMode = InitializationMode.OnDemand,</span><br><span class="line">            <span class="comment">//  ModuleC依赖于ModuleB</span></span><br><span class="line">            DependsOn = <span class="keyword">new</span> Collection&lt;<span class="built_in">string</span>&gt; &#123; moduleB.ModuleName &#125;,</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">this</span>.ModuleCatalog.AddModule(moduleA);</span><br><span class="line">        <span class="keyword">this</span>.ModuleCatalog.AddModule(moduleB);</span><br><span class="line">        <span class="keyword">this</span>.ModuleCatalog.AddModule(moduleC);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>将App.xaml.cs中的Application_Startup方法改为</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Application_Startup</span>(<span class="params"><span class="built_in">object</span> sender, StartupEventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Bootstrapper bootstrapper = <span class="keyword">new</span> Bootstrapper();</span><br><span class="line">    bootstrapper.Run();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>6.现在已经有了Region，需要将各个Module中的View填充到Region中。修改ModuleA,ModuleB和ModuleC的Initialize方法。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Initialize</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    ServiceLocator.Current.GetInstance&lt;IRegionManager&gt;().</span><br><span class="line">        RegisterViewWithRegion(<span class="string">&quot;RegionA&quot;</span>, <span class="keyword">typeof</span>(ViewA));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>将其中的A改为相应的字母。运行程序，结果如下：</p>
+<p><img src="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/201101201401416868.png" alt="image" title="image"></p>
+<p>我们点击按钮来加载ModuleC，因为ModuleC依赖于ModuleB，所以ModuleB也一块儿加载出来了。但是这与我们预期的效果不太一致。因为一共只load了一个xap文件，用WinRAR打开看一下，发现三个Module的程序集都在其中。</p>
+<p><img src="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/201101201401425953.png" alt="image" title="image"></p>
+<p>在Silverlight程序中，模块化程序开发应该不仅仅体现在开发时的模块化，运行时也应该是模块化的。比如ModuleA在程序加载时就load出来，但是ModuleB和ModuleC则是在点击了按钮后才load出来的，换句话说，在没点按钮前就不应该将ModuleB和ModuleC的程序集加载进来。现在由于PrismModule项目引用了三个Module，所以程序集会被一块打包进xap文件中。我们修改一下，将对ModuleB和ModuleC的引用的Copy Local属性设置为false：</p>
+<p><img src="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/201101201401443119.png" alt="image" title="image"><img src="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/201101201401462445.png" alt="image" title="image"></p>
+<p>重新编译一下，再次查看xap文件，发现已经没有了ModuleB和ModuleC。</p>
+<p><img src="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/201101201401481531.png" alt="image" title="image"></p>
+<p>运行程序，报错。很简单，因为我们在Bootstrapper中用到了ModuleB和ModuleC，缺少了这两个dll，程序没法运行。为了解决这个问题，我们把初始化ModuleCatalog的过程改一下，不使用代码，而是使用配置文件。在Silverlight中，Prism支持使用xaml文件作为配置文件。下面在PrismModule工程下新建一个资源文件，ModuleCatalog.xaml。内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;Modularity:ModuleCatalog xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span><br><span class="line">        xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span><br><span class="line">        xmlns:sys=&quot;clr-namespace:System;assembly=mscorlib&quot;       </span><br><span class="line">        xmlns:Modularity=&quot;clr-namespace:Microsoft.Practices.Prism.Modularity;assembly=Microsoft.Practices.Prism&quot;&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;Modularity:ModuleInfo Ref=&quot;ModuleA.xap&quot; ModuleName=&quot;ModuleA&quot; </span><br><span class="line">        ModuleType=&quot;ModuleA.ModuleA, ModuleA, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;Modularity:ModuleInfo Ref=&quot;ModuleB.xap&quot; ModuleName=&quot;ModuleB&quot; InitializationMode=&quot;OnDemand&quot;</span><br><span class="line">        ModuleType=&quot;ModuleB.ModuleB, ModuleB, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;Modularity:ModuleInfo Ref=&quot;ModuleC.xap&quot; ModuleName=&quot;ModuleC&quot; InitializationMode=&quot;OnDemand&quot;</span><br><span class="line">        ModuleType=&quot;ModuleC.ModuleC, ModuleC, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot;&gt;</span><br><span class="line">        &lt;Modularity:ModuleInfo.DependsOn&gt;</span><br><span class="line">            &lt;sys:String&gt;ModuleB&lt;/sys:String&gt;</span><br><span class="line">        &lt;/Modularity:ModuleInfo.DependsOn&gt;</span><br><span class="line">    &lt;/Modularity:ModuleInfo&gt;</span><br><span class="line">&lt;/Modularity:ModuleCatalog&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里大体和用代码写一致，只不过Ref属性里要写明该Module对应的是哪个xap包。Prism在Silverlight程序中使用一个叫做XapModuleTypeLoader的类来加载Module，在将Module下载之后会获取AppManifest.xaml文件，也就是说如果你的Module是个类库工程的话，会在加载时产生错误。可以将几个类库的程序集文件包装在一个xap文件中作为一个Module来使用，或者自定义一个ModuleTypeLoader。</p>
+<p>定义完Module的配置文件后，要改写Bootstrapper。首先删除用代码配置Module的方法ConfigureModuleCatalog，然后在CreateModuleCatalog方法中替换成一下内容：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> IModuleCatalog <span class="title">CreateModuleCatalog</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> Microsoft.Practices.Prism.Modularity.ModuleCatalog.CreateFromXaml(</span><br><span class="line">        <span class="keyword">new</span> Uri(<span class="string">&quot;/PrismModule;component/ModuleCatalog.xaml&quot;</span>, UriKind.Relative));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>再次运行程序，正常运行。</p>
+<p><img src="/2015/07/25/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BModule/201101201401527010.png" alt="image" title="image"></p>
+<p>这样就达到了按需加载的目的。节约带宽是一个好处，如果产品是分模块往外卖的时候，可以由客户按需定制。</p>
+<p>不过再打开ModuleB和ModuleC的xap文件看一下，发现里面不仅有Module本身的程序集，还包括了引用的Prism的程序集等。而这些程序集其实已经在PrismModule.xap中包含了。完全没有必要重复下载。所以可以将多余的程序集的引用的Copy Local属性设置为false，这样就瘦身成功了。(想要避免重复加载相同的文件，也可以通过在项目的Properties面板中勾选Reduce XAP size by using application library caching选项)</p>
+<p>如果你对Module的加载到执行的整个过程感兴趣，那么Prism本身提供了一个QuickStart，既有Unity版本也有Mef版本，不要错过。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/07/20/Archive/2015-07-20/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2015/07/20/Archive/2015-07-20/" class="post-title-link" itemprop="url">Mon Jul 20 2015 00:00:00 GMT+0800 (China Standard Time)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-07-20 20:13:09" itemprop="dateCreated datePublished" datetime="2015-07-20T20:13:09+08:00">2015-07-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-05 17:14:16" itemprop="dateModified" datetime="2026-03-05T17:14:16+08:00">2026-03-05</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/07/18/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BBootstrapper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2015/07/18/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Prism%E4%B9%8BBootstrapper/" class="post-title-link" itemprop="url">Prism之Bootstrapper</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-07-18 00:00:00" itemprop="dateCreated datePublished" datetime="2015-07-18T00:00:00+08:00">2015-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-05 17:14:18" itemprop="dateModified" datetime="2026-03-05T17:14:18+08:00">2026-03-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>  在程序中使用框架必然要有一个切入点，框架会在这里进行初始化，处理相关配置信息等。在Prism中扮演这一角色的就是Bootstrapper。</p>
+<p>Prism提供了一个抽象基类Bootstrapper，这个类里面包含了包含了许多空的虚方法，可以重写它们添加自己的逻辑。这个基类与任何容器无关，所以可以通过继承它来实现基于特定容器的Bootstrapper，不过通常我们大可不必这样做，因为Prism默认提供了两个基于特定容器的Bootstrapper——UnityBootstrapper和MefBootstrapper，分别使用Unity和Mef来实现依赖注入。而我们需要做的工作就是在这两个类之间选择一个适合自己的，稍微配置一下就可以了。当然如果你不喜欢这两个容器或者已有的程序使用了其它容器(如Spring.Net， Castle等)，也可以通过继承Boostrapper抽象基类来实现自己的SpringBootstrapper和CastleBootstrapper。虽然UnityBootstrapper的代码看起来挺简单的，但是如果仿照这个来实现CastleBootstrapper却并不是那么容易的一件事(不信你可以试试)，所以更好的办法是用<a target="_blank" rel="noopener" href="http://compositewpfcontrib.codeplex.com/">现成</a>的。</p>
+<pre><code>那么Bootstrapper都做了些什么呢？
+</code></pre>
+<ol>
+<li><p>创建Logger：</p>
+<p> 执行CreateLogger方法，默认创建一个EmptyLogger，不会在任何地方输出log。当然是可以扩展的，比如你可以使用<a target="_blank" rel="noopener" href="http://clog.codeplex.com/">Clog</a>来做一个适配器。</p>
+</li>
+<li><p>创建并配置ModuleCatalog</p>
+</li>
+</ol>
+<p>执行CreateModuleCatalog方法，默认创建一个空的ModuleCatalog。然后执行ConfigureModuleCatalog方法，默认情况下这个方法是空的。可以重写这两个方法，加入自定义的获取ModuleCatalog的逻辑，比如在CreateModuleCatalog中可以从一个xaml文件中读取Module信息。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> IModuleCatalog <span class="title">CreateModuleCatalog</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> ModuleCatalog.CreateFromXaml(<span class="keyword">new</span> Uri(<span class="string">&quot;/AssemblyName;component/ModulesCatalog.xaml&quot;</span>,  UriKind.Relative));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>创建并配置依赖注入容器</li>
+</ol>
+<p>  Prism中使用依赖注入来管理各个组件，你可以使用任何你熟悉的容器，比如Castle, Unity等。Prism中内置了对Unity以及Mef的支持，所以有两种预定义好的Bootstrapper: UnityBootstrapper和MefBootstrapper，其中分别采用UnityContainer和CompositionContainer作为依赖注入容器。以UnityBootstrapper为例，在这一步中会先调用CreateContainer方法，返回一个UnityContainer；然后调用ConfigureContainer方法，在这个方法中主要是将一些常用的类注册到容器中。</p>
+<ol start="4">
+<li>配置默认的Region适配器映射</li>
+</ol>
+<p>  为了使xaml中的UI控件可以使用Region，需要先注册一下。Prism默认支持Region的控件类型有：TabControl, Selector, ItemsControl, ContentControl。当然你也可以通过实现IRegionAdapter接口或者直接继承RegionAdapterBase<T>来使其它控件也支持Region。</p>
+<ol start="5">
+<li>配置默认的Region 行为(Behavior)</li>
+</ol>
+<p>  为RegionBehaviorFactory添加一些默认的行为。这样可以扩展Region的行为。可以通过实现IRegionBehavior接口或继承RegionBehavior来自定义Region的行为，并重写ConfigureDefaultRegionBehaviors方法添加到Region。</p>
+<ol start="6">
+<li>注册框架异常类型</li>
+</ol>
+<p>  Prism提供了ExceptionExtensions类来帮助开发人员定位异常发生的根异常。在这一步通过调用RegisterFrameworkExceptionTypes方法向ExceptionExtensions中添加新的Root Exception。</p>
+<ol start="7">
+<li>创建并初始化Shell</li>
+</ol>
+<p>  首先调用CreateShell方法来创建一个Shell，这是一个抽象方法，通常这个方法中就是返回作为整个网站容器的页面。之后会将RegionManager attach到Shell上，然后更新定义的Regions，最后调用InitializeShell方法来初始化Shell。默认情况下这是个空方法，可以通过重写这个方法加入自定义的逻辑，可以在这个方法中将Shell作为Silverlight程序的根容器页面显示出来。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">InitializeShell</span>()`</span></span><br><span class="line">&#123;</span><br><span class="line">     Application.Current.RootVisual = Shell;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>初始化Modules</li>
+</ol>
+<p>  调用InitializeModules方法，实际上就是调用ModuleManager.Run方法，会调用ModuleCatalog中的所有InitializationMode为WhenAvailable的Module的Initialize方法。</p>
+<p>  至此，整个容器的初始化过程就完毕了。</p>
+<p>  值得一提的还有<a target="_blank" rel="noopener" href="http://commonservicelocator.codeplex.com/">CommonServiceLocator</a>，这同样是Patterns &amp; Practices小组的产品。它的作用很简单，就是统一依赖注入容器的接口，使程序不必依赖于特定的容器，只需要使用ServiceLocator，然后去间接地使用其它各种各样的容器。在Prism的内部就是使用ServiceLocator来进行管理的。所以不管使用什么样的容器，都需要提供一个实现了IServiceLocator接口的适配器，如使用Unity要提供UnityServiceLocatorAdapter，使用Mef要提供MefServiceLocatorAdapter。这样不管外部使用什么容器，内部都不需要改变。所以如果要使用Prism重头开始构架一个程序，那么在整个程序中不依赖于特定的依赖注入容器接口，而是使用ServiceLocator是一个不错的选择，这样可以在需要的情况下很容易地更换容器，只需要重写一个Bootstrapper和一个ServiceLocatorAdapter就可以了。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -251,7 +613,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:16" itemprop="dateModified" datetime="2026-03-05T17:14:16+08:00">2026-03-05</time>
     </span>
 
   
@@ -326,7 +688,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:18" itemprop="dateModified" datetime="2026-03-05T17:14:18+08:00">2026-03-05</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -469,7 +831,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:16" itemprop="dateModified" datetime="2026-03-05T17:14:16+08:00">2026-03-05</time>
     </span>
 
   
@@ -544,7 +906,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:16" itemprop="dateModified" datetime="2026-03-05T17:14:16+08:00">2026-03-05</time>
     </span>
 
   
@@ -619,7 +981,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:18" itemprop="dateModified" datetime="2026-03-05T17:14:18+08:00">2026-03-05</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -707,7 +1069,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:16" itemprop="dateModified" datetime="2026-03-05T17:14:16+08:00">2026-03-05</time>
     </span>
 
   
@@ -782,232 +1144,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/06/15/Archive/2015-06-15/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2015/06/15/Archive/2015-06-15/" class="post-title-link" itemprop="url">Mon Jun 15 2015 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2015-06-15 14:36:49" itemprop="dateCreated datePublished" datetime="2015-06-15T14:36:49+08:00">2015-06-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/06/10/Archive/2015-06-10/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2015/06/10/Archive/2015-06-10/" class="post-title-link" itemprop="url">Wed Jun 10 2015 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2015-06-10 11:11:16" itemprop="dateCreated datePublished" datetime="2015-06-10T11:11:16+08:00">2015-06-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/06/05/Archive/2015-06-05/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2015/06/05/Archive/2015-06-05/" class="post-title-link" itemprop="url">Fri Jun 05 2015 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2015-06-05 15:00:53" itemprop="dateCreated datePublished" datetime="2015-06-05T15:00:53+08:00">2015-06-05</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-05 17:14:16" itemprop="dateModified" datetime="2026-03-05T17:14:16+08:00">2026-03-05</time>
     </span>
 
   
@@ -1039,7 +1176,7 @@
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/90/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/90/">90</a><span class="page-number current">91</span><a class="page-number" href="/page/92/">92</a><span class="space">&hellip;</span><a class="page-number" href="/page/94/">94</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/92/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/90/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/90/">90</a><span class="page-number current">91</span><a class="page-number" href="/page/92/">92</a><span class="space">&hellip;</span><a class="page-number" href="/page/95/">95</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/92/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在 Kubernetes GitOps 技术体系中，Argo CD 与 Helm 已成为声明式应用交付的黄金组合。借助 Argo CD 统一托管 Helm Chart，既能充分发挥 Helm 的打包标准化、模板化优势，又能依托 GitOps 理念实现应用部署的环境一致性、操作可审计、版本可回滚，大幅提升 Kubernetes 集群应用管理的效率与稳定性。本文立足实际生产场景，系统拆解 Argo C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Argo CD 部署 Helm Chart 最佳实践">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Argo%20CD%20%E9%83%A8%E7%BD%B2%20Helm%20Chart%20%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在 Kubernetes GitOps 技术体系中，Argo CD 与 Helm 已成为声明式应用交付的黄金组合。借助 Argo CD 统一托管 Helm Chart，既能充分发挥 Helm 的打包标准化、模板化优势，又能依托 GitOps 理念实现应用部署的环境一致性、操作可审计、版本可回滚，大幅提升 Kubernetes 集群应用管理的效率与稳定性。本文立足实际生产场景，系统拆解 Argo C">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-04T03:23:34.000Z">
+<meta property="article:modified_time" content="2026-03-05T09:14:18.035Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="ArgoCD">
+<meta property="article:tag" content="GitOps">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Argo%20CD%20%E9%83%A8%E7%BD%B2%20Helm%20Chart%20%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Argo%20CD%20%E9%83%A8%E7%BD%B2%20Helm%20Chart%20%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/","path":"2026/03/04/容器技术/Argo CD 部署 Helm Chart 最佳实践/","title":"Argo CD 部署 Helm Chart 最佳实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Argo CD 部署 Helm Chart 最佳实践 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E7%BD%AE%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">一、前置说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Argo-CD-%E7%AE%A1%E7%90%86-Helm-Chart-%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、Argo CD 管理 Helm Chart 的两种核心模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Git-%E6%89%98%E7%AE%A1%E6%9C%AC%E5%9C%B0-Helm-Chart"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Git 托管本地 Helm Chart</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E8%BF%9C%E7%A8%8B-Helm-Chart-Git-%E6%89%98%E7%AE%A1%E8%87%AA%E5%AE%9A%E4%B9%89-Values%EF%BC%88%E7%94%9F%E4%BA%A7%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 远程 Helm Chart + Git 托管自定义 Values（生产推荐）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89-Values-%E4%B8%89%E7%A7%8D%E4%BC%A0%E9%80%92%E6%96%B9%E5%BC%8F%EF%BC%88%E6%8C%89%E6%8E%A8%E8%8D%90%E5%BA%A6%E6%8E%92%E5%BA%8F%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、自定义 Values 三种传递方式（按推荐度排序）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%A4%96%E9%83%A8-valueFiles%EF%BC%88%E6%8E%A8%E8%8D%90%E5%A4%8D%E6%9D%82%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 外部 valueFiles（推荐复杂配置）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%86%85%E5%B5%8C-values%EF%BC%88%E7%AE%80%E5%8D%95%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 内嵌 values（简单场景）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-helm-parameters%EF%BC%88%E5%AF%B9%E5%BA%94-Helm-%E2%80%93set-%E5%8F%82%E6%95%B0%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 helm.parameters（对应 Helm –set 参数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E9%85%8D%E7%BD%AE%E8%A6%86%E7%9B%96%E4%BC%98%E5%85%88%E7%BA%A7%EF%BC%88%E4%BB%8E%E4%BD%8E%E5%88%B0%E9%AB%98%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 配置覆盖优先级（从低到高）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%8C%E6%95%B4%E7%94%9F%E4%BA%A7%E5%8F%AF%E7%94%A8%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">四、完整生产可用配置示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E5%91%BD%E4%BB%A4%EF%BC%88%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、常用操作命令（高效运维）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%EF%BC%88%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">六、常见错误处理（避坑指南）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E6%8A%A5%E9%94%99%EF%BC%9Aspec-source-repoURL-and-spec-source-path-either-spec-source-chart-are-required"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 报错：spec.source.repoURL and spec.source.path either spec.source.chart are required</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E9%97%AE%E9%A2%98%EF%BC%9AvalueFiles-%E6%96%87%E4%BB%B6%E6%89%BE%E4%B8%8D%E5%88%B0-%E9%85%8D%E7%BD%AE%E4%B8%8D%E7%94%9F%E6%95%88"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 问题：valueFiles 文件找不到 &#x2F; 配置不生效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E9%97%AE%E9%A2%98%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E4%B8%8D%E7%94%9F%E6%95%88"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 问题：自定义配置不生效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-%E9%97%AE%E9%A2%98%EF%BC%9AHelm-repo-%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE-%E8%AE%A4%E8%AF%81%E5%A4%B1%E8%B4%A5"><span class="nav-number">6.4.</span> <span class="nav-text">6.4 问题：Helm repo 无法访问 &#x2F; 认证失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">七、最佳实践总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">942</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">205</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Argo%20CD%20%E9%83%A8%E7%BD%B2%20Helm%20Chart%20%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Argo CD 部署 Helm Chart 最佳实践 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Argo CD 部署 Helm Chart 最佳实践
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-04 11:23:34" itemprop="dateCreated datePublished" datetime="2026-03-04T11:23:34+08:00">2026-03-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-05 17:14:18" itemprop="dateModified" datetime="2026-03-05T17:14:18+08:00">2026-03-05</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 Kubernetes GitOps 技术体系中，Argo CD 与 Helm 已成为声明式应用交付的黄金组合。借助 Argo CD 统一托管 Helm Chart，既能充分发挥 Helm 的打包标准化、模板化优势，又能依托 GitOps 理念实现应用部署的环境一致性、操作可审计、版本可回滚，大幅提升 Kubernetes 集群应用管理的效率与稳定性。本文立足实际生产场景，系统拆解 Argo CD 部署 Helm Chart 的完整流程、标准配置写法、自定义 values 管理规范，同时梳理常见报错与解决方案，为开发者提供可直接落地的实践指南。</p>
+<h2 id="一、前置说明"><a href="#一、前置说明" class="headerlink" title="一、前置说明"></a>一、前置说明</h2><p>本文内容基于以下前提条件，确保读者可顺利复现操作流程：</p>
+<ul>
+<li><p>Argo CD 已完成部署并正常运行，可通过 UI 或命令行工具（argocd CLI）访问；</p>
+</li>
+<li><p>了解 Helm Chart 的基本结构、values 配置覆盖机制及常见使用命令；</p>
+</li>
+<li><p>拥有可访问的 Helm Chart 仓库（公共仓库如 Bitnami、官方 Helm 仓库，或私有 Helm 仓库），或已通过 Git 托管本地 Helm Chart。</p>
+</li>
+</ul>
+<h2 id="二、Argo-CD-管理-Helm-Chart-的两种核心模式"><a href="#二、Argo-CD-管理-Helm-Chart-的两种核心模式" class="headerlink" title="二、Argo CD 管理 Helm Chart 的两种核心模式"></a>二、Argo CD 管理 Helm Chart 的两种核心模式</h2><p>Argo CD 在 Application 配置的 <code>spec.source</code> 字段中，对 Helm Chart 的源类型有严格约束：**<code>pathchart</code>** ** 与  字段互斥，必须二选一**，二者分别对应两种核心部署模式，需根据实际场景选择。</p>
+<h3 id="2-1-Git-托管本地-Helm-Chart"><a href="#2-1-Git-托管本地-Helm-Chart" class="headerlink" title="2.1 Git 托管本地 Helm Chart"></a>2.1 Git 托管本地 Helm Chart</h3><p>该模式适用于自定义开发的 Helm Chart，将 Chart 源码与应用配置一同托管在 Git 仓库，实现代码与配置的统一版本管理，便于团队协作维护。</p>
+<p><strong>必需配置字段</strong>：</p>
+<ul>
+<li><p><code>repoURL</code>：托管本地 Helm Chart 的 Git 仓库地址；</p>
+</li>
+<li><p><code>path</code>：Helm Chart 在 Git 仓库中的具体目录路径；</p>
+</li>
+<li><p><code>targetRevision</code>：Git 仓库的分支、标签或 Commit ID，用于指定 Chart 版本。</p>
+</li>
+</ul>
+<p><strong>典型配置片段</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">source:</span></span><br><span class="line">  <span class="attr">repoURL:</span> <span class="string">https://git.example.com/infra/helm-charts.git</span>  <span class="comment"># 托管本地Chart的Git仓库</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">charts/my-app</span>                                     <span class="comment"># Chart在Git中的目录路径</span></span><br><span class="line">  <span class="attr">targetRevision:</span> <span class="string">main</span>                                   <span class="comment"># Git分支（或标签/CommitID）</span></span><br><span class="line">  <span class="attr">helm:</span></span><br><span class="line">    <span class="attr">valueFiles:</span>                                          <span class="comment"># 引用Git中的自定义values文件</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">values.yaml</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">values-prod.yaml</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-远程-Helm-Chart-Git-托管自定义-Values（生产推荐）"><a href="#2-2-远程-Helm-Chart-Git-托管自定义-Values（生产推荐）" class="headerlink" title="2.2 远程 Helm Chart + Git 托管自定义 Values（生产推荐）"></a>2.2 远程 Helm Chart + Git 托管自定义 Values（生产推荐）</h3><p>该模式是企业生产环境的首选方案：直接使用公共或私有 Helm 仓库中的官方&#x2F;第三方成熟 Chart（无需重复开发），同时将自定义配置（values 文件）托管在 Git 仓库，实现 Chart 与配置的解耦，既保证 Chart 版本的稳定性，又便于灵活调整配置、追溯配置变更。</p>
+<p><strong>必需配置字段</strong>：</p>
+<ul>
+<li><p><code>repoURL</code>：存放自定义 values 文件的 Git 仓库地址；</p>
+</li>
+<li><p><code>chart</code>：远程 Helm Chart 仓库中的 Chart 名称；</p>
+</li>
+<li><p><code>targetRevision</code>：远程 Helm Chart 的具体版本号；</p>
+</li>
+<li><p><code>helm.repoURL</code>：远程 Helm Chart 仓库的实际地址（如 Bitnami 仓库）。</p>
+</li>
+</ul>
+<p><strong>典型配置片段</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">source:</span></span><br><span class="line">  <span class="attr">repoURL:</span> <span class="string">https://git.example.com/infra/helm-configs.git</span>  <span class="comment"># 存放自定义values的Git仓库</span></span><br><span class="line">  <span class="attr">chart:</span> <span class="string">nginx</span>                                             <span class="comment"># 远程Helm Chart名称</span></span><br><span class="line">  <span class="attr">targetRevision:</span> <span class="number">15.0</span><span class="number">.0</span>                                   <span class="comment"># 远程Chart版本</span></span><br><span class="line">  <span class="attr">helm:</span></span><br><span class="line">    <span class="attr">repoURL:</span> <span class="string">https://charts.bitnami.com/bitnami</span>             <span class="comment"># 远程Helm Chart仓库地址</span></span><br><span class="line">    <span class="attr">valueFiles:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">helm-values/nginx/values-prod.yaml</span>                 <span class="comment"># 引用Git中的自定义values</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="三、自定义-Values-三种传递方式（按推荐度排序）"><a href="#三、自定义-Values-三种传递方式（按推荐度排序）" class="headerlink" title="三、自定义 Values 三种传递方式（按推荐度排序）"></a>三、自定义 Values 三种传递方式（按推荐度排序）</h2><p>Argo CD 支持多种方式传递自定义 values，覆盖不同配置复杂度场景，核心目的是覆盖 Helm Chart 内置的默认 values，满足实际业务需求。以下按使用场景推荐度排序，同时明确各方式的优先级。</p>
+<h3 id="3-1-外部-valueFiles（推荐复杂配置）"><a href="#3-1-外部-valueFiles（推荐复杂配置）" class="headerlink" title="3.1 外部 valueFiles（推荐复杂配置）"></a>3.1 外部 valueFiles（推荐复杂配置）</h3><p>将自定义 values 按环境（dev&#x2F;staging&#x2F;prod）或功能拆分，存放在 Git 仓库中统一管理，便于版本追溯、多环境复用和团队协作。该方式是生产环境的首选，尤其适合配置项较多的场景。</p>
+<p><strong>核心规则</strong>：<code>valueFiles</code> 的路径**<code>spec.source.repoURL</code>** <strong>必须相对于  对应的 Git 仓库根目录</strong>，不可使用<code>./</code>、<code>../</code> 等相对路径。</p>
+<p><strong>配置示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">helm:</span></span><br><span class="line">  <span class="attr">valueFiles:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">values/base.yaml</span>    <span class="comment"># 基础通用配置</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">values/prod.yaml</span>    <span class="comment"># 生产环境专属配置（覆盖基础配置）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-内嵌-values（简单场景）"><a href="#3-2-内嵌-values（简单场景）" class="headerlink" title="3.2 内嵌 values（简单场景）"></a>3.2 内嵌 values（简单场景）</h3><p>直接在 Application YAML 的 <code>helm.values</code> 字段中内嵌 YAML 格式的配置，无需额外维护外部文件，操作便捷。适合配置项较少、无需复用的场景，且优先级最高，会覆盖其他方式的配置。</p>
+<p><strong>配置示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">helm:</span></span><br><span class="line">  <span class="attr">values:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    replicaCount: 2       # 副本数配置</span></span><br><span class="line"><span class="string">    service:</span></span><br><span class="line"><span class="string">      type: ClusterIP     # 服务类型配置</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-helm-parameters（对应-Helm-–set-参数）"><a href="#3-3-helm-parameters（对应-Helm-–set-参数）" class="headerlink" title="3.3 helm.parameters（对应 Helm –set 参数）"></a>3.3 helm.parameters（对应 Helm –set 参数）</h3><p>对应 Helm 命令行的 <code>--set</code> 参数，以键值对形式传递单个配置项，适合少量参数的快速覆盖。需注意，值必须以字符串格式填写，且仅支持简单的键值配置，不适合复杂层级的配置。</p>
+<p><strong>配置示例</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">helm:</span></span><br><span class="line">  <span class="attr">parameters:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">replicaCount</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">&quot;2&quot;</span>          <span class="comment"># 值必须为字符串格式</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">service.type</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">&quot;ClusterIP&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-配置覆盖优先级（从低到高）"><a href="#3-4-配置覆盖优先级（从低到高）" class="headerlink" title="3.4 配置覆盖优先级（从低到高）"></a>3.4 配置覆盖优先级（从低到高）</h3><p>当同时使用多种 values 传递方式时，Argo CD 会按以下优先级合并配置（高优先级配置覆盖低优先级），务必牢记避免配置冲突：</p>
+<ol>
+<li><p>Helm Chart 内置的 <code>values.yaml</code>（默认配置，优先级最低）；</p>
+</li>
+<li><p><code>valueFiles</code> 列表中靠前的文件；</p>
+</li>
+<li><p><code>valueFiles</code> 列表中靠后的文件（依次覆盖前面的配置）；</p>
+</li>
+<li><p><code>helm.parameters</code>（–set 方式）；</p>
+</li>
+<li><p><code>helm.values</code>（内嵌配置，优先级最高）。</p>
+</li>
+</ol>
+<h2 id="四、完整生产可用配置示例"><a href="#四、完整生产可用配置示例" class="headerlink" title="四、完整生产可用配置示例"></a>四、完整生产可用配置示例</h2><p>以部署 Bitnami Nginx 为例，提供一套完整的 Argo CD Application YAML 配置，整合远程 Helm Chart、Git 托管 values、内嵌配置，满足生产环境的核心需求，可直接修改适配自身场景。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">argoproj.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Application</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-prod</span>        <span class="comment"># 应用名称（唯一）</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">argocd</span>       <span class="comment"># 固定部署在argocd命名空间</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">project:</span> <span class="string">default</span>        <span class="comment"># 关联Argo CD项目（默认项目可直接使用）</span></span><br><span class="line">  <span class="attr">source:</span></span><br><span class="line">    <span class="comment"># 存放自定义values的Git仓库地址</span></span><br><span class="line">    <span class="attr">repoURL:</span> <span class="string">https://git.example.com/infra/helm-configs.git</span></span><br><span class="line">    <span class="comment"># 远程Helm Chart名称（来自Bitnami仓库）</span></span><br><span class="line">    <span class="attr">chart:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="comment"># 远程Helm Chart版本（需与仓库中存在的版本匹配）</span></span><br><span class="line">    <span class="attr">targetRevision:</span> <span class="number">15.0</span><span class="number">.0</span></span><br><span class="line">    <span class="attr">helm:</span></span><br><span class="line">      <span class="comment"># 远程Helm Chart仓库地址（Bitnami公共仓库）</span></span><br><span class="line">      <span class="attr">repoURL:</span> <span class="string">https://charts.bitnami.com/bitnami</span></span><br><span class="line">      <span class="comment"># 引用Git中的自定义values文件（路径相对于Git根目录）</span></span><br><span class="line">      <span class="attr">valueFiles:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">helm-values/nginx/values-prod.yaml</span></span><br><span class="line">      <span class="comment"># 内嵌少量高优先级配置（覆盖values文件中的对应项）</span></span><br><span class="line">      <span class="attr">values:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        resources:</span></span><br><span class="line"><span class="string">          requests:</span></span><br><span class="line"><span class="string">            cpu: 100m</span></span><br><span class="line"><span class="string">            memory: 128Mi</span></span><br><span class="line"><span class="string"></span>  <span class="comment"># 目标部署集群与命名空间</span></span><br><span class="line">  <span class="attr">destination:</span></span><br><span class="line">    <span class="attr">server:</span> <span class="string">https://kubernetes.default.svc</span>  <span class="comment"># 本地集群地址（默认集群可固定填写）</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">nginx-prod</span>                   <span class="comment"># 部署目标命名空间</span></span><br><span class="line">  <span class="comment"># 同步策略（生产推荐配置）</span></span><br><span class="line">  <span class="attr">syncPolicy:</span></span><br><span class="line">    <span class="attr">automated:</span></span><br><span class="line">      <span class="attr">prune:</span> <span class="literal">true</span>        <span class="comment"># 自动删除Git中不存在的集群资源</span></span><br><span class="line">      <span class="attr">selfHeal:</span> <span class="literal">true</span>     <span class="comment"># 集群资源被手动修改后，自动同步回Git配置状态</span></span><br><span class="line">    <span class="attr">syncOptions:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">CreateNamespace=true</span>  <span class="comment"># 自动创建目标命名空间（无需提前手动创建）</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="五、常用操作命令（高效运维）"><a href="#五、常用操作命令（高效运维）" class="headerlink" title="五、常用操作命令（高效运维）"></a>五、常用操作命令（高效运维）</h2><p>整理 Argo CD 管理 Helm 应用的核心命令，覆盖应用创建、状态查看、配置验证、同步操作等场景，提升运维效率。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建/更新Argo CD应用（应用配置文件为app.yaml）</span></span><br><span class="line">kubectl apply -f app.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 查看应用详细信息（包括源配置、目标集群、同步状态）</span></span><br><span class="line">argocd app get nginx-prod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 查看最终合并的values配置（验证自定义配置是否生效）</span></span><br><span class="line">argocd app get nginx-prod --helm-values</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 手动触发应用同步（开启automated后可省略，自动同步）</span></span><br><span class="line">argocd app <span class="built_in">sync</span> nginx-prod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 查看应用同步状态（快速判断是否同步成功）</span></span><br><span class="line">argocd app status nginx-prod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 回滚应用至指定版本（如需回滚配置，结合Git版本）</span></span><br><span class="line">argocd app rollback nginx-prod</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、常见错误处理（避坑指南）"><a href="#六、常见错误处理（避坑指南）" class="headerlink" title="六、常见错误处理（避坑指南）"></a>六、常见错误处理（避坑指南）</h2><p>在实际配置和部署过程中，容易遇到各类校验报错或配置不生效问题，以下梳理高频问题、原因及解决方案，帮助快速定位并解决问题。</p>
+<h3 id="6-1-报错：spec-source-repoURL-and-spec-source-path-either-spec-source-chart-are-required"><a href="#6-1-报错：spec-source-repoURL-and-spec-source-path-either-spec-source-chart-are-required" class="headerlink" title="6.1 报错：spec.source.repoURL and spec.source.path either spec.source.chart are required"></a>6.1 报错：spec.source.repoURL and spec.source.path either spec.source.chart are required</h3><p><strong>报错原因</strong>：Argo CD 校验 Application 配置时，发现 <code>spec.source</code> 字段中，<code>repoURL</code> 未搭配 <code>path</code> 或 <code>chart</code> 字段，或二者同时存在（混用），违反互斥规则。</p>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li><p>若部署 Git 本地 Chart：使用 <code>repoURL + path</code> 组合，不填写 <code>chart</code> 字段；</p>
+</li>
+<li><p>若部署远程 Helm Chart：使用 <code>repoURL + chart + helm.repoURL</code> 组合，不填写 <code>path</code> 字段；</p>
+</li>
+<li><p>核心原则：<code>path</code> 与 <code>chart</code> 二选一，不可同时存在或同时缺失。</p>
+</li>
+</ul>
+<h3 id="6-2-问题：valueFiles-文件找不到-配置不生效"><a href="#6-2-问题：valueFiles-文件找不到-配置不生效" class="headerlink" title="6.2 问题：valueFiles 文件找不到 &#x2F; 配置不生效"></a>6.2 问题：valueFiles 文件找不到 &#x2F; 配置不生效</h3><p><strong>问题原因</strong>：</p>
+<ul>
+<li><p>values 文件路径填写错误，未遵循“相对于 Git 仓库根目录”的规则；</p>
+</li>
+<li><p>使用 <code>./</code>、<code>../</code> 等相对路径，导致 Argo CD 无法定位文件；</p>
+</li>
+<li><p>Git 仓库中文件路径与配置不一致，或文件未提交&#x2F;推送。</p>
+</li>
+</ul>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li><p>确认 <code>valueFiles</code> 路径为 Git 仓库根目录的绝对路径（如 <code>helm-values/nginx/values-prod.yaml</code>）；</p>
+</li>
+<li><p>在 Git 网页端直接访问该路径，能正常打开文件则路径正确；</p>
+</li>
+<li><p>检查 Git 分支是否正确（<code>targetRevision</code> 与文件所在分支一致）。</p>
+</li>
+</ul>
+<h3 id="6-3-问题：自定义配置不生效"><a href="#6-3-问题：自定义配置不生效" class="headerlink" title="6.3 问题：自定义配置不生效"></a>6.3 问题：自定义配置不生效</h3><p><strong>问题原因</strong>：</p>
+<ul>
+<li><p>配置优先级被覆盖（如内嵌 values 未覆盖 valueFiles 配置，或参数顺序错误）；</p>
+</li>
+<li><p>YAML 缩进错误，配置层级与 Helm Chart 内置 values 不匹配；</p>
+</li>
+<li><p>配置项名称拼写错误（与 Chart 中的配置项不对应）。</p>
+</li>
+</ul>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li><p>使用 <code>argocd app get &lt;app-name&gt; --helm-values</code> 查看最终合并的配置，确认自定义配置是否被覆盖；</p>
+</li>
+<li><p>检查 YAML 缩进格式，确保配置层级与 Chart 内置 values 一致；</p>
+</li>
+<li><p>对照 Helm Chart 的官方文档，确认配置项名称拼写正确。</p>
+</li>
+</ul>
+<h3 id="6-4-问题：Helm-repo-无法访问-认证失败"><a href="#6-4-问题：Helm-repo-无法访问-认证失败" class="headerlink" title="6.4 问题：Helm repo 无法访问 &#x2F; 认证失败"></a>6.4 问题：Helm repo 无法访问 &#x2F; 认证失败</h3><p><strong>问题原因</strong>：</p>
+<ul>
+<li><p>远程 Helm 仓库地址填写错误，或网络不通（Argo CD Pod 无法访问仓库）；</p>
+</li>
+<li><p>私有 Helm 仓库未配置认证凭据，Argo CD 无权限拉取 Chart。</p>
+</li>
+</ul>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li><p>验证 Helm 仓库地址是否正确，可在 Argo CD 所在集群中执行 <code>helm repo add</code> 命令测试连通性；</p>
+</li>
+<li><p>私有 Helm 仓库：在 Argo CD 中创建带有仓库用户名&#x2F;密码的 Secret，或通过 <code>helm.username</code>、<code>helm.password</code> 字段在 Application 中引用 Secret。</p>
+</li>
+</ul>
+<h2 id="七、最佳实践总结"><a href="#七、最佳实践总结" class="headerlink" title="七、最佳实践总结"></a>七、最佳实践总结</h2><p>结合生产环境的落地经验，梳理以下核心最佳实践，帮助团队规范 Argo CD + Helm 的使用，减少问题、提升效率：</p>
+<ol>
+<li><p><strong>优先采用“远程 Helm Chart + Git 托管 Values”模式</strong>：实现 Chart 与配置解耦，既复用成熟 Chart 减少开发成本，又通过 Git 管理配置实现版本追溯和多环境复用。</p>
+</li>
+<li><p><strong>规范 values 文件目录结构</strong>：按应用、环境拆分 values 文件（如 <code>helm-values/&lt;app-name&gt;/values-&lt;env&gt;.yaml</code>），便于维护和快速定位配置。</p>
+</li>
+<li><p><strong>严格遵守字段约束</strong>：禁止混用 <code>path</code> 和 <code>chart</code> 字段，避免触发 Argo CD 配置校验报错。</p>
+</li>
+<li><p><strong>合理选择 values 传递方式</strong>：复杂配置用 <code>valueFiles</code>，少量临时配置用内嵌 <code>values</code>，避免过度使用 <code>helm.parameters</code>（不便于维护）。</p>
+</li>
+<li><p><strong>开启自动化同步策略</strong>：配置 <code>automated.prune</code> 和 <code>automated.selfHeal</code>，确保集群资源状态与 Git 配置一致，减少手动干预。</p>
+</li>
+<li><p><strong>部署前预览配置</strong>：使用 <code>argocd app get --helm-values</code> 预览最终合并的配置，提前发现配置冲突或错误，避免线上问题。</p>
+</li>
+</ol>
+<p>遵循以上实践，可在多环境、多团队协作场景下，稳定、高效地通过 Argo CD 完成 Helm Chart 的部署与运维，真正发挥 GitOps 与 Helm 结合的价值，实现应用交付的标准化、自动化与可追溯。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/ArgoCD/" rel="tag"># ArgoCD</a>
+              <a href="/tags/GitOps/" rel="tag"># GitOps</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/FastAPI+Vue%E5%85%A8%E6%A0%88%E9%83%A8%E7%BD%B2%E5%AE%9E%E6%88%98/" rel="prev" title="FastAPI+Vue全栈部署实战">
+                  <i class="fa fa-angle-left"></i> FastAPI+Vue全栈部署实战
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%85%8D%E7%BD%AELocal%20Path%20Provisioner%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5/" rel="next" title="K3s配置Local Path Provisioner回收策略">
+                  K3s配置Local Path Provisioner回收策略 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

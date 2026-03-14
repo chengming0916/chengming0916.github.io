@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在Kubernetes生态中，ArgoCD作为主流的声明式GitOps工具，能够实现应用的自动化部署、同步与管理，而K3s作为轻量级Kubernetes发行版，凭借低资源占用、快速部署的优势，广泛应用于边缘计算、小集群场景。Traefik作为K3s默认集成的Ingress Controller，具备自动发现、动态配置、SSL证书自动签发等特性，是实现ArgoCD外部访问的最优代理方案之一。 本文将">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K3s部署ArgoCD">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2ArgoCD/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在Kubernetes生态中，ArgoCD作为主流的声明式GitOps工具，能够实现应用的自动化部署、同步与管理，而K3s作为轻量级Kubernetes发行版，凭借低资源占用、快速部署的优势，广泛应用于边缘计算、小集群场景。Traefik作为K3s默认集成的Ingress Controller，具备自动发现、动态配置、SSL证书自动签发等特性，是实现ArgoCD外部访问的最优代理方案之一。 本文将">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-04T03:36:00.000Z">
+<meta property="article:modified_time" content="2026-03-14T13:54:58.299Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="ArgoCD">
+<meta property="article:tag" content="K3s">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2ArgoCD/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2ArgoCD/","path":"2026/03/04/容器技术/K3s部署ArgoCD/","title":"K3s部署ArgoCD"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>K3s部署ArgoCD | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">一、前置条件准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E9%83%A8%E7%BD%B2%E6%80%9D%E8%B7%AF"><span class="nav-number">2.</span> <span class="nav-text">二、核心部署思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%AF%A6%E7%BB%86%E9%83%A8%E7%BD%B2%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.</span> <span class="nav-text">三、详细部署步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%B7%BB%E5%8A%A0ArgoCD-Helm%E4%BB%93%E5%BA%93"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 添加ArgoCD Helm仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%88%9B%E5%BB%BAArgoCD%E7%8B%AC%E7%AB%8B%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 创建ArgoCD独立命名空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E7%BC%96%E5%86%99%E6%A0%B8%E5%BF%83values-yaml%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 编写核心values.yaml配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E"><span class="nav-number">3.4.</span> <span class="nav-text">关键配置说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Helm%E4%B8%80%E9%94%AE%E9%83%A8%E7%BD%B2ArgoCD"><span class="nav-number">3.5.</span> <span class="nav-text">3.4 Helm一键部署ArgoCD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E9%85%8D%E7%BD%AEArgoCD%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E5%B9%B6%E7%99%BB%E5%BD%95"><span class="nav-number">3.6.</span> <span class="nav-text">3.5 配置ArgoCD访问权限并登录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-1-%E6%8F%90%E5%8F%96%E5%88%9D%E5%A7%8B%E7%AE%A1%E7%90%86%E5%91%98%E5%AF%86%E7%A0%81"><span class="nav-number">3.6.1.</span> <span class="nav-text">3.5.1 提取初始管理员密码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-2-%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AEArgoCD-UI"><span class="nav-number">3.6.2.</span> <span class="nav-text">3.5.2 浏览器访问ArgoCD UI</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-3-ArgoCD-CLI%E9%80%9A%E8%BF%87Traefik%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">3.6.3.</span> <span class="nav-text">3.5.3 ArgoCD CLI通过Traefik代理访问（可选）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%90%8E%E7%BB%AD%E7%BB%B4%E6%8A%A4%E4%B8%8E%E5%8D%87%E7%BA%A7"><span class="nav-number">4.</span> <span class="nav-text">四、后续维护与升级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E9%85%8D%E7%BD%AE%E4%BF%AE%E6%94%B9%E4%B8%8E%E9%87%8D%E8%A3%85"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 配置修改与重装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E8%AF%81%E4%B9%A6%E7%BB%B4%E6%8A%A4"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 证书维护</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">5.</span> <span class="nav-text">五、常见问题排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%9F%9F%E5%90%8D%E8%AE%BF%E9%97%AE404-503%E9%94%99%E8%AF%AF"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 域名访问404&#x2F;503错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-HTTPS%E8%AF%81%E4%B9%A6%E6%97%A0%E6%95%88-%E5%AE%89%E5%85%A8%E8%AD%A6%E5%91%8A"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 HTTPS证书无效&#x2F;安全警告</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-ArgoCD-UI%E7%99%BB%E5%BD%95%E5%90%8E%E7%99%BD%E5%B1%8F-%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 ArgoCD UI登录后白屏&#x2F;加载失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-extraObjects%E6%B3%A8%E5%85%A5%E8%B5%84%E6%BA%90%E5%A4%B1%E8%B4%A5"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 extraObjects注入资源失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">942</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">206</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2ArgoCD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="K3s部署ArgoCD | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          K3s部署ArgoCD
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-04 11:36:00" itemprop="dateCreated datePublished" datetime="2026-03-04T11:36:00+08:00">2026-03-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在Kubernetes生态中，ArgoCD作为主流的声明式GitOps工具，能够实现应用的自动化部署、同步与管理，而K3s作为轻量级Kubernetes发行版，凭借低资源占用、快速部署的优势，广泛应用于边缘计算、小集群场景。Traefik作为K3s默认集成的Ingress Controller，具备自动发现、动态配置、SSL证书自动签发等特性，是实现ArgoCD外部访问的最优代理方案之一。</p>
+<p>本文将综合梳理K3s环境下，通过Helm工具部署ArgoCD，并利用Traefik实现反向代理的完整流程，重点解决“配置一体化”“HTTPS访问”“轻量适配”三大核心需求，同时提供常见问题排查方案，适用于运维工程师、开发人员快速落地GitOps实践。</p>
+<h2 id="一、前置条件准备"><a href="#一、前置条件准备" class="headerlink" title="一、前置条件准备"></a>一、前置条件准备</h2><p>在开始部署前，需确保环境满足以下条件，避免因依赖缺失导致部署失败：</p>
+<ol>
+<li><p><strong>K3s集群正常运行</strong>：已完成K3s集群部署（单节点或多节点均可），且集群状态健康。K3s默认集成Traefik v2+，无需额外安装Ingress Controller，可通过<code>kubectl get pods -n kube-system -l app=traefik</code>验证Traefik是否正常运行。</p>
+</li>
+<li><p><strong>工具环境就绪</strong>：本地已安装Helm 3.8+和kubectl工具，且kubectl已配置好K3s集群的访问权限（可通过复制K3s节点的<code>/etc/rancher/k3s/k3s.yaml</code>文件到本地<code>~/.kube/config</code>实现）。</p>
+</li>
+<li><p><strong>域名与端口配置</strong>：拥有一个可解析的域名（如argocd.your-domain.com），并将域名A记录指向K3s节点的公网IP（多节点集群建议指向负载均衡IP）；同时开放K3s节点的80&#x2F;443端口（云服务器需配置安全组，物理机需开放防火墙规则）。</p>
+</li>
+</ol>
+<h2 id="二、核心部署思路"><a href="#二、核心部署思路" class="headerlink" title="二、核心部署思路"></a>二、核心部署思路</h2><p>本次部署采用“Helm一键部署+values.yaml统一配置”的方案，核心思路如下：</p>
+<ol>
+<li><p>通过Helm添加ArgoCD官方仓库，确保获取稳定的Chart版本；</p>
+</li>
+<li><p>编写统一的values.yaml文件，整合ArgoCD基础配置（轻量适配、服务类型）与Traefik代理配置（IngressRoute、HTTPS重定向、SSL证书）；</p>
+</li>
+<li><p>利用Helm的extraObjects特性，在部署ArgoCD的同时，自动注入Traefik所需的Middleware和IngressRoute资源，实现配置一体化；</p>
+</li>
+<li><p>验证部署状态，配置ArgoCD访问权限，完成GitOps工具链的落地。</p>
+</li>
+</ol>
+<p>该方案的优势在于，无需单独创建Ingress配置文件，后续升级、重装ArgoCD时，仅需维护一份values.yaml，大幅提升运维效率，同时符合Kubernetes声明式管理的核心理念。</p>
+<h2 id="三、详细部署步骤"><a href="#三、详细部署步骤" class="headerlink" title="三、详细部署步骤"></a>三、详细部署步骤</h2><h3 id="3-1-添加ArgoCD-Helm仓库"><a href="#3-1-添加ArgoCD-Helm仓库" class="headerlink" title="3.1 添加ArgoCD Helm仓库"></a>3.1 添加ArgoCD Helm仓库</h3><p>首先添加ArgoCD官方Helm仓库，并更新本地仓库索引，确保获取最新的Chart版本（本次选用稳定版5.46.7，对应ArgoCD v2.8.4，兼容性最优）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加ArgoCD官方Helm仓库</span></span><br><span class="line">helm repo add argo https://argoproj.github.io/argo-helm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新本地仓库索引，同步最新Chart信息</span></span><br><span class="line">helm repo update</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-创建ArgoCD独立命名空间"><a href="#3-2-创建ArgoCD独立命名空间" class="headerlink" title="3.2 创建ArgoCD独立命名空间"></a>3.2 创建ArgoCD独立命名空间</h3><p>为了便于资源隔离和管理，建议将ArgoCD部署在独立的命名空间（argocd）中，执行以下命令创建命名空间：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create namespace argocd</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-编写核心values-yaml配置文件"><a href="#3-3-编写核心values-yaml配置文件" class="headerlink" title="3.3 编写核心values.yaml配置文件"></a>3.3 编写核心values.yaml配置文件</h3><p>创建argocd-values.yaml文件，该文件是本次部署的核心，整合了ArgoCD基础配置、Traefik代理配置、SSL证书自动签发配置，关键部分已添加详细注释，只需替换域名和邮箱即可直接使用：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># ArgoCD 基础配置（适配K3s轻量环境）</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># 全局配置，指定ArgoCD版本，避免版本兼容问题</span></span><br><span class="line"><span class="attr">global:</span></span><br><span class="line">  <span class="attr">image:</span></span><br><span class="line">    <span class="attr">tag:</span> <span class="string">v2.8.4</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ArgoCD Server核心配置（关键：设置为ClusterIP，由Traefik代理）</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">service:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">ClusterIP</span> <span class="comment"># 禁止暴露NodePort，避免直接对外暴露端口</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="attr">http:</span> <span class="number">80</span></span><br><span class="line">      <span class="attr">https:</span> <span class="number">443</span></span><br><span class="line">  <span class="attr">insecure:</span> <span class="literal">false</span> <span class="comment"># 开启HTTPS，ArgoCD Server默认监听443端口</span></span><br><span class="line">  <span class="attr">ingress:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">false</span> <span class="comment"># 关闭官方默认的传统Ingress，改用Traefik IngressRoute</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 轻量配置：单副本部署，适配K3s资源有限的场景</span></span><br><span class="line"><span class="attr">controller:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">repoServer:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">applicationSet:</span></span><br><span class="line">  <span class="attr">controller:</span></span><br><span class="line">    <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁用不必要组件，进一步降低资源占用（按需选择）</span></span><br><span class="line"><span class="attr">notifications:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">false</span> <span class="comment"># 禁用通知组件，无需邮件/钉钉通知可关闭</span></span><br><span class="line"><span class="attr">dex:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">false</span> <span class="comment"># 禁用dex认证，无需多租户管理可关闭</span></span><br><span class="line"><span class="attr">redis:</span></span><br><span class="line">  <span class="attr">ha:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">false</span> <span class="comment"># 单副本Redis，避免高可用配置占用过多资源</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># Traefik 代理配置（核心：注入IngressRoute和中间件）</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="attr">extraObjects:</span></span><br><span class="line">  <span class="comment"># 中间件：HTTP请求301永久重定向到HTTPS，提升安全性和SEO友好度</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiVersion:</span> <span class="string">traefik.containo.us/v1alpha1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">Middleware</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">argocd-redirect-https</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">argocd</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">redirectScheme:</span></span><br><span class="line">        <span class="attr">scheme:</span> <span class="string">https</span></span><br><span class="line">        <span class="attr">permanent:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># IngressRoute：HTTP 80端口，匹配域名并跳转到HTTPS</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiVersion:</span> <span class="string">traefik.containo.us/v1alpha1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">IngressRoute</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">argocd-ingressroute-http</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">argocd</span></span><br><span class="line">      <span class="attr">annotations:</span></span><br><span class="line">        <span class="attr">kubernetes.io/ingress.class:</span> <span class="string">traefik</span> <span class="comment"># 指定Traefik作为Ingress控制器</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">entryPoints:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">web</span> <span class="comment"># 对应Traefik的80端口入口</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">match:</span> <span class="string">Host(`argocd.your-domain.com`)</span> <span class="comment"># 替换为你的ArgoCD访问域名</span></span><br><span class="line">          <span class="attr">kind:</span> <span class="string">Rule</span></span><br><span class="line">          <span class="attr">priority:</span> <span class="number">10</span></span><br><span class="line">          <span class="attr">services:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">argocd-server</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">          <span class="attr">middlewares:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">argocd-redirect-https</span> <span class="comment"># 引用重定向中间件</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># IngressRoute：HTTPS 443端口，核心代理配置</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiVersion:</span> <span class="string">traefik.containo.us/v1alpha1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">IngressRoute</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">argocd-ingressroute-https</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">argocd</span></span><br><span class="line">      <span class="attr">annotations:</span></span><br><span class="line">        <span class="attr">kubernetes.io/ingress.class:</span> <span class="string">traefik</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">entryPoints:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">websecure</span> <span class="comment"># 对应Traefik的443端口入口</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">match:</span> <span class="string">Host(`argocd.your-domain.com`)</span> <span class="comment"># 替换为你的ArgoCD访问域名</span></span><br><span class="line">          <span class="attr">kind:</span> <span class="string">Rule</span></span><br><span class="line">          <span class="attr">priority:</span> <span class="number">10</span></span><br><span class="line">          <span class="attr">services:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">argocd-server</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">443</span></span><br><span class="line">              <span class="attr">scheme:</span> <span class="string">https</span> <span class="comment"># 关键：指定代理协议为HTTPS</span></span><br><span class="line">              <span class="attr">tls:</span></span><br><span class="line">                <span class="attr">insecureSkipVerify:</span> <span class="literal">true</span> <span class="comment"># 跳过ArgoCD自签证书验证（外部用正式证书）</span></span><br><span class="line">      <span class="attr">tls:</span></span><br><span class="line">        <span class="attr">certResolver:</span> <span class="string">default</span> <span class="comment"># 引用Traefik的Let&#x27;s Encrypt证书解析器</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># Traefik SSL证书配置（自动签发Let&#x27;s Encrypt免费证书）</span></span><br><span class="line"><span class="comment"># 若已配置过Traefik的certResolver，可删除此部分</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">traefik</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">kube-system</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">traefik</span></span><br><span class="line">    <span class="attr">data:</span></span><br><span class="line">      <span class="attr">traefik.yaml:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        api:</span></span><br><span class="line"><span class="string">          insecure: false</span></span><br><span class="line"><span class="string">        entryPoints:</span></span><br><span class="line"><span class="string">          web:</span></span><br><span class="line"><span class="string">            address: :80</span></span><br><span class="line"><span class="string">          websecure:</span></span><br><span class="line"><span class="string">            address: :443</span></span><br><span class="line"><span class="string">        providers:</span></span><br><span class="line"><span class="string">          kubernetesCRD:</span></span><br><span class="line"><span class="string">            enabled: true # 启用Traefik CRD支持（IngressRoute依赖）</span></span><br><span class="line"><span class="string">          kubernetesIngress:</span></span><br><span class="line"><span class="string">            enabled: true</span></span><br><span class="line"><span class="string">        http:</span></span><br><span class="line"><span class="string">          tls:</span></span><br><span class="line"><span class="string">            certResolver:</span></span><br><span class="line"><span class="string">              default:</span></span><br><span class="line"><span class="string">                acme:</span></span><br><span class="line"><span class="string">                  email: your-email@xxx.com # 替换为你的有效邮箱（证书过期提醒）</span></span><br><span class="line"><span class="string">                  storage: /data/acme.json # 证书存储路径</span></span><br><span class="line"><span class="string">                  httpChallenge:</span></span><br><span class="line"><span class="string">                    entryPoint: web # HTTP-01挑战，无需开放额外端口</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="关键配置说明"><a href="#关键配置说明" class="headerlink" title="关键配置说明"></a>关键配置说明</h3><ul>
+<li><p><code>server.service.type: ClusterIP</code>：核心配置，将ArgoCD Server的服务类型设为ClusterIP，避免直接暴露端口，由Traefik统一代理，提升安全性；</p>
+</li>
+<li><p><code>extraObjects</code>：Helm的通用特性，用于注入Chart未内置的Kubernetes资源，此处注入Traefik的Middleware（重定向）和IngressRoute（代理规则），实现配置一体化；</p>
+</li>
+<li><p><code>scheme: https</code> + <code>insecureSkipVerify: true</code>：ArgoCD Server默认使用自签证书监听443端口，Traefik代理时需指定HTTPS协议，并跳过自签证书验证，而外部用户访问的是Traefik签发的Let’s Encrypt正式证书，无安全警告；</p>
+</li>
+<li><p>Traefik ACME配置：自动签发免费SSL证书，无需手动上传证书，HTTP-01挑战方式无需开放额外端口，适配大多数场景。</p>
+</li>
+</ul>
+<h3 id="3-4-Helm一键部署ArgoCD"><a href="#3-4-Helm一键部署ArgoCD" class="headerlink" title="3.4 Helm一键部署ArgoCD"></a>3.4 Helm一键部署ArgoCD</h3><p>执行以下命令，基于编写好的values.yaml文件部署ArgoCD，全程无需额外执行kubectl apply配置Ingress：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">helm install argocd argo/argo-cd \</span><br><span class="line">  --namespace argocd \</span><br><span class="line">  --version 5.46.7 \ <span class="comment"># 与values.yaml中的ArgoCD版本匹配</span></span><br><span class="line">  -f argocd-values.yaml</span><br></pre></td></tr></table></figure>
+
+<p>部署完成后，等待所有Pod启动，可通过以下命令监控部署状态（全部显示Running即为部署成功）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看ArgoCD命名空间下的Pod状态</span></span><br><span class="line">kubectl get pods -n argocd -w</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Traefik注入的Middleware和IngressRoute资源</span></span><br><span class="line">kubectl get middleware -n argocd</span><br><span class="line">kubectl get ingressroute -n argocd</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-配置ArgoCD访问权限并登录"><a href="#3-5-配置ArgoCD访问权限并登录" class="headerlink" title="3.5 配置ArgoCD访问权限并登录"></a>3.5 配置ArgoCD访问权限并登录</h3><h4 id="3-5-1-提取初始管理员密码"><a href="#3-5-1-提取初始管理员密码" class="headerlink" title="3.5.1 提取初始管理员密码"></a>3.5.1 提取初始管理员密码</h4><p>ArgoCD部署后，会自动生成初始管理员密码，存储在argocd-initial-admin-secret这个Secret中，执行以下命令解码获取：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=<span class="string">&quot;&#123;.data.password&#125;&quot;</span> | <span class="built_in">base64</span> -d &amp;&amp; <span class="built_in">echo</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-5-2-浏览器访问ArgoCD-UI"><a href="#3-5-2-浏览器访问ArgoCD-UI" class="headerlink" title="3.5.2 浏览器访问ArgoCD UI"></a>3.5.2 浏览器访问ArgoCD UI</h4><p>在浏览器中输入配置的域名（如<a href="https://argocd.your-domain.com），出现ArgoCD登录页面后，输入以下信息登录：">https://argocd.your-domain.com），出现ArgoCD登录页面后，输入以下信息登录：</a></p>
+<ul>
+<li><p>用户名：admin（固定初始用户名）；</p>
+</li>
+<li><p>密码：上述步骤提取的初始密码。</p>
+</li>
+</ul>
+<p>⚠️ 重要提醒：登录成功后，务必立即修改初始密码（左侧菜单栏→User Info→Update Password），避免密码泄露导致集群安全风险。</p>
+<h4 id="3-5-3-ArgoCD-CLI通过Traefik代理访问（可选）"><a href="#3-5-3-ArgoCD-CLI通过Traefik代理访问（可选）" class="headerlink" title="3.5.3 ArgoCD CLI通过Traefik代理访问（可选）"></a>3.5.3 ArgoCD CLI通过Traefik代理访问（可选）</h4><p>若需要通过CLI工具操作ArgoCD，可安装ArgoCD CLI并通过Traefik代理的域名登录，核心是添加<code>--grpc-web</code>参数（适配Traefik的gRPC代理）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux系统安装ArgoCD CLI</span></span><br><span class="line">curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64</span><br><span class="line"><span class="built_in">sudo</span> install -m 755 argocd-linux-amd64 /usr/local/bin/argocd</span><br><span class="line"><span class="built_in">rm</span> -f argocd-linux-amd64</span><br><span class="line"></span><br><span class="line"><span class="comment"># MacOS系统安装</span></span><br><span class="line">brew install argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过Traefik代理的域名登录</span></span><br><span class="line">argocd login argocd.your-domain.com --grpc-web</span><br></pre></td></tr></table></figure>
+
+<p>登录成功后，即可通过CLI执行应用同步、集群管理等操作，实现命令行与UI双端管理。</p>
+<h2 id="四、后续维护与升级"><a href="#四、后续维护与升级" class="headerlink" title="四、后续维护与升级"></a>四、后续维护与升级</h2><h3 id="4-1-配置修改与重装"><a href="#4-1-配置修改与重装" class="headerlink" title="4.1 配置修改与重装"></a>4.1 配置修改与重装</h3><p>若需要修改ArgoCD或Traefik的配置，只需编辑argocd-values.yaml文件，然后执行以下命令更新部署：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm upgrade argocd argo/argo-cd -n argocd -f argocd-values.yaml --version 5.46.7</span><br></pre></td></tr></table></figure>
+
+<p>若需重装ArgoCD，先卸载现有部署，再重新执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 卸载ArgoCD</span></span><br><span class="line">helm uninstall argocd -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新安装</span></span><br><span class="line">helm install argocd argo/argo-cd -n argocd -f argocd-values.yaml --version 5.46.7</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-证书维护"><a href="#4-2-证书维护" class="headerlink" title="4.2 证书维护"></a>4.2 证书维护</h3><p>Let’s Encrypt证书默认有效期为90天，Traefik会自动完成证书续期，无需手动操作。若证书出现异常，可通过以下命令重启Traefik Pod，强制重新签发证书：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod -n kube-system -l app=traefik</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、常见问题排查"><a href="#五、常见问题排查" class="headerlink" title="五、常见问题排查"></a>五、常见问题排查</h2><h3 id="5-1-域名访问404-503错误"><a href="#5-1-域名访问404-503错误" class="headerlink" title="5.1 域名访问404&#x2F;503错误"></a>5.1 域名访问404&#x2F;503错误</h3><ul>
+<li><p>检查values.yaml中的域名是否与实际访问的域名一致，域名A记录是否正确解析到K3s节点IP；</p>
+</li>
+<li><p>检查ArgoCD Server Pod是否正常运行，可通过<code>kubectl logs -n argocd  argocd-server-xxx</code>查看日志；</p>
+</li>
+<li><p>检查K3s节点的80&#x2F;443端口是否开放，云服务器需确认安全组规则是否放行；</p>
+</li>
+<li><p>查看IngressRoute状态，通过<code>kubectl describe ingressroute argocd-ingressroute-https -n argocd</code>排查代理规则是否配置正确。</p>
+</li>
+</ul>
+<h3 id="5-2-HTTPS证书无效-安全警告"><a href="#5-2-HTTPS证书无效-安全警告" class="headerlink" title="5.2 HTTPS证书无效&#x2F;安全警告"></a>5.2 HTTPS证书无效&#x2F;安全警告</h3><ul>
+<li><p>等待1-2分钟，Let’s Encrypt证书签发需要一定时间，刷新页面即可；</p>
+</li>
+<li><p>检查values.yaml中的邮箱是否有效，域名是否完成解析，HTTP-01挑战是否成功；</p>
+</li>
+<li><p>重启Traefik Pod，强制重新加载证书配置。</p>
+</li>
+</ul>
+<h3 id="5-3-ArgoCD-UI登录后白屏-加载失败"><a href="#5-3-ArgoCD-UI登录后白屏-加载失败" class="headerlink" title="5.3 ArgoCD UI登录后白屏&#x2F;加载失败"></a>5.3 ArgoCD UI登录后白屏&#x2F;加载失败</h3><ul>
+<li><p>确认values.yaml中IngressRoute的<code>scheme: https</code>和<code>insecureSkipVerify: true</code>已配置，避免代理协议不匹配；</p>
+</li>
+<li><p>检查argocd-server的端口是否为443，而非80；</p>
+</li>
+<li><p>清除浏览器缓存，或使用无痕模式访问，避免缓存导致的加载异常。</p>
+</li>
+</ul>
+<h3 id="5-4-extraObjects注入资源失败"><a href="#5-4-extraObjects注入资源失败" class="headerlink" title="5.4 extraObjects注入资源失败"></a>5.4 extraObjects注入资源失败</h3><ul>
+<li><p>检查values.yaml的YAML语法是否正确，可使用<code>yamllint argocd-values.yaml</code>工具验证；</p>
+</li>
+<li><p>确认K3s集群已安装Traefik CRD，可通过<code>kubectl get crd | grep traefik.containo.us</code>查看，若缺失可执行以下命令安装：</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.10/docs/content/reference/dynamic-configuration/kubernetes-crd-definitions.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>本文实现了K3s环境下ArgoCD的Helm部署与Traefik反向代理的一体化配置，核心亮点在于通过values.yaml整合所有配置，无需额外编写Ingress文件，既适配了K3s的轻量特性，又保证了部署的便捷性和可维护性。</p>
+<p>通过本次实践，可快速搭建一套基于GitOps理念的应用部署平台，实现应用的自动化同步与管理，同时借助Traefik的反向代理和SSL证书自动签发功能，保障ArgoCD的安全访问。该方案适用于边缘计算、小型集群、测试环境等场景，也可根据生产环境需求，调整副本数、开启高可用、配置多租户认证等，进一步优化部署架构。</p>
+<p>后续可基于ArgoCD实现应用的GitOps部署，将应用配置存储在Git仓库中，实现“代码即配置”，大幅提升应用部署的一致性和可追溯性，降低运维成本。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/ArgoCD/" rel="tag"># ArgoCD</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/04/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%85%8D%E7%BD%AELocal%20Path%20Provisioner%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5/" rel="prev" title="K3s配置Local Path Provisioner回收策略">
+                  <i class="fa fa-angle-left"></i> K3s配置Local Path Provisioner回收策略
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/04/%E6%9D%82%E9%A1%B9/%E8%A7%A3%E5%86%B3%20PowerShell%20%E4%B8%AD%20Conda%20%E5%88%9D%E5%A7%8B%E5%8C%96%E9%94%99%E8%AF%AF/" rel="next" title="解决 PowerShell 中 Conda 初始化错误">
+                  解决 PowerShell 中 Conda 初始化错误 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

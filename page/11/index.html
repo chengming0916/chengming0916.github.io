@@ -170,18 +170,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">939</span>
+          <span class="site-state-item-count">942</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">198</span>
+        <span class="site-state-item-count">206</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -215,7 +215,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/09/Archive/2025-03-09/">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/20/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E7%BC%96%E8%AF%91%E5%A4%9A%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -233,7 +233,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/03/09/Archive/2025-03-09/" class="post-title-link" itemprop="url">Sun Mar 09 2025 00:00:00 GMT+0800 (China Standard Time)</a>
+          <a href="/2025/03/20/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E7%BC%96%E8%AF%91%E5%A4%9A%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F/" class="post-title-link" itemprop="url">Docker编译多系统架构镜像</a>
         </h2>
 
         <div class="post-meta-container">
@@ -244,14 +244,213 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2025-03-09 11:06:33" itemprop="dateCreated datePublished" datetime="2025-03-09T11:06:33+08:00">2025-03-09</time>
+      <time title="创建时间：2025-03-20 13:28:22" itemprop="dateCreated datePublished" datetime="2025-03-20T13:28:22+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">容器技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id=""><a href="#" class="headerlink" title=""></a></h3><p>Docker 19.03以上版本可以使用 <code>docker buildx build</code>命令使用<code>BuildKit</code>构建镜像。该命令支持<code>--platform</code>参数可以同时构建多种系统架构的Docker镜像。</p>
+<h4 id="新建builder实例"><a href="#新建builder实例" class="headerlink" title="新建builder实例"></a>新建builder实例</h4><p>Docker for Linux不支持构建<code>arm</code>架构镜像，可以运行一个新的容器让其支持该特性，Docker Desktop版本无需进行此项设置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --rm --privileged tonistiigi/binfmt:latest --install all </span><br></pre></td></tr></table></figure>
+<p>由于Docker默认的<code>build</code>实例不支持同时指定多个 <code>--platform</code>，必须首先创建一个新的<code>builder</code>实例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 适用于国内环境</span></span><br><span class="line">$ docker buildx create --use --name=mybuilder-cn --driver docker-container --driver-opt image=dockerpracticesig/buildkit:master</span><br><span class="line"></span><br><span class="line"><span class="comment"># 适用于腾讯云环境(腾讯云主机、coding.net 持续集成)</span></span><br><span class="line">$ docker buildx create --use --name=mybuilder-cn --driver docker-container --driver-opt image=dockerpracticesig/buildkit:master-tencent</span><br><span class="line"></span><br><span class="line"><span class="comment"># $ docker buildx create --name mybuilder --driver docker-container</span></span><br><span class="line"></span><br><span class="line">$ docker buildx use mybuilder</span><br></pre></td></tr></table></figure>
+
+<p>构建镜像</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> --platform=$TARGETPLATFORM alpine</span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">uname</span> -a &gt; os.txt</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;cat&quot;</span>, <span class="string">&quot;os.txt&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker buildx build --platform linux/arm,linux/arm64,linux/amd64 -t &#123;镜像名称&#125; . --push</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看镜像信息</span></span><br><span class="line">docker buildx imagetools inspect &#123;镜像名称&#125;</span><br></pre></td></tr></table></figure>
+<p><code>--push</code> 参数表示将构建好的镜像推送到Docker仓库</p>
+<h3 id="架构相关变量"><a href="#架构相关变量" class="headerlink" title="架构相关变量"></a>架构相关变量</h3><p><strong>TARGETPLATFORM</strong><br>构建镜像的目标平台，例如 <code>linux/amd64</code>，<code>linux/arm/v7</code>，<code>windows/amd64</code></p>
+<p><strong>TARGETOS</strong><br>构建镜像的OS类型，例如 <code>linux</code>，<code>windows</code></p>
+<p><strong>TARGETARCH</strong><br>构建镜像的架构类型，例如 <code>amd64</code>，<code>arm</code></p>
+<p><strong>BUILDPLATFORM</strong><br>构建镜像主机平台，例如 <code>linux/amd64</code></p>
+<p><strong>BUILDOS</strong><br>构建镜像主机的OS类型，例如 <code>linux</code></p>
+<p><strong>BUILDARCH</strong><br>构建镜像主机的架构类型，例如 <code>amd64</code></p>
+<p><strong>BUILDVARIANT</strong><br><code>BUILDPLATFORM</code>的变种，该变量可能为空，例如 <code>v7</code></p>
+<p>使用举例<br>例如要构建 <code>linux/arm/v7</code>和 <code>linux/amd64</code>两种架构的镜像</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> docker.io/library/python:<span class="number">3.10</span>-alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用变量必须申明</span></span><br><span class="line"><span class="keyword">ARG</span> TARGETOS</span><br><span class="line"><span class="keyword">ARG</span> TARGETARCH</span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> main.py /app</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ENTRYPOINT [/app]</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/20/Linux/openssl%E7%94%9F%E6%88%90pfx%E8%AF%81%E4%B9%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/20/Linux/openssl%E7%94%9F%E6%88%90pfx%E8%AF%81%E4%B9%A6/" class="post-title-link" itemprop="url">openssl生成pfx证书</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-20 10:53:47" itemprop="dateCreated datePublished" datetime="2025-03-20T10:53:47+08:00">2025-03-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>PKCS#12（.p12 或 .pfx）是一种常用的证书封装格式，通常包含私钥、公钥证书以及可选的CA证书链，并通过密码保护。以下是使用 OpenSSL 生成 PKCS#12 证书的完整流程。</p>
+<h2 id="步骤-1：生成私钥"><a href="#步骤-1：生成私钥" class="headerlink" title="步骤 1：生成私钥"></a>步骤 1：生成私钥</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genpkey -algorithm RSA -out private.key -aes256</span><br></pre></td></tr></table></figure>
+
+<p>此命令生成一个 2048位RSA私钥 并使用 AES-256 加密，系统会提示输入保护私钥的密码。</p>
+<h2 id="步骤-2：生成证书签名请求（CSR）"><a href="#步骤-2：生成证书签名请求（CSR）" class="headerlink" title="步骤 2：生成证书签名请求（CSR）"></a>步骤 2：生成证书签名请求（CSR）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key private.key -out request.csr</span><br></pre></td></tr></table></figure>
+
+<p>根据提示填写国家、组织、域名等信息，这些将写入证书中。</p>
+<h2 id="步骤-3：生成自签名证书"><a href="#步骤-3：生成自签名证书" class="headerlink" title="步骤 3：生成自签名证书"></a>步骤 3：生成自签名证书</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req -days 365 -<span class="keyword">in</span> request.csr \ </span><br><span class="line">-signkey private.key -out certificate.crt</span><br></pre></td></tr></table></figure>
+
+<p>该命令生成一个有效期为 365天 的自签名 X.509 证书。</p>
+<h2 id="步骤-4：导出-PKCS-12-文件"><a href="#步骤-4：导出-PKCS-12-文件" class="headerlink" title="步骤 4：导出 PKCS#12 文件"></a>步骤 4：导出 PKCS#12 文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">openssl pkcs12 -<span class="built_in">export</span> \</span><br><span class="line">-<span class="keyword">in</span> certificate.crt \</span><br><span class="line">-inkey private.key \</span><br><span class="line">-out certificate.p12 \</span><br><span class="line">-name <span class="string">&quot;MyCert&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>执行时会提示输入导出密码，用于保护 .p12 文件中的私钥。</p>
+<h2 id="步骤-5：验证-PKCS-12-文件"><a href="#步骤-5：验证-PKCS-12-文件" class="headerlink" title="步骤 5：验证 PKCS#12 文件"></a>步骤 5：验证 PKCS#12 文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl pkcs12 -info -<span class="keyword">in</span> certificate.p12</span><br></pre></td></tr></table></figure>
+
+<p>可查看 .p12 文件中包含的证书和私钥信息。</p>
+<h2 id="最佳实践与提示："><a href="#最佳实践与提示：" class="headerlink" title="最佳实践与提示："></a>最佳实践与提示：</h2><p>若需包含 CA 链，可在导出时添加 <code>-chain -CAfile ca.crt</code> 参数。</p>
+<p>私钥建议使用强加密算法（如 AES-256）并妥善保存。</p>
+<p>.p12 文件常用于 HTTPS服务器部署、客户端身份认证 或 代码签名 场景。</p>
+<p>这样即可从零生成一个安全的 PKCS#12 格式证书，并可直接用于 Nginx、Tomcat、Java Keystore 等环境。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/Archive/2025-03-19/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/19/Archive/2025-03-19/" class="post-title-link" itemprop="url">Wed Mar 19 2025 00:00:00 GMT+0800 (China Standard Time)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-19 18:57:23" itemprop="dateCreated datePublished" datetime="2025-03-19T18:57:23+08:00">2025-03-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
     </span>
 
   
@@ -290,7 +489,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/04/Archive/2025-03-04/">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/Linux/Linux%E9%85%8D%E7%BD%AEsudo%E6%97%A0%E5%AF%86%E7%A0%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -308,7 +507,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/03/04/Archive/2025-03-04/" class="post-title-link" itemprop="url">Tue Mar 04 2025 00:00:00 GMT+0800 (China Standard Time)</a>
+          <a href="/2025/03/19/Linux/Linux%E9%85%8D%E7%BD%AEsudo%E6%97%A0%E5%AF%86%E7%A0%81/" class="post-title-link" itemprop="url">Linux配置sudo无密码</a>
         </h2>
 
         <div class="post-meta-container">
@@ -319,14 +518,23 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2025-03-04 14:35:46" itemprop="dateCreated datePublished" datetime="2025-03-04T14:35:46+08:00">2025-03-04</time>
+      <time title="创建时间：2025-03-19 15:58:42" itemprop="dateCreated datePublished" datetime="2025-03-19T15:58:42+08:00">2025-03-19</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
     </span>
 
   
@@ -339,7 +547,18 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          
+          <h3 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a>方法1</h3><p>最简单的一种方法，将当前用户添加到root组。这样做之后该用户将拥有所有<code>root</code>权限，从而使用户在使用<code>sudo</code>时不再需要输入密码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> adduser &#123;当前用户名&#125; root </span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong> 将用户添加到<code>root</code>组后，该用户将拥有最高权限，因此在执行系统级操作时要特别小心，以避免可能的系统破坏。</p>
+<h3 id="方法2（推荐）"><a href="#方法2（推荐）" class="headerlink" title="方法2（推荐）"></a>方法2（推荐）</h3><p>通过编辑<code>/etc/sudoers</code>文件来配置特定用户或组的<code>sudo</code>行为。这种方法允许更灵活的控制哪些命令可以绕过密码提示。<br>![[Linux配置sudo无密码&#x2F;IMG-20250319160639846.png]]</p>
+<p>单用户配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;用户名&#125; ALL=(ALL:ALL) NOPASSWD:ALL #在 root 后新添加一行</span><br></pre></td></tr></table></figure>
+
+<p>用户组配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%&#123;用户组&#125; ALL=(ALL:ALL) NOPASSWD:ALL # 在 %sudo 后添加</span><br></pre></td></tr></table></figure>
+<p>使用此方式需将用户添加进组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> usermod -a -G &#123;用户组&#125; &#123;用户名&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -365,7 +584,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/27/Archive/2025-02-27/">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -383,7 +602,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/27/Archive/2025-02-27/" class="post-title-link" itemprop="url">Thu Feb 27 2025 00:00:00 GMT+0800 (China Standard Time)</a>
+          <a href="/2025/03/19/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Golang环境配置</a>
         </h2>
 
         <div class="post-meta-container">
@@ -394,89 +613,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2025-02-27 20:17:50" itemprop="dateCreated datePublished" datetime="2025-02-27T20:17:50+08:00">2025-02-27</time>
+      <time title="创建时间：2025-03-19 14:57:37" itemprop="dateCreated datePublished" datetime="2025-03-19T14:57:37+08:00">2025-03-19</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/%E5%9F%BA%E4%BA%8EOpenCV%E7%9A%84%E8%A7%86%E9%A2%91%E6%B5%81%E5%A4%84%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/%E5%9F%BA%E4%BA%8EOpenCV%E7%9A%84%E8%A7%86%E9%A2%91%E6%B5%81%E5%A4%84%E7%90%86/" class="post-title-link" itemprop="url">基于OpenCV的视频流处理</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-02-24 16:11:10" itemprop="dateCreated datePublished" datetime="2025-02-24T16:11:10+08:00">2025-02-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -488,7 +632,7 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
         </span>
     </span>
 
@@ -502,28 +646,29 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h3 id="获取VideoCapture实例"><a href="#获取VideoCapture实例" class="headerlink" title="获取VideoCapture实例"></a>获取VideoCapture实例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取视频流</span></span><br><span class="line">strem_capture = cv2.VideoCapture(<span class="string">&quot;rtst://192.168.0.0/live/demo&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取视频文件</span></span><br><span class="line">file_capture = cv2.VideoCapture(<span class="string">&#x27;demo.mp4&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取摄像头</span></span><br><span class="line">capture = cv2.VideoCapture(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+          <h2 id="安装Golang"><a href="#安装Golang" class="headerlink" title="安装Golang"></a>安装Golang</h2><p>Windows版本下载<a href="">安装程序</a>安装即可，Ubuntu下有两种安装方式<br>第一种方式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install golang</span><br></pre></td></tr></table></figure>
+<p>此种方式安装的版本并不是最新版，或者下载 [官方包]执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> tar -zxvf go1.24.2.linux-amd64.tar.gz -C  /usr/local <span class="comment"># 解压缩到/usr/local</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 755 -R /usr/local/go <span class="comment"># 修改权限，一般解压后就有权限，此步可以省略</span></span><br></pre></td></tr></table></figure>
 
-<p>获取摄像头编号可使用<code>ls -al /dev/ |grep video</code>,输出信息以<code>video</code>开头其后缀为数字即为可能的摄像头编号。</p>
-<h3 id="检查获取VideoCapture实例是否成功"><a href="#检查获取VideoCapture实例是否成功" class="headerlink" title="检查获取VideoCapture实例是否成功"></a>检查获取VideoCapture实例是否成功</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 校验获取VideoCapture类实例</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> capture.isOpened():</span><br><span class="line">	<span class="keyword">return</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="获取视频流信息"><a href="#获取视频流信息" class="headerlink" title="获取视频流信息"></a>获取视频流信息</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取视频帧的宽</span></span><br><span class="line">width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取视频帧的高</span></span><br><span class="line">height = cpature.get(cv2.CAP_PROP_FRAME_HEIGHT)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取视频帧率</span></span><br><span class="line">fps = capture.get(cv2.CAP_PROP_FPS)</span><br></pre></td></tr></table></figure>
-
-<h3 id="获取帧画面"><a href="#获取帧画面" class="headerlink" title="获取帧画面"></a>获取帧画面</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">success, frame = capture.read()</span><br></pre></td></tr></table></figure>
-
-<p>当需要同时处理多路摄像头时一般使用<code>grab()</code>和<code>retrieve()</code>代替</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">success_1 = capture.grab()</span><br><span class="line">success_2 = stream_capture.grab()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> success_1 <span class="keyword">and</span> success_2:</span><br><span class="line">	frame_1 = capture.retrieve()</span><br><span class="line">	frame_2 = stream_capture.retrieve()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="设置分辨率"><a href="#设置分辨率" class="headerlink" title="设置分辨率"></a>设置分辨率</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置摄像头分辨率的宽</span></span><br><span class="line">capture.<span class="built_in">set</span>(cv2.CAP_PROP_FRAME_WIDTH, <span class="number">1920</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置摄像头分辨率的高</span></span><br><span class="line">capture.<span class="built_in">set</span>(cv2.CAP_PROP_FRAME_HEIGHT, <span class="number">1080</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="保存视频文件"><a href="#保存视频文件" class="headerlink" title="保存视频文件"></a>保存视频文件</h3><p>无论是视频文件存储还是摄像头画面保存都是用<code>VideoWriter</code>类,初始化时需要传入文件名（包含文件格式）、视频编解码器、视频保存帧率 、分辨率，保存视频的帧率最好和读入的帧率一致，分辨率可以更改，只是要求写入的帧大小要与分辨率保持一致。<br>若指定的文件名已存在则会覆盖文件。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">writer = cv2.VideoWriter(<span class="string">&#x27;output.mp4&#x27;</span>, </span><br><span class="line">	cv2.VideoWriter_fourcc(*<span class="string">&#x27;MP4V&#x27;</span>), <span class="number">30</span>, (<span class="number">1080</span>,<span class="number">1920</span>))</span><br><span class="line">writer.write(frame)</span><br></pre></td></tr></table></figure>
-
-<h3 id="释放资源"><a href="#释放资源" class="headerlink" title="释放资源"></a>释放资源</h3><p>不管是<code>VideoCapture</code>还是<code>VideoWriter</code>类，使用完都应该释放资源</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 释放VideoCapture资源</span></span><br><span class="line">capture.release()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 释放VideoWriter资源</span></span><br><span class="line">writer.release()</span><br></pre></td></tr></table></figure>
+<h2 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h2><h4 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h4><p>打开 <code>系统设置-&gt;关于-&gt;高级系统设置-&gt;环境变量</code>，注意如果只给当前用户使用添加到用户的环境变量即可，全部用户可用需配置系统环境变量。</p>
+<p>GOROOT</p>
+<p>![[Golang环境配置&#x2F;IMG-20250804110742705.png]]</p>
+<p>GOPATH<br>![[Golang环境配置&#x2F;IMG-20250804110742880.png]]</p>
+<p>GOPROXY</p>
+<p>![[Golang环境配置&#x2F;IMG-20250804110743185.png]]</p>
+<h4 id="Ubuntu"><a href="#Ubuntu" class="headerlink" title="Ubuntu"></a>Ubuntu</h4><p>如果只给当前用户使用编辑用户目录下<code>.bashrc</code>文件，全部用户可用需配置<code>/etc/profile</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GOROOT=/usr/local/go <span class="comment"># Golang根目录</span></span><br><span class="line"><span class="built_in">export</span> GOPATH=/home/go-project <span class="comment"># 项目根目录</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$GOROOT</span>/bin:<span class="variable">$GOPATH</span>/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
 
 
-<h3 id="完整示例"><a href="#完整示例" class="headerlink" title="完整示例"></a>完整示例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># /usr/bin/env/python3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">capture = cv2.VideoCapture(<span class="string">&#x27;rtsp://192.168.0.0/live/demo)</span></span><br><span class="line"><span class="string">fourcc = cv2.VideoWriter_fourcc(*&#x27;</span>MP$v<span class="string">&#x27;) # 或H264,H265</span></span><br><span class="line"><span class="string">fps = capture.get(cv2.CAP_PROP_FPS)</span></span><br><span class="line"><span class="string">width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)</span></span><br><span class="line"><span class="string">height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">writer = cv2.VideoWriter(&#x27;</span>demo.mp4<span class="string">&#x27;, fourcd, fps, (height, width))</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">while True:</span></span><br><span class="line"><span class="string">	if not capture.isOpened():</span></span><br><span class="line"><span class="string">		time.sleep(0.5)</span></span><br><span class="line"><span class="string">		continue</span></span><br><span class="line"><span class="string">	success, frame = capture.read()</span></span><br><span class="line"><span class="string">	if success:</span></span><br><span class="line"><span class="string">		cv2.imshow(&#x27;</span>DEMO<span class="string">&#x27;, frame) # 显示画面</span></span><br><span class="line"><span class="string">		writer.write(frame) # 保存视频文件</span></span><br><span class="line"><span class="string">	if (cv2.waitKey(20) &amp; 0xff) == ord(&#x27;</span>q<span class="string">&#x27;): # 等待20ms并判断是否按下&#x27;</span>q<span class="string">&#x27;退出,waitkey只能传入整数，</span></span><br><span class="line"><span class="string">		break</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">capture.release() # 释放VideoCapture</span></span><br><span class="line"><span class="string">writer.release() # 释放VideoWriter</span></span><br><span class="line"><span class="string">cv2.destroyAllWindows() # 销毁所有opencv显示窗口</span></span><br></pre></td></tr></table></figure>
+<h4 id="进阶配置"><a href="#进阶配置" class="headerlink" title="进阶配置"></a>进阶配置</h4><p>GOPROXY可在环境变量中配置也可使用<code>go env -w</code>命令配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go <span class="built_in">env</span> -w GOPROXY=https://goproxy.cn <span class="comment"># 七牛</span></span><br><span class="line">go <span class="built_in">env</span> -w GOPROXY=https://mirrors.aliyun.com/goproxy/ <span class="comment"># 阿里</span></span><br><span class="line">go <span class="built_in">env</span> -w GOPROXY=https://goproxy.io <span class="comment"># 官方</span></span><br></pre></td></tr></table></figure>
+
+<p>GO111MODULE<br>从go 1.11版本开始，推荐使用Go Modules进行包管理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go <span class="built_in">env</span> -w GO111MODULE=on</span><br></pre></td></tr></table></figure>
+
+<p>在项目目录下初始化模块</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go mod init </span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -549,7 +694,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/22/Archive/2025-02-22/">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Python/Python%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -567,7 +712,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/22/Archive/2025-02-22/" class="post-title-link" itemprop="url">Sat Feb 22 2025 00:00:00 GMT+0800 (China Standard Time)</a>
+          <a href="/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Python/Python%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/" class="post-title-link" itemprop="url">Python学习笔记-1</a>
         </h2>
 
         <div class="post-meta-container">
@@ -578,457 +723,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2025-02-22 19:56:05" itemprop="dateCreated datePublished" datetime="2025-02-22T19:56:05+08:00">2025-02-22</time>
+      <time title="创建时间：2025-03-19 14:55:40" itemprop="dateCreated datePublished" datetime="2025-03-19T14:55:40+08:00">2025-03-19</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/17/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Docke%E7%A7%8D%E4%BD%BF%E7%94%A8GPU%E8%BF%90%E8%A1%8COllama/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/17/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Docke%E7%A7%8D%E4%BD%BF%E7%94%A8GPU%E8%BF%90%E8%A1%8COllama/" class="post-title-link" itemprop="url">Docke种使用GPU运行Ollama</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-02-17 15:01:39" itemprop="dateCreated datePublished" datetime="2025-02-17T15:01:39+08:00">2025-02-17</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h2><p>此处使用设备 Tesla P40 + Debian 12为例</p>
-<p>显卡驱动：<a target="_blank" rel="noopener" href="https://www.nvidia.cn/drivers/lookup/">下载 NVIDIA 官方驱动 | NVIDIA</a><br>CUDA Toolkit: <a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-toolkit-archive">CUDA Toolkit Archive | NVIDIA Developer</a><br>![[Docke种使用GPU运行Ollama&#x2F;IMG-20260105103041635.png]]<br>注意CUDA版本对应，否则可能会导致CUDA在容器内无法运行</p>
-<ul>
-<li>安装docker显卡支持<br>参考 <a target="_blank" rel="noopener" href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/1.18.1/install-guide.html">Installing the NVIDIA Container Toolkit — NVIDIA Container Toolkit</a></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | <span class="built_in">sudo</span> gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \</span><br><span class="line">  &amp;&amp; curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \</span><br><span class="line">    sed <span class="string">&#x27;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#x27;</span> | \</span><br><span class="line">    <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/apt/sources.list.d/nvidia-container-toolkit.list</span><br><span class="line">    </span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line">    </span><br><span class="line"><span class="built_in">export</span> NVIDIA_CONTAINER_TOOLKIT_VERSION=1.18.1-1</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y \</span><br><span class="line">      nvidia-container-toolkit=<span class="variable">$&#123;NVIDIA_CONTAINER_TOOLKIT_VERSION&#125;</span> \</span><br><span class="line">      nvidia-container-toolkit-base=<span class="variable">$&#123;NVIDIA_CONTAINER_TOOLKIT_VERSION&#125;</span> \</span><br><span class="line">      libnvidia-container-tools=<span class="variable">$&#123;NVIDIA_CONTAINER_TOOLKIT_VERSION&#125;</span> \</span><br><span class="line">      libnvidia-container1=<span class="variable">$&#123;NVIDIA_CONTAINER_TOOLKIT_VERSION&#125;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>禁用 nouveau<br>参考[[..&#x2F;Linux&#x2F;Ubuntu禁用Nouveau驱动|Ubuntu禁用Nouveau驱动]]</p>
-</li>
-<li><p>验证环境是否安装成功</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> --gpus all nvidia/cuda:12.2.0-runtime-ubuntu22.04 nvidia-smi</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>![[Docke种使用GPU运行Ollama&#x2F;IMG-20260105103041714.png]]</p>
-<h2 id="直接运行Docker容器"><a href="#直接运行Docker容器" class="headerlink" title="直接运行Docker容器"></a>直接运行Docker容器</h2><h3 id="1-运行Ollama容器"><a href="#1-运行Ollama容器" class="headerlink" title="1. 运行Ollama容器"></a>1. 运行Ollama容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --gpus=all -d -e OLLAMA_MODEL:qwen2.5-coder:7b -e OLLAMA_ENV:production -v=qwen-coder:/root/.ollama -p 11437:11434 --name qwen-coder -d ollama/ollama:latest</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>如果不需要带显卡, 去除<code>--gpus=all</code>即可</li>
-<li>环境变量参考<a href="/2025/12/16/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Ollama%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E7%94%A8CLI%E5%91%BD%E4%BB%A4/" title="Ollama环境变量与常用CLI命令">Ollama环境变量与常用CLI命令</a></li>
-</ul>
-<h3 id="2-拉取模型并运行"><a href="#2-拉取模型并运行" class="headerlink" title="2. 拉取模型并运行"></a>2. 拉取模型并运行</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ollama run qwen2.5-coder:7b</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用Docker-Compose"><a href="#使用Docker-Compose" class="headerlink" title="使用Docker Compose"></a>使用Docker Compose</h2><h3 id="1-创建docker-compose-yml"><a href="#1-创建docker-compose-yml" class="headerlink" title="1. 创建docker-compose.yml"></a>1. 创建docker-compose.yml</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">ollama:</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">qwen2.5-coder-7b</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">ollama/ollama:latest</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">11434</span><span class="string">:11431</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./data:/root/.ollama</span></span><br><span class="line">    <span class="attr">deploy:</span></span><br><span class="line">      <span class="attr">resources:</span></span><br><span class="line">        <span class="attr">devices:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">driver:</span> <span class="string">nvidia</span></span><br><span class="line">            <span class="attr">capabilities:</span> [<span class="string">&quot;gpu&quot;</span>]</span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">OLLAMA_MODEL:</span> <span class="string">&quot;qwen2.5-coder:7b&quot;</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">unless-stopped</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-启动服务"><a href="#2-启动服务" class="headerlink" title="2. 启动服务"></a>2. 启动服务</h3><p>在<code>docker-compose.yml</code>所在目录运行以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
-
-<p>验证是否使用GPU启动Ollama</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it &lt;ollama容器ID&gt; bash <span class="comment"># 进入已启动的容器</span></span><br><span class="line">ollama ps</span><br></pre></td></tr></table></figure>
-
-<p>如果PROCESSOR中显示为GPU则启动成功<br>![[Docke种使用GPU运行Ollama&#x2F;IMG-20260105103041772.png]]</p>
-<p>Ollama运行deepseek-r1示例</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CPU运行</span></span><br><span class="line">docker run -d -v deepseek-r1:/root/.ollama -p 11434:11434 --name deepseek-r1 ollama/ollama:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># GPU运行</span></span><br><span class="line">docker run -d -v deepseek-r1:/root/.ollama -p 11434:11434 --name deepseek-r1-gpu ollama/ollama:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果多张显卡运行需要添加负载均衡</span></span><br><span class="line">-e OLLAMA_NUM_GPU:2      <span class="comment"># 启用GPU数量（需与CUDA_VISIBLE_DEVICES匹配）</span></span><br><span class="line">-e OLLAMA_SCHED_SPREAD:1 <span class="comment"># 自动负载均衡</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
-<li>使用_nvidia-smi_确认GPU是否被正确利用。</li>
-<li>如果仅需CPU支持，可移除_–gpus&#x3D;all_或相关配置。</li>
-<li>GPU模式下性能显著提升，但需确保驱动和CUDA版本兼容。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/17/Archive/2025-02-17/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/17/Archive/2025-02-17/" class="post-title-link" itemprop="url">Mon Feb 17 2025 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-02-17 14:00:39" itemprop="dateCreated datePublished" datetime="2025-02-17T14:00:39+08:00">2025-02-17</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/14/Linux/Ubuntu%E7%A6%81%E7%94%A8Nouveau%E9%A9%B1%E5%8A%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/14/Linux/Ubuntu%E7%A6%81%E7%94%A8Nouveau%E9%A9%B1%E5%8A%A8/" class="post-title-link" itemprop="url">Ubuntu禁用Nouveau驱动</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-02-14 13:58:57" itemprop="dateCreated datePublished" datetime="2025-02-14T13:58:57+08:00">2025-02-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h3 id="1-创建黑名单配置文件"><a href="#1-创建黑名单配置文件" class="headerlink" title="1. 创建黑名单配置文件"></a>1. 创建黑名单配置文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/modprobe.d/blacklist-nouveau.conf</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>添加以下内容以禁用Nouveau：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">blacklist nouveau</span><br><span class="line">options nouveau modeset=0</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-更新initramfs"><a href="#2-更新initramfs" class="headerlink" title="2. 更新initramfs"></a>2. 更新initramfs</h3><ul>
-<li>更新内核的initramfs文件以应用更改：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-initramfs -u</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="3-重启系统"><a href="#3-重启系统" class="headerlink" title="3. 重启系统"></a>3. 重启系统</h3><ul>
-<li>执行以下命令重启系统：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> reboot</span><br></pre></td></tr></table></figure>
-
-<h3 id="4-验证禁用状态"><a href="#4-验证禁用状态" class="headerlink" title="4. 验证禁用状态"></a>4. 验证禁用状态</h3><ul>
-<li><p>重启后，检查Nouveau模块是否已禁用：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsmod | grep nouveau</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果没有输出，说明Nouveau已成功禁用。</p>
-</li>
-</ul>
-<p>注意事项</p>
-<ul>
-<li><p>禁用Nouveau后，可以安装NVIDIA专有驱动以获得更好的性能。</p>
-</li>
-<li><p>如果需要恢复Nouveau驱动，只需删除_&#x2F;etc&#x2F;modprobe.d&#x2F;blacklist-nouveau.conf_文件并重新更新initramfs。</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/12/Archive/2025-02-12/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/12/Archive/2025-02-12/" class="post-title-link" itemprop="url">Wed Feb 12 2025 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-02-12 20:12:09" itemprop="dateCreated datePublished" datetime="2025-02-12T20:12:09+08:00">2025-02-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/02/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/WPF%E4%B8%ADBinding%E4%BD%BF%E7%94%A8StringFormat%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/WPF%E4%B8%ADBinding%E4%BD%BF%E7%94%A8StringFormat%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2/" class="post-title-link" itemprop="url">WPF中Binding使用StringFormat格式化字符串</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-02-11 13:54:39" itemprop="dateCreated datePublished" datetime="2025-02-11T13:54:39+08:00">2025-02-11</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1036,15 +738,11 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/" itemprop="url" rel="index"><span itemprop="name">WPF</span></a>
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
         </span>
     </span>
 
@@ -1058,18 +756,409 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h4 id="货币格式"><a href="#货币格式" class="headerlink" title="货币格式"></a>货币格式</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 默认保留两位小数 输出： $12.34 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Price, StringFormat=&#123;&#125;&#123;0:C&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 保留一位小数 输出: $123.4 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Price, StringFormat=&#123;&#125;&#123;0:C1&#125;&#125;&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+          
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
 
 
-<h4 id="固定文字"><a href="#固定文字" class="headerlink" title="固定文字"></a>固定文字</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 固定前缀 输出: 单价：$12.34 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Price, StringFormat=单价: &#123;0:C&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 固定后缀 输出： 12.345元 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Price, StringFormat=&#123;&#125;&#123;0&#125;元&#125;&quot;</span> /&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<h4 id="数字格式化"><a href="#数字格式化" class="headerlink" title="数字格式化"></a>数字格式化</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 固定位数，仅支持整形 输出: 086723 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Total, StringFormat=&#123;&#125;&#123;0:D6&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 固定小数点后位数 输出: 8234.9354 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Total, StringFormat=&#123;&#125;&#123;0:F4&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 使用用分割符并指定小数点后位数 输出: 8234.933 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Total, StringFormat=&#123;&#125;&#123;0:N3&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 格式化百分比 输出: 78.9%--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Persent, StringFormat=&#123;&#125;&#123;0:P1&#125;&#125;&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h4 id="占位符"><a href="#占位符" class="headerlink" title="占位符"></a>占位符</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 输出: 0123.46 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Price, StringFormat=&#123;&#125;&#123;0:0000.00&#125;&#125;&quot;</span> /&gt;</span> </span><br><span class="line"><span class="comment">&lt;!-- 输出: 123.46 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding Price, StringFormat=&#123;&#125;&#123;0:####.##&#125;&#125;&quot;</span> /&gt;</span> </span><br></pre></td></tr></table></figure>
+    
 
-<h4 id="时间日期"><a href="#时间日期" class="headerlink" title="时间日期"></a>时间日期</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 输出: 5/4/2015 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:d&#125;&#125;&quot;</span> /&gt;</span> </span><br><span class="line"><span class="comment">&lt;!-- 输出: Monday, May 04, 2015 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:D&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: Monday, May 04, 2015 5:46 PM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:f&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: Monday, May 04, 2015 5:46:56 PM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:F&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 5/4/2015 5:46 PM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:g&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 5/4/2015 5:46:56 PM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:G&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: May 04 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:m&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: May 04 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:M&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 5:46 PM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:t&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 5:46:56 PM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:T&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 2015年05月04日 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:yyyy年MM月dd日&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 2015-05-04 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:yyyy-MM-dd&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 2015-05-04 17:46 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:yyyy-MM-dd HH:mm&#125;&#125;&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 输出: 2015-05-04 17:46:56 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBox</span> <span class="attr">Text</span>=<span class="string">&quot;&#123;Binding DateTimeNow, StringFormat=&#123;&#125;&#123;0:yyyy-MM-dd HH:mm:ss&#125;&#125;&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h4 id="多重绑定"><a href="#多重绑定" class="headerlink" title="多重绑定"></a>多重绑定</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">\a  &amp;#x07;  BEL</span></span><br><span class="line"><span class="comment">\b  &amp;#x08;  BS - Backspace</span></span><br><span class="line"><span class="comment">\f  &amp;#x0c;  FF - Formfeed</span></span><br><span class="line"><span class="comment">\n  &amp;#x0a;  LF, NL - Linefeed, New Line</span></span><br><span class="line"><span class="comment">\r  &amp;#x0d;  CR - Carriage return</span></span><br><span class="line"><span class="comment">\t  &amp;#x09;  HT - Tab, Horizontal Tabelator</span></span><br><span class="line"><span class="comment">\v  &amp;#x0b;  VT - Vertical Tabelator </span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">TextBlock.Text</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">MultiBinding</span> <span class="attr">StringFormat</span>=<span class="string">&quot;姓名: &#123;0&#125;<span class="symbol">&amp;#x09;</span>&#123;1&#125;&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">Binding</span> <span class="attr">Path</span>=<span class="string">&quot;FirstName&quot;</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">Binding</span> <span class="attr">Path</span>=<span class="string">&quot;LastName&quot;</span> /&gt;</span></span><br><span class="line"> 	<span class="tag">&lt;/<span class="name">MultiBinding</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">TextBlock.Text</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Golang/Golang%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Golang/Golang%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/" class="post-title-link" itemprop="url">GoLang学习笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-19 14:51:24" itemprop="dateCreated datePublished" datetime="2025-03-19T14:51:24+08:00">2025-03-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Qt/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1-Qt%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Qt/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1-Qt%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Qt学习笔记-1</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-19 14:51:24" itemprop="dateCreated datePublished" datetime="2025-03-19T14:51:24+08:00">2025-03-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Qt/" itemprop="url" rel="index"><span itemprop="name">Qt</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="1-第一个Qt程序"><a href="#1-第一个Qt程序" class="headerlink" title="1. 第一个Qt程序"></a>1. 第一个Qt程序</h2><h4 id="1-1-Hello-Qt"><a href="#1-1-Hello-Qt" class="headerlink" title="1.1 Hello Qt"></a>1.1 Hello Qt</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QApplication&gt;</span>          <span class="comment">// 头文件引用, 每个Qt类都有对应的头文件，类的定义</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QLabel&gt;</span>                <span class="comment">// 包含了对该类的定义</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	QApplication <span class="title function_">app</span><span class="params">(argc, argv)</span>; <span class="comment">// 创建QApplication对象，管理整个应用       </span></span><br><span class="line">	QLabel *label = new QLabel(<span class="string">&quot;Hello Qt&quot;</span>); <span class="comment">// QLabel部件，用于显示</span></span><br><span class="line">	label-&gt;show();                <span class="comment">// # 使QLabel部件可见</span></span><br><span class="line">	<span class="keyword">return</span> app.exec();            <span class="comment">// 将应用程序的控制权传递给Qt,程序等待用户操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试程序</p>
+<p><img src="/" alt="图片占位"></p>
+<p>在源码根目录打开命令提示符执行<code>qmake -project</code>生成<code>hello.pro</code>项目文件,然后执行<code>qmake hello.pro</code>从这个项目文件生成<code>makefile</code>文件，在输入<code>make</code>命令就可以构建该应用。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/18/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E5%AE%B9%E5%99%A8%E4%BA%92%E8%AE%BF%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/18/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E5%AE%B9%E5%99%A8%E4%BA%92%E8%AE%BF%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="post-title-link" itemprop="url">Docker容器互访三种方式</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-18 11:31:21" itemprop="dateCreated datePublished" datetime="2025-03-18T11:31:21+08:00">2025-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="方式一、虚拟ip访问"><a href="#方式一、虚拟ip访问" class="headerlink" title="方式一、虚拟ip访问"></a>方式一、虚拟ip访问</h2><p>安装docker时，docker会默认创建一个内部的桥接网络docker0，每创建一个容器分配一个虚拟网卡，容器之间可以根据ip互相访问。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ifconfig</span></span><br><span class="line">---</span><br><span class="line">docker0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.17.0.1  netmask 255.255.0.0  broadcast 0.0.0.0</span><br><span class="line">        inet6 fe80::42:35ff:feac:66d8  prefixlen 64  scopeid 0x20&lt;<span class="built_in">link</span>&gt;</span><br><span class="line">        ether 02:42:35:ac:66:d8  txqueuelen 0  (Ethernet)</span><br><span class="line">        RX packets 4018  bytes 266467 (260.2 KiB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 4226  bytes 33935667 (32.3 MiB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>运行一个centos镜像， 查看ip地址得到：172.17.0.7</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker run -it --name centos-1 docker.io/centos:latest</span></span><br><span class="line"><span class="comment"># ifconfig</span></span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.17.0.7  netmask 255.255.0.0  broadcast 0.0.0.0</span><br><span class="line">        inet6 fe80::42:acff:fe11:7  prefixlen 64  scopeid 0x20&lt;<span class="built_in">link</span>&gt;</span><br><span class="line">        ether 02:42:ac:11:00:07  txqueuelen 0  (Ethernet)</span><br><span class="line">        RX packets 16  bytes 1296 (1.2 KiB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 8  bytes 648 (648.0 B)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>以同样的命令再起一个容器，查看ip地址得到：172.17.0.8</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker run -it --name centos-2 docker.io/centos:latest</span></span><br><span class="line"><span class="comment"># ifconfig</span></span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.17.0.8  netmask 255.255.0.0  broadcast 0.0.0.0</span><br><span class="line">        inet6 fe80::42:acff:fe11:8  prefixlen 64  scopeid 0x20&lt;<span class="built_in">link</span>&gt;</span><br><span class="line">        ether 02:42:ac:11:00:08  txqueuelen 0  (Ethernet)</span><br><span class="line">        RX packets 8  bytes 648 (648.0 B)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 8  bytes 648 (648.0 B)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>容器内部ping测试结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping 172.17.0.7</span></span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">PING 172.17.0.7 (172.17.0.7) 56(84) bytes of data.</span><br><span class="line">64 bytes from 172.17.0.7: icmp_seq=1 ttl=64 <span class="keyword">time</span>=0.205 ms</span><br><span class="line">64 bytes from 172.17.0.7: icmp_seq=2 ttl=64 <span class="keyword">time</span>=0.119 ms</span><br><span class="line">64 bytes from 172.17.0.7: icmp_seq=3 ttl=64 <span class="keyword">time</span>=0.118 ms</span><br><span class="line">64 bytes from 172.17.0.7: icmp_seq=4 ttl=64 <span class="keyword">time</span>=0.101 ms</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p><strong>这种方式必须知道每个容器的ip</strong>，在实际使用中并不实用。</p>
+<h2 id="方式二、link"><a href="#方式二、link" class="headerlink" title="方式二、link"></a>方式二、link</h2><p>运行容器的时候加上参数link</p>
+<p>运行第一个容器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name centos-1 docker.io/centos:latest</span><br></pre></td></tr></table></figure>
+
+<p>运行第二个容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name centos-2 \ </span><br><span class="line">           --<span class="built_in">link</span> centos-1:centos-1 \</span><br><span class="line">           docker.io/centos:latest</span><br></pre></td></tr></table></figure>
+
+<p><code>--link</code>：参数中第一个centos-1是 <strong>容器名</strong> ，第二个centos-1是定义的 <strong>容器别名</strong> （使用别名访问容器），为了方便使用，一般别名默认容器名。</p>
+<p>测试结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping centos-1</span></span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">PING centos-1 (172.17.0.7) 56(84) bytes of data.</span><br><span class="line">64 bytes from centos-1 (172.17.0.7): icmp_seq=1 ttl=64 <span class="keyword">time</span>=0.210 ms</span><br><span class="line">64 bytes from centos-1 (172.17.0.7): icmp_seq=2 ttl=64 <span class="keyword">time</span>=0.116 ms</span><br><span class="line">64 bytes from centos-1 (172.17.0.7): icmp_seq=3 ttl=64 <span class="keyword">time</span>=0.112 ms</span><br><span class="line">64 bytes from centos-1 (172.17.0.7): icmp_seq=4 ttl=64 <span class="keyword">time</span>=0.114 ms</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>此方法对容器创建的顺序有要求，如果集群内部多个容器要互访，使用就不太方便。</p>
+<h2 id="方式三、创建bridge网络"><a href="#方式三、创建bridge网络" class="headerlink" title="方式三、创建bridge网络"></a>方式三、创建bridge网络</h2><ol>
+<li>安装好docker后，运行如下命令创建bridge网络：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create testnet</span><br></pre></td></tr></table></figure>
+
+<p>查询到新创建的bridge testnet。</p>
+<p><img src="https://img2018.cnblogs.com/blog/1236854/201809/1236854-20180927180733526-105666636.png"></p>
+<ol start="2">
+<li>运行容器连接到testnet网络。<br>使用方法：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name &lt;容器名&gt; \</span><br><span class="line">           --network &lt;bridge&gt; \</span><br><span class="line">           --network-alias &lt;网络别名&gt; &lt;镜像名&gt;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name centos-1 --network testnet \</span><br><span class="line">           --network-alias centos-1 docker.io/centos:latest</span><br><span class="line">docker run -it --name centos-2 --network testnet \</span><br><span class="line">           --network-alias centos-2 docker.io/centos:latest</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>从一个容器ping另外一个容器，测试结果如下：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping centos-1</span></span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">PING centos-1 (172.20.0.2) 56(84) bytes of data.</span><br><span class="line">64 bytes from centos-1.testnet (172.20.0.2): icmp_seq=1 ttl=64 <span class="keyword">time</span>=0.158 ms</span><br><span class="line">64 bytes from centos-1.testnet (172.20.0.2): icmp_seq=2 ttl=64 <span class="keyword">time</span>=0.108 ms</span><br><span class="line">64 bytes from centos-1.testnet (172.20.0.2): icmp_seq=3 ttl=64 <span class="keyword">time</span>=0.112 ms</span><br><span class="line">64 bytes from centos-1.testnet (172.20.0.2): icmp_seq=4 ttl=64 <span class="keyword">time</span>=0.113 ms</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>若访问容器中服务，可以使用这用方式访问 &lt;网络别名&gt;：&lt;服务端口号&gt;</li>
+</ol>
+<p>推荐使用这种方法，自定义网络，因为使用的是网络别名，可以不用顾虑ip是否变动，只要连接到docker内部bright网络即可互访。bridge也可以建立多个，隔离在不同的网段。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/17/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2%E5%8D%95%E8%8A%82%E7%82%B9ETCD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/17/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2%E5%8D%95%E8%8A%82%E7%82%B9ETCD/" class="post-title-link" itemprop="url">Docker部署单节点ETCD</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-17 13:44:53" itemprop="dateCreated datePublished" datetime="2025-03-17T13:44:53+08:00">2025-03-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">容器技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><h4 id="镜像选择"><a href="#镜像选择" class="headerlink" title="镜像选择"></a>镜像选择</h4><p>quay.io&#x2F;coreos&#x2F;etcd:3.2.7<br>bitname&#x2F;etcd</p>
+<h4 id="创建ETCD数据目录"><a href="#创建ETCD数据目录" class="headerlink" title="创建ETCD数据目录"></a>创建ETCD数据目录</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># data 存储容器持久化数据</span></span><br><span class="line"><span class="comment"># config 存储容器使用的配置文件</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /usr/local/docker/etcd/&#123;data,config&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建ETCD配置文件"><a href="#创建ETCD配置文件" class="headerlink" title="创建ETCD配置文件"></a>创建ETCD配置文件</h4><p>配置文件路径为 <code>/usr/local/docker/etcd/config/etcd.config.yml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">etcd</span> <span class="comment"># etcd member 名称，可根据实际情况修改</span></span><br><span class="line"><span class="attr">data-dir:</span> <span class="string">/var/etcd</span> <span class="comment">#etcd 数据目录，可根据实际情况修改</span></span><br><span class="line"><span class="attr">listen-client-urls:</span> <span class="string">http://0.0.0.0:2379</span> <span class="comment">#client 流量监听地址，没特殊需求按文档填写即可</span></span><br><span class="line"><span class="attr">advertise-client-urls:</span> <span class="string">http://0.0.0.0:2379</span> <span class="comment"># 该 member 向外部通告的客户端 url 列表，单节点部署时不需要修改，集群部署模式需修改为容器所在节点对外提供服务的 IP</span></span><br><span class="line"><span class="attr">listen-peer-urls:</span> <span class="string">http://0.0.0.0:2380</span> <span class="comment"># peer 流量监听地址，没特殊需求按文档填写即可</span></span><br><span class="line"><span class="attr">initial-advertise-peer-urls:</span> <span class="string">http://0.0.0.0:2380</span> <span class="comment"># 该 member 向同一集群内其他 member 通告的 peer url 列表，单节点部署时不需要修改，集群部署模式需修改为容器所在节点对外提供服务的 IP</span></span><br><span class="line"><span class="attr">initial-cluster:</span> <span class="string">etcd=http://0.0.0.0:2380</span> <span class="comment"># 初始化集群节点信息，单节点部署时不需要修改，集群部署模式需要填写集群中所有 member 的信息</span></span><br><span class="line"><span class="attr">initial-cluster-token:</span> <span class="string">etcd-cluster</span>  <span class="comment"># 初始化集群时使用的 token，随便写</span></span><br><span class="line"><span class="attr">initial-cluster-state:</span> <span class="string">new</span> <span class="comment"># 初始化集群状态，可选的值为 **new** 或者 **existing**，通常采用 **new**</span></span><br><span class="line"><span class="attr">logger:</span> <span class="string">zap</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span></span><br><span class="line"><span class="comment"># log-outputs: stderr</span></span><br></pre></td></tr></table></figure>
+<h3 id="创建并启动ETCD服务"><a href="#创建并启动ETCD服务" class="headerlink" title="创建并启动ETCD服务"></a>创建并启动ETCD服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name etcd -p 2379:2379 -p 2380:2380 -v /usr/local/docker/etcd/data:/var/etcd -v /usr/local/docker/etcd/config:/var/lib/etcd/config quay.io/coreos/etcd: 3.5.12 </span><br></pre></td></tr></table></figure>
+
+<h3 id="使用docker-compose部署"><a href="#使用docker-compose部署" class="headerlink" title="使用docker-compose部署"></a>使用docker-compose部署</h3><p>创建Docker-compose</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">etcd:</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">etcd</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">quay.io/coreos/etcd:v3.5.12</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">/usr/local/bin/etcd</span> <span class="string">--config-file=/var/lib/etcd/config/etcd.conf.yml</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">$&#123;DOCKER_VOLUME_DIRECTORY:-.&#125;/data:/var/lib/etcd</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">$&#123;DOCKER_VOLUME_DIRECTORY:-.&#125;/config/etcd.config.yml:/var/lib/etcd/conf/etcd.conf.yml</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="number">2379</span><span class="string">:2379</span></span><br><span class="line">    <span class="bullet">-</span> <span class="number">2380</span><span class="string">:2380</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="attr">networks:</span> <span class="comment"># 船舰一个新的bridge模式网络，名称 etcd-tier,名称可以根据需求自定义</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">etcd-tier</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">bridge</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>基于环境变量配置, 配置参考配置文件方式</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">etcd:</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">etcd</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">quay.io/coreos/etcd:v3.5.12</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_NAME=etcd</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_DATA_DIR=</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_LISTEN_CLIENT_URLS=</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_ADVERTISE_CLIENT_URLS=</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_LISTEN_PEER_URLS=</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_INSTALL_ADVERTISE_PEER_URLS=</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_INSTALL_CLUSTER_TOKEN=</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_INSTALL_CLUSTER</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_INSTALL_CLUSTER_STATE=new</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_LOGGER=zap</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ETCD_LOG_LEVEL=info</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ALLOW_NONE_AUTHENTICATION=&quot;yes&quot;</span> <span class="comment"># 允许无身份验证访问</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">TZ=&quot;Asia/Shanghai&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">$&#123;DOCKER_VOLUME_DIRECTORY:=.&#125;/data:/var/etcd</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">/etc/localtime:/etc/localtime:rw</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="number">2379</span><span class="string">:2379</span></span><br><span class="line">    <span class="bullet">-</span> <span class="number">2380</span><span class="string">:2380</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">etcd-tier</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">bridge</span></span><br></pre></td></tr></table></figure>
+
+<p>创建并启动etcd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> &#123;docker-compose文件所在目录&#125;</span><br><span class="line">docker compose up -d </span><br></pre></td></tr></table></figure>
+
+<h3 id="测试命令"><a href="#测试命令" class="headerlink" title="测试命令"></a>测试命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">etcdctl --endpoints=192.168.1.2:2379 --write-out=table endpoint health</span><br><span class="line"></span><br><span class="line">etcdctl --endpoints=192.168.1.2:2379 --write-out=table endpoint status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看member状态</span></span><br><span class="line">etcdctl --endpoints=192.168.1.2:2379 --write-out=table member list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写入数据</span></span><br><span class="line">etcdctl --endpoints=192.168.1.2:2379 put foo bar</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取数据</span></span><br><span class="line">etcdctl --endpoints=192.168.1.2:2379 get foo</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -1088,7 +1177,7 @@
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/94/">94</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/95/">95</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

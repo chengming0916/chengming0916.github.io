@@ -170,18 +170,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">939</span>
+          <span class="site-state-item-count">942</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">198</span>
+        <span class="site-state-item-count">206</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -206,6 +206,685 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/03/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/09/03/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/" class="post-title-link" itemprop="url">OpenSSL生成自签名证书</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-03 00:00:00" itemprop="dateCreated datePublished" datetime="2024-09-03T00:00:00+08:00">2024-09-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><h5 id="CA-Certificate-Authority"><a href="#CA-Certificate-Authority" class="headerlink" title="CA(Certificate Authority)"></a>CA(Certificate Authority)</h5><p>证书授权机构,  负责发放和管理数字证书的权威机构，有自己的证书，可以拿自己的证书给别人签名。</p>
+<h5 id="RootCA"><a href="#RootCA" class="headerlink" title="RootCA"></a>RootCA</h5><p>根证书，权威机构持有的证书，安装根证书意味着对这个证书机构的信任，所有其他证书都由这个根证书来签发。只需要把这个根证书添加到受信任的根证书，所有其他由此根证书签发的证书都会被自动信任。</p>
+<h5 id="SubCA"><a href="#SubCA" class="headerlink" title="SubCA"></a>SubCA</h5><p>中间证书机构，由权威机构签发的证书，</p>
+<h5 id="CSR-Certificate-Signing-Request"><a href="#CSR-Certificate-Signing-Request" class="headerlink" title="CSR(Certificate Signing Request)"></a>CSR(Certificate Signing Request)</h5><p>证书请求文件，证书申请者在申请数字证书时生成私钥的同时也生成证书请求文件，证书申请者只要把CSR文件提交给证书颁发机构后，证书颁发机构使用其根证书给私钥签名就生成了证书公钥文件，也就是颁发给用户的证书。</p>
+<h5 id="常用后缀名"><a href="#常用后缀名" class="headerlink" title="常用后缀名"></a>常用后缀名</h5><table>
+<thead>
+<tr>
+<th>格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.crt,.cer</td>
+<td>证书文件</td>
+</tr>
+<tr>
+<td>.key</td>
+<td>私钥文件</td>
+</tr>
+<tr>
+<td>.csr</td>
+<td>证书签名请求文件</td>
+</tr>
+<tr>
+<td>.pem</td>
+<td>base64编码证书文件,可以单独放证书或密钥，也可以同时放两个。Apache 和 NGINX 服务器偏向于使用这种编码格式，也是 openssl 默认采用的信息存放方式。</td>
+</tr>
+<tr>
+<td>.der</td>
+<td>二进制证书文件，可包含所有私钥、公钥和证书，是大多数浏览器的缺省格式，常见于 Windows 系统中的证书格式。</td>
+</tr>
+</tbody></table>
+<h4 id="证书链"><a href="#证书链" class="headerlink" title="证书链"></a>证书链</h4><p>在证书链中，通常分为三级结构，分别是根证书、中间证书、服务器证书。正确的证书链顺序中服务器证书处在最底端，里面包含服务器域名域名服务器公钥和签名值等。服务器证书的上一级是中间证书，可以由多张证书组合在一起，最上级是根证书。对服务器身份进行校验时，需要验证一整个证书链。每一级证书都有签名值，根证书使用自己的根CA公钥验证自己的签名，也用来验证中间证书的签名值，中间证书的公钥用来验证下一级证书的签名值。</p>
+<p><img src="/2024/09/03/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/IMG-20250908095942730.png"></p>
+<h4 id="生成根证书"><a href="#生成根证书" class="headerlink" title="生成根证书"></a>生成根证书</h4><h5 id="生成根私钥"><a href="#生成根私钥" class="headerlink" title="生成根私钥"></a>生成根私钥</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成CA认证机构的证书密钥</span></span><br><span class="line"><span class="comment"># 需要设置密码(输入两次)</span></span><br><span class="line">openssl genrsa -des3 -out root-ca.priv.key 4096</span><br><span class="line"></span><br><span class="line"><span class="comment"># 去除密钥里的密码,有密码的话每次使用的时候都要输入密码才能使用。</span></span><br><span class="line"><span class="comment"># 需要再输入一次上一步的密码</span></span><br><span class="line">openssl rsa -<span class="keyword">in</span> root-ca.priv.key -out root-ca.key</span><br></pre></td></tr></table></figure>
+
+<p>第一次生成的私钥，是带有 passphrase 的。这带来一个副作用，就是需要在使用过程中输入密码。这对于一些特定场景来说会带来一些问题。比如：Apache 的自动启动过程，或者一些工具，甚至有没有提供输入 passphrase 的机会。其实是<strong>可以将 3DES 的加密从秘钥中移除</strong>的，这样，使用的过程中就不再需要输入 passphrase。这也带来另一个问题，如果其他人获取到了未加密的私钥，对应的证书也需要被吊销，以避免带来危害。</p>
+<h5 id="生成自签名的根证书请求"><a href="#生成自签名的根证书请求" class="headerlink" title="生成自签名的根证书请求"></a>生成自签名的根证书请求</h5><p>-subj 参考<a href="#%E8%AF%81%E4%B9%A6%E8%AF%B7%E6%B1%82%E6%96%87%E4%BB%B6%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">证书请求文件参数说明</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成根证书自签名请求</span></span><br><span class="line">openssl req -new -key root-ca.key \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Tianjin/L=Tianjin/O=Example/OU=DEV/CN=Example Root&quot;</span> \</span><br><span class="line">    -out root-ca.csr </span><br></pre></td></tr></table></figure>
+
+<h5 id="生成自签名根证书"><a href="#生成自签名根证书" class="headerlink" title="生成自签名根证书"></a>生成自签名根证书</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 参数说明</span></span><br><span class="line"><span class="comment"># -x509	使用X.509证书结构生成证书，X.509 证书的结构是用 ASN1(Abstract Syntax Notation One)进行描述数据结构。</span></span><br><span class="line"><span class="comment"># -days 证书有效期,按天来算</span></span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> root-ca.csr -signkey root-ca.key -out root-ca.crt -days 3650</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="生成中间证书"><a href="#生成中间证书" class="headerlink" title="生成中间证书"></a>生成中间证书</h4><p><strong>如果不是复杂场景可以跳过此步骤，使用根证书直接生成客户端证书</strong></p>
+<p> 使用root-ca签发sub-ca的证书签名请求,中间证书指的是可以允许继续生成下级证书，否则的话默认生成终端证书，即使可以用中间证书生成下一级客户端和服务端等用户证书，最终验证的无法通过。</p>
+<h5 id="生成中间证书私钥"><a href="#生成中间证书私钥" class="headerlink" title="生成中间证书私钥"></a>生成中间证书私钥</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成私钥,方式1(参考根证书私钥)</span></span><br><span class="line">openssl genrsa -des3 -out mid-ca.priv.key 4096</span><br><span class="line">openssl rsa -<span class="keyword">in</span> mid-ca.priv.key -out mid-ca.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成私钥,方式2</span></span><br><span class="line">openssl genpkey -algorithm RSA -out mid-ca.key -pkeyopt rsa_keygen_bits:4096</span><br></pre></td></tr></table></figure>
+
+<h5 id="生成中间证书请求"><a href="#生成中间证书请求" class="headerlink" title="生成中间证书请求"></a>生成中间证书请求</h5><p>-subj参考<a href="#%E8%AF%81%E4%B9%A6%E8%AF%B7%E6%B1%82%E6%96%87%E4%BB%B6%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">证书请求文件参数说明</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成中间证书自签名请求</span></span><br><span class="line">openssl req -new -key root-ca.key \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Tianjin/L=Tianjin/O=Example/OU=DEV/CN=Example Root&quot;</span> \</span><br><span class="line">    -out mid-ca.csr </span><br><span class="line"></span><br><span class="line"><span class="comment"># 同时生成key和csr</span></span><br><span class="line">openssl req -new -newkey rsa:4096 -nodes -keyout mid-ca.key -out mid-ca.csr \</span><br><span class="line">    -subj=<span class="string">&quot;/C=CN/ST=Tianjin/L=Tianjin/O=Example/OU=DEV/CN=Example Mid&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="生成中间证书-1"><a href="#生成中间证书-1" class="headerlink" title="生成中间证书"></a>生成中间证书</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成证书</span></span><br><span class="line">openssl x509 -req -extfile &lt;(<span class="built_in">printf</span> <span class="string">&quot;subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always,issuer:always&quot;</span>) \</span><br><span class="line">    -days 3650 -<span class="keyword">in</span> mid-ca.csr -CA root-ca.crt -CAkey root-ca.key \</span><br><span class="line">    -CAcreateserial -out mid-ca.crt</span><br></pre></td></tr></table></figure>
+
+<h5 id="验证中间证书"><a href="#验证中间证书" class="headerlink" title="验证中间证书"></a>验证中间证书</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl verify -CAfile root-ca.crt mid-ca.crt</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="生成终端证书"><a href="#生成终端证书" class="headerlink" title="生成终端证书"></a>生成终端证书</h4><p>假设服务器域名为<code>example.io</code></p>
+<h5 id="生成终端证书私钥"><a href="#生成终端证书私钥" class="headerlink" title="生成终端证书私钥"></a>生成终端证书私钥</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成私钥，方式1(参考根证书私钥)</span></span><br><span class="line">openssl genrsa -des3 -out example.io.priv.key 4096</span><br><span class="line">openssl rsa -<span class="keyword">in</span> example.io.priv.key -out example.io.priv.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成私钥，方式2</span></span><br><span class="line">openssl genpkey -algorithm RSA -out example.io.key -pkeyopt rsa_keygen_bits:4096</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="生成终端证书请求"><a href="#生成终端证书请求" class="headerlink" title="生成终端证书请求"></a>生成终端证书请求</h5><p>-subj 参考<a href="#%E8%AF%81%E4%B9%A6%E8%AF%B7%E6%B1%82%E6%96%87%E4%BB%B6%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">证书请求文件参数说明</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成终端证书自签名请求</span></span><br><span class="line">openssl req -new -key example.io.key -out example.io.csr -subj=<span class="string">&quot;/CN=example.io&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="生成终端证书-1"><a href="#生成终端证书-1" class="headerlink" title="生成终端证书"></a>生成终端证书</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment"># 生成证书,如果不使用中间证书可把mid-ca.crt替换为root-ca.crt</span></span><br><span class="line">openssl x509 -req -days 3650 \</span><br><span class="line">    -extfile v3.ext</span><br><span class="line">    -CA root-ca.crt -CAkey root-ca.key -CAcreateserial \</span><br><span class="line">    -<span class="keyword">in</span> example.io.csr -signkey example.io.key \</span><br><span class="line">    -out example.io.crt</span><br><span class="line">    </span><br><span class="line">openssl x509 -req -extfile v3.ext -days 365 -<span class="keyword">in</span> example.io.csr -CA mid-ca.crt -CAkey mid-ca.key -CAcreateserial -out example.io.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出pfx,</span></span><br><span class="line">openssl pkcs12 -<span class="built_in">export</span> -out example.io.pfx -inkey example.io.key -<span class="keyword">in</span> example.io.crt</span><br></pre></td></tr></table></figure>
+
+<p>v3.ext参考<a href="#X.509%E6%89%A9%E5%B1%95%E9%85%8D%E7%BD%AE">X.509扩展配置</a></p>
+<p><strong>注意:</strong> v3.ext中<code>basicConstraints=CA:FALSE</code>为必选项，否则生成证书无法使用</p>
+<h5 id="验证终端证书"><a href="#验证终端证书" class="headerlink" title="验证终端证书"></a>验证终端证书</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl verify -CAfile root-ca.crt example.io.crt</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="查看证书信息"><a href="#查看证书信息" class="headerlink" title="查看证书信息"></a>查看证书信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看公钥的内容,如果为.PEM ,则会以 base 64 明文方式显示</span></span><br><span class="line">openssl rsa -noout -text -<span class="keyword">in</span> cakey.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看证书的内容命令为</span></span><br><span class="line">openssl x509 -noout -text -<span class="keyword">in</span> cacert.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 证书编码格式转换</span></span><br><span class="line"><span class="comment"># PEM 转为 DER</span></span><br><span class="line">openssl x509 -<span class="keyword">in</span> cacert.crt -outform der -out cacert.der</span><br><span class="line"><span class="comment"># DER 转为 PEM</span></span><br><span class="line">openssl x509 -<span class="keyword">in</span> cert.crt -inform der -outform pem -out cacert.pem</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="证书有效性验证"><a href="#证书有效性验证" class="headerlink" title="证书有效性验证"></a>证书有效性验证</h4><p>可以利用<code>openssl</code> 的<code>s_server</code>命令来模拟一个服务端，要使用到证书管理员生成的证书<code>client.crt</code>，以及申请人在创建<code>csr</code>时生成的 <code>client.key</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl s_server -cert example.io.crt -key example.io.key -debug -HTTP -accept 443</span><br></pre></td></tr></table></figure>
+
+<p>然后浏览器访问 <code>https://ip地址</code>来查看证书是否有效（要先导入根证书到</p>
+<p>信任的根证书颁发机构）。</p>
+<h4 id="吊销证书"><a href="#吊销证书" class="headerlink" title="吊销证书"></a>吊销证书</h4><p>一般由于用户私钥泄露等情况才需要吊销一个未过期的证书。</p>
+<p>假设需要被吊销的证书文件为 <code>cert.pem</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成证书吊销列表文件</span></span><br><span class="line"><span class="comment"># 可选参数</span></span><br><span class="line"><span class="comment">#   -crldays 下一个吊销列表将在n天后发布</span></span><br><span class="line"><span class="comment">#   -crlhours 下一个吊销列表将在n小时后发布</span></span><br><span class="line">openssl ca -revoke cert.pem </span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看吊销列表</span></span><br><span class="line">openssl crl -<span class="keyword">in</span> testca.crl -text -noout</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h4><h5 id="证书请求文件参数说明"><a href="#证书请求文件参数说明" class="headerlink" title="证书请求文件参数说明"></a>证书请求文件参数说明</h5><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x2F;C</td>
+<td>Country Name (2 letter code)</td>
+<td>两字母的国家代码，例如 “CN”。</td>
+</tr>
+<tr>
+<td>&#x2F;ST</td>
+<td>State or Province Name</td>
+<td>州或省的全名。</td>
+</tr>
+<tr>
+<td>&#x2F;L</td>
+<td>Locality Name (e.g., city)</td>
+<td>城市或地区的全名。</td>
+</tr>
+<tr>
+<td>&#x2F;O</td>
+<td>Organization Name (e.g., company)</td>
+<td>公司或组织的全名。</td>
+</tr>
+<tr>
+<td>&#x2F;OU</td>
+<td>Organizational Unit Name (e.g., section)</td>
+<td>部门或单位的全名。</td>
+</tr>
+<tr>
+<td>&#x2F;CN</td>
+<td>Common Name (e.g., your name or your server’s hostname)</td>
+<td>通常是你的服务器的主机名。</td>
+</tr>
+<tr>
+<td>emailAddress</td>
+<td>Email Address</td>
+<td>电子邮件地址，用于证书联系。</td>
+</tr>
+</tbody></table>
+<p>这些信息将用于填写证书请求文件。在实际情况中，一些字段可能不是必需的，具体取决于你的使用场景和证书颁发机构（CA）的要求。通常，“Common Name” 是最重要的字段，应该设置为与你的服务器域名或主机名相匹配的值。其他字段的值可以根据实际情况填写。</p>
+<p>示例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/C=CN/ST=Tianjin/L=Tianjin/O=Example/OU=DEV/CN=example.com/emailAddress=dev@example.com</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="X-509扩展配置"><a href="#X-509扩展配置" class="headerlink" title="X.509扩展配置"></a>X.509扩展配置</h5><p>v3.ext</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">authorityKeyIdentifier</span>=keyid,issuer</span><br><span class="line"><span class="attr">subjectKeyIdentifier</span>=hash</span><br><span class="line"><span class="attr">basicConstraints</span>=CA:<span class="literal">FALSE</span></span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span><br><span class="line"><span class="comment">#extendedKeyUsage = serverAuth</span></span><br><span class="line"><span class="attr">subjectAltName</span> = @alt_names</span><br><span class="line"><span class="section">[alt_names]</span></span><br><span class="line"><span class="attr">DNS.1</span>=example.io</span><br><span class="line"><span class="attr">DNS.2</span>=*.example.io</span><br><span class="line"><span class="attr">IP.3</span>=<span class="number">192.168</span>.<span class="number">0.2</span></span><br></pre></td></tr></table></figure>
+
+<p> extendedKeyUsage 可以指定证书目的，即用途，一般有</p>
+<p>​	serverAuth 保证远程计算机的身份</p>
+<p>​	clientAuth 向远程计算机证明你的身份</p>
+<p>​	codeSigning 确保软件来自软件发布者，保护软件在发行后不被更改</p>
+<p>​	emailProtection 保护电子邮件消息</p>
+<p>​	timeStamping 允许用当前时间签名数据,如果不指定，则默认为 所有应用程序策略</p>
+<p>SubjectAlternativeName</p>
+<p>​	DNS.1用来确保网站的域名必须时<code>*.example.com</code>，</p>
+<p>​	IP.1用来确保网站的IP地址，如果证书里面的内容和实际对应不上，浏览器就会报错。</p>
+<h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p><a target="_blank" rel="noopener" href="https://developer.baidu.com/article/detail.html?id=3350912">构建安全的X.509三级证书体系：OpenSSL实战指南-百度开发者中心 (baidu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/happy-8090/articles/11830636.html">如何创建自签名的 SSL 证书 - HappyVK - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/linziping/p/16857167.html">关于OpeSSL生成自签名证书-包含完整证书链生成（全网最全） - 52只鱼 - 博客园 (cnblogs.com)</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/02/Linux/KVM%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/09/02/Linux/KVM%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" class="post-title-link" itemprop="url">KVM常用命令</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-02 00:00:00" itemprop="dateCreated datePublished" datetime="2024-09-02T00:00:00+08:00">2024-09-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h4 id=""><a href="#" class="headerlink" title=""></a></h4><h4 id="添加删除"><a href="#添加删除" class="headerlink" title="添加删除"></a>添加删除</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看虚拟机</span></span><br><span class="line">virsh list --all</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建虚拟机</span></span><br><span class="line">virt-install -virt-type=kvm --name=&#123;虚拟机名&#125; --vcpus=4 \</span><br><span class="line">    --memory=1024 --location=&#123;iso文件&#125; \</span><br><span class="line">    --disk path=&#123;虚拟机硬盘存放路径&#125;.qcow2,size=30,format=qcow2 \</span><br><span class="line">    --network bridge=virbr0 --graphics none --extra-args=<span class="string">&#x27;console=ttyS0&#x27;</span></span><br><span class="line">    --force</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除虚拟机</span></span><br><span class="line">virsh undefine &#123;虚拟机名&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="开关机"><a href="#开关机" class="headerlink" title="开关机"></a>开关机</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 开启虚拟机</span></span><br><span class="line">virsh start &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭虚拟机</span></span><br><span class="line">virsh shutdown &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 强制关机</span></span><br><span class="line">virsh destroy &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂起虚拟机</span></span><br><span class="line">virsh <span class="built_in">suspend</span> &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复挂起的</span></span><br><span class="line">virsh resume &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置虚拟机和物理机开机一起启动</span></span><br><span class="line">virsh autostart &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 取消虚拟机开机启动</span></span><br><span class="line">virsh autostart &#123;虚拟机名&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="备份克隆"><a href="#备份克隆" class="headerlink" title="备份克隆"></a>备份克隆</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 通过配置文件启动</span></span><br><span class="line">virsh create /etc/libvirt/qemu/&#123;虚拟机名&#125;.xml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 备份虚拟机配置文件</span></span><br><span class="line">virsh dumpxml &#123;虚拟机名&#125; &gt; &#123;存储路径&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复备份虚拟机</span></span><br><span class="line">virsh create &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 虚拟机克隆</span></span><br><span class="line">virt-clone -o &#123;虚拟机名&#125; -n localhost -f /virtual/KVM/&#123;虚拟机名&#125;.qcow2</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建快照</span></span><br><span class="line">virsh snapshot-create &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看快照</span></span><br><span class="line">virsh snapshot-list &#123;虚拟机名&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复快照</span></span><br><span class="line">virsh snapshot-revert &#123;虚拟机名&#125; &#123;快照名称&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除快照</span></span><br><span class="line">virsh snapshot-delete &#123;虚拟机名&#125; &#123;快照名称&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/08/31/Archive/2024-08-31/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/08/31/Archive/2024-08-31/" class="post-title-link" itemprop="url">Sat Aug 31 2024 00:00:00 GMT+0800 (China Standard Time)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-08-31 19:07:11" itemprop="dateCreated datePublished" datetime="2024-08-31T19:07:11+08:00">2024-08-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/08/29/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%A2%9E%E5%8A%A0%E7%AB%99%E5%86%85%E6%96%87%E7%AB%A0%E9%93%BE%E6%8E%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/08/29/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%A2%9E%E5%8A%A0%E7%AB%99%E5%86%85%E6%96%87%E7%AB%A0%E9%93%BE%E6%8E%A5/" class="post-title-link" itemprop="url">Hexo 增加站内文章链接</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-08-29 15:13:00" itemprop="dateCreated datePublished" datetime="2024-08-29T15:13:00+08:00">2024-08-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="使用markdown的链接语法"><a href="#使用markdown的链接语法" class="headerlink" title="使用markdown的链接语法"></a>使用markdown的链接语法</h3><p>使用markdown的语法指定url创建站内链接，有绝对地址和相对地址两种方式，绝对地址与相对地址的区别在于是否以<code>/</code>开头：</p>
+<h4 id="使用绝对地址"><a href="#使用绝对地址" class="headerlink" title="使用绝对地址"></a>使用绝对地址</h4><p>代码如下：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># 格式 [<span class="string">标题</span>](<span class="link">文章地址</span>)</span></span><br><span class="line">[<span class="string">Hexo 增加站内文章链接</span>](<span class="link">/Hexo博客/Hexo-增加站内文章链接</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>示例中，<code>Hexo-增加站内文章链接</code>使用的是文章对应的md文件名，使用hexo n创建post时，空格会转换为中划线-。<code>/Hexo</code>是为了文章管理方便在<code>_posts</code>目录下增加的子目录，<code>Hexo-增加站内文章链接.md</code>位于<code>_posts/Hexo/</code>目录下。</p>
+</blockquote>
+<p>结果如下：</p>
+<p><a href="/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%A2%9E%E5%8A%A0%E7%AB%99%E5%86%85%E6%96%87%E7%AB%A0%E9%93%BE%E6%8E%A5">Hexo 增加站内文章链接</a></p>
+<p>Hexo对绝对地址和相对地址的处理方式是不一样的。对于绝对地址<code>/Hexo/Hexo-博客配置</code>，生成的目标url不会变化。</p>
+<h4 id="使用相对地址"><a href="#使用相对地址" class="headerlink" title="使用相对地址"></a>使用相对地址</h4><p>代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Hexo 增加站内文章链接](Hexo/Hexo-增加站内文章链接)</span><br></pre></td></tr></table></figure>
+
+<p>对于相对地址<code>Hexo/Hexo-增加站内文章链接</code>，生成的目标URL会叠加文章的的URL，结果是<code>/Hexo/Hexo/Hexo-增加站内文章链接</code>，这显然不是期望的结果。但是如果是文章内的锚点链接，使用这种方式非常合适。</p>
+<p>代码如下：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># 格式 [<span class="string">标题</span>](<span class="link">#文章内要跳转的标题</span>)</span></span><br><span class="line">[<span class="string">测试文章内跳转锚点</span>](<span class="link">#测试文章内跳转锚点</span>)</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：<br><a href="#%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0%E5%86%85%E8%B7%B3%E8%BD%AC%E9%94%9A%E7%82%B9">跳转文章内测试锚点</a></p>
+<p>生成的URL可以正确的跳转到文章内的锚点。注意，标题中的空格用<code>-</code>代替。</p>
+<h3 id="使用post-link标签"><a href="#使用post-link标签" class="headerlink" title="使用post_link标签"></a>使用post_link标签</h3><p>由于Hexo文章的URL规则是可以配置的，在<code>_config.yml</code>中可以配置URL自动添加日期、目录等信息。如果使用markdown语法的链接规则多有不便，一方面需要知道目标URL，一方面如果规则修改或者站点迁移，对应的内容需要修改。</p>
+<p>好在Hexo提供了<code>post_link</code>标签解决这个问题。</p>
+<p>代码如下：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># 格式 &#123;% post<span class="emphasis">_link 以_</span>post下文件路径 &#x27;显示链接名&#x27;%&#125;</span></span><br><span class="line">&#123;% post<span class="emphasis">_link Hexo博客/Hexo-博客配置 &#x27;Hexo 博客配置&#x27; %&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>示例中，<code>Hexo-博客配置</code>使用的是文章对应的md文件名，使用hexo n创建post时，空格会转换为中划线-。<code>Hexo</code>是为了文章管理方便在<code>_posts</code>目录下增加的子目录，<code>Hexo-博客配置.md</code>位于<code>_posts/Hexo</code>目录下。</p>
+</blockquote>
+<p>结果如下：</p>
+<a href="/2021/10/22/Hexo%E5%8D%9A%E5%AE%A2/Hexo-%E5%8D%9A%E5%AE%A2%E9%85%8D%E7%BD%AE/" title="Hexo 博客配置">Hexo 博客配置</a>
+
+<p>这样的链接会自动适配<code>_config.yml</code>中的文章URL规则。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>对比markdown语法和<code>post_link</code>标签，推荐在文章链接到站内文章时优先使用<code>post_link</code>，链接到文章内锚点时优先使用markdown语法。</p>
+<h3 id="测试文章内跳转锚点"><a href="#测试文章内跳转锚点" class="headerlink" title="测试文章内跳转锚点"></a>测试文章内跳转锚点</h3><p>文章内锚点跳转示例</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/08/29/Linux/Awesome%E6%A1%8C%E9%9D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/08/29/Linux/Awesome%E6%A1%8C%E9%9D%A2/" class="post-title-link" itemprop="url">Awesome桌面</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-08-29 14:42:18" itemprop="dateCreated datePublished" datetime="2024-08-29T14:42:18+08:00">2024-08-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/08/26/Archive/2024-08-26/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/08/26/Archive/2024-08-26/" class="post-title-link" itemprop="url">Mon Aug 26 2024 00:00:00 GMT+0800 (China Standard Time)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-08-26 11:13:03" itemprop="dateCreated datePublished" datetime="2024-08-26T11:13:03+08:00">2024-08-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -251,7 +930,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:58" itemprop="dateModified" datetime="2026-03-14T21:54:58+08:00">2026-03-14</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -369,7 +1048,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
     </span>
 
   
@@ -444,7 +1123,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
     </span>
 
   
@@ -519,481 +1198,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/08/06/Archive/2024-08-06/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/08/06/Archive/2024-08-06/" class="post-title-link" itemprop="url">Tue Aug 06 2024 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-08-06 19:04:20" itemprop="dateCreated datePublished" datetime="2024-08-06T19:04:20+08:00">2024-08-06</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/08/01/Archive/2024-08-01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/08/01/Archive/2024-08-01/" class="post-title-link" itemprop="url">Thu Aug 01 2024 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-08-01 13:28:28" itemprop="dateCreated datePublished" datetime="2024-08-01T13:28:28+08:00">2024-08-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/07/27/Archive/2024-07-27/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/07/27/Archive/2024-07-27/" class="post-title-link" itemprop="url">Sat Jul 27 2024 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-07-27 14:46:04" itemprop="dateCreated datePublished" datetime="2024-07-27T14:46:04+08:00">2024-07-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/07/22/Archive/2024-07-22/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/07/22/Archive/2024-07-22/" class="post-title-link" itemprop="url">Mon Jul 22 2024 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-07-22 13:59:19" itemprop="dateCreated datePublished" datetime="2024-07-22T13:59:19+08:00">2024-07-22</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/07/20/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%85%8D%E7%BD%AE%E5%86%85%E7%BD%91%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/07/20/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%85%8D%E7%BD%AE%E5%86%85%E7%BD%91%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">K3s配置内网域名解析</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-07-20 00:00:00" itemprop="dateCreated datePublished" datetime="2024-07-20T00:00:00+08:00">2024-07-20</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:36" itemprop="dateModified" datetime="2026-03-04T10:39:36+08:00">2026-03-04</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">容器技术</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>K3s 启动后，会自动帮我们安装好 CoreDNS，不需要手动安装。如果你想修改 CoreDNS 的配置，常用的有两种方式：</p>
-<ul>
-<li>直接修改 CoreDNS 的 configmap 来调整 CoreDNS 的参数，例如：<code>kubectl -n kube-system edit configmap coredns</code></li>
-<li>修改 K3s manifests 中的 CoreDNS 配置文件，文件位置：<code>/var/lib/rancher/k3s/server/manifests/coredns.yaml</code></li>
-</ul>
-<p>这两种方式虽然简单，但都有相同的弊端：当你重启 K3s 服务或者升级 K3s 时，由于 K3s 会重新初始化 manifests 中的 CoreDNS 等配置，所以会覆盖掉你通过以上两种方式修改的 coredns 配置。</p>
-<p>如果你想修改 K3s 中 CoreDNS 中的配置，并且持久生效的话，可以通过额外的 <code>coredns-custom</code> configmap 安装到 CoreDNS 容器中，并从包含的文件中导入覆盖和额外的 CoreDNS 配置。</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">coredns-custom</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kube-system</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">log.override:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    log</span></span><br><span class="line"><span class="string"></span>  <span class="attr">example.server:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    example.io &#123;</span></span><br><span class="line"><span class="string">      errors</span></span><br><span class="line"><span class="string">      cache 30</span></span><br><span class="line"><span class="string">      hosts &#123;</span></span><br><span class="line"><span class="string">        192.168.0.2 test1.example.io # 内网域名映射地址</span></span><br><span class="line"><span class="string">        fallthrough</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>ConfigMap 的 name 一定刚要是 <code>coredns-custom</code> 才能够被 coredns 的 deployment 识别并挂载。</p>
-<p>在其他Pod中验证CoreDNS配置是否生效</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kubectl create deploy nginx --image=nginx:latest <span class="comment"># 创建deploy</span></span><br><span class="line">kubectl get pod -w <span class="comment"># 等待nginx状态变为running</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it ngix-***** -- /bin/bash <span class="comment"># 切入容器，注意容器ID与上一步中查看容器ID一致</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 容器内操作</span></span><br><span class="line">ping test1.example.io </span><br><span class="line">nslookup test1.example.io</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/07/17/Archive/2024-07-17/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/07/17/Archive/2024-07-17/" class="post-title-link" itemprop="url">Wed Jul 17 2024 00:00:00 GMT+0800 (China Standard Time)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-07-17 11:40:55" itemprop="dateCreated datePublished" datetime="2024-07-17T11:40:55+08:00">2024-07-17</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-03-04 10:39:35" itemprop="dateModified" datetime="2026-03-04T10:39:35+08:00">2026-03-04</time>
+      <time title="修改时间：2026-03-14 21:54:57" itemprop="dateModified" datetime="2026-03-14T21:54:57+08:00">2026-03-14</time>
     </span>
 
   
@@ -1025,7 +1230,7 @@
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/17/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><span class="space">&hellip;</span><a class="page-number" href="/page/94/">94</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/19/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/17/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><span class="space">&hellip;</span><a class="page-number" href="/page/95/">95</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/19/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

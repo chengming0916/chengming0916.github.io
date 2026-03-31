@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="简单工厂模式（Simple Factory Pattern）是设计模式中创建型模式的基础，它不属于GoF（Gang of Four）23种经典设计模式，但因其简洁易用的特性，成为实际开发中最常用的“准设计模式”。核心思想是通过一个工厂类封装对象的创建逻辑，客户端无需直接实例化具体类，只需通过工厂类传入参数即可获取对应实例，降低代码耦合度，提升扩展性。 本文将从简单工厂模式的核心原理出发，分别基于C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单工厂模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="简单工厂模式（Simple Factory Pattern）是设计模式中创建型模式的基础，它不属于GoF（Gang of Four）23种经典设计模式，但因其简洁易用的特性，成为实际开发中最常用的“准设计模式”。核心思想是通过一个工厂类封装对象的创建逻辑，客户端无需直接实例化具体类，只需通过工厂类传入参数即可获取对应实例，降低代码耦合度，提升扩展性。 本文将从简单工厂模式的核心原理出发，分别基于C">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.209Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="简单工厂">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/","path":"2019/11/04/学习笔记/设计模式/简单工厂模式/","title":"简单工厂模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>简单工厂模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、简单工厂模式核心结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E"><span class="nav-number">2.1.</span> <span class="nav-text">场景说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BA%AFOOP%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">1. C# 实现（纯OOP）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%8A%A8%E6%80%81OOP%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2. Python 实现（动态OOP）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Golang-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%9F%BA%E4%BA%8E%E6%8E%A5%E5%8F%A3%E7%9A%84OOP%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">3. Golang 实现（基于接口的OOP）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%8F%E5%85%B8OOP%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">4. C++ 实现（经典OOP）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E8%BF%87%E7%A8%8B%E5%BC%8F%E6%A8%A1%E6%8B%9F%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">5. 纯C语言实现（过程式模拟）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、简单工厂模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、适用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="简单工厂模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          简单工厂模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-04 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-04T00:00:00+08:00">2019-11-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>简单工厂模式（Simple Factory Pattern）是设计模式中创建型模式的基础，它不属于GoF（Gang of Four）23种经典设计模式，但因其简洁易用的特性，成为实际开发中最常用的“准设计模式”。核心思想是通过一个工厂类封装对象的创建逻辑，客户端无需直接实例化具体类，只需通过工厂类传入参数即可获取对应实例，降低代码耦合度，提升扩展性。</p>
+<p>本文将从简单工厂模式的核心原理出发，分别基于C#、Python、Golang、C++和纯C语言实现该模式，覆盖面向对象（OOP）和过程式编程场景，帮助开发者理解不同语言下的落地方式。</p>
+<h2 id="一、简单工厂模式核心结构"><a href="#一、简单工厂模式核心结构" class="headerlink" title="一、简单工厂模式核心结构"></a>一、简单工厂模式核心结构</h2><p>简单工厂模式通常包含三个核心角色：</p>
+<ol>
+<li><p><strong>产品抽象层</strong>：定义产品的公共接口&#x2F;抽象类（OOP语言）或统一的数据结构与函数指针（过程式语言如C）；</p>
+</li>
+<li><p><strong>具体产品类</strong>：实现&#x2F;继承抽象层，是实际被创建的对象；</p>
+</li>
+<li><p><strong>工厂类</strong>：提供静态&#x2F;普通方法，根据输入参数创建并返回具体产品实例。</p>
+</li>
+</ol>
+<h2 id="二、多语言实现示例"><a href="#二、多语言实现示例" class="headerlink" title="二、多语言实现示例"></a>二、多语言实现示例</h2><h3 id="场景说明"><a href="#场景说明" class="headerlink" title="场景说明"></a>场景说明</h3><p>以“计算器”为例：定义四则运算（加法、减法）的产品抽象，通过工厂类根据“+”“-”参数创建对应运算实例，最终执行计算逻辑。</p>
+<h3 id="1-C-实现（纯OOP）"><a href="#1-C-实现（纯OOP）" class="headerlink" title="1. C# 实现（纯OOP）"></a>1. C# 实现（纯OOP）</h3><p>C#作为典型的面向对象语言，通过接口定义产品抽象，工厂类封装创建逻辑：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 产品抽象层：运算接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IOperation</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="built_in">double</span> <span class="title">Calculate</span>(<span class="params"><span class="built_in">double</span> num1, <span class="built_in">double</span> num2</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品类：加法运算</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddOperation</span> : <span class="title">IOperation</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">double</span> <span class="title">Calculate</span>(<span class="params"><span class="built_in">double</span> num1, <span class="built_in">double</span> num2</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> num1 + num2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品类：减法运算</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SubtractOperation</span> : <span class="title">IOperation</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">double</span> <span class="title">Calculate</span>(<span class="params"><span class="built_in">double</span> num1, <span class="built_in">double</span> num2</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> num1 - num2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 工厂类：运算工厂</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OperationFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IOperation <span class="title">CreateOperation</span>(<span class="params"><span class="built_in">string</span> oper</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> oper <span class="keyword">switch</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;+&quot;</span> =&gt; <span class="keyword">new</span> AddOperation(),</span><br><span class="line">            <span class="string">&quot;-&quot;</span> =&gt; <span class="keyword">new</span> SubtractOperation(),</span><br><span class="line">            _ =&gt; <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentException(<span class="string">&quot;不支持的运算类型&quot;</span>)</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        IOperation addOp = OperationFactory.CreateOperation(<span class="string">&quot;+&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;10 + 5 = &quot;</span> + addOp.Calculate(<span class="number">10</span>, <span class="number">5</span>)); <span class="comment">// 输出：15</span></span><br><span class="line"></span><br><span class="line">        IOperation subOp = OperationFactory.CreateOperation(<span class="string">&quot;-&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;10 - 5 = &quot;</span> + subOp.Calculate(<span class="number">10</span>, <span class="number">5</span>)); <span class="comment">// 输出：5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Python-实现（动态OOP）"><a href="#2-Python-实现（动态OOP）" class="headerlink" title="2. Python 实现（动态OOP）"></a>2. Python 实现（动态OOP）</h3><p>Python无需显式定义接口，通过抽象基类（ABC）模拟产品抽象，工厂函数实现创建逻辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 产品抽象层：运算抽象类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Operation</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, num1, num2</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 具体产品类：加法运算</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AddOperation</span>(<span class="title class_ inherited__">Operation</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, num1, num2</span>):</span><br><span class="line">        <span class="keyword">return</span> num1 + num2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 具体产品类：减法运算</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubtractOperation</span>(<span class="title class_ inherited__">Operation</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, num1, num2</span>):</span><br><span class="line">        <span class="keyword">return</span> num1 - num2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 工厂函数：运算工厂</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_operation</span>(<span class="params">oper</span>):</span><br><span class="line">    <span class="keyword">if</span> oper == <span class="string">&quot;+&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> AddOperation()</span><br><span class="line">    <span class="keyword">elif</span> oper == <span class="string">&quot;-&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> SubtractOperation()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;不支持的运算类型&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    add_op = create_operation(<span class="string">&quot;+&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;10 + 5 = <span class="subst">&#123;add_op.calculate(<span class="number">10</span>, <span class="number">5</span>)&#125;</span>&quot;</span>)  <span class="comment"># 输出：15</span></span><br><span class="line"></span><br><span class="line">    sub_op = create_operation(<span class="string">&quot;-&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;10 - 5 = <span class="subst">&#123;sub_op.calculate(<span class="number">10</span>, <span class="number">5</span>)&#125;</span>&quot;</span>)  <span class="comment"># 输出：5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Golang-实现（基于接口的OOP）"><a href="#3-Golang-实现（基于接口的OOP）" class="headerlink" title="3. Golang 实现（基于接口的OOP）"></a>3. Golang 实现（基于接口的OOP）</h3><p>Go语言无“类”和“继承”，通过接口实现产品抽象，工厂函数封装创建逻辑（Go推荐使用函数而非结构体作为工厂）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;errors&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 产品抽象层：运算接口</span></span><br><span class="line"><span class="keyword">type</span> Operation <span class="keyword">interface</span> &#123;</span><br><span class="line">	Calculate(num1, num2 <span class="type">float64</span>) <span class="type">float64</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品类：加法运算（Go中用结构体模拟类）</span></span><br><span class="line"><span class="keyword">type</span> AddOperation <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *AddOperation)</span></span> Calculate(num1, num2 <span class="type">float64</span>) <span class="type">float64</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> num1 + num2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品类：减法运算</span></span><br><span class="line"><span class="keyword">type</span> SubtractOperation <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *SubtractOperation)</span></span> Calculate(num1, num2 <span class="type">float64</span>) <span class="type">float64</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> num1 - num2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 工厂函数：运算工厂</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">CreateOperation</span><span class="params">(oper <span class="type">string</span>)</span></span> (Operation, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">switch</span> oper &#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="string">&quot;+&quot;</span>:</span><br><span class="line">		<span class="keyword">return</span> &amp;AddOperation&#123;&#125;, <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">case</span> <span class="string">&quot;-&quot;</span>:</span><br><span class="line">		<span class="keyword">return</span> &amp;SubtractOperation&#123;&#125;, <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, errors.New(<span class="string">&quot;不支持的运算类型&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	addOp, _ := CreateOperation(<span class="string">&quot;+&quot;</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;10 + 5 = %.1f\n&quot;</span>, addOp.Calculate(<span class="number">10</span>, <span class="number">5</span>)) <span class="comment">// 输出：15.0</span></span><br><span class="line"></span><br><span class="line">	subOp, _ := CreateOperation(<span class="string">&quot;-&quot;</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;10 - 5 = %.1f\n&quot;</span>, subOp.Calculate(<span class="number">10</span>, <span class="number">5</span>)) <span class="comment">// 输出：5.0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-C-实现（经典OOP）"><a href="#4-C-实现（经典OOP）" class="headerlink" title="4. C++ 实现（经典OOP）"></a>4. C++ 实现（经典OOP）</h3><p>C++通过纯虚函数定义产品抽象类，工厂类提供静态方法创建具体产品：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdexcept&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 产品抽象层：运算抽象类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Operation</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">double</span> <span class="title">calculate</span><span class="params">(<span class="type">double</span> num1, <span class="type">double</span> num2)</span> </span>= <span class="number">0</span>; <span class="comment">// 纯虚函数</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Operation</span>() = <span class="keyword">default</span>; <span class="comment">// 虚析构函数</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品类：加法运算</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AddOperation</span> : <span class="keyword">public</span> Operation &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">calculate</span><span class="params">(<span class="type">double</span> num1, <span class="type">double</span> num2)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> num1 + num2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品类：减法运算</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubtractOperation</span> : <span class="keyword">public</span> Operation &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">calculate</span><span class="params">(<span class="type">double</span> num1, <span class="type">double</span> num2)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> num1 - num2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 工厂类：运算工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OperationFactory</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> Operation* <span class="title">createOperation</span><span class="params">(string oper)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (oper == <span class="string">&quot;+&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">AddOperation</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (oper == <span class="string">&quot;-&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">SubtractOperation</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="built_in">invalid_argument</span>(<span class="string">&quot;不支持的运算类型&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Operation* addOp = OperationFactory::<span class="built_in">createOperation</span>(<span class="string">&quot;+&quot;</span>);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;10 + 5 = &quot;</span> &lt;&lt; addOp-&gt;<span class="built_in">calculate</span>(<span class="number">10</span>, <span class="number">5</span>) &lt;&lt; endl; <span class="comment">// 输出：15</span></span><br><span class="line">    <span class="keyword">delete</span> addOp;</span><br><span class="line"></span><br><span class="line">    Operation* subOp = OperationFactory::<span class="built_in">createOperation</span>(<span class="string">&quot;-&quot;</span>);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;10 - 5 = &quot;</span> &lt;&lt; subOp-&gt;<span class="built_in">calculate</span>(<span class="number">10</span>, <span class="number">5</span>) &lt;&lt; endl; <span class="comment">// 输出：5</span></span><br><span class="line">    <span class="keyword">delete</span> subOp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-纯C语言实现（过程式模拟）"><a href="#5-纯C语言实现（过程式模拟）" class="headerlink" title="5. 纯C语言实现（过程式模拟）"></a>5. 纯C语言实现（过程式模拟）</h3><p>C语言无面向对象特性，通过<strong>函数指针+结构体</strong>模拟产品抽象，工厂函数返回结构体指针（封装创建逻辑）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 产品抽象层：运算结构体（包含函数指针）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">double</span> (*calculate)(<span class="type">double</span> num1, <span class="type">double</span> num2); <span class="comment">// 运算函数指针</span></span><br><span class="line">&#125; Operation;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品实现：加法运算函数</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">add_calculate</span><span class="params">(<span class="type">double</span> num1, <span class="type">double</span> num2)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> num1 + num2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品实现：减法运算函数</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">subtract_calculate</span><span class="params">(<span class="type">double</span> num1, <span class="type">double</span> num2)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> num1 - num2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 工厂函数：创建运算实例</span></span><br><span class="line">Operation* <span class="title function_">create_operation</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* oper)</span> &#123;</span><br><span class="line">    Operation* op = (Operation*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Operation));</span><br><span class="line">    <span class="keyword">if</span> (op == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;malloc failed&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(oper, <span class="string">&quot;+&quot;</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        op-&gt;calculate = add_calculate;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strcmp</span>(oper, <span class="string">&quot;-&quot;</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        op-&gt;calculate = subtract_calculate;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">free</span>(op);</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;不支持的运算类型\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> op;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    Operation* add_op = create_operation(<span class="string">&quot;+&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;10 + 5 = %.1f\n&quot;</span>, add_op-&gt;calculate(<span class="number">10</span>, <span class="number">5</span>)); <span class="comment">// 输出：15.0</span></span><br><span class="line">    <span class="built_in">free</span>(add_op);</span><br><span class="line"></span><br><span class="line">    Operation* sub_op = create_operation(<span class="string">&quot;-&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;10 - 5 = %.1f\n&quot;</span>, sub_op-&gt;calculate(<span class="number">10</span>, <span class="number">5</span>)); <span class="comment">// 输出：5.0</span></span><br><span class="line">    <span class="built_in">free</span>(sub_op);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、简单工厂模式的优缺点"><a href="#三、简单工厂模式的优缺点" class="headerlink" title="三、简单工厂模式的优缺点"></a>三、简单工厂模式的优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
+<li><p><strong>解耦</strong>：客户端无需关注产品创建细节，仅需通过工厂调用，符合“开闭原则”（扩展新产品时仅需新增具体产品类+修改工厂逻辑）；</p>
+</li>
+<li><p><strong>复用性</strong>：创建逻辑集中在工厂，避免重复代码；</p>
+</li>
+<li><p><strong>易维护</strong>：产品实例的创建逻辑统一管理，修改时仅需调整工厂类。</p>
+</li>
+</ol>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li><p><strong>工厂类职责过重</strong>：所有产品创建逻辑集中在工厂，新增产品需修改工厂代码，违反“开闭原则”（可通过工厂方法模式优化）；</p>
+</li>
+<li><p><strong>产品类型扩展受限</strong>：若产品类型过多，工厂类会变得臃肿，可读性和维护性下降；</p>
+</li>
+<li><p><strong>难以支持复杂产品创建</strong>：无法处理依赖关系复杂的产品实例化。</p>
+</li>
+</ol>
+<h2 id="四、适用场景"><a href="#四、适用场景" class="headerlink" title="四、适用场景"></a>四、适用场景</h2><ol>
+<li><p>产品类型较少且相对固定，如工具类、简单业务组件；</p>
+</li>
+<li><p>客户端无需知道产品创建细节，仅需通过参数获取实例；</p>
+</li>
+<li><p>希望统一管理产品创建逻辑，降低客户端与具体产品的耦合。</p>
+</li>
+</ol>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>简单工厂模式是创建型模式的入门级实现，不同语言的落地方式虽有差异（OOP语言基于接口&#x2F;抽象类，过程式语言基于函数指针+结构体），但核心思想一致：<strong>封装创建逻辑，简化客户端调用</strong>。</p>
+<p>在实际开发中，需根据语言特性和业务复杂度选择：OOP语言（C#&#x2F;Python&#x2F;Go&#x2F;C++）可直接通过接口&#x2F;抽象类实现，过程式语言（C）可通过函数指针模拟；若产品类型频繁扩展，建议升级为工厂方法模式或抽象工厂模式，进一步解耦创建逻辑。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82/" rel="tag"># 简单工厂</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/03/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2.%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/" rel="prev" title="工厂方法模式">
+                  <i class="fa fa-angle-left"></i> 工厂方法模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/3.%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" rel="next" title="抽象工厂模式">
+                  抽象工厂模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

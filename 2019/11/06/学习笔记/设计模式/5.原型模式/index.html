@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="原型模式是一种创建型设计模式，其核心思想是通过复制已有对象（原型）来创建新对象，而非通过构造函数从头初始化。这种模式能有效减少重复初始化的开销，尤其适用于创建复杂对象或大量相似对象的场景。本文将从核心结构、多语言实现、优缺点、使用场景等维度全面解析原型模式。 一、原型模式核心结构原型模式的核心包含两个关键角色，同时需重点区分浅拷贝与深拷贝，这是原型模式的核心要点： 1.1 核心角色 抽象原型（Pr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="原型模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/06/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/5.%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="原型模式是一种创建型设计模式，其核心思想是通过复制已有对象（原型）来创建新对象，而非通过构造函数从头初始化。这种模式能有效减少重复初始化的开销，尤其适用于创建复杂对象或大量相似对象的场景。本文将从核心结构、多语言实现、优缺点、使用场景等维度全面解析原型模式。 一、原型模式核心结构原型模式的核心包含两个关键角色，同时需重点区分浅拷贝与深拷贝，这是原型模式的核心要点： 1.1 核心角色 抽象原型（Pr">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.208Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="原型模式">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/06/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/5.%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/06/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/5.%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/","path":"2019/11/06/学习笔记/设计模式/5.原型模式/","title":"原型模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>原型模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、原型模式核心结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%A0%B8%E5%BF%83%E8%A7%92%E8%89%B2"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 核心角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%EF%BC%9A%E6%B5%85%E6%8B%B7%E8%B4%9D%E4%B8%8E%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心概念：浅拷贝与深拷贝</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现原型模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%86%85%E7%BD%AE%E6%8E%A5%E5%8F%A3-%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（内置接口+序列化）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%86%85%E7%BD%AEcopy%E6%A8%A1%E5%9D%97%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（内置copy模块）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Golang-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93%E6%96%B9%E6%B3%95-%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Golang 实现（结构体方法+序列化）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8B%B7%E8%B4%9D%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（拷贝构造函数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%A8%A1%E6%8B%9F%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数模拟）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、原型模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、原型模式的使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.1.</span> <span class="nav-text">典型实战案例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/06/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/5.%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="原型模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          原型模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-06T00:00:00+08:00">2019-11-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>原型模式是一种创建型设计模式，其核心思想是通过复制已有对象（原型）来创建新对象，而非通过构造函数从头初始化。这种模式能有效减少重复初始化的开销，尤其适用于创建复杂对象或大量相似对象的场景。本文将从核心结构、多语言实现、优缺点、使用场景等维度全面解析原型模式。</p>
+<h2 id="一、原型模式核心结构"><a href="#一、原型模式核心结构" class="headerlink" title="一、原型模式核心结构"></a>一、原型模式核心结构</h2><p>原型模式的核心包含两个关键角色，同时需重点区分浅拷贝与深拷贝，这是原型模式的核心要点：</p>
+<h3 id="1-1-核心角色"><a href="#1-1-核心角色" class="headerlink" title="1.1 核心角色"></a>1.1 核心角色</h3><ul>
+<li><p><strong>抽象原型（Prototype）</strong>：定义克隆自身的接口，通常包含一个<code>Clone</code>方法，声明对象拷贝的规范，是所有具体原型的公共约束。</p>
+</li>
+<li><p><strong>具体原型（Concrete Prototype）</strong>：实现抽象原型的<code>Clone</code>方法，完成自身的拷贝逻辑，根据需求实现浅拷贝或深拷贝。</p>
+</li>
+</ul>
+<h3 id="1-2-核心概念：浅拷贝与深拷贝"><a href="#1-2-核心概念：浅拷贝与深拷贝" class="headerlink" title="1.2 核心概念：浅拷贝与深拷贝"></a>1.2 核心概念：浅拷贝与深拷贝</h3><p>原型模式的核心差异的在于拷贝的深度，直接决定新旧对象的独立性：</p>
+<ul>
+<li><p><strong>浅拷贝</strong>：仅复制对象本身及基本类型成员，引用类型成员（如指针、对象引用）仅复制引用地址，新旧对象共享同一引用对象，一方修改会影响另一方。</p>
+</li>
+<li><p><strong>深拷贝</strong>：完全复制对象及所有嵌套的引用类型成员，为每个引用类型成员重新分配内存并复制内容，新旧对象相互独立，修改互不影响。</p>
+</li>
+</ul>
+<h2 id="二、多语言实现原型模式"><a href="#二、多语言实现原型模式" class="headerlink" title="二、多语言实现原型模式"></a>二、多语言实现原型模式</h2><p>不同语言因语法特性、内置工具差异，原型模式的实现方式各有侧重，以下结合C#、Python、Golang、C++、纯C五种语言，实现统一场景（拷贝包含引用类型成员的Person对象），清晰展示深浅拷贝的实现逻辑。</p>
+<h3 id="2-1-C-实现（内置接口-序列化）"><a href="#2-1-C-实现（内置接口-序列化）" class="headerlink" title="2.1 C# 实现（内置接口+序列化）"></a>2.1 C# 实现（内置接口+序列化）</h3><p>C# 内置<code>ICloneable</code>接口作为抽象原型，通过<code>MemberwiseClone</code>实现浅拷贝，深拷贝可借助序列化快速实现，无需手动处理嵌套引用，适配面向对象开发场景。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> System.Runtime.Serialization.Formatters.Binary;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象原型接口（复用系统内置ICloneable，简化开发）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IPrototype</span> : <span class="title">ICloneable</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体原型（包含引用类型成员）</span></span><br><span class="line">[<span class="meta">Serializable</span>] <span class="comment">// 深拷贝需添加序列化标记，否则无法序列化引用类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Person</span> : <span class="title">IPrototype</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Age &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> Address Address &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125; <span class="comment">// 引用类型成员（嵌套对象）</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 浅拷贝实现：调用系统内置方法，仅拷贝值类型和引用地址</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">object</span> <span class="title">Clone</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.MemberwiseClone(); <span class="comment">// 内置浅拷贝方法，高效简洁</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 深拷贝实现：通过二进制序列化/反序列化，自动处理嵌套引用</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Person <span class="title">DeepClone</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> ms = <span class="keyword">new</span> MemoryStream())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> formatter = <span class="keyword">new</span> BinaryFormatter();</span><br><span class="line">            formatter.Serialize(ms, <span class="keyword">this</span>); <span class="comment">// 序列化对象</span></span><br><span class="line">            ms.Position = <span class="number">0</span>; <span class="comment">// 重置流位置</span></span><br><span class="line">            <span class="keyword">return</span> (Person)formatter.Deserialize(ms); <span class="comment">// 反序列化生成新对象</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 引用类型成员（需同步添加序列化标记）</span></span><br><span class="line">[<span class="meta">Serializable</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Address</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> City &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Street &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码（验证深浅拷贝效果）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 初始化原型对象</span></span><br><span class="line">        <span class="keyword">var</span> prototype = <span class="keyword">new</span> Person</span><br><span class="line">        &#123;</span><br><span class="line">            Name = <span class="string">&quot;张三&quot;</span>,</span><br><span class="line">            Age = <span class="number">25</span>,</span><br><span class="line">            Address = <span class="keyword">new</span> Address &#123; City = <span class="string">&quot;北京&quot;</span>, Street = <span class="string">&quot;朝阳路&quot;</span> &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 浅拷贝测试</span></span><br><span class="line">        <span class="keyword">var</span> shallowCopy = (Person)prototype.Clone();</span><br><span class="line">        shallowCopy.Address.City = <span class="string">&quot;上海&quot;</span>; <span class="comment">// 修改引用成员</span></span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;浅拷贝后原型地址：<span class="subst">&#123;prototype.Address.City&#125;</span>&quot;</span>); <span class="comment">// 输出：上海（原型受影响）</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 深拷贝测试</span></span><br><span class="line">        <span class="keyword">var</span> deepCopy = prototype.DeepClone();</span><br><span class="line">        deepCopy.Address.City = <span class="string">&quot;广州&quot;</span>; <span class="comment">// 修改引用成员</span></span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;深拷贝后原型地址：<span class="subst">&#123;prototype.Address.City&#125;</span>&quot;</span>); <span class="comment">// 输出：上海（原型不受影响）</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（内置copy模块）"><a href="#2-2-Python-实现（内置copy模块）" class="headerlink" title="2.2 Python 实现（内置copy模块）"></a>2.2 Python 实现（内置copy模块）</h3><p>Python 遵循“鸭子类型”，无需显式定义抽象原型接口，<code>copy</code>模块内置<code>copy()</code>（浅拷贝）和<code>deepcopy()</code>（深拷贝）方法，可直接复用，大幅简化代码，适配快速开发场景。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 引用类型：地址类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Address</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, city, street</span>):</span><br><span class="line">        <span class="variable language_">self</span>.city = city</span><br><span class="line">        <span class="variable language_">self</span>.street = street</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体原型类：人员类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name, age, address</span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name  <span class="comment"># 基本类型</span></span><br><span class="line">        <span class="variable language_">self</span>.age = age    <span class="comment"># 基本类型</span></span><br><span class="line">        <span class="variable language_">self</span>.address = address  <span class="comment"># 引用类型成员</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 浅拷贝方法：复用copy模块</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">shallow_clone</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> copy.copy(<span class="variable language_">self</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 深拷贝方法：复用copy模块，自动处理嵌套引用</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">deep_clone</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> copy.deepcopy(<span class="variable language_">self</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试代码</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 初始化原型对象</span></span><br><span class="line">    prototype = Person(<span class="string">&quot;张三&quot;</span>, <span class="number">25</span>, Address(<span class="string">&quot;北京&quot;</span>, <span class="string">&quot;朝阳路&quot;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 浅拷贝验证</span></span><br><span class="line">    shallow_copy = prototype.shallow_clone()</span><br><span class="line">    shallow_copy.address.city = <span class="string">&quot;上海&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;浅拷贝后原型地址：<span class="subst">&#123;prototype.address.city&#125;</span>&quot;</span>)  <span class="comment"># 输出：上海</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 深拷贝验证</span></span><br><span class="line">    deep_copy = prototype.deep_clone()</span><br><span class="line">    deep_copy.address.city = <span class="string">&quot;广州&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;深拷贝后原型地址：<span class="subst">&#123;prototype.address.city&#125;</span>&quot;</span>)  <span class="comment"># 输出：上海</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Golang-实现（结构体方法-序列化）"><a href="#2-3-Golang-实现（结构体方法-序列化）" class="headerlink" title="2.3 Golang 实现（结构体方法+序列化）"></a>2.3 Golang 实现（结构体方法+序列化）</h3><p>Golang 无类和继承，通过结构体模拟原型，浅拷贝可通过结构体值传递实现，深拷贝可借助JSON序列化实现通用逻辑，兼顾简洁性与性能，符合Go语言极简设计哲学。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    coding/json<span class="string">&quot;</span></span><br><span class="line"><span class="string">  fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 引用类型：地址结构体</span></span><br><span class="line"><span class="keyword">type</span> Address <span class="keyword">struct</span> &#123;</span><br><span class="line">    y   <span class="type">string</span></span><br><span class="line">     et <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体原型：人员结构体</span></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">    e    <span class="type">string</span></span><br><span class="line"> Age     <span class="type">int</span></span><br><span class="line">         *Address <span class="comment">// 指针类型（引用类型）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 浅拷贝：结构体值传递，指针成员仅复制地址</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span></span> ShallowClone() *Person &#123;</span><br><span class="line">     e := *p <span class="comment">// 值拷贝，指针成员仍指向原地址</span></span><br><span class="line">  eturn &amp;clone</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 深拷贝：通过JSON序列化/反序列化，通用且无需手动处理嵌套</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span></span> DeepClone() (*Person, <span class="type">error</span>) &#123;</span><br><span class="line">    序列化原对象</span><br><span class="line"> data, err := json.Marshal(p)</span><br><span class="line">      r != <span class="literal">nil</span> &#123;</span><br><span class="line">   eturn <span class="literal">nil</span>, err</span><br><span class="line">        序列化生成新对象</span><br><span class="line">   r clone Person</span><br><span class="line">        ern.Unmarshal(data, &amp;clone)</span><br><span class="line">  f err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">      turn &amp;clone, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  / 初始化原型对象</span><br><span class="line"> prototype := &amp;Person&#123;</span><br><span class="line">  Name: <span class="string">&quot;张三&quot;</span>,</span><br><span class="line">   ge:  <span class="number">25</span>,</span><br><span class="line">   ddress: &amp;Address&#123;</span><br><span class="line">   City:   <span class="string">&quot;北京&quot;</span>,</span><br><span class="line">    treet: <span class="string">&quot;朝阳路&quot;</span>,</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  / 浅拷贝测试</span><br><span class="line"> shallowCopy := prototype.ShallowClone()</span><br><span class="line"> shallowCopy.Address.City = <span class="string">&quot;上海&quot;</span></span><br><span class="line"> fmt.Printf(<span class="string">&quot;浅拷贝后原型地址：%s\n&quot;</span>, prototype.Address.City) <span class="comment">// 输出：上海</span></span><br><span class="line"></span><br><span class="line">  / 深拷贝测试</span><br><span class="line">    pCopy, _ := prototype.DeepClone()</span><br><span class="line"> deepCopy.Address.City = <span class="string">&quot;广州&quot;</span></span><br><span class="line"> fmt.Printf(<span class="string">&quot;深拷贝后原型地址：%s\n&quot;</span>, prototype.Address.City) <span class="comment">// 输出：上海</span></span><br><span class="line">&#125;</span><br><span class="line">                  dee      /                           /          &#125;,</span><br><span class="line">                     S                                  A             A                                  /  &#125;</span><br><span class="line">        re                    ir = jso     va&#125;</span><br><span class="line">        <span class="comment">// 反             r  if er            //      r   clonAddress           Nam   Stre    Cit      &quot;    &quot;en</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（拷贝构造函数）"><a href="#2-4-C-实现（拷贝构造函数）" class="headerlink" title="2.4 C++ 实现（拷贝构造函数）"></a>2.4 C++ 实现（拷贝构造函数）</h3><p>C++ 通过拷贝构造函数实现原型模式，默认拷贝构造为浅拷贝，深拷贝需手动重载拷贝构造函数或自定义克隆方法，需注意内存管理，避免内存泄漏，适配高性能底层开发场景。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 引用类型：地址类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Address</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    string city;</span><br><span class="line">    string street;</span><br><span class="line">    <span class="comment">// 构造函数</span></span><br><span class="line">    <span class="built_in">Address</span>(string c, string s) : <span class="built_in">city</span>(c), <span class="built_in">street</span>(s) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体原型：人员类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    Address* address; <span class="comment">// 指针（引用类型）</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 构造函数</span></span><br><span class="line">    <span class="built_in">Person</span>(string n, <span class="type">int</span> a, Address* addr) : <span class="built_in">name</span>(n), <span class="built_in">age</span>(a), <span class="built_in">address</span>(addr) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 浅拷贝构造函数（默认行为，仅复制指针）</span></span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> Person&amp; other) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;name = other.name;</span><br><span class="line">        <span class="keyword">this</span>-&gt;age = other.age;</span><br><span class="line">        <span class="keyword">this</span>-&gt;address = other.address; <span class="comment">// 共享指针，浅拷贝</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 深拷贝方法：手动创建新的引用对象，实现完全拷贝</span></span><br><span class="line">    <span class="function">Person* <span class="title">DeepClone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Address* newAddr = <span class="keyword">new</span> <span class="built_in">Address</span>(<span class="keyword">this</span>-&gt;address-&gt;city, <span class="keyword">this</span>-&gt;address-&gt;street);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Person</span>(<span class="keyword">this</span>-&gt;name, <span class="keyword">this</span>-&gt;age, newAddr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 析构函数：释放内存，避免泄漏</span></span><br><span class="line">    ~<span class="built_in">Person</span>() &#123;</span><br><span class="line">        <span class="keyword">delete</span> address;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 辅助方法：修改地址城市</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">setCity</span><span class="params">(string c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;address-&gt;city = c;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 辅助方法：获取地址城市</span></span><br><span class="line">    <span class="function">string <span class="title">getCity</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>-&gt;address-&gt;city;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化原型对象</span></span><br><span class="line">    Address* addr = <span class="keyword">new</span> <span class="built_in">Address</span>(<span class="string">&quot;北京&quot;</span>, <span class="string">&quot;朝阳路&quot;</span>);</span><br><span class="line">    Person* prototype = <span class="keyword">new</span> <span class="built_in">Person</span>(<span class="string">&quot;张三&quot;</span>, <span class="number">25</span>, addr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 浅拷贝测试</span></span><br><span class="line">    Person shallowCopy = *prototype; <span class="comment">// 调用浅拷贝构造函数</span></span><br><span class="line">    shallowCopy.<span class="built_in">setCity</span>(<span class="string">&quot;上海&quot;</span>);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;浅拷贝后原型地址：&quot;</span> &lt;&lt; prototype-&gt;<span class="built_in">getCity</span>() &lt;&lt; endl; <span class="comment">// 输出：上海</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 深拷贝测试</span></span><br><span class="line">    Person* deepCopy = prototype-&gt;<span class="built_in">DeepClone</span>();</span><br><span class="line">    deepCopy-&gt;<span class="built_in">setCity</span>(<span class="string">&quot;广州&quot;</span>);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;深拷贝后原型地址：&quot;</span> &lt;&lt; prototype-&gt;<span class="built_in">getCity</span>() &lt;&lt; endl; <span class="comment">// 输出：上海</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存</span></span><br><span class="line">    <span class="keyword">delete</span> prototype;</span><br><span class="line">    <span class="keyword">delete</span> deepCopy;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数模拟）"><a href="#2-5-纯C语言实现（结构体-函数模拟）" class="headerlink" title="2.5 纯C语言实现（结构体+函数模拟）"></a>2.5 纯C语言实现（结构体+函数模拟）</h3><p>纯C语言无面向对象特性，通过结构体封装数据，函数模拟克隆行为，深浅拷贝均需手动处理指针和内存分配，代码冗余但底层可控，适配嵌入式、底层开发场景。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 引用类型：地址结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span>* city;</span><br><span class="line">    <span class="type">char</span>* street;</span><br><span class="line">&#125; Address;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体原型：人员结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span>* name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    Address* address;</span><br><span class="line">&#125; Person;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工具函数：初始化Address</span></span><br><span class="line">Address* <span class="title function_">address_init</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* city, <span class="type">const</span> <span class="type">char</span>* street)</span> &#123;</span><br><span class="line">    Address* addr = (Address*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Address));</span><br><span class="line">    addr-&gt;city = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(city) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(addr-&gt;city, city);</span><br><span class="line">    addr-&gt;street = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(street) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(addr-&gt;street, street);</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工具函数：初始化Person</span></span><br><span class="line">Person* <span class="title function_">person_init</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* name, <span class="type">int</span> age, Address* addr)</span> &#123;</span><br><span class="line">    Person* p = (Person*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Person));</span><br><span class="line">    p-&gt;name = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(name) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(p-&gt;name, name);</span><br><span class="line">    p-&gt;age = age;</span><br><span class="line">    p-&gt;address = addr;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 浅拷贝函数：仅复制结构体，共享指针成员</span></span><br><span class="line">Person* <span class="title function_">person_shallow_clone</span><span class="params">(Person* p)</span> &#123;</span><br><span class="line">    Person* clone = (Person*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Person));</span><br><span class="line">    clone-&gt;name = p-&gt;name; <span class="comment">// 共享字符串指针</span></span><br><span class="line">    clone-&gt;age = p-&gt;age;   <span class="comment">// 复制基本类型</span></span><br><span class="line">    clone-&gt;address = p-&gt;address; <span class="comment">// 共享Address指针</span></span><br><span class="line">    <span class="keyword">return</span> clone;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 深拷贝函数：手动复制所有指针成员，分配新内存</span></span><br><span class="line">Person* <span class="title function_">person_deep_clone</span><span class="params">(Person* p)</span> &#123;</span><br><span class="line">    <span class="comment">// 深拷贝Address</span></span><br><span class="line">    Address* newAddr = (Address*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Address));</span><br><span class="line">    newAddr-&gt;city = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(p-&gt;address-&gt;city) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(newAddr-&gt;city, p-&gt;address-&gt;city);</span><br><span class="line">    newAddr-&gt;street = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(p-&gt;address-&gt;street) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(newAddr-&gt;street, p-&gt;address-&gt;street);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 深拷贝Person</span></span><br><span class="line">    Person* clone = (Person*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Person));</span><br><span class="line">    clone-&gt;name = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(p-&gt;name) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(clone-&gt;name, p-&gt;name);</span><br><span class="line">    clone-&gt;age = p-&gt;age;</span><br><span class="line">    clone-&gt;address = newAddr;</span><br><span class="line">    <span class="keyword">return</span> clone;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工具函数：释放Person内存</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">person_free</span><span class="params">(Person* p)</span> &#123;</span><br><span class="line">    <span class="built_in">free</span>(p-&gt;name);</span><br><span class="line">    <span class="built_in">free</span>(p-&gt;address-&gt;city);</span><br><span class="line">    <span class="built_in">free</span>(p-&gt;address-&gt;street);</span><br><span class="line">    <span class="built_in">free</span>(p-&gt;address);</span><br><span class="line">    <span class="built_in">free</span>(p);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 初始化原型对象</span></span><br><span class="line">    Address* addr = address_init(<span class="string">&quot;北京&quot;</span>, <span class="string">&quot;朝阳路&quot;</span>);</span><br><span class="line">    Person* prototype = person_init(<span class="string">&quot;张三&quot;</span>, <span class="number">25</span>, addr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 浅拷贝测试</span></span><br><span class="line">    Person* shallowCopy = person_shallow_clone(prototype);</span><br><span class="line">    <span class="comment">// 修改浅拷贝对象的引用成员（需先释放原内存，避免内存泄漏）</span></span><br><span class="line">    <span class="built_in">free</span>(shallowCopy-&gt;address-&gt;city);</span><br><span class="line">    shallowCopy-&gt;address-&gt;city = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(<span class="string">&quot;上海&quot;</span>) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(shallowCopy-&gt;address-&gt;city, <span class="string">&quot;上海&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;浅拷贝后原型地址：%s\n&quot;</span>, prototype-&gt;address-&gt;city); <span class="comment">// 输出：上海</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 深拷贝测试</span></span><br><span class="line">    Person* deepCopy = person_deep_clone(prototype);</span><br><span class="line">    <span class="built_in">free</span>(deepCopy-&gt;address-&gt;city);</span><br><span class="line">    deepCopy-&gt;address-&gt;city = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(<span class="string">&quot;广州&quot;</span>) + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(deepCopy-&gt;address-&gt;city, <span class="string">&quot;广州&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;深拷贝后原型地址：%s\n&quot;</span>, prototype-&gt;address-&gt;city); <span class="comment">// 输出：上海</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存</span></span><br><span class="line">    person_free(prototype);</span><br><span class="line">    <span class="built_in">free</span>(shallowCopy); <span class="comment">// 浅拷贝仅释放结构体，不释放共享指针</span></span><br><span class="line">    person_free(deepCopy);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、原型模式的优缺点"><a href="#三、原型模式的优缺点" class="headerlink" title="三、原型模式的优缺点"></a>三、原型模式的优缺点</h2><p>原型模式的价值与局限均围绕“拷贝替代创建”的核心逻辑，需结合场景权衡使用，避免过度设计。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>降低对象创建开销</strong>：对于初始化成本高的对象（如数据库连接、大文件解析、复杂计算对象），拷贝比重新初始化更高效，减少重复操作。</p>
+</li>
+<li><p><strong>简化对象创建逻辑</strong>：无需关注构造函数的参数、访问权限等限制，直接复制已有原型对象，降低创建复杂度，提升开发效率。</p>
+</li>
+<li><p><strong>支持动态扩展</strong>：可在运行时动态修改原型对象，生成不同变体的新对象，无需修改原有代码，符合“开闭原则”。</p>
+</li>
+<li><p><strong>保护原型状态</strong>：深拷贝可保留原型对象的初始状态，新对象的修改不会影响原型，适用于需要基准模板的场景。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>深拷贝实现复杂</strong>：嵌套引用类型越多，深拷贝逻辑越繁琐，易出现内存泄漏（如C&#x2F;C++）、循环引用（如Python）等问题，增加开发难度。</p>
+</li>
+<li><p><strong>维护成本较高</strong>：当原型对象的属性或结构发生变更时，需同步修改拷贝逻辑（尤其是深拷贝），否则会出现拷贝不完整的问题。</p>
+</li>
+<li><p><strong>性能损耗差异</strong>：深拷贝涉及大量内存复制，在高频拷贝、大对象拷贝场景下，性能损耗明显高于浅拷贝和直接创建。</p>
+</li>
+<li><p><strong>非面向对象语言适配差</strong>：纯C等无面向对象特性的语言，需手动模拟原型结构和拷贝逻辑，代码冗余度高，维护不便。</p>
+</li>
+</ul>
+<h2 id="四、原型模式的使用场景"><a href="#四、原型模式的使用场景" class="headerlink" title="四、原型模式的使用场景"></a>四、原型模式的使用场景</h2><p>原型模式的核心适用场景是“对象创建成本高、需批量生成相似对象”，同时需根据引用类型的存在与否，选择浅拷贝或深拷贝。</p>
+<ul>
+<li><p><strong>对象创建成本高</strong>：如创建包含大量数据的缓存对象、需频繁读取文件&#x2F;数据库的配置对象、经过复杂计算初始化的对象。</p>
+</li>
+<li><p><strong>批量生成相似对象</strong>：如游戏中的角色、粒子系统、NPC，电商系统中的批量订单，仅属性略有差异，通过拷贝原型可快速生成。</p>
+</li>
+<li><p><strong>动态生成对象变体</strong>：如根据模板生成不同主题的UI组件、不同配置的接口请求对象，无需重复编写初始化逻辑。</p>
+</li>
+<li><p><strong>避免构造函数耦合</strong>：当对象构造逻辑复杂，且创建逻辑需与业务逻辑隔离时，拷贝原型可降低代码耦合度。</p>
+</li>
+<li><p><strong>浅拷贝适用场景</strong>：对象无引用类型成员，或引用成员为只读数据、无需独立修改，追求拷贝效率。</p>
+</li>
+<li><p><strong>深拷贝适用场景</strong>：对象包含嵌套引用类型，且新旧对象需完全独立（如多线程操作、对象修改不影响原型、需保留基准状态）。</p>
+</li>
+</ul>
+<h3 id="典型实战案例"><a href="#典型实战案例" class="headerlink" title="典型实战案例"></a>典型实战案例</h3><ul>
+<li><p>设计工具的“复制粘贴”功能（如PS图层、Axure组件），本质是原型模式的浅拷贝&#x2F;深拷贝应用；</p>
+</li>
+<li><p>数据库连接池中的连接对象克隆，避免频繁创建&#x2F;关闭连接，提升数据库访问性能；</p>
+</li>
+<li><p>序列化&#x2F;反序列化场景（如JSON、二进制序列化），核心是深拷贝的实现，用于对象传输、持久化；</p>
+</li>
+<li><p>游戏开发中的角色实例生成，通过原型拷贝快速创建大量相似角色，仅修改属性（如血量、攻击力）。</p>
+</li>
+</ul>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>原型模式以“拷贝替代创建”为核心，核心价值在于平衡对象创建的性能与复杂度，其核心难点是深浅拷贝的选择与实现。不同语言的实现方式，反映了语言本身的设计理念和适用场景：</p>
+<ul>
+<li><p>高级面向对象语言（C#、Python）：提供内置工具（接口、模块）简化拷贝逻辑，深拷贝可通过序列化快速实现，开发效率高；</p>
+</li>
+<li><p>静态语言（Golang）：通过结构体方法+序列化实现通用拷贝，兼顾简洁性与性能，贴合语言极简特性；</p>
+</li>
+<li><p>编译型语言（C++）：需手动管理拷贝构造函数和内存，深拷贝实现灵活但易出错，适配高性能底层开发；</p>
+</li>
+<li><p>纯C语言：通过结构体+函数模拟原型模式，代码冗余但底层可控，适用于嵌入式等资源受限场景。</p>
+</li>
+</ul>
+<p>在工程实践中，原型模式并非万能，需注意：浅拷贝虽高效但存在数据共享风险，深拷贝虽安全但性能开销较高；当对象结构简单、创建成本低时，直接使用构造函数更简洁。原型模式可与工厂模式、单例模式协同使用（如单例管理原型对象，工厂负责克隆分发），最大化发挥其价值，成为优化复杂对象创建流程的重要工具。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag"># 原型模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/05/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/4.%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="prev" title="建造者模式">
+                  <i class="fa fa-angle-left"></i> 建造者模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/07/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/6.%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="next" title="适配器模式">
+                  适配器模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

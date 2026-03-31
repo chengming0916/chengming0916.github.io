@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Ollama 作为轻量级本地大语言模型（LLM）管理工具，能够便捷地实现本地模型的部署、调度与交互。本文将从环境变量配置、CLI 核心命令、安装部署优化等维度，全方位讲解 Ollama 的使用方法，同时涵盖 WebUI 部署、Python&#x2F;Java 客户端 API 集成等实战场景，帮助开发者高效管理和使用本地大模型。 一、核心环境变量配置环境变量是定制 Ollama 运行行为的核心，通过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ollama完整教程：本地LLM管理、WebUI对话、Python&#x2F;Java客户端API应用">
+<meta property="og:url" content="http://chengming0916.github.io/2025/12/16/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Ollama%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E7%94%A8CLI%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="Ollama 作为轻量级本地大语言模型（LLM）管理工具，能够便捷地实现本地模型的部署、调度与交互。本文将从环境变量配置、CLI 核心命令、安装部署优化等维度，全方位讲解 Ollama 的使用方法，同时涵盖 WebUI 部署、Python&#x2F;Java 客户端 API 集成等实战场景，帮助开发者高效管理和使用本地大模型。 一、核心环境变量配置环境变量是定制 Ollama 运行行为的核心，通过">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-16T08:07:11.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.202Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Ollama">
+<meta property="article:tag" content="环境变量">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/12/16/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Ollama%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E7%94%A8CLI%E5%91%BD%E4%BB%A4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/12/16/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Ollama%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E7%94%A8CLI%E5%91%BD%E4%BB%A4/","path":"2025/12/16/大模型/Ollama环境变量与常用CLI命令/","title":"Ollama完整教程：本地LLM管理、WebUI对话、Python/Java客户端API应用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Ollama完整教程：本地LLM管理、WebUI对话、Python/Java客户端API应用 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">一、核心环境变量配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%EF%BC%9A%E6%8E%A7%E5%88%B6%E6%9C%8D%E5%8A%A1%E8%AE%BF%E9%97%AE%E8%8C%83%E5%9B%B4"><span class="nav-number">1.1.</span> <span class="nav-text">1. 网络配置：控制服务访问范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A8%A1%E5%9E%8B%E7%AE%A1%E7%90%86%EF%BC%9A%E4%BC%98%E5%8C%96%E5%AD%98%E5%82%A8%E4%B8%8E%E5%8A%A0%E8%BD%BD%E7%AD%96%E7%95%A5"><span class="nav-number">1.2.</span> <span class="nav-text">2. 模型管理：优化存储与加载策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%80%A7%E8%83%BD%E4%B8%8E%E8%B0%83%E5%BA%A6%EF%BC%9A%E6%8F%90%E5%8D%87%E5%B9%B6%E5%8F%91%E4%B8%8E%E8%B5%84%E6%BA%90%E5%88%A9%E7%94%A8%E7%8E%87"><span class="nav-number">1.3.</span> <span class="nav-text">3. 性能与调度：提升并发与资源利用率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%B0%83%E8%AF%95%E4%B8%8E%E6%97%A5%E5%BF%97%EF%BC%9A%E8%BE%85%E5%8A%A9%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">1.4.</span> <span class="nav-text">4. 调试与日志：辅助问题排查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E7%89%B9%E6%80%A7%E5%BC%80%E5%85%B3%EF%BC%9A%E5%B0%9D%E9%B2%9C%E5%AE%9E%E9%AA%8C%E6%80%A7%E5%8A%9F%E8%83%BD"><span class="nav-number">1.5.</span> <span class="nav-text">5. 特性开关：尝鲜实验性功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE%EF%BC%9A%E9%80%82%E9%85%8D%E7%BD%91%E7%BB%9C%E8%AE%BF%E9%97%AE%E5%9C%BA%E6%99%AF"><span class="nav-number">1.6.</span> <span class="nav-text">6. 代理设置：适配网络访问场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81CLI-%E6%A0%B8%E5%BF%83%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">二、CLI 核心命令详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4%E9%80%9F%E8%A7%88"><span class="nav-number">2.1.</span> <span class="nav-text">1. 基础命令速览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%AB%98%E9%A2%91%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%88%98"><span class="nav-number">2.2.</span> <span class="nav-text">2. 高频命令实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1%EF%BC%9A%E5%AE%9A%E5%88%B6%E5%8C%96%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0"><span class="nav-number">2.2.1.</span> <span class="nav-text">（1）启动服务：定制化启动参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%A8%A1%E5%9E%8B%E7%AE%A1%E7%90%86%EF%BC%9A%E4%BB%8E%E6%8B%89%E5%8F%96%E5%88%B0%E5%88%A0%E9%99%A4%E5%85%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.2.</span> <span class="nav-text">（2）模型管理：从拉取到删除全流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%A8%A1%E5%9E%8B%E4%BA%A4%E4%BA%92%EF%BC%9A%E7%BB%88%E7%AB%AF%E9%AB%98%E6%95%88%E9%AA%8C%E8%AF%81"><span class="nav-number">2.2.3.</span> <span class="nav-text">（3）模型交互：终端高效验证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Ollama-%E5%AE%89%E8%A3%85%E4%B8%8E%E7%B3%BB%E7%BB%9F%E5%8F%82%E6%95%B0%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">3.</span> <span class="nav-text">三、Ollama 安装与系统参数最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85"><span class="nav-number">3.1.</span> <span class="nav-text">1. 快速安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BF%85%E9%85%8D%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%88%E4%BC%98%E5%8C%96%E4%BD%93%E9%AA%8C%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">2. 必配系统环境变量（优化体验）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/12/16/%E5%A4%A7%E6%A8%A1%E5%9E%8B/Ollama%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E7%94%A8CLI%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Ollama完整教程：本地LLM管理、WebUI对话、Python&#x2F;Java客户端API应用 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ollama完整教程：本地LLM管理、WebUI对话、Python/Java客户端API应用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-12-16 16:07:11" itemprop="dateCreated datePublished" datetime="2025-12-16T16:07:11+08:00">2025-12-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Ollama 作为轻量级本地大语言模型（LLM）管理工具，能够便捷地实现本地模型的部署、调度与交互。本文将从环境变量配置、CLI 核心命令、安装部署优化等维度，全方位讲解 Ollama 的使用方法，同时涵盖 WebUI 部署、Python&#x2F;Java 客户端 API 集成等实战场景，帮助开发者高效管理和使用本地大模型。</p>
+<h2 id="一、核心环境变量配置"><a href="#一、核心环境变量配置" class="headerlink" title="一、核心环境变量配置"></a>一、核心环境变量配置</h2><p>环境变量是定制 Ollama 运行行为的核心，通过合理配置可优化网络访问、模型管理、性能调度等关键环节，以下为高频实用的环境变量分类说明：</p>
+<h3 id="1-网络配置：控制服务访问范围"><a href="#1-网络配置：控制服务访问范围" class="headerlink" title="1. 网络配置：控制服务访问范围"></a>1. 网络配置：控制服务访问范围</h3><table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>默认值</th>
+<th>功能与使用示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OLLAMA_HOST</td>
+<td><a href="127.0.0.1:11434">127.0.0.1:11434</a></td>
+<td>定义服务监听地址&#x2F;端口，支持 HTTP&#x2F;HTTPS 协议。示例：<code>0.0.0.0:8080</code>（允许局域网访问）、<code>https://0.0.0.0:443</code>（HTTPS 协议）</td>
+</tr>
+<tr>
+<td>OLLAMA_ORIGINS</td>
+<td><a target="_blank" rel="noopener" href="http://localhost/127.0.0.1">localhost&#x2F;127.0.0.1</a>等</td>
+<td>配置跨域请求允许来源，示例：<code>OLLAMA_ORIGINS=*,https://example.com</code>（允许所有来源+指定域名）</td>
+</tr>
+</tbody></table>
+<h3 id="2-模型管理：优化存储与加载策略"><a href="#2-模型管理：优化存储与加载策略" class="headerlink" title="2. 模型管理：优化存储与加载策略"></a>2. 模型管理：优化存储与加载策略</h3><table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>默认值</th>
+<th>功能与使用示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OLLAMA_MODELS</td>
+<td>~&#x2F;.ollama&#x2F;models</td>
+<td>自定义模型存储路径，示例：<code>OLLAMA_MODELS=/data/ollama/models</code>（Linux）、<code>OLLAMA_MODELS=D:\OllamaModels</code>（Windows）</td>
+</tr>
+<tr>
+<td>OLLAMA_KEEP_ALIVE</td>
+<td>5m</td>
+<td>模型内存存活时间，示例：<code>30m</code>（30分钟）、<code>24h</code>（24小时）、<code>-1</code>（永久存活）、<code>0</code>（立即卸载）</td>
+</tr>
+<tr>
+<td>OLLAMA_LOAD_TIMEOUT</td>
+<td>5m</td>
+<td>模型加载超时时间，示例：<code>10m</code>（超时10分钟终止加载）</td>
+</tr>
+<tr>
+<td>OLLAMA_MAX_LOADED_MODELS</td>
+<td>0（无限制）</td>
+<td>限制同时加载模型数，示例：<code>4</code>（最多加载4个模型）</td>
+</tr>
+<tr>
+<td>OLLAMA_MAX_QUEUE</td>
+<td>512</td>
+<td>请求队列最大长度，示例：<code>1024</code>（支持1024个并发请求排队）</td>
+</tr>
+<tr>
+<td>OLLAMA_MAX_VRAM</td>
+<td>0（无限制）</td>
+<td>GPU 显存最大使用量（字节），示例：<code>8589934592</code>（限制8GB显存）</td>
+</tr>
+<tr>
+<td>OLLAMA_GPU_OVERHEAD</td>
+<td>0</td>
+<td>单GPU显存预留量（字节），示例：<code>1073741824</code>（预留1GB显存）</td>
+</tr>
+</tbody></table>
+<h3 id="3-性能与调度：提升并发与资源利用率"><a href="#3-性能与调度：提升并发与资源利用率" class="headerlink" title="3. 性能与调度：提升并发与资源利用率"></a>3. 性能与调度：提升并发与资源利用率</h3><table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>默认值</th>
+<th>功能与使用示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OLLAMA_NUM_PARALLEL</td>
+<td>0（无限制）</td>
+<td>并行处理请求数，示例：<code>8</code>（同时处理8个请求）</td>
+</tr>
+<tr>
+<td>OLLAMA_SCHED_SPREAD</td>
+<td>false</td>
+<td>启用模型跨GPU调度，示例：<code>OLLAMA_SCHED_SPREAD=1</code>（开启跨GPU调度）</td>
+</tr>
+</tbody></table>
+<h3 id="4-调试与日志：辅助问题排查"><a href="#4-调试与日志：辅助问题排查" class="headerlink" title="4. 调试与日志：辅助问题排查"></a>4. 调试与日志：辅助问题排查</h3><table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>默认值</th>
+<th>功能与使用示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OLLAMA_DEBUG</td>
+<td>false</td>
+<td>启用调试日志，示例：<code>OLLAMA_DEBUG=1</code>（输出详细调试信息）</td>
+</tr>
+<tr>
+<td>OLLAMA_NOHISTORY</td>
+<td>false</td>
+<td>禁用命令行历史记录，示例：<code>OLLAMA_NOHISTORY=1</code>（不保存run命令历史）</td>
+</tr>
+<tr>
+<td>OLLAMA_NOPRUNE</td>
+<td>false</td>
+<td>启动时不清理模型文件，示例：<code>OLLAMA_NOPRUNE=1</code>（保留所有模型缓存）</td>
+</tr>
+</tbody></table>
+<h3 id="5-特性开关：尝鲜实验性功能"><a href="#5-特性开关：尝鲜实验性功能" class="headerlink" title="5. 特性开关：尝鲜实验性功能"></a>5. 特性开关：尝鲜实验性功能</h3><table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>默认值</th>
+<th>功能与使用示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OLLAMA_FLASH_ATTENTION</td>
+<td>false</td>
+<td>启用Flash Attention注意力机制，示例：<code>OLLAMA_FLASH_ATTENTION=1</code></td>
+</tr>
+<tr>
+<td>OLLAMA_MULTIUSER_CACHE</td>
+<td>false</td>
+<td>优化多用户场景提示缓存，示例：<code>OLLAMA_MULTIUSER_CACHE=1</code></td>
+</tr>
+</tbody></table>
+<h3 id="6-代理设置：适配网络访问场景"><a href="#6-代理设置：适配网络访问场景" class="headerlink" title="6. 代理设置：适配网络访问场景"></a>6. 代理设置：适配网络访问场景</h3><table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>功能与使用示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP_PROXY</td>
+<td>设置HTTP代理，示例：<code>HTTP_PROXY=http://proxy.example.com:8080</code></td>
+</tr>
+<tr>
+<td>HTTPS_PROXY</td>
+<td>设置HTTPS代理，示例：<code>HTTPS_PROXY=https://proxy.example.com:8080</code></td>
+</tr>
+<tr>
+<td>NO_PROXY</td>
+<td>排除代理地址，示例：<code>NO_PROXY=localhost,192.168.1.0/24,example.com</code></td>
+</tr>
+</tbody></table>
+<h2 id="二、CLI-核心命令详解"><a href="#二、CLI-核心命令详解" class="headerlink" title="二、CLI 核心命令详解"></a>二、CLI 核心命令详解</h2><p>Ollama 提供简洁的命令行工具（CLI）实现模型全生命周期管理，所有命令均可通过<code>-h/--help</code>查看详细用法，核心命令如下：</p>
+<h3 id="1-基础命令速览"><a href="#1-基础命令速览" class="headerlink" title="1. 基础命令速览"></a>1. 基础命令速览</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>核心用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ollama serve&#x2F;start</td>
+<td>启动 Ollama 服务（两者为别名关系）</td>
+</tr>
+<tr>
+<td>ollama create <new_model></td>
+<td>基于现有模型创建自定义模型（支持定制&#x2F;微调）</td>
+</tr>
+<tr>
+<td>ollama show <model></td>
+<td>查看模型详情（配置、许可证、系统提示等）</td>
+</tr>
+<tr>
+<td>ollama run <model></td>
+<td>启动模型交互（终端直连，支持参数定制）</td>
+</tr>
+<tr>
+<td>ollama pull <model></td>
+<td>从远程仓库拉取模型（支持私有仓库）</td>
+</tr>
+<tr>
+<td>ollama list&#x2F;ls</td>
+<td>列出本地已下载的所有模型（两者为别名关系）</td>
+</tr>
+<tr>
+<td>ollama ps</td>
+<td>查看当前正在运行的模型进程</td>
+</tr>
+<tr>
+<td>ollama stop <model></td>
+<td>停止指定运行中的模型</td>
+</tr>
+<tr>
+<td>ollama rm <model></td>
+<td>删除本地指定模型（支持批量删除）</td>
+</tr>
+</tbody></table>
+<h3 id="2-高频命令实战"><a href="#2-高频命令实战" class="headerlink" title="2. 高频命令实战"></a>2. 高频命令实战</h3><h4 id="（1）启动服务：定制化启动参数"><a href="#（1）启动服务：定制化启动参数" class="headerlink" title="（1）启动服务：定制化启动参数"></a>（1）启动服务：定制化启动参数</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基础启动（默认配置）</span></span><br><span class="line">ollama serve</span><br><span class="line"></span><br><span class="line"><span class="comment"># 带调试日志+自定义监听地址启动</span></span><br><span class="line">OLLAMA_DEBUG=1 OLLAMA_HOST=0.0.0.0:8080 ollama serve</span><br></pre></td></tr></table></figure>
+
+<p>启动命令支持结合任意环境变量，实现服务的个性化配置。</p>
+<h4 id="（2）模型管理：从拉取到删除全流程"><a href="#（2）模型管理：从拉取到删除全流程" class="headerlink" title="（2）模型管理：从拉取到删除全流程"></a>（2）模型管理：从拉取到删除全流程</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取模型（例如Llama 3 8B）</span></span><br><span class="line">ollama pull llama3:8b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看模型参数</span></span><br><span class="line">ollama show llama3:8b --parameters</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出本地模型</span></span><br><span class="line">ollama list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看运行中的模型</span></span><br><span class="line">ollama ps</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止运行中的模型</span></span><br><span class="line">ollama stop llama3:8b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除本地模型</span></span><br><span class="line">ollama <span class="built_in">rm</span> llama3:8b</span><br></pre></td></tr></table></figure>
+
+<h4 id="（3）模型交互：终端高效验证"><a href="#（3）模型交互：终端高效验证" class="headerlink" title="（3）模型交互：终端高效验证"></a>（3）模型交互：终端高效验证</h4><p><code>ollama run</code>是终端验证模型的核心命令，支持直接传参或交互式对话：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基础运行模型</span></span><br><span class="line">ollama run llama3:8b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 带参数运行（指定响应格式为JSON+保持模型存活1小时）</span></span><br><span class="line">ollama run llama3:8b --format json --keepalive 1h <span class="string">&quot;请介绍Ollama的核心功能&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁用自动换行+显示响应耗时</span></span><br><span class="line">ollama run llama3:8b --nowordwrap --verbose</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心优势</strong>：</p>
+<ul>
+<li><p>轻量化验证：无需依赖WebUI，终端直连模型快速验证响应效果；</p>
+</li>
+<li><p>可记录输出：通过<code>&gt;</code>将响应写入文件（如<code>ollama run llama3:8b &quot;提问内容&quot; &gt; response.txt</code>）；</p>
+</li>
+<li><p>自动化适配：可嵌入脚本实现定时交互、批量问答等自动化流程。</p>
+</li>
+</ul>
+<h2 id="三、Ollama-安装与系统参数最佳实践"><a href="#三、Ollama-安装与系统参数最佳实践" class="headerlink" title="三、Ollama 安装与系统参数最佳实践"></a>三、Ollama 安装与系统参数最佳实践</h2><h3 id="1-快速安装"><a href="#1-快速安装" class="headerlink" title="1. 快速安装"></a>1. 快速安装</h3><p>Ollama 支持全平台部署，可从<a target="_blank" rel="noopener" href="https://ollama.com/">官方官网</a>下载对应系统安装包（Windows&#x2F;MacOS&#x2F;Linux），安装流程与常规软件一致，无额外依赖。</p>
+<h3 id="2-必配系统环境变量（优化体验）"><a href="#2-必配系统环境变量（优化体验）" class="headerlink" title="2. 必配系统环境变量（优化体验）"></a>2. 必配系统环境变量（优化体验）</h3><p>安装完成后，建议配置以下环境变量提升使用体验：</p>
+<table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>推荐配置（示例）</th>
+<th>配置原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OLLAMA_MODELS</td>
+<td>D:\OllamaModels（Windows）<br>&#x2F;data&#x2F;ollama&#x2F;models（Linux）</td>
+<td>避免系统盘（C盘）空间占用，统一管理模型文件</td>
+</tr>
+<tr>
+<td>OLLAMA_HOST</td>
+<td><a href="0.0.0.0">0.0.0.0</a></td>
+<td>允许局域网内其他设备访问Ollama服务（默认仅本机可访问）</td>
+</tr>
+<tr>
+<td>OLLAMA_PORT</td>
+<td>8080（按需修改）</td>
+<td>规避11434端口冲突，适配现有网络环境</td>
+</tr>
+<tr>
+<td>OLLAMA_ORIGINS</td>
+<td>*</td>
+<td>本地使用场景下解除跨域限制，简化WebUI&#x2F;API调用</td>
+</tr>
+<tr>
+<td>OLLAMA_KEEP_ALIVE</td>
+<td>24h</td>
+<td>模型常驻内存，避免重复加载耗时（提升访问速度）</td>
+</tr>
+<tr>
+<td>OLLAMA_NUM_PARALLEL</td>
+<td>4-8（按CPU&#x2F;GPU调整）</td>
+<td>提升并发处理能力，适配多请求场景</td>
+</tr>
+<tr>
+<td>OLLAMA_MAX_QUEUE</td>
+<td>1024</td>
+<td>扩大请求队列，避免高并发下请求被丢弃</td>
+</tr>
+<tr>
+<td>OLLAMA_DEBUG</td>
+<td>1（研发阶段）</td>
+<td>输出详细日志，辅助排查模型加载&#x2F;交互异常</td>
+</tr>
+<tr>
+<td>OLLAMA_MAX_LOADED_MODELS</td>
+<td>2-4</td>
+<td>限制同时加载模型数，避免内存&#x2F;GPU显存耗尽</td>
+</tr>
+</tbody></table>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Ollama 凭借轻量化、易配置、跨平台的特性，成为本地大模型管理的首选工具。通过合理配置环境变量，可精准控制服务的网络、性能、资源使用；借助 CLI 命令，可高效完成模型的全生命周期管理；结合 WebUI 或多语言 API，还能进一步扩展交互形式与应用场景。无论是本地验证模型效果，还是搭建私有化大模型服务，Ollama 都能通过灵活的配置和简洁的操作满足多样化需求。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Ollama/" rel="tag"># Ollama</a>
+              <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag"># 环境变量</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/12/16/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2Longhorn/" rel="prev" title="K3s部署Longhorn">
+                  <i class="fa fa-angle-left"></i> K3s部署Longhorn
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/12/19/Archive/2025-12-19/" rel="next" title="Fri Dec 19 2025 00:00:00 GMT+0800 (China Standard Time)">
+                  Fri Dec 19 2025 00:00:00 GMT+0800 (China Standard Time) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在麒麟V10桌面操作系统的日常运维与开发工作中，SSH（Secure Shell）作为远程开发、虚拟机管理及内网服务器连接的核心工具，其运行稳定性直接影响运维效率与开发进度。当出现“Connection refused”“Connection timed out”等连接异常提示时，运维人员与开发人员常面临排查无头绪的困境——此类故障可能源于服务运行状态、配置参数设置、网络通路连通性、防火墙规则配置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH连接失败排查与修复">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/15/Linux/SSH%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在麒麟V10桌面操作系统的日常运维与开发工作中，SSH（Secure Shell）作为远程开发、虚拟机管理及内网服务器连接的核心工具，其运行稳定性直接影响运维效率与开发进度。当出现“Connection refused”“Connection timed out”等连接异常提示时，运维人员与开发人员常面临排查无头绪的困境——此类故障可能源于服务运行状态、配置参数设置、网络通路连通性、防火墙规则配置">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-15T10:56:37.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:54.444Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="SSH">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/15/Linux/SSH%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/15/Linux/SSH%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D/","path":"2026/03/15/Linux/SSH连接失败排查与修复/","title":"SSH连接失败排查与修复"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SSH连接失败排查与修复 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E6%8E%92%E6%9F%A5%EF%BC%9ASSH%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B%EF%BC%88sshd%EF%BC%89%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%E6%A0%A1%E9%AA%8C"><span class="nav-number">1.</span> <span class="nav-text">一、基础排查：SSH守护进程（sshd）运行状态校验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%9C%8D%E5%8A%A1%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2%E4%B8%8E%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 服务状态查询与异常分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E3%80%81%E5%90%AF%E5%8A%A8%E4%B8%8E%E8%87%AA%E5%90%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 服务安装、启动与自启配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%EF%BC%9Asshd-config%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%8F%8A%E6%8E%A8%E8%8D%90%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">二、核心配置：sshd_config参数解析及推荐配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%BF%85%E6%9F%A5%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E9%A1%B9%EF%BC%88%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E9%87%8D%E7%82%B9%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 必查核心配置项（故障排查重点）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%8E%A8%E8%8D%90%E9%85%8D%E7%BD%AE%EF%BC%88%E5%AE%89%E5%85%A8%E4%B8%8E%E7%A8%B3%E5%AE%9A%E5%85%BC%E9%A1%BE%EF%BC%8C%E5%8F%AF%E7%9B%B4%E6%8E%A5%E5%A4%8D%E7%94%A8%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 推荐配置（安全与稳定兼顾，可直接复用）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%AD%E6%B3%95%E6%8E%92%E9%94%99%E6%8A%80%E5%B7%A7"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 配置文件语法排错技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%80%9A%E8%B7%AF%E6%8E%92%E6%9F%A5%EF%BC%9A%E7%BD%91%E7%BB%9C%E8%BF%9E%E9%80%9A%E6%80%A7%E4%B8%8E%E9%98%B2%E7%81%AB%E5%A2%99%E8%A7%84%E5%88%99%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">三、通路排查：网络连通性与防火墙规则解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C%E8%BF%9E%E9%80%9A%E6%80%A7%E6%B5%8B%E8%AF%95%EF%BC%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D%E5%BA%95%E5%B1%82%E6%95%85%E9%9A%9C%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 基础网络连通性测试（快速定位底层故障）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%98%B2%E7%81%AB%E5%A2%99%E8%A7%84%E5%88%99%E6%B7%B1%E5%BA%A6%E6%8E%92%E6%9F%A5%EF%BC%88%E9%87%8D%E7%82%B9%E8%A7%A3%E5%86%B3%E6%8B%A6%E6%88%AA%E9%97%AE%E9%A2%98%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 防火墙规则深度排查（重点解决拦截问题）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A3%80%E6%9F%A5ufw%E9%98%B2%E7%81%AB%E5%A2%99%EF%BC%88%E8%8B%A5%E5%90%AF%E7%94%A8%EF%BC%89"><span class="nav-number">3.2.1.</span> <span class="nav-text">1. 检查ufw防火墙（若启用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%A3%80%E6%9F%A5firewalld%E9%98%B2%E7%81%AB%E5%A2%99%EF%BC%88%E8%8B%A5%E5%90%AF%E7%94%A8%EF%BC%89"><span class="nav-number">3.2.2.</span> <span class="nav-text">2. 检查firewalld防火墙（若启用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E7%9B%B4%E6%8E%A5%E6%A3%80%E6%9F%A5iptables%E8%A7%84%E5%88%99%EF%BC%88%E7%BB%88%E6%9E%81%E6%8E%92%E6%9F%A5%E6%89%8B%E6%AE%B5%EF%BC%89"><span class="nav-number">3.2.3.</span> <span class="nav-text">3. 直接检查iptables规则（终极排查手段）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%AE%A4%E8%AF%81%E6%8E%92%E6%9F%A5%EF%BC%9A%E5%AF%86%E7%A0%81%E4%B8%8E%E5%85%AC%E9%92%A5%E8%AE%A4%E8%AF%81%E6%95%85%E9%9A%9C%E7%B2%BE%E5%87%86%E4%BF%AE%E5%A4%8D"><span class="nav-number">4.</span> <span class="nav-text">四、认证排查：密码与公钥认证故障精准修复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%AF%86%E7%A0%81%E8%AE%A4%E8%AF%81%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%EF%BC%88%E7%AE%80%E6%98%93%E6%B5%81%E7%A8%8B%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 密码认证失败排查（简易流程）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%85%AC%E9%92%A5%E8%AE%A4%E8%AF%81%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%EF%BC%88%E5%AE%9E%E6%88%98%E9%87%8D%E7%82%B9%EF%BC%8C%E9%AB%98%E5%AE%89%E5%85%A8%E6%80%A7%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 公钥认证失败排查（实战重点，高安全性）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95%EF%BC%88%E6%A0%B8%E5%BF%83%E9%87%8D%E7%82%B9%EF%BC%89"><span class="nav-number">4.2.1.</span> <span class="nav-text">服务端检查清单（核心重点）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="nav-number">4.2.2.</span> <span class="nav-text">客户端检查清单</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E8%BF%9B%E9%98%B6%E6%8E%92%E6%9F%A5%EF%BC%9A%E9%9A%90%E6%80%A7%E6%95%85%E9%9A%9C%E4%B8%8E%E7%89%B9%E6%AE%8A%E5%9C%BA%E6%99%AF%E5%A4%84%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">五、进阶排查：隐性故障与特殊场景处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-SELinux-AppArmor%E5%BC%BA%E5%88%B6%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 SELinux&#x2F;AppArmor强制访问控制的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%B3%BB%E7%BB%9F%E8%B5%84%E6%BA%90%E4%B8%8E%E8%BF%9E%E6%8E%A5%E9%99%90%E5%88%B6%E6%8E%92%E6%9F%A5"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 系统资源与连接限制排查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BE%A7%E9%85%8D%E7%BD%AE%E4%B8%8E%E7%BC%93%E5%AD%98%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 客户端侧配置与缓存故障排查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9ASSH%E8%BF%9E%E6%8E%A5%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="nav-number">6.</span> <span class="nav-text">总结：SSH连接故障排查核心逻辑</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/15/Linux/SSH%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SSH连接失败排查与修复 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SSH连接失败排查与修复
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-15 18:56:37" itemprop="dateCreated datePublished" datetime="2026-03-15T18:56:37+08:00">2026-03-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:54" itemprop="dateModified" datetime="2026-03-31T15:18:54+08:00">2026-03-31</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在麒麟V10桌面操作系统的日常运维与开发工作中，SSH（Secure Shell）作为远程开发、虚拟机管理及内网服务器连接的核心工具，其运行稳定性直接影响运维效率与开发进度。当出现“Connection refused”“Connection timed out”等连接异常提示时，运维人员与开发人员常面临排查无头绪的困境——此类故障可能源于服务运行状态、配置参数设置、网络通路连通性、防火墙规则配置或用户权限管控等多个环节，需通过分层拆解实现根源定位。</p>
+<p>在团队内部麒麟V10开发桌面部署过程中，曾出现一起由旧版配置残留导致的SSH连接异常，排查耗时较长。该案例表明，掌握系统性的故障诊断方法论，相较于记忆零散操作命令更具实践价值。本文基于实战经验，梳理形成从现象到根源、从通用场景到特殊场景的分层排查体系，覆盖五大常见故障类型，深入解析故障产生的技术原理，补充安全实用的配置方案，提供可直接复用的操作命令与排查技巧，为相关人员解决SSH连接故障提供技术支撑。</p>
+<h2 id="一、基础排查：SSH守护进程（sshd）运行状态校验"><a href="#一、基础排查：SSH守护进程（sshd）运行状态校验" class="headerlink" title="一、基础排查：SSH守护进程（sshd）运行状态校验"></a>一、基础排查：SSH守护进程（sshd）运行状态校验</h2><p>SSH连接建立的前提是目标主机的sshd服务正常运行，该环节作为基础排查要点，易被忽视。在系统新安装、重启或配置变更后，需优先对sshd服务状态进行校验。</p>
+<h3 id="1-1-服务状态查询与异常分析"><a href="#1-1-服务状态查询与异常分析" class="headerlink" title="1.1 服务状态查询与异常分析"></a>1.1 服务状态查询与异常分析</h3><p>麒麟V10系统中，OpenSSH服务通常由systemd进行管理，最常用的服务状态查询命令为<code>sudo systemctl status ssh</code>。查看命令输出时，需重点关注核心信息，不可仅依据“active (running)”的表面状态判断服务正常。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl status ssh</span><br></pre></td></tr></table></figure>
+
+<p>健康的sshd服务输出需包含以下三项关键信息，缺一不可：</p>
+<ul>
+<li><p>Loaded行：显示为<code>enabled</code>，表示服务已配置开机自启；若显示为<code>disabled</code>，则系统重启后服务无法自动运行，需手动启动。</p>
+</li>
+<li><p>Active行：<code>active (running)</code>为服务正常运行的理想状态；若显示为<code>active (exited)</code>，表明服务启动后异常退出，需进一步排查启动失败原因。</p>
+</li>
+<li><p>日志片段：若输出中出现<code>Failed to listen on port 22</code>或<code>Address already in use</code>，则可直接判定为端口冲突问题，需优先处理端口占用异常。</p>
+</li>
+</ul>
+<p>若sshd服务未处于运行状态，不可盲目启动服务，应先通过日志排查启动失败根源，避免操作不当加剧故障：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> journalctl -u ssh --since <span class="string">&quot;5 minutes ago&quot;</span> --no-pager</span><br></pre></td></tr></table></figure>
+
+<p>说明：journalctl为systemd系统的日志查看工具，<code>-u ssh</code>参数用于指定查看sshd服务相关日志，<code>--since</code>参数用于过滤最近5分钟的日志内容。通过查看启动失败的详细错误信息，可快速定位服务启动类故障的核心原因，为后续修复提供依据。</p>
+<h3 id="1-2-服务安装、启动与自启配置"><a href="#1-2-服务安装、启动与自启配置" class="headerlink" title="1.2 服务安装、启动与自启配置"></a>1.2 服务安装、启动与自启配置</h3><p>若经排查确认sshd服务未安装（如最小化安装的麒麟V10系统），需先安装openssh-server组件，确保服务运行所需组件完整：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install openssh-server -y</span><br></pre></td></tr></table></figure>
+
+<p>组件安装完成后，需启动sshd服务并配置开机自启，最后再次校验服务状态，确保服务正常运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl start ssh      <span class="comment"># 立即启动sshd服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> ssh     <span class="comment"># 配置服务开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status ssh     <span class="comment"># 校验服务运行状态</span></span><br></pre></td></tr></table></figure>
+
+<p>进阶排查要点：部分场景下，服务状态虽显示为“active (running)”，但实际未监听目标端口，需通过ss或netstat命令进行交叉验证，排除服务“假运行”情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ss -tlnp | grep :22</span><br><span class="line"><span class="comment"># 或使用netstat（部分系统默认未预装，需提前安装）</span></span><br><span class="line"><span class="built_in">sudo</span> netstat -tlnp | grep :22</span><br></pre></td></tr></table></figure>
+
+<p>正常情况下，命令输出应显示sshd进程监听<code>0.0.0.0:22</code>（IPv4所有网络接口）和<code>[::]:22</code>（IPv6所有网络接口）；若无相关输出，说明sshd进程可能绑定至特定IP地址，或未成功监听目标端口，需进一步排查配置文件。</p>
+<h2 id="二、核心配置：sshd-config参数解析及推荐配置"><a href="#二、核心配置：sshd-config参数解析及推荐配置" class="headerlink" title="二、核心配置：sshd_config参数解析及推荐配置"></a>二、核心配置：sshd_config参数解析及推荐配置</h2><p>若sshd服务运行正常且端口监听正常，但SSH连接仍存在异常，故障大概率源于核心配置文件<code>/etc/ssh/sshd_config</code>。该文件用于控制sshd守护进程的运行规则，参数配置错误是导致SSH连接失败的高频原因，同时合理的配置可有效提升SSH连接的安全性。</p>
+<h3 id="2-1-必查核心配置项（故障排查重点）"><a href="#2-1-必查核心配置项（故障排查重点）" class="headerlink" title="2.1 必查核心配置项（故障排查重点）"></a>2.1 必查核心配置项（故障排查重点）</h3><p>修改配置文件前，需先进行备份操作，避免配置错误导致sshd服务无法启动，备份命令如下：<code>sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak</code>。备份完成后，可通过vi或nano编辑器对配置文件进行修改。以下为导致SSH连接失败的高频配置项，需重点排查：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>配置项</td>
+<td>默认值&#x2F;常见值</td>
+<td>作用与影响</td>
+<td>排查建议值</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>22</td>
+<td>指定SSH服务监听的端口号，默认22端口易遭受扫描攻击，可根据实际需求自定义修改</td>
+<td>确认端口配置与预期一致（如默认22端口），若已修改端口，客户端连接时需通过<code>-p</code>参数指定端口</td>
+</tr>
+<tr>
+<td>ListenAddress</td>
+<td>0.0.0.0</td>
+<td>指定sshd进程监听的IP地址，0.0.0.0表示监听所有IPv4网络接口</td>
+<td>若配置为127.0.0.1或特定IP地址，仅该IP地址可建立SSH连接，排查时需确认是否存在误配置</td>
+</tr>
+<tr>
+<td>PermitRootLogin</td>
+<td>prohibit-password</td>
+<td>控制是否允许root用户直接通过SSH登录，直接允许root用户登录存在安全风险</td>
+<td>故障调试阶段可临时设置为yes，生产环境建议配置为no或prohibit-password，提升系统安全性</td>
+</tr>
+<tr>
+<td>PasswordAuthentication</td>
+<td>yes</td>
+<td>控制是否允许通过密码认证方式登录SSH，密码认证易遭受暴力破解攻击</td>
+<td>密码连接失败时，需确认该参数配置为yes；生产环境建议关闭密码认证，仅启用公钥认证</td>
+</tr>
+<tr>
+<td>PubkeyAuthentication</td>
+<td>yes</td>
+<td>控制是否允许通过公钥认证方式登录SSH，公钥认证为更安全的登录方式</td>
+<td>公钥连接失败时，需确认该参数配置为yes，且公钥相关配置正确无误</td>
+</tr>
+<tr>
+<td>AllowUsers</td>
+<td>未设置</td>
+<td>配置允许通过SSH登录的用户白名单，设置后仅白名单内用户可建立连接</td>
+<td>若已配置该参数，需确认登录用户名已纳入白名单，否则无法建立SSH连接</td>
+</tr>
+<tr>
+<td>DenyUsers</td>
+<td>未设置</td>
+<td>配置禁止通过SSH登录的用户黑名单，设置后黑名单内用户无法建立连接</td>
+<td>排查时需确认登录用户名未被纳入黑名单，避免因误配置导致连接失败</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-推荐配置（安全与稳定兼顾，可直接复用）"><a href="#2-2-推荐配置（安全与稳定兼顾，可直接复用）" class="headerlink" title="2.2 推荐配置（安全与稳定兼顾，可直接复用）"></a>2.2 推荐配置（安全与稳定兼顾，可直接复用）</h3><p>结合麒麟V10桌面版系统特性，梳理以下sshd_config推荐配置，兼顾安全性与实用性，可直接添加至配置文件末尾（需根据实际应用场景调整），配置完成后需重启sshd服务使配置生效：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义SSH端口（避免默认22端口遭受扫描，建议选择10000-65535区间的端口）</span></span><br><span class="line">Port 2222</span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁止root用户直接登录，提升系统安全性</span></span><br><span class="line">PermitRootLogin no</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭密码认证，仅启用公钥认证（需提前完成公钥配置）</span></span><br><span class="line">PasswordAuthentication no</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用公钥认证（默认启用，明确配置可提升配置可靠性）</span></span><br><span class="line">PubkeyAuthentication <span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定公钥文件路径（默认路径，无需修改，需确保文件权限正确）</span></span><br><span class="line">AuthorizedKeysFile .ssh/authorized_keys</span><br><span class="line"></span><br><span class="line"><span class="comment"># 限制连接超时时间，避免空闲连接占用系统资源</span></span><br><span class="line">ClientAliveInterval 60</span><br><span class="line">ClientAliveCountMax 3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁止空密码登录（默认禁止，明确配置可规范配置标准）</span></span><br><span class="line">PermitEmptyPasswords no</span><br><span class="line"></span><br><span class="line"><span class="comment"># 限制并发连接数，可根据服务器性能灵活调整</span></span><br><span class="line">MaxSessions 10</span><br><span class="line">MaxStartups 10:30:60</span><br></pre></td></tr></table></figure>
+
+<p>注意：修改Port端口配置后，客户端建立SSH连接时需使用<code>ssh -p 2222 user@hostname</code>命令（将2222替换为自定义端口）；关闭密码认证前，需确认公钥认证已配置完成，避免出现无法登录的情况。</p>
+<p>任何配置修改完成后，需重启sshd服务使配置生效；部分无需重启服务即可生效的参数，可通过重载配置实现更新：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl restart ssh</span><br><span class="line"><span class="comment"># 或重载配置（适用于AllowUsers、DenyUsers等部分参数）</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl reload ssh</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-配置文件语法排错技巧"><a href="#2-3-配置文件语法排错技巧" class="headerlink" title="2.3 配置文件语法排错技巧"></a>2.3 配置文件语法排错技巧</h3><p>SSH配置文件对语法规范性要求严格，轻微语法错误即可导致sshd服务无法启动，以下为常见语法错误及排查技巧：</p>
+<ul>
+<li><p>多余空格：如<code>PermitRootLogin yes</code>（两个空格分隔）可能导致参数识别异常，<code>PermitRootLogin = yes</code>（添加等号）属于语法错误，正确格式为<code>PermitRootLogin yes</code>（单个空格分隔）。</p>
+</li>
+<li><p>注释符干扰：以<code>#</code>开头的行为注释行，需确保待修改行未被注释（行首无<code>#</code>）；若需启用注释行中的配置，删除行首<code>#</code>即可。</p>
+</li>
+<li><p>Include指令影响：配置文件可能通过<code>Include</code>指令引入其他配置片段，若核心配置排查无异常，需检查引入的配置文件是否存在冲突。</p>
+</li>
+</ul>
+<p>可通过sshd测试模式快速检查配置文件语法有效性，该模式仅解析配置文件并报告错误，不实际重启服务，可避免因配置错误导致服务中断：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sshd -t</span><br></pre></td></tr></table></figure>
+
+<p>若命令无输出，表明配置文件语法正确；若存在错误提示，可根据提示定位并修改对应参数。</p>
+<h2 id="三、通路排查：网络连通性与防火墙规则解析"><a href="#三、通路排查：网络连通性与防火墙规则解析" class="headerlink" title="三、通路排查：网络连通性与防火墙规则解析"></a>三、通路排查：网络连通性与防火墙规则解析</h2><p>当sshd服务运行正常且配置无误时，SSH连接异常通常源于网络通路问题，主要包括网络不可达与防火墙拦截两类情况。需从网络连通性与防火墙规则两个核心维度进行排查，确保连接通路畅通。</p>
+<h3 id="3-1-基础网络连通性测试（快速定位底层故障）"><a href="#3-1-基础网络连通性测试（快速定位底层故障）" class="headerlink" title="3.1 基础网络连通性测试（快速定位底层故障）"></a>3.1 基础网络连通性测试（快速定位底层故障）</h3><p>在客户端主机上，可通过ping命令测试目标服务器IP地址的连通性（假设服务器IP为192.168.1.100），初步排除底层网络故障：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping -c 4 192.168.1.100</span><br></pre></td></tr></table></figure>
+
+<p>排查说明：</p>
+<ul>
+<li><p>若ping命令执行失败，表明存在底层网络故障，如网线松动、IP地址配置错误、路由器拦截、网段隔离等，需先解决网络连通性问题，再排查SSH服务本身。</p>
+</li>
+<li><p>若ping命令执行成功但SSH连接失败，表明网络可达，故障集中于SSH端口未开放或防火墙拦截，需进一步检查目标端口开放状态。</p>
+</li>
+</ul>
+<p>可通过telnet命令测试SSH端口（默认22端口，自定义端口需对应替换）的开放情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet 192.168.1.100 22</span><br></pre></td></tr></table></figure>
+
+<p>若连接成功，将显示类似<code>SSH-2.0-OpenSSH_8.9p1</code>的横幅信息；若连接被拒绝或超时，表明目标端口未开放或被防火墙拦截。</p>
+<p>说明：麒麟V10桌面版默认可能未安装telnet客户端，可使用nc（netcat）工具替代，该工具命令更简洁、输出更清晰，具体命令为：<code>nc -zv 192.168.1.100 22</code>，其中<code>-z</code>参数用于端口扫描，<code>-v</code>参数用于输出详细信息，可快速判断端口开放状态。</p>
+<h3 id="3-2-防火墙规则深度排查（重点解决拦截问题）"><a href="#3-2-防火墙规则深度排查（重点解决拦截问题）" class="headerlink" title="3.2 防火墙规则深度排查（重点解决拦截问题）"></a>3.2 防火墙规则深度排查（重点解决拦截问题）</h3><p>麒麟V10桌面版通常采用firewalld或ufw作为防火墙前端工具，底层依赖iptables&#x2F;nftables实现规则管控。需逐层检查防火墙规则，避免SSH端口被拦截，具体排查方法如下：</p>
+<h4 id="1-检查ufw防火墙（若启用）"><a href="#1-检查ufw防火墙（若启用）" class="headerlink" title="1. 检查ufw防火墙（若启用）"></a>1. 检查ufw防火墙（若启用）</h4><p>ufw为麒麟V10桌面版常用的简易防火墙管理工具，可通过以下命令查看当前防火墙状态及规则：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ufw status verbose</span><br></pre></td></tr></table></figure>
+
+<p>排查重点：确认SSH端口（默认22端口，自定义端口需对应）的规则为<code>ALLOW IN</code>；若规则为<code>DENY</code>，需执行以下命令开放端口：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ufw allow 22/tcp  <span class="comment"># 开放22端口（SSH默认使用TCP协议）</span></span><br><span class="line"><span class="built_in">sudo</span> ufw reload        <span class="comment"># 重载防火墙规则，使配置生效</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-检查firewalld防火墙（若启用）"><a href="#2-检查firewalld防火墙（若启用）" class="headerlink" title="2. 检查firewalld防火墙（若启用）"></a>2. 检查firewalld防火墙（若启用）</h4><p>部分麒麟V10系统可能启用firewalld防火墙，可通过以下命令查看当前防火墙规则：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> firewall-cmd --list-all</span><br></pre></td></tr></table></figure>
+
+<p>排查重点：确认<code>services:</code>列表中包含<code>ssh</code>服务，或<code>ports:</code>列表中包含<code>22/tcp</code>端口；若未包含，需添加对应规则并重载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方法1：添加ssh服务（自动对应22端口）</span></span><br><span class="line"><span class="built_in">sudo</span> firewall-cmd --permanent --add-service=ssh</span><br><span class="line"><span class="comment"># 方法2：添加指定端口（自定义端口时使用，如2222）</span></span><br><span class="line"><span class="comment"># sudo firewall-cmd --permanent --add-port=2222/tcp</span></span><br><span class="line"><span class="built_in">sudo</span> firewall-cmd --reload  <span class="comment"># 重载防火墙规则</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-直接检查iptables规则（终极排查手段）"><a href="#3-直接检查iptables规则（终极排查手段）" class="headerlink" title="3. 直接检查iptables规则（终极排查手段）"></a>3. 直接检查iptables规则（终极排查手段）</h4><p>ufw与firewalld的配置最终均会同步至iptables&#x2F;nftables，直接查看iptables规则可避免前端工具配置的误导，快速定位拦截故障：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> iptables -L -n --line-numbers</span><br></pre></td></tr></table></figure>
+
+<p>排查重点：查看<code>INPUT</code>链（入站规则），确认存在针对<code>tcp dpt:22</code>（22替换为自定义端口）的允许规则，典型允许规则如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22 ctstate NEW,ESTABLISHED</span><br></pre></td></tr></table></figure>
+
+<p>注意：若<code>INPUT</code>链前端存在<code>DROP</code>或<code>REJECT</code>所有流量的规则，且允许SSH连接的规则未优先生效，将导致SSH连接被拦截，需调整规则顺序或修改拦截规则。</p>
+<h2 id="四、认证排查：密码与公钥认证故障精准修复"><a href="#四、认证排查：密码与公钥认证故障精准修复" class="headerlink" title="四、认证排查：密码与公钥认证故障精准修复"></a>四、认证排查：密码与公钥认证故障精准修复</h2><p>若能正常连接sshd服务，但在登录阶段出现失败，属于认证类故障。SSH协议主要支持密码认证与公钥认证两种方式，需结合登录提示信息，针对性排查，解决认证不匹配问题。</p>
+<h3 id="4-1-密码认证失败排查（简易流程）"><a href="#4-1-密码认证失败排查（简易流程）" class="headerlink" title="4.1 密码认证失败排查（简易流程）"></a>4.1 密码认证失败排查（简易流程）</h3><p>确认服务端<code>PasswordAuthentication</code>参数已配置为<code>yes</code>，但密码登录仍失败时，可按以下顺序排查，高效定位故障原因：</p>
+<ul>
+<li><p>用户名有效性：SSH连接所使用的用户名为麒麟V10系统的操作系统用户，安装系统时创建的普通用户与root用户为不同账户。使用<code>ssh user@hostname</code>命令连接时，需确认<code>user</code>为系统已存在的用户（可通过<code>cat /etc/passwd</code>命令查看系统用户列表）。</p>
+</li>
+<li><p>密码正确性：SSH登录密码区分大小写，需检查键盘布局是否正常（如CapsLock键是否误触发）。可先在服务端本地终端使用该用户登录，验证密码有效性，排除密码输入错误。</p>
+</li>
+<li><p>用户账户状态：检查用户账户是否处于锁定或过期状态，执行以下命令查看账户状态： <code>sudo passwd -S &lt;用户名&gt; # 替换&lt;用户名&gt;为实际登录用户</code> 若状态显示为<code>L</code>（锁定）或<code>NP</code>（无密码），需执行解锁命令（<code>sudo passwd -u &lt;用户名&gt;</code>）或重置密码（<code>sudo passwd &lt;用户名&gt;</code>）。</p>
+</li>
+<li><p>PAM模块限制：&#x2F;etc&#x2F;pam.d&#x2F;目录下的配置文件（如sshd）可能存在额外登录限制，如终端限制、登录时间限制等。若未手动修改过相关配置，此类限制通常不是故障根源，可暂不排查。</p>
+</li>
+</ul>
+<h3 id="4-2-公钥认证失败排查（实战重点，高安全性）"><a href="#4-2-公钥认证失败排查（实战重点，高安全性）" class="headerlink" title="4.2 公钥认证失败排查（实战重点，高安全性）"></a>4.2 公钥认证失败排查（实战重点，高安全性）</h3><p>公钥认证失败的排查过程相对复杂，涉及客户端与服务端的多文件匹配及权限配置，需分别对两端进行检查，具体排查清单如下：</p>
+<h4 id="服务端检查清单（核心重点）"><a href="#服务端检查清单（核心重点）" class="headerlink" title="服务端检查清单（核心重点）"></a>服务端检查清单（核心重点）</h4><ol>
+<li><p>公钥文件权限检查（最常见故障点）：sshd服务对文件权限要求严格，<code>~/.ssh/authorized_keys</code>文件及其父目录权限过松，会导致sshd服务出于安全考虑拒绝使用该文件，需配置正确权限： <code>chmod 700 ~/.ssh # 仅当前用户拥有读写执行权限</code> <code>chmod 600 ~/.ssh/authorized_keys # 仅当前用户拥有读写权限</code> <code>chown -R $USER:$USER ~/.ssh # 确保文件归属当前用户</code></p>
+</li>
+<li><p>公钥内容检查：确保<code>authorized_keys</code>文件中粘贴的公钥为完整单行内容，无换行、多余空格或特殊字符。建议使用<code>ssh-copy-id</code>命令重新推送公钥，该命令可自动处理公钥格式与文件权限：<code># 在客户端执行，替换用户与服务器IP地址</code> <code>ssh-copy-id user@192.168.1.100</code></p>
+</li>
+<li><p>sshd配置确认：再次检查<code>sshd_config</code>文件，确保<code>PubkeyAuthentication</code>参数配置为yes，且<code>AuthorizedKeysFile</code>参数指向正确（默认路径为<code>.ssh/authorized_keys</code>，无需修改）。</p>
+</li>
+</ol>
+<h4 id="客户端检查清单"><a href="#客户端检查清单" class="headerlink" title="客户端检查清单"></a>客户端检查清单</h4><ol>
+<li><p>私钥权限检查：客户端私钥文件（默认路径为<code>~/.ssh/id_rsa</code>）需配置严格权限，否则会被客户端SSH工具拒绝使用，具体权限配置命令： <code>chmod 600 ~/.ssh/id_rsa</code></p>
+</li>
+<li><p>指定密钥文件：若使用非默认私钥（如自定义密钥文件名或路径），建立连接时需通过<code>-i</code>参数指定私钥路径： <code>ssh -i /path/to/your/private_key user@hostname</code></p>
+</li>
+<li><p>启用详细调试（终极排查手段）：建立连接时添加<code>-vvv</code>参数，可输出详细的认证过程，清晰呈现每一步的执行情况及失败原因，重点关注<code>Offering public key</code>、<code>Authentication succeeded/failed</code>等关键日志行：<code>ssh -vvv user@hostname</code></p>
+</li>
+</ol>
+<h2 id="五、进阶排查：隐性故障与特殊场景处理"><a href="#五、进阶排查：隐性故障与特殊场景处理" class="headerlink" title="五、进阶排查：隐性故障与特殊场景处理"></a>五、进阶排查：隐性故障与特殊场景处理</h2><p>若经上述四层排查后，SSH连接仍存在异常，故障可能源于系统安全模块、资源限制或客户端缓存等隐性因素，需进一步深入排查，覆盖各类特殊场景。</p>
+<h3 id="5-1-SELinux-AppArmor强制访问控制的影响"><a href="#5-1-SELinux-AppArmor强制访问控制的影响" class="headerlink" title="5.1 SELinux&#x2F;AppArmor强制访问控制的影响"></a>5.1 SELinux&#x2F;AppArmor强制访问控制的影响</h3><p>麒麟V10系统可能搭载强制访问控制模块，其中桌面版默认通常不强制启用SELinux，但AppArmor模块可能处于活跃状态。该模块的严格访问控制规则可能阻止sshd进程访问必要资源（如<code>authorized_keys</code>文件、私钥文件等），导致SSH连接失败。</p>
+<p>通过以下命令检查AppArmor状态，确认sshd服务是否被管控：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> aa-status | grep sshd</span><br></pre></td></tr></table></figure>
+
+<p>排查与处理方案：</p>
+<ul>
+<li><p>若sshd服务处于<code>enforce</code>模式（强制管控），且系统日志（<code>/var/log/auth.log</code>或<code>/var/log/audit/audit.log</code>）中存在“拒绝访问”相关记录，表明AppArmor模块拦截了sshd进程的操作。</p>
+</li>
+<li><p>临时调试方案：将sshd服务的AppArmor模式调整为<code>complain</code>（仅输出警告，不执行拦截），测试SSH连接是否恢复正常，命令如下： <code>sudo aa-complain /usr/sbin/sshd</code></p>
+</li>
+</ul>
+<p>重要提示：临时调试完成后，需根据实际安全需求制定合理的AppArmor策略，或恢复为<code>enforce</code>模式，避免降低系统安全防护等级。</p>
+<h3 id="5-2-系统资源与连接限制排查"><a href="#5-2-系统资源与连接限制排查" class="headerlink" title="5.2 系统资源与连接限制排查"></a>5.2 系统资源与连接限制排查</h3><p>系统资源不足或连接数限制也可能导致SSH连接失败，重点排查以下三项内容：</p>
+<ul>
+<li><p>最大连接数限制：<code>sshd_config</code>文件中的<code>MaxSessions</code>（最大并发会话数）与<code>MaxStartups</code>（未完成认证的最大连接数）参数，若当前连接数达到限制，新的连接尝试会被拒绝，可根据服务器性能适当调大参数值。</p>
+</li>
+<li><p>PAM资源限制：通过<code>ulimit</code>命令或PAM模块设置的用户进程数、文件描述符数等资源限制，可能影响sshd进程创建子进程处理连接。可通过<code>ulimit -a</code>命令查看当前资源限制，必要时进行调整。</p>
+</li>
+<li><p>TCP Wrappers限制：<code>/etc/hosts.allow</code>与<code>/etc/hosts.deny</code>文件为古老的访问控制配置文件，可能存在针对sshd服务的拒绝规则。需检查该文件，若存在相关拒绝规则，需删除或修改。</p>
+</li>
+</ul>
+<h3 id="5-3-客户端侧配置与缓存故障排查"><a href="#5-3-客户端侧配置与缓存故障排查" class="headerlink" title="5.3 客户端侧配置与缓存故障排查"></a>5.3 客户端侧配置与缓存故障排查</h3><p>排查过程中不可仅关注服务端，客户端的配置错误或缓存问题也可能导致SSH连接失败，重点排查以下三项内容：</p>
+<ul>
+<li><p>客户端配置文件干扰：客户端<code>~/.ssh/config</code>文件的配置优先级较高，若该文件中为目标主机配置了错误参数（如错误端口、用户名、密钥文件路径、代理设置等），会导致连接失败，需检查并修改该文件。</p>
+</li>
+<li><p>known_hosts文件缓存问题：若服务器重装系统或更换SSH密钥，客户端会因主机密钥不匹配拒绝建立连接，提示“Host key verification failed”。需删除客户端<code>~/.ssh/known_hosts</code>文件中对应主机的条目，或通过以下命令快速删除：<code>ssh-keygen -R hostname # 替换hostname为服务器IP地址或主机名</code></p>
+</li>
+<li><p>网络代理干扰：客户端shell环境中的<code>http_proxy</code>、<code>all_proxy</code>等环境变量，若配置了网络代理，可能干扰SSH直接连接。需通过<code>echo $http_proxy</code>命令检查代理配置，必要时通过<code>unset http_proxy all_proxy</code>命令临时关闭代理后重试。</p>
+</li>
+</ul>
+<h2 id="总结：SSH连接故障排查核心逻辑"><a href="#总结：SSH连接故障排查核心逻辑" class="headerlink" title="总结：SSH连接故障排查核心逻辑"></a>总结：SSH连接故障排查核心逻辑</h2><p>麒麟V10桌面版SSH连接失败的排查工作，本质是一套分层诊断流程：从基础的sshd服务运行状态校验，到核心的sshd_config配置参数排查，再到网络连通性与防火墙规则解析，随后进行认证凭据匹配排查，最后处理系统级隐性故障。通过层层递进的方式，逐步缩小排查范围，可实现故障的高效定位与修复。</p>
+<p>核心排查技巧：结合日志与调试输出进行分析——服务端<code>/var/log/auth.log</code>（或<code>/var/log/secure</code>）日志可提供sshd服务运行状态及认证失败原因，客户端<code>ssh -vvv</code>命令可输出详细的连接与认证过程，二者结合可快速定位故障根源。</p>
+<p>养成“故障排查先查日志、先基础后复杂”的习惯，可大幅降低盲目操作的概率，提升排查效率。实际上，绝大多数SSH连接失败故障均可通过本文梳理的五个层次实现解决，掌握该套排查体系，可有效提升SSH连接故障的处理能力，保障远程运维与开发工作的顺利开展。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/SSH/" rel="tag"># SSH</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/15/Linux/%E9%BA%92%E9%BA%9FV10%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Docker/" rel="prev" title="麒麟V10离线安装Docker">
+                  <i class="fa fa-angle-left"></i> 麒麟V10离线安装Docker
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/25/Linux/%E9%BA%92%E9%BA%9FV10%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AENVIDIA%E6%98%BE%E5%8D%A1%E9%A9%B1%E5%8A%A8%E5%8F%8ADockerGPU%E6%94%AF%E6%8C%81/" rel="next" title="麒麟V10系统配置NVIDIA显卡驱动及DockerGPU支持">
+                  麒麟V10系统配置NVIDIA显卡驱动及DockerGPU支持 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

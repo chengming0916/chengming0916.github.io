@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="策略模式（Strategy Pattern）是一种经典的行为型设计模式，其核心思想是“封装变化、解耦算法”——将一组可替换的算法（策略）封装为独立的组件，使算法能够独立于使用它的客户端灵活切换，彻底摒弃代码中冗余的条件判断语句，大幅提升代码的可扩展性、可维护性与复用性。它不仅是“开闭原则”的典型实践，更是应对复杂业务场景中“算法动态切换”需求的最优解决方案之一。本文将从核心结构、多语言落地实现、优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="策略模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/20/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/19.%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="策略模式（Strategy Pattern）是一种经典的行为型设计模式，其核心思想是“封装变化、解耦算法”——将一组可替换的算法（策略）封装为独立的组件，使算法能够独立于使用它的客户端灵活切换，彻底摒弃代码中冗余的条件判断语句，大幅提升代码的可扩展性、可维护性与复用性。它不仅是“开闭原则”的典型实践，更是应对复杂业务场景中“算法动态切换”需求的最优解决方案之一。本文将从核心结构、多语言落地实现、优">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.207Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="策略模式">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/20/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/19.%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/20/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/19.%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/","path":"2019/11/20/学习笔记/设计模式/19.策略模式/","title":"策略模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>策略模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、策略模式核心结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E7%8E%AF%E5%A2%83%E7%B1%BB%EF%BC%88Context%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 环境类（Context）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%8A%BD%E8%B1%A1%E7%AD%96%E7%95%A5%E7%B1%BB%EF%BC%88Strategy%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 抽象策略类（Strategy）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E5%85%B7%E4%BD%93%E7%AD%96%E7%95%A5%E7%B1%BB%EF%BC%88ConcreteStrategy%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 具体策略类（ConcreteStrategy）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现策略模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%A7%84%E8%8C%83%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（面向对象规范实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%8A%A8%E6%80%81%E8%AF%AD%E8%A8%80%E7%AE%80%E6%B4%81%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（动态语言简洁实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Golang-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8E%A5%E5%8F%A3%E8%87%B3%E4%B8%8A%E8%BD%BB%E9%87%8F%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Golang 实现（接口至上轻量实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8A%BD%E8%B1%A1%E7%B1%BB-%E5%A4%9A%E6%80%81%E7%BB%8F%E5%85%B8%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（抽象类+多态经典实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针模拟实现）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、策略模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、策略模式的使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%A0%B8%E5%BF%83%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 核心适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%85%B8%E5%9E%8B%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 典型实战案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E9%81%BF%E5%9D%91%E5%9C%BA%E6%99%AF"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 避坑场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%89%A9%E5%B1%95%E4%B8%8E%E5%AE%9E%E6%88%98%E6%8A%80%E5%B7%A7"><span class="nav-number">5.</span> <span class="nav-text">五、策略模式的扩展与实战技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E7%AD%96%E7%95%A5%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%EF%BC%88%E8%A7%A3%E5%86%B3%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%80%89%E6%8B%A9%E7%AD%96%E7%95%A5%E7%9A%84%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 策略工厂模式（解决客户端选择策略的复杂度）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%AD%96%E7%95%A5%E5%8D%95%E4%BE%8B%E5%8C%96%EF%BC%88%E4%BC%98%E5%8C%96%E6%80%A7%E8%83%BD%EF%BC%8C%E5%87%8F%E5%B0%91%E5%AF%B9%E8%B1%A1%E5%88%9B%E5%BB%BA%E5%BC%80%E9%94%80%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 策略单例化（优化性能，减少对象创建开销）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E4%B8%8E%E5%85%B6%E4%BB%96%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%BB%93%E5%90%88%E4%BD%BF%E7%94%A8"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 与其他设计模式结合使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 多语言实现的注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/20/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/19.%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="策略模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          策略模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-20 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-20T00:00:00+08:00">2019-11-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>策略模式（Strategy Pattern）是一种经典的行为型设计模式，其核心思想是“封装变化、解耦算法”——将一组可替换的算法（策略）封装为独立的组件，使算法能够独立于使用它的客户端灵活切换，彻底摒弃代码中冗余的条件判断语句，大幅提升代码的可扩展性、可维护性与复用性。它不仅是“开闭原则”的典型实践，更是应对复杂业务场景中“算法动态切换”需求的最优解决方案之一。本文将从核心结构、多语言落地实现、优缺点剖析、适用场景及实战总结等维度，全面拆解策略模式的设计思路与工程实践。</p>
+<h2 id="一、策略模式核心结构"><a href="#一、策略模式核心结构" class="headerlink" title="一、策略模式核心结构"></a>一、策略模式核心结构</h2><p>策略模式的设计核心是“解耦算法的定义与使用”，通过明确的角色分工，实现策略的灵活替换与独立扩展。其核心角色分为三类，各角色职责清晰、协同工作，构成完整的策略驱动体系，具体如下：</p>
+<h3 id="1-1-环境类（Context）"><a href="#1-1-环境类（Context）" class="headerlink" title="1.1 环境类（Context）"></a>1.1 环境类（Context）</h3><p>作为策略的“调度中心”与“客户端交互入口”，环境类维护一个抽象策略对象的引用，对外提供统一的调用接口，负责将客户端的请求委派给当前的具体策略执行。它不直接实现任何算法逻辑，也不关心具体策略的内部实现，仅负责策略的切换与调用，是连接客户端与策略的桥梁。</p>
+<h3 id="1-2-抽象策略类（Strategy）"><a href="#1-2-抽象策略类（Strategy）" class="headerlink" title="1.2 抽象策略类（Strategy）"></a>1.2 抽象策略类（Strategy）</h3><p>定义所有具体策略的公共行为契约，通常以接口（面向对象语言）或函数指针（无面向对象特性语言）的形式存在。它声明了所有具体策略必须实现的核心方法（如算法执行方法），规范了策略的统一调用标准，确保环境类能通过统一接口调用不同的策略，实现“多策略统一适配”。</p>
+<h3 id="1-3-具体策略类（ConcreteStrategy）"><a href="#1-3-具体策略类（ConcreteStrategy）" class="headerlink" title="1.3 具体策略类（ConcreteStrategy）"></a>1.3 具体策略类（ConcreteStrategy）</h3><p>抽象策略的具体实现，是算法逻辑的核心载体。它严格遵循抽象策略定义的接口，封装了某一种特定的算法逻辑，是策略模式的核心扩展点。新增算法时，只需新增对应的具体策略类，无需修改原有代码，完美契合“开闭原则”。</p>
+<p>核心流转逻辑：客户端初始化环境类 → 环境类设置具体策略 → 客户端通过环境类调用策略方法 → 环境类委派请求给当前策略 → 具体策略执行算法逻辑 → 如需切换策略，客户端通过环境类更换具体策略，无需修改其他代码。</p>
+<h2 id="二、多语言实现策略模式"><a href="#二、多语言实现策略模式" class="headerlink" title="二、多语言实现策略模式"></a>二、多语言实现策略模式</h2><p>为适配不同技术栈开发者的落地需求，本文以“二元运算策略”为统一案例（通过加法、乘法两种可切换策略，直观呈现策略模式的核心逻辑），分别提供C#、Python、Golang、C++及纯C语言的可运行实现。各实现均贴合语言原生特性，补充规范注释、异常处理与边界校验，兼顾实用性与严谨性，清晰展现策略模式在不同语言中的适配思路与最佳实践。</p>
+<h3 id="2-1-C-实现（面向对象规范实现）"><a href="#2-1-C-实现（面向对象规范实现）" class="headerlink" title="2.1 C# 实现（面向对象规范实现）"></a>2.1 C# 实现（面向对象规范实现）</h3><p>C# 作为强类型面向对象语言，通过接口严格定义抽象策略契约，依托类的继承与多态实现具体策略逻辑，环境类通过属性封装策略引用，确保策略管理的安全性与规范性，适配企业级业务系统开发，尤其适合需要严格接口约束的场景。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 抽象策略接口：定义二元运算策略的统一契约</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IStrategy</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 执行二元运算</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;a&quot;&gt;</span>运算数A<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;b&quot;&gt;</span>运算数B<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;returns&gt;</span>运算结果<span class="doctag">&lt;/returns&gt;</span></span></span><br><span class="line">    <span class="function"><span class="built_in">int</span> <span class="title">Calculate</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 具体策略1：加法策略</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AddStrategy</span> : <span class="title">IStrategy</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Calculate</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 具体策略2：乘法策略</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MultiplyStrategy</span> : <span class="title">IStrategy</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Calculate</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> a * b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 环境类：管理策略引用，委派策略执行</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Context</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 私有字段存储当前策略，避免外部直接修改</span></span><br><span class="line">    <span class="keyword">private</span> IStrategy _currentStrategy;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 动态切换策略</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;strategy&quot;&gt;</span>新的策略对象<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;exception cref=&quot;ArgumentNullException&quot;&gt;</span>策略对象不可为null<span class="doctag">&lt;/exception&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SetStrategy</span>(<span class="params">IStrategy strategy</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _currentStrategy = strategy ?? <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentNullException(<span class="keyword">nameof</span>(strategy), <span class="string">&quot;策略对象不可为null&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 执行当前策略的运算逻辑</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;a&quot;&gt;</span>运算数A<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;b&quot;&gt;</span>运算数B<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;returns&gt;</span>运算结果<span class="doctag">&lt;/returns&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;exception cref=&quot;InvalidOperationException&quot;&gt;</span>未设置策略时抛出异常<span class="doctag">&lt;/exception&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">ExecuteStrategy</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_currentStrategy == <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;请先设置具体策略&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> _currentStrategy.Calculate(a, b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用示例</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 初始化环境类</span></span><br><span class="line">            Context context = <span class="keyword">new</span> Context();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 切换为加法策略并执行</span></span><br><span class="line">            context.SetStrategy(<span class="keyword">new</span> AddStrategy());</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;5 + 3 = <span class="subst">&#123;context.ExecuteStrategy(<span class="number">5</span>, <span class="number">3</span>)&#125;</span>&quot;</span>); <span class="comment">// 输出：5 + 3 = 8</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 动态切换为乘法策略并执行</span></span><br><span class="line">            context.SetStrategy(<span class="keyword">new</span> MultiplyStrategy());</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;5 × 3 = <span class="subst">&#123;context.ExecuteStrategy(<span class="number">5</span>, <span class="number">3</span>)&#125;</span>&quot;</span>); <span class="comment">// 输出：5 × 3 = 15</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;执行异常：<span class="subst">&#123;ex.Message&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">      </span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（动态语言简洁实现）"><a href="#2-2-Python-实现（动态语言简洁实现）" class="headerlink" title="2.2 Python 实现（动态语言简洁实现）"></a>2.2 Python 实现（动态语言简洁实现）</h3><p>Python 遵循“鸭子类型”，无需显式定义接口，可通过抽象基类（ABC）约定策略行为，语法简洁、无繁琐类型声明。依托动态类型特性，环境类可灵活切换策略对象，适配快速开发、脚本开发及轻量级项目，同时通过异常处理保证代码健壮性，完美保留策略模式的核心逻辑。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Strategy</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;抽象策略基类：约定二元运算的统一接口&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, a: <span class="built_in">int</span>, b: <span class="built_in">int</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        执行二元运算</span></span><br><span class="line"><span class="string">        :param a: 运算数A</span></span><br><span class="line"><span class="string">        :param b: 运算数B</span></span><br><span class="line"><span class="string">        :return: 运算结果</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AddStrategy</span>(<span class="title class_ inherited__">Strategy</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;具体策略1：加法策略&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, a: <span class="built_in">int</span>, b: <span class="built_in">int</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MultiplyStrategy</span>(<span class="title class_ inherited__">Strategy</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;具体策略2：乘法策略&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, a: <span class="built_in">int</span>, b: <span class="built_in">int</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="keyword">return</span> a * b</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Context</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;环境类：管理策略，委派策略执行&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>._strategy = <span class="literal">None</span>  <span class="comment"># 初始无策略</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_strategy</span>(<span class="params">self, strategy: Strategy</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        动态切换策略</span></span><br><span class="line"><span class="string">        :param strategy: 具体策略对象</span></span><br><span class="line"><span class="string">        :raises TypeError: 策略对象必须是Strategy的子类实例</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(strategy, Strategy):</span><br><span class="line">            <span class="keyword">raise</span> TypeError(<span class="string">&quot;策略对象必须是Strategy的子类实例&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>._strategy = strategy</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">execute_strategy</span>(<span class="params">self, a: <span class="built_in">int</span>, b: <span class="built_in">int</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        执行当前策略的运算逻辑</span></span><br><span class="line"><span class="string">        :param a: 运算数A</span></span><br><span class="line"><span class="string">        :param b: 运算数B</span></span><br><span class="line"><span class="string">        :return: 运算结果</span></span><br><span class="line"><span class="string">        :raises ValueError: 未设置策略时抛出异常</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>._strategy <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&quot;请先通过set_strategy方法设置具体策略&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>._strategy.calculate(a, b)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用示例</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        context = Context()</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 切换为加法策略</span></span><br><span class="line">        context.set_strategy(AddStrategy())</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;5 + 3 = <span class="subst">&#123;context.execute_strategy(<span class="number">5</span>, <span class="number">3</span>)&#125;</span>&quot;</span>)  <span class="comment"># 输出：5 + 3 = 8</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 动态切换为乘法策略</span></span><br><span class="line">        context.set_strategy(MultiplyStrategy())</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;5 × 3 = <span class="subst">&#123;context.execute_strategy(<span class="number">5</span>, <span class="number">3</span>)&#125;</span>&quot;</span>)  <span class="comment"># 输出：5 × 3 = 15</span></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;执行异常：<span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">      </span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Golang-实现（接口至上轻量实现）"><a href="#2-3-Golang-实现（接口至上轻量实现）" class="headerlink" title="2.3 Golang 实现（接口至上轻量实现）"></a>2.3 Golang 实现（接口至上轻量实现）</h3><p>Go 语言无类和继承，核心遵循“组合优于继承”原则，通过接口定义抽象策略契约，结构体实现具体策略逻辑，代码极简高效。依托接口的隐式实现特性，无需显式声明继承关系，贴合Go语言“简洁、务实、高性能”的设计理念，适配高并发后端开发场景，尤其适合对性能有一定要求的策略切换场景。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Strategy 抽象策略接口：定义二元运算的统一方法签名</span></span><br><span class="line"><span class="keyword">type</span> Strategy <span class="keyword">interface</span> &#123;</span><br><span class="line">  alculate(a, b <span class="type">int</span>) <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AddStrategy 具体策略1：加法策略</span></span><br><span class="line"><span class="keyword">type</span> AddStrategy <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Calculate 实现加法运算逻辑</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *AddStrategy)</span></span> Calculate(a, b <span class="type">int</span>) <span class="type">int</span> &#123;</span><br><span class="line">  eturn a + b</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MultiplyStrategy 具体策略2：乘法策略</span></span><br><span class="line"><span class="keyword">type</span> MultiplyStrategy <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Calculate 实现乘法运算逻辑</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *MultiplyStrategy)</span></span> Calculate(a, b <span class="type">int</span>) <span class="type">int</span> &#123;</span><br><span class="line">  eturn a * b</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Context 环境类：管理策略引用，委派策略执行</span></span><br><span class="line"><span class="keyword">type</span> Context <span class="keyword">struct</span> &#123;</span><br><span class="line">      egy Strategy <span class="comment">// 当前策略引用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// SetStrategy 动态切换策略</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Context)</span></span> SetStrategy(strategy Strategy) &#123;</span><br><span class="line">     trategy == <span class="literal">nil</span> &#123;</span><br><span class="line">    t.Println(<span class="string">&quot;警告：策略对象不可为nil&quot;</span>)</span><br><span class="line">      rn</span><br><span class="line">        &#125;</span><br><span class="line">   y = strategy</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ExecuteStrategy 执行当前策略的运算逻辑</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Context)</span></span> ExecuteStrategy(a, b <span class="type">int</span>) (<span class="type">int</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    c.strategy == <span class="literal">nil</span> &#123;</span><br><span class="line">          , fmt.Errorf(<span class="string">&quot;请先设置具体策略&quot;</span>)</span><br><span class="line">  </span><br><span class="line">        <span class="keyword">return</span> c.strateglate(a, b), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">     始化环境类</span><br><span class="line"> context := &amp;Context&#123;&#125;</span><br><span class="line"></span><br><span class="line">    切换为加法策略并执行</span><br><span class="line">  ontext.SetStrategy(&amp;AddStrategy&#123;&#125;)</span><br><span class="line">  esult, err := context.ExecuteStrategy(<span class="number">5</span>, <span class="number">3</span>)</span><br><span class="line">  f err != <span class="literal">nil</span> &#123;</span><br><span class="line">     .Printf(<span class="string">&quot;执行异常：%v\n&quot;</span>, err)</span><br><span class="line">   <span class="keyword">else</span> &#123;</span><br><span class="line">                f <span class="number">3</span> = %d\n<span class="string">&quot;, result) // 输出：5 + 3 = 8</span></span><br><span class="line"><span class="string">        动态切换为乘法策略并执行</span></span><br><span class="line"><span class="string">        context.Segy(&amp;MultiplyStrategy&#123;&#125;)</span></span><br><span class="line"><span class="string">       , err = context.ExecuteStrategy(5, 3)</span></span><br><span class="line"><span class="string">     rr != nil &#123;</span></span><br><span class="line"><span class="string">   mt.Printf(&quot;</span>执行异常：%v\n<span class="string">&quot;, err)</span></span><br><span class="line"><span class="string">        &#125; elfmt.Printf(&quot;</span><span class="number">5</span> × <span class="number">3</span> = %d\n<span class="string">&quot;, result) // 输出：5 × 3 = 15</span></span><br><span class="line"><span class="string">        &#125;  </span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">    se &#123;</span></span><br><span class="line"><span class="string">                             f   if e resulttStrate    //     &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">mt.Printf(&quot;</span><span class="number">5</span> +      &#125;           fmt      i      r      c     <span class="comment">//          // 初y.Calcu      &#125;      return 0    if      c.strateg          retu            fm   if s  strat      r      r      C</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（抽象类-多态经典实现）"><a href="#2-4-C-实现（抽象类-多态经典实现）" class="headerlink" title="2.4 C++ 实现（抽象类+多态经典实现）"></a>2.4 C++ 实现（抽象类+多态经典实现）</h3><p>C++ 作为经典面向对象语言，通过抽象类（纯虚函数）定义抽象策略接口，子类继承并实现具体策略逻辑，依托多态特性实现策略的灵活切换。需手动管理内存（通过虚析构函数避免内存泄漏），兼顾灵活性与高性能，适配底层开发、高频调用场景，是底层系统、高性能应用的优选实现方式。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象策略类：纯虚函数定义二元运算接口</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Strategy</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Strategy</span>() = <span class="keyword">default</span>; <span class="comment">// 虚析构函数，避免多态场景内存泄漏</span></span><br><span class="line">    <span class="comment">/// &lt;summary&gt;</span></span><br><span class="line">    <span class="comment">/// 执行二元运算</span></span><br><span class="line">    <span class="comment">/// &lt;/summary&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;param name=&quot;a&quot;&gt;运算数A&lt;/param&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;param name=&quot;b&quot;&gt;运算数B&lt;/param&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;returns&gt;运算结果&lt;/returns&gt;</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">int</span> <span class="title">Calculate</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体策略1：加法策略</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AddStrategy</span> : <span class="keyword">public</span> Strategy &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">Calculate</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体策略2：乘法策略</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MultiplyStrategy</span> : <span class="keyword">public</span> Strategy &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">Calculate</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a * b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 环境类：管理策略指针，委派策略执行</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Context</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Strategy* _currentStrategy; <span class="comment">// 当前策略指针</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 构造函数：初始化策略指针为nullptr</span></span><br><span class="line">    <span class="built_in">Context</span>() : _currentStrategy(<span class="literal">nullptr</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 析构函数：释放策略对象内存</span></span><br><span class="line">    ~<span class="built_in">Context</span>() &#123;</span><br><span class="line">        <span class="keyword">if</span> (_currentStrategy != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="keyword">delete</span> _currentStrategy;</span><br><span class="line">            _currentStrategy = <span class="literal">nullptr</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// &lt;summary&gt;</span></span><br><span class="line">    <span class="comment">/// 动态切换策略</span></span><br><span class="line">    <span class="comment">/// &lt;/summary&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;param name=&quot;strategy&quot;&gt;新的策略对象指针&lt;/param&gt;</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">SetStrategy</span><span class="params">(Strategy* strategy)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 释放旧策略内存</span></span><br><span class="line">        <span class="keyword">if</span> (_currentStrategy != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="keyword">delete</span> _currentStrategy;</span><br><span class="line">        &#125;</span><br><span class="line">        _currentStrategy = strategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// &lt;summary&gt;</span></span><br><span class="line">    <span class="comment">/// 执行当前策略的运算逻辑</span></span><br><span class="line">    <span class="comment">/// &lt;/summary&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;param name=&quot;a&quot;&gt;运算数A&lt;/param&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;param name=&quot;b&quot;&gt;运算数B&lt;/param&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;returns&gt;运算结果&lt;/returns&gt;</span></span><br><span class="line">    <span class="comment">/// &lt;exception cref=&quot;runtime_error&quot;&gt;未设置策略时抛出异常&lt;/exception&gt;</span></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">ExecuteStrategy</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (_currentStrategy == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="built_in">runtime_error</span>(<span class="string">&quot;请先设置具体策略&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> _currentStrategy-&gt;<span class="built_in">Calculate</span>(a, b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用示例</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Context context;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 切换为加法策略并执行</span></span><br><span class="line">        context.<span class="built_in">SetStrategy</span>(<span class="keyword">new</span> <span class="built_in">AddStrategy</span>());</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;5 + 3 = &quot;</span> &lt;&lt; context.<span class="built_in">ExecuteStrategy</span>(<span class="number">5</span>, <span class="number">3</span>) &lt;&lt; endl; <span class="comment">// 输出：5 + 3 = 8</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 动态切换为乘法策略并执行</span></span><br><span class="line">        context.<span class="built_in">SetStrategy</span>(<span class="keyword">new</span> <span class="built_in">MultiplyStrategy</span>());</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;5 × 3 = &quot;</span> &lt;&lt; context.<span class="built_in">ExecuteStrategy</span>(<span class="number">5</span>, <span class="number">3</span>) &lt;&lt; endl; <span class="comment">// 输出：5 × 3 = 15</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">catch</span> (<span class="type">const</span> exception&amp; e) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;执行异常：&quot;</span> &lt;&lt; e.<span class="built_in">what</span>() &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">      </span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针模拟实现）"><a href="#2-5-纯C语言实现（结构体-函数指针模拟实现）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针模拟实现）"></a>2.5 纯C语言实现（结构体+函数指针模拟实现）</h3><p>纯C语言无面向对象特性，无类和多态，通过“结构体封装数据+函数指针封装行为”，手动模拟策略模式的核心逻辑。用结构体封装环境类的属性（策略函数指针），用函数指针模拟抽象策略的接口方法，需手动管理内存，代码虽略显冗余，但底层可控性强，适配嵌入式、底层开发等资源受限场景，完美还原“策略封装、动态切换”的核心思想。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义策略函数指针类型（模拟抽象策略接口）</span></span><br><span class="line"><span class="comment">// 参数：两个运算数a、b，返回值：运算结果</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">int</span> <span class="params">(*StrategyFunc)</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 环境结构体：封装当前策略函数指针</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    StrategyFunc strategy; <span class="comment">// 当前策略的函数指针</span></span><br><span class="line">&#125; Context;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// &lt;summary&gt;</span></span><br><span class="line"><span class="comment">/// 初始化环境类</span></span><br><span class="line"><span class="comment">/// &lt;/summary&gt;</span></span><br><span class="line"><span class="comment">/// &lt;param name=&quot;context&quot;&gt;环境结构体指针&lt;/param&gt;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Context_Init</span><span class="params">(Context* context)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (context == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;警告：环境对象不可为NULL\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    context-&gt;strategy = <span class="literal">NULL</span>; <span class="comment">// 初始无策略</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// &lt;summary&gt;</span></span><br><span class="line"><span class="comment">/// 动态切换策略</span></span><br><span class="line"><span class="comment">/// &lt;/summary&gt;</span></span><br><span class="line"><span class="comment">/// &lt;param name=&quot;context&quot;&gt;环境结构体指针&lt;/param&gt;</span></span><br><span class="line"><span class="comment">/// &lt;param name=&quot;strategy&quot;&gt;策略函数指针&lt;/param&gt;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Context_SetStrategy</span><span class="params">(Context* context, StrategyFunc strategy)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (context == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;警告：环境对象不可为NULL\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    context-&gt;strategy = strategy;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// &lt;summary&gt;</span></span><br><span class="line"><span class="comment">/// 执行当前策略的运算逻辑</span></span><br><span class="line"><span class="comment">/// &lt;/summary&gt;</span></span><br><span class="line"><span class="comment">/// &lt;param name=&quot;context&quot;&gt;环境结构体指针&lt;/param&gt;</span></span><br><span class="line"><span class="comment">/// &lt;param name=&quot;a&quot;&gt;运算数A&lt;/param&gt;</span></span><br><span class="line"><span class="comment">/// &lt;param name=&quot;b&quot;&gt;运算数B&lt;/param&gt;</span></span><br><span class="line"><span class="comment">/// &lt;returns&gt;运算结果（异常时返回-1）&lt;/returns&gt;</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">Context_ExecuteStrategy</span><span class="params">(Context* context, <span class="type">int</span> a, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (context == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;错误：环境对象不可为NULL\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (context-&gt;strategy == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;错误：请先设置具体策略\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用当前策略的函数指针，执行运算</span></span><br><span class="line">    <span class="keyword">return</span> context-&gt;strategy(a, b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体策略1：加法策略函数</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">AddStrategy</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体策略2：乘法策略函数</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">MultiplyStrategy</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> a * b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用示例</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    Context context;</span><br><span class="line">    <span class="comment">// 初始化环境</span></span><br><span class="line">    Context_Init(&amp;context);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 切换为加法策略并执行</span></span><br><span class="line">    Context_SetStrategy(&amp;context, AddStrategy);</span><br><span class="line">    <span class="type">int</span> result = Context_ExecuteStrategy(&amp;context, <span class="number">5</span>, <span class="number">3</span>);</span><br><span class="line">    <span class="keyword">if</span> (result != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;5 + 3 = %d\n&quot;</span>, result); <span class="comment">// 输出：5 + 3 = 8</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 动态切换为乘法策略并执行</span></span><br><span class="line">    Context_SetStrategy(&amp;context, MultiplyStrategy);</span><br><span class="line">    result = Context_ExecuteStrategy(&amp;context, <span class="number">5</span>, <span class="number">3</span>);</span><br><span class="line">    <span class="keyword">if</span> (result != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;5 × 3 = %d\n&quot;</span>, result); <span class="comment">// 输出：5 × 3 = 15</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">      </span><br></pre></td></tr></table></figure>
+
+<h2 id="三、策略模式的优缺点"><a href="#三、策略模式的优缺点" class="headerlink" title="三、策略模式的优缺点"></a>三、策略模式的优缺点</h2><p>策略模式的核心价值是“解耦算法与客户端，实现算法的灵活切换与独立扩展”，其优缺点均围绕这一核心展开。在实际开发中，需结合业务场景的策略数量、切换频率和性能要求，权衡使用，避免过度设计或滥用，确保既发挥其核心优势，又规避潜在问题。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>解耦算法与使用方，提升可维护性</strong>：策略的实现与调用完全分离，客户端无需关注算法的内部细节，只需通过环境类调用策略。修改某一策略的逻辑时，无需改动客户端和其他策略代码，降低维护成本，也减少了代码耦合带来的风险。</p>
+</li>
+<li><p><strong>灵活扩展，符合开闭原则</strong>：新增策略时，只需实现抽象策略接口（或定义策略函数），无需修改原有代码，即可通过环境类切换使用新策略。例如支付系统新增“银联支付”策略，仅需新增<code>UnionPayStrategy</code>类，无需改动支付核心逻辑。</p>
+</li>
+<li><p><strong>消除冗余条件判断，提升代码可读性</strong>：彻底替代大量嵌套的<code>if/else</code>或<code>switch</code>语句，将分散的算法逻辑封装为独立策略，让代码结构更清晰，逻辑更易理解和调试。例如排序算法的选择，若用条件判断需区分冒泡、快排、归并等分支，而策略模式可将每种排序封装为独立策略，代码更简洁。</p>
+</li>
+<li><p><strong>策略复用性强，减少代码冗余</strong>：不同的客户端（或场景）可共享同一个策略对象，相同的算法逻辑无需重复编写。例如电商系统的“满减优惠”策略，可在PC端、移动端、小程序等多个场景中复用。</p>
+</li>
+<li><p><strong>便于单元测试</strong>：每个策略独立封装，可单独编写单元测试用例，无需依赖客户端和其他策略，提升测试效率和代码健壮性。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>类&#x2F;结构体数量增加，存在“类爆炸”风险</strong>：每新增一个策略，就需要新增一个具体策略类（或策略函数），当策略数量较多时（如10个以上），会导致类&#x2F;函数数量激增，增加代码量和维护成本。</p>
+</li>
+<li><p><strong>客户端需了解所有策略，增加使用成本</strong>：客户端必须清楚所有策略的差异和适用场景，才能选择合适的策略，这增加了客户端的使用复杂度。例如支付系统，客户端需知道支付宝、微信、银联等策略的区别，才能根据用户选择切换策略。</p>
+</li>
+<li><p><strong>轻微性能损耗</strong>：部分语言（如C++&#x2F;C#）中，策略的切换可能涉及对象的创建与销毁，多态调用也会带来轻微的性能开销（可通过策略单例、对象池化等方式优化）。</p>
+</li>
+<li><p><strong>策略间无依赖管理</strong>：若策略之间存在依赖关系（如某策略需基于另一策略的结果执行），策略模式本身无法很好地管理这种依赖，需额外引入其他设计模式（如装饰器模式）辅助实现。</p>
+</li>
+</ul>
+<h2 id="四、策略模式的使用场景"><a href="#四、策略模式的使用场景" class="headerlink" title="四、策略模式的使用场景"></a>四、策略模式的使用场景</h2><p>策略模式的核心适用场景是“算法需要动态切换、且算法数量较多、需独立扩展”的业务场景。以下结合具体场景及典型实战案例，帮助开发者快速判断是否适用，实现精准落地，避免滥用或错用。</p>
+<h3 id="4-1-核心适用场景"><a href="#4-1-核心适用场景" class="headerlink" title="4.1 核心适用场景"></a>4.1 核心适用场景</h3><ul>
+<li><p><strong>算法需动态切换</strong>：客户端需根据不同条件，在运行时动态选择不同的算法。典型案例：支付系统（支付宝、微信、银行卡、银联支付）、排序算法（冒泡、快排、归并、插入排序）、日志存储策略（本地文件、数据库、云存储、消息队列）、电商优惠计算（满减、折扣、优惠券、积分抵扣）。</p>
+</li>
+<li><p><strong>避免大量条件判断</strong>：代码中出现大量与算法选择相关的条件分支，且分支逻辑频繁修改、扩展。例如某风控系统，根据用户等级、交易金额、风险评分选择不同的风控策略，若用条件判断会导致代码臃肿，适合用策略模式重构。</p>
+</li>
+<li><p><strong>算法需独立扩展与维护</strong>：算法的实现可能频繁变更，且需要不影响原有调用逻辑。例如电商平台的推荐算法，需根据用户行为、商品热度等因素动态调整推荐策略，新增或修改推荐算法时，无需改动推荐核心逻辑。</p>
+</li>
+<li><p><strong>多算法复用场景</strong>：多个客户端（或场景）需要共享不同的算法，且算法逻辑相对独立。例如办公软件的文件导出策略（PDF、Excel、Word、TXT），不同模块可共享同一套导出策略。</p>
+</li>
+</ul>
+<h3 id="4-2-典型实战案例"><a href="#4-2-典型实战案例" class="headerlink" title="4.2 典型实战案例"></a>4.2 典型实战案例</h3><ul>
+<li><p><strong>支付系统的支付策略</strong>：电商平台的支付模块，支持支付宝、微信、银行卡、银联等多种支付方式，每种支付方式的流程（下单、支付、回调）不同，通过策略模式将每种支付方式封装为独立策略，客户端可根据用户选择动态切换支付策略，新增支付方式时无需修改原有支付逻辑。</p>
+</li>
+<li><p><strong>排序算法的动态选择</strong>：数据处理系统中，根据数据量大小、数据类型（有序&#x2F;无序）选择不同的排序算法（小数据量用冒泡排序，大数据量用快排，有序数据用插入排序），通过策略模式封装每种排序算法，环境类根据数据条件动态切换策略，提升排序效率。</p>
+</li>
+<li><p><strong>电商优惠计算系统</strong>：电商平台的订单结算模块，支持满减、折扣、优惠券、积分抵扣等多种优惠方式，每种优惠的计算逻辑不同，通过策略模式将每种优惠封装为独立策略，根据订单金额、用户等级等条件动态选择优惠策略，新增优惠方式时无需修改结算核心逻辑。</p>
+</li>
+<li><p><strong>日志存储策略</strong>：系统日志需根据不同环境（开发、测试、生产）选择不同的存储方式（开发环境存储本地文件，测试环境存储数据库，生产环境存储云存储），通过策略模式封装每种存储策略，环境类根据配置动态切换存储方式，提升日志存储的灵活性。</p>
+</li>
+</ul>
+<h3 id="4-3-避坑场景"><a href="#4-3-避坑场景" class="headerlink" title="4.3 避坑场景"></a>4.3 避坑场景</h3><ul>
+<li><p><strong>策略数量极少且无扩展计划</strong>：若仅存在2-3个策略，且后续无新增策略的需求，用简单的条件判断即可实现，无需引入策略模式，避免过度设计。例如仅支持“加法、减法”两种运算的工具类，无需封装为策略模式。</p>
+</li>
+<li><p><strong>算法逻辑简单且无变化</strong>：若算法逻辑简单，且长期无需修改，无需封装为独立策略，直接在客户端实现即可，减少代码冗余。例如简单的数值转换、字符串拼接等逻辑，无需使用策略模式。</p>
+</li>
+<li><p><strong>客户端无需动态切换策略</strong>：若策略一旦确定，运行时无需切换，且仅在单一场景使用，无需引入策略模式。例如某系统固定使用快排算法，无需支持其他排序方式，直接实现快排逻辑即可。</p>
+</li>
+<li><p><strong>极致性能敏感的底层场景</strong>：如嵌入式实时系统、高频交易系统，策略模式的多态&#x2F;函数指针调用会带来轻微性能开销，可能影响系统响应速度，需谨慎使用，可考虑用条件判断替代。</p>
+</li>
+</ul>
+<h2 id="五、策略模式的扩展与实战技巧"><a href="#五、策略模式的扩展与实战技巧" class="headerlink" title="五、策略模式的扩展与实战技巧"></a>五、策略模式的扩展与实战技巧</h2><p>在实际工程实践中，单纯的策略模式可能无法满足复杂场景的需求，需结合其他设计模式或优化技巧，解决策略模式的固有缺陷（如类爆炸、客户端需了解所有策略），提升系统的灵活性和可维护性。</p>
+<h3 id="5-1-策略工厂模式（解决客户端选择策略的复杂度）"><a href="#5-1-策略工厂模式（解决客户端选择策略的复杂度）" class="headerlink" title="5.1 策略工厂模式（解决客户端选择策略的复杂度）"></a>5.1 策略工厂模式（解决客户端选择策略的复杂度）</h3><p>为解决“客户端需了解所有策略”的问题，可结合工厂模式，创建策略工厂类（StrategyFactory），由工厂类根据条件（如配置、参数）自动创建并返回具体策略对象，客户端无需直接实例化策略，只需通过工厂类获取策略，降低客户端的使用复杂度。例如支付系统中，客户端只需传入“支付方式编码”，工厂类即可返回对应的支付策略对象。</p>
+<h3 id="5-2-策略单例化（优化性能，减少对象创建开销）"><a href="#5-2-策略单例化（优化性能，减少对象创建开销）" class="headerlink" title="5.2 策略单例化（优化性能，减少对象创建开销）"></a>5.2 策略单例化（优化性能，减少对象创建开销）</h3><p>具体策略类通常无状态数据（算法逻辑固定），可将其设计为单例，减少对象创建与销毁的开销。例如C#中通过静态只读实例、Python中通过<code>__new__</code>方法、Go中通过全局变量、C++中通过静态成员函数，实现策略对象的单例化，避免频繁创建策略对象，提升系统性能。</p>
+<h3 id="5-3-与其他设计模式结合使用"><a href="#5-3-与其他设计模式结合使用" class="headerlink" title="5.3 与其他设计模式结合使用"></a>5.3 与其他设计模式结合使用</h3><ul>
+<li><p><strong>与工厂模式结合</strong>：如上述“策略工厂”，由工厂负责策略的创建与管理，客户端通过工厂获取策略，降低客户端与具体策略的耦合，同时简化策略选择逻辑。</p>
+</li>
+<li><p><strong>与装饰器模式结合</strong>：当策略需要新增额外功能（如日志记录、权限校验）时，可通过装饰器模式为策略动态添加功能，无需修改原有策略代码，实现功能的灵活扩展。例如为支付策略添加“支付日志记录”装饰器，无需修改支付策略本身。</p>
+</li>
+<li><p><strong>与模板方法模式结合</strong>：当多个策略存在共同的逻辑（如前置校验、后置处理）时，可通过模板方法模式将共同逻辑封装到抽象策略基类中，具体策略只需实现差异化的核心逻辑，减少代码冗余。</p>
+</li>
+<li><p><strong>与观察者模式结合</strong>：当策略执行完成后，需要通知其他组件（如更新UI、发送消息），可结合观察者模式，让策略作为被观察者，执行完成后通知所有观察者，实现策略与其他组件的解耦。</p>
+</li>
+</ul>
+<h3 id="5-4-多语言实现的注意事项"><a href="#5-4-多语言实现的注意事项" class="headerlink" title="5.4 多语言实现的注意事项"></a>5.4 多语言实现的注意事项</h3><ul>
+<li><p>**C#**：通过接口定义抽象策略，用抽象类封装通用逻辑（如日志记录、参数校验），减少重复代码；利用依赖注入框架（如Autofac、Unity）管理策略对象，简化策略的创建与切换；新增策略时，确保接口实现的一致性，可通过代码检查工具校验。</p>
+</li>
+<li><p><strong>Python</strong>：无需严格遵循“接口-实现”结构，可通过鸭子类型简化设计；利用装饰器封装通用逻辑（如策略执行日志），提升代码复用性；注意策略对象的内存管理，避免循环引用；可通过字典映射策略标识与策略对象，简化策略选择逻辑。</p>
+</li>
+<li><p><strong>Golang</strong>：依托接口的隐式实现特性，简化状态类定义；通过结构体组合复用通用策略逻辑；利用sync.Once实现策略单例，减少对象创建开销；可通过map存储策略标识与策略对象，实现策略的快速查找与切换。</p>
+</li>
+<li><p>**C++**：抽象策略类的析构函数必须声明为虚函数，避免多态场景下的内存泄漏；可通过智能指针（如<code>unique_ptr</code>）管理策略对象，简化内存管理；利用单例模式优化策略对象的创建，提升性能；注意纯虚函数的实现，确保所有具体策略类都实现了抽象接口的方法。</p>
+</li>
+<li><p><strong>纯C</strong>：函数指针需保证类型一致性，避免野指针；通过结构体封装策略相关数据，提升代码可读性；注意内存分配与释放的配对，避免内存泄漏；可通过宏定义或函数指针数组，简化策略的注册与切换逻辑。</p>
+</li>
+</ul>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>策略模式的核心精髓是“封装变化、解耦算法”，其本质是通过将易变的算法逻辑抽离为独立的策略组件，实现算法与客户端的解耦，让算法能够灵活切换、独立扩展。它不仅是一种代码组织方式，更是一种“面向变化”的设计思维——面对频繁变更的算法逻辑，不通过修改原有代码实现，而是通过新增策略组件完成扩展，完美契合“开闭原则”。</p>
+<p>从多语言实现来看，不同语言的实现方式虽有差异，但核心逻辑高度一致：面向对象语言（C#、Python、C++）可通过接口&#x2F;抽象类+继承&#x2F;多态，自然映射策略模式的三大核心角色，代码结构清晰、贴合模式原生设计；Go语言借助接口和结构体，以“组合”思想实现轻量级策略管理，兼顾简洁性与高性能；纯C语言则通过结构体+函数指针，手动模拟面向对象特性，实现策略模式的核心逻辑，体现了模式思想的跨语言适配性。</p>
+<p>在实际开发中，使用策略模式的关键是“权衡场景、规避缺陷”：</p>
+<ul>
+<li><p>简单场景（≤3个策略、无扩展计划）：优先使用条件判断，避免过度设计，兼顾开发效率；</p>
+</li>
+<li><p>复杂场景（≥5个策略、频繁扩展&#x2F;修改）：果断使用策略模式，结合策略工厂、单例、装饰器等技巧，解决类爆炸、客户端使用复杂等问题；</p>
+</li>
+<li><p>跨语言开发场景：根据语言特性调整实现方式（如C的函数指针、Go的接口），核心保持“策略封装、动态切换”的设计思想；</p>
+</li>
+<li><p>性能敏感场景：通过策略单例、对象池化等方式，降低性能开销，必要时可放弃策略模式，选择条件判断。</p>
+</li>
+</ul>
+<p>总之，策略模式是解决“算法动态切换、独立扩展”类问题的有效工具，合理使用可让复杂的算法逻辑更清晰、更易维护，滥用则会增加系统复杂度。开发者需结合业务实际，灵活运用策略模式及扩展技巧，在设计优雅与开发效率之间找到平衡，构建高可维护、高扩展的系统。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" rel="tag"># 策略模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/18.%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/" rel="prev" title="状态模式">
+                  <i class="fa fa-angle-left"></i> 状态模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/21/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/20.%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/" rel="next" title="责任链模式">
+                  责任链模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在软件开发中，复杂系统往往由多个相互依赖、各司其职的子模块协同构成。若客户端直接与这些子模块交互，不仅需要深入了解各子模块的实现细节与调用逻辑，还会导致代码耦合度激增、可读性下降、维护成本居高不下。外观模式（Facade Pattern）作为经典的结构型设计模式，核心解决方案是提供一个统一的高层接口，封装系统的底层复杂性，让客户端无需关注子模块的内部实现，仅通过该接口即可完成复杂业务流程的调用，实">
+<meta property="og:type" content="article">
+<meta property="og:title" content="外观模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/11/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/10.%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在软件开发中，复杂系统往往由多个相互依赖、各司其职的子模块协同构成。若客户端直接与这些子模块交互，不仅需要深入了解各子模块的实现细节与调用逻辑，还会导致代码耦合度激增、可读性下降、维护成本居高不下。外观模式（Facade Pattern）作为经典的结构型设计模式，核心解决方案是提供一个统一的高层接口，封装系统的底层复杂性，让客户端无需关注子模块的内部实现，仅通过该接口即可完成复杂业务流程的调用，实">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.206Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="外观模式">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/11/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/10.%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/11/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/10.%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/","path":"2019/11/11/学习笔记/设计模式/10.外观模式/","title":"外观模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>外观模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、外观模式的核心结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%AD%90%E7%B3%BB%E7%BB%9F%E8%A7%92%E8%89%B2%EF%BC%88Subsystem%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 子系统角色（Subsystem）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%A4%96%E8%A7%82%E8%A7%92%E8%89%B2%EF%BC%88Facade%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 外观角色（Facade）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现外观模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E6%A0%87%E5%87%86%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（面向对象标准实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%8A%A8%E6%80%81%E8%AF%AD%E8%A8%80%E7%AE%80%E6%B4%81%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（动态语言简洁实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Go-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%84%E5%90%88%E4%BC%98%E4%BA%8E%E7%BB%A7%E6%89%BF%E7%9A%84%E6%9E%81%E7%AE%80%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Go 实现（组合优于继承的极简实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BB%8F%E5%85%B8%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（面向对象经典实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针模拟实现）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、外观模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、外观模式的使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%A0%B8%E5%BF%83%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 核心适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%85%B8%E5%9E%8B%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 典型实战案例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/11/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/10.%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="外观模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          外观模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-11 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-11T00:00:00+08:00">2019-11-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在软件开发中，复杂系统往往由多个相互依赖、各司其职的子模块协同构成。若客户端直接与这些子模块交互，不仅需要深入了解各子模块的实现细节与调用逻辑，还会导致代码耦合度激增、可读性下降、维护成本居高不下。外观模式（Facade Pattern）作为经典的结构型设计模式，核心解决方案是<strong>提供一个统一的高层接口</strong>，封装系统的底层复杂性，让客户端无需关注子模块的内部实现，仅通过该接口即可完成复杂业务流程的调用，实现“简化交互、解耦分层”的设计目标。本文将深入解析外观模式的核心结构，通过C#、Python、Go、C++、纯C五种语言的完整可运行实现示例，结合其优缺点、使用场景展开全面分析，助力开发者快速落地应用。</p>
+<h2 id="一、外观模式的核心结构"><a href="#一、外观模式的核心结构" class="headerlink" title="一、外观模式的核心结构"></a>一、外观模式的核心结构</h2><p>外观模式的设计精髓在于“封装复杂，暴露简单”，其核心结构简洁清晰，仅包含两类核心角色，二者分工明确、协同工作，共同实现系统复杂性的屏蔽与交互简化，是模式发挥价值的核心支撑：</p>
+<h3 id="1-1-子系统角色（Subsystem）"><a href="#1-1-子系统角色（Subsystem）" class="headerlink" title="1.1 子系统角色（Subsystem）"></a>1.1 子系统角色（Subsystem）</h3><p>子系统是构成复杂系统的底层模块集合，每个子模块独立承载特定的业务功能，具备完整的内部逻辑，且不感知外观类的存在。子模块之间可存在依赖关系，但无需关心自身如何被客户端调用，仅专注于自身职责的高效实现。例如，电商下单系统的子模块可包括库存检查、支付处理、物流创建、订单记录等，各模块协同联动，完成下单全流程的核心逻辑。</p>
+<h3 id="1-2-外观角色（Facade）"><a href="#1-2-外观角色（Facade）" class="headerlink" title="1.2 外观角色（Facade）"></a>1.2 外观角色（Facade）</h3><p>外观角色是客户端与子系统之间的“中介”，对外提供统一的高层接口，内部封装子模块的调用顺序、依赖关系和交互逻辑。它不替代子系统的功能，也不新增业务逻辑，仅负责协调子模块有序执行，屏蔽子系统的底层复杂性。客户端只需调用外观类的接口，即可完成复杂的业务操作，无需与任何子模块直接交互，实现“一键调用”的极简体验。</p>
+<p>核心逻辑：外观类的核心价值是“解耦”与“简化”——解耦客户端与子系统的直接依赖，简化客户端的调用流程，同时保留子系统的独立性，便于子模块的单独维护、迭代与扩展，实现“高内聚、低耦合”的架构设计。</p>
+<h2 id="二、多语言实现外观模式"><a href="#二、多语言实现外观模式" class="headerlink" title="二、多语言实现外观模式"></a>二、多语言实现外观模式</h2><p>为便于理解和落地，本文以“智能家居控制系统”为经典案例展开多语言实现：子系统包含灯光、空调、窗帘三个独立模块，各自实现开关、调节等基础功能；外观类封装“一键回家”“一键离家”两个高频场景，整合子模块的操作逻辑，让客户端通过简单调用即可完成复杂的场景化控制。以下实现均保证可运行性，添加规范注释，贴合各语言的设计理念和企业级开发规范，兼顾实用性与可读性。</p>
+<h3 id="2-1-C-实现（面向对象标准实现）"><a href="#2-1-C-实现（面向对象标准实现）" class="headerlink" title="2.1 C# 实现（面向对象标准实现）"></a>2.1 C# 实现（面向对象标准实现）</h3><p>C# 作为强类型面向对象语言，通过类封装子系统和外观类，依托构造函数初始化子系统实例，代码结构严谨、可读性高，贴合企业级开发规范，无需额外处理内存管理（依赖GC自动回收），是业务系统开发的优选实现方式。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统1：灯光模块（独立实现灯光的开关功能）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Light</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 打开灯光</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOn</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;灯光已打开，营造温馨氛围&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 关闭灯光</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOff</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;灯光已关闭，节约用电&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统2：空调模块（独立实现温度调节和关闭功能）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AirConditioner</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 设置空调温度</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;temp&quot;&gt;</span>目标温度（℃）<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SetTemperature</span>(<span class="params"><span class="built_in">int</span> temp</span>)</span> =&gt; Console.WriteLine(<span class="string">$&quot;空调温度设置为<span class="subst">&#123;temp&#125;</span>℃，体感舒适&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 关闭空调</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOff</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;空调已关闭，减少能耗&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统3：窗帘模块（独立实现窗帘的开关功能）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Curtain</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 关闭窗帘（遮光、隐私保护）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Close</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;窗帘已关闭，保障隐私&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 打开窗帘（采光、通风）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Open</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;窗帘已打开，引入自然光线&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 外观类：智能家居统一控制接口（封装子系统交互逻辑）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SmartHomeFacade</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 持有子系统实例（通过构造函数初始化，解耦实例创建与调用逻辑）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> Light _light;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> AirConditioner _airConditioner;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> Curtain _curtain;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 初始化外观类，创建所有子系统实例</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmartHomeFacade</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _light = <span class="keyword">new</span> Light();</span><br><span class="line">        _airConditioner = <span class="keyword">new</span> AirConditioner();</span><br><span class="line">        _curtain = <span class="keyword">new</span> Curtain();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 一键回家模式（整合子系统操作，适配回家场景）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">HomeMode</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n===== 执行回家模式 =====&quot;</span>);</span><br><span class="line">        _light.TurnOn();       <span class="comment">// 打开灯光，营造温馨氛围</span></span><br><span class="line">        _airConditioner.SetTemperature(<span class="number">26</span>); <span class="comment">// 设置舒适温度，适配人体体感</span></span><br><span class="line">        _curtain.Open();       <span class="comment">// 打开窗帘，引入自然采光</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 一键离家模式（整合子系统操作，适配离家场景）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">LeaveMode</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n===== 执行离家模式 =====&quot;</span>);</span><br><span class="line">        _light.TurnOff();      <span class="comment">// 关闭灯光，节约用电</span></span><br><span class="line">        _airConditioner.TurnOff(); <span class="comment">// 关闭空调，减少能耗</span></span><br><span class="line">        _curtain.Close();      <span class="comment">// 关闭窗帘，保障家居隐私</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用（仅与外观类交互，无需关注子系统细节）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 初始化外观类，获取统一控制接口</span></span><br><span class="line">        SmartHomeFacade smartHome = <span class="keyword">new</span> SmartHomeFacade();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用回家模式，完成一系列场景化操作</span></span><br><span class="line">        smartHome.HomeMode();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用离家模式，完成一系列场景化操作</span></span><br><span class="line">        smartHome.LeaveMode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（动态语言简洁实现）"><a href="#2-2-Python-实现（动态语言简洁实现）" class="headerlink" title="2.2 Python 实现（动态语言简洁实现）"></a>2.2 Python 实现（动态语言简洁实现）</h3><p>Python 遵循“鸭子类型”，无需显式定义接口，通过类封装子系统和外观类，语法简洁灵活，无需繁琐的类型声明，依托GC自动管理内存，适配快速开发、脚本开发及轻量级项目场景，同时完整保留外观模式“封装复杂、简化调用”的核心逻辑。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Light</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;子系统1：灯光模块，实现灯光开关功能&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;打开灯光&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;灯光已打开，营造温馨氛围&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;关闭灯光&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;灯光已关闭，节约用电&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AirConditioner</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;子系统2：空调模块，实现温度调节和关闭功能&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_temperature</span>(<span class="params">self, temp</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;设置空调温度&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;空调温度设置为<span class="subst">&#123;temp&#125;</span>℃，体感舒适&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;关闭空调&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;空调已关闭，减少能耗&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Curtain</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;子系统3：窗帘模块，实现窗帘开关功能&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">close</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;关闭窗帘，保障隐私&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;窗帘已关闭，保障隐私&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">open</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;打开窗帘，引入采光&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;窗帘已打开，引入自然光线&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SmartHomeFacade</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;外观类：智能家居统一控制接口，封装子系统交互逻辑&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 初始化所有子系统实例，隐藏子模块创建细节</span></span><br><span class="line">        <span class="variable language_">self</span>.light = Light()</span><br><span class="line">        <span class="variable language_">self</span>.air_conditioner = AirConditioner()</span><br><span class="line">        <span class="variable language_">self</span>.curtain = Curtain()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">home_mode</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;一键回家模式：整合子系统操作，适配回家场景&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n===== 执行回家模式 =====&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.light.turn_on()</span><br><span class="line">        <span class="variable language_">self</span>.air_conditioner.set_temperature(<span class="number">26</span>)</span><br><span class="line">        <span class="variable language_">self</span>.curtain.<span class="built_in">open</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">leave_mode</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;一键离家模式：整合子系统操作，适配离家场景&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n===== 执行离家模式 =====&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.light.turn_off()</span><br><span class="line">        <span class="variable language_">self</span>.air_conditioner.turn_off()</span><br><span class="line">        <span class="variable language_">self</span>.curtain.close()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用：仅与外观类交互，简化调用流程</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 初始化外观类，获取统一控制入口</span></span><br><span class="line">    smart_home = SmartHomeFacade()</span><br><span class="line">    <span class="comment"># 调用场景化接口，完成复杂操作</span></span><br><span class="line">    smart_home.home_mode()</span><br><span class="line">    smart_home.leave_mode()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Go-实现（组合优于继承的极简实现）"><a href="#2-3-Go-实现（组合优于继承的极简实现）" class="headerlink" title="2.3 Go 实现（组合优于继承的极简实现）"></a>2.3 Go 实现（组合优于继承的极简实现）</h3><p>Go 语言无类和继承概念，核心遵循“组合优于继承”的设计哲学，通过结构体封装子系统和外观类，依托方法绑定实现功能，通过工厂函数初始化实例，代码极简、高效，贴合Go语言“简洁、务实、高效”的设计理念，适配高并发、高性能的后端开发场景。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统1：灯光模块</span></span><br><span class="line"><span class="keyword">type</span> Light <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TurnOn 打开灯光</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(l *Light)</span></span> TurnOn() &#123;</span><br><span class="line">   t.Println(<span class="string">&quot;灯光已打开，营造温馨氛围&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TurnOff 关闭灯光</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(l *Light)</span></span> TurnOff() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;灯光已关闭，节约用电&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统2：空调模块</span></span><br><span class="line"><span class="keyword">type</span> AirConditioner <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// SetTemperature 设置空调温度</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ac *AirConditioner)</span></span> SetTemperature(temp <span class="type">int</span>) &#123;</span><br><span class="line"> fmt.Printf(<span class="string">&quot;空调温度设置为%d℃，体感舒适\n&quot;</span>, temp)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TurnOff 关闭空调</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ac *AirConditioner)</span></span> TurnOff() &#123;</span><br><span class="line">  mt.Println(<span class="string">&quot;空调已关闭，减少能耗&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统3：窗帘模块</span></span><br><span class="line"><span class="keyword">type</span> Curtain <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Close 关闭窗帘</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Curtain)</span></span> Close() &#123;</span><br><span class="line">   t.Println(<span class="string">&quot;窗帘已关闭，保障隐私&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Open 打开窗帘</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Curtain)</span></span> Open() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;窗帘已打开，引入自然光线&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 外观类：智能家居统一控制接口</span></span><br><span class="line"><span class="keyword">type</span> SmartHomeFacade <span class="keyword">struct</span> &#123;</span><br><span class="line"> light           *Light</span><br><span class="line">     onditioner  *AirConditioner</span><br><span class="line"> curtain         *Curtain</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewSmartHomeFacade 工厂函数：创建外观类实例，初始化子系统</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewSmartHomeFacade</span><span class="params">()</span></span> *SmartHomeFacade &#123;</span><br><span class="line">  eturn &amp;SmartHomeFacade&#123;</span><br><span class="line">  light:           &amp;Light&#123;&#125;,</span><br><span class="line">  airConditioner:  &amp;AirConditioner&#123;&#125;,</span><br><span class="line">    rtain:         &amp;Curtain&#123;&#125;,</span><br><span class="line">  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// HomeMode 一键回家模式，整合子系统操作</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f *SmartHomeFacade)</span></span> HomeMode() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;\n===== 执行回家模式 =====&quot;</span>)</span><br><span class="line">  .light.TurnOn()</span><br><span class="line">   airConditioner.SetTemperature(<span class="number">26</span>)</span><br><span class="line"> f.curtain.Open()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LeaveMode 一键离家模式，整合子系统操作</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f *SmartHomeFacade)</span></span> LeaveMode() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;\n===== 执行离家模式 =====&quot;</span>)</span><br><span class="line"> f.light.TurnOff()</span><br><span class="line"> f.airConditioner.TurnOff()</span><br><span class="line"> f.curtain.Close()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用：通过外观类统一交互，屏蔽子系统细节</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"> <span class="comment">// 初始化外观类，获取统一控制入口</span></span><br><span class="line">  martHome := NewSmartHomeFacade()</span><br><span class="line"> <span class="comment">// 调用场景化接口，完成复杂业务操作</span></span><br><span class="line"> smartHome.HomeMode()</span><br><span class="line"> smartHome.LeaveMode()</span><br><span class="line">&#125;</span><br><span class="line">                           s                                               f.      f             &#125;     cu                                         r          airC                   fm      f                   fm</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（面向对象经典实现）"><a href="#2-4-C-实现（面向对象经典实现）" class="headerlink" title="2.4 C++ 实现（面向对象经典实现）"></a>2.4 C++ 实现（面向对象经典实现）</h3><p>C++ 作为经典面向对象语言，通过类封装子系统和外观类，依托构造函数初始化子系统实例，析构函数释放内存，兼顾灵活性与性能，适配底层开发、高性能场景，需手动管理内存以避免泄漏，是底层系统、高性能应用的优选实现方式。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统1：灯光模块</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Light</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 打开灯光</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOn</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;灯光已打开，营造温馨氛围&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭灯光</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOff</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;灯光已关闭，节约用电&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统2：空调模块</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AirConditioner</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 设置空调温度</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">setTemperature</span><span class="params">(<span class="type">int</span> temp)</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;空调温度设置为&quot;</span> &lt;&lt; temp &lt;&lt; <span class="string">&quot;℃，体感舒适&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭空调</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOff</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;空调已关闭，减少能耗&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统3：窗帘模块</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Curtain</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 关闭窗帘</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;窗帘已关闭，保障隐私&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打开窗帘</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">open</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;窗帘已打开，引入自然光线&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 外观类：智能家居统一控制接口</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SmartHomeFacade</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// 持有子系统指针，通过构造函数初始化</span></span><br><span class="line">    Light* light;</span><br><span class="line">    AirConditioner* airConditioner;</span><br><span class="line">    Curtain* curtain;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 构造函数：初始化所有子系统实例</span></span><br><span class="line">    <span class="built_in">SmartHomeFacade</span>() &#123;</span><br><span class="line">        light = <span class="keyword">new</span> <span class="built_in">Light</span>();</span><br><span class="line">        airConditioner = <span class="keyword">new</span> <span class="built_in">AirConditioner</span>();</span><br><span class="line">        curtain = <span class="keyword">new</span> <span class="built_in">Curtain</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 析构函数：释放子系统内存，避免内存泄漏</span></span><br><span class="line">    ~<span class="built_in">SmartHomeFacade</span>() &#123;</span><br><span class="line">        <span class="keyword">delete</span> light;</span><br><span class="line">        <span class="keyword">delete</span> airConditioner;</span><br><span class="line">        <span class="keyword">delete</span> curtain;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一键回家模式，整合子系统操作</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">homeMode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;\n===== 执行回家模式 =====&quot;</span> &lt;&lt; endl;</span><br><span class="line">        light-&gt;<span class="built_in">turnOn</span>();</span><br><span class="line">        airConditioner-&gt;<span class="built_in">setTemperature</span>(<span class="number">26</span>);</span><br><span class="line">        curtain-&gt;<span class="built_in">open</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一键离家模式，整合子系统操作</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">leaveMode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;\n===== 执行离家模式 =====&quot;</span> &lt;&lt; endl;</span><br><span class="line">        light-&gt;<span class="built_in">turnOff</span>();</span><br><span class="line">        airConditioner-&gt;<span class="built_in">turnOff</span>();</span><br><span class="line">        curtain-&gt;<span class="built_in">close</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化外观类，获取统一控制入口</span></span><br><span class="line">    SmartHomeFacade* smartHome = <span class="keyword">new</span> <span class="built_in">SmartHomeFacade</span>();</span><br><span class="line">    <span class="comment">// 调用场景化接口，完成复杂业务操作</span></span><br><span class="line">    smartHome-&gt;<span class="built_in">homeMode</span>();</span><br><span class="line">    smartHome-&gt;<span class="built_in">leaveMode</span>();</span><br><span class="line">    <span class="comment">// 释放外观类内存（触发析构函数，递归释放子系统内存）</span></span><br><span class="line">    <span class="keyword">delete</span> smartHome;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针模拟实现）"><a href="#2-5-纯C语言实现（结构体-函数指针模拟实现）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针模拟实现）"></a>2.5 纯C语言实现（结构体+函数指针模拟实现）</h3><p>纯C语言无面向对象特性，无类和多态，通过“结构体封装数据+函数指针封装行为”，模拟子系统和外观类的核心逻辑，手动管理内存，代码虽略显冗余，但底层可控性强，适配嵌入式、底层开发等资源受限场景，完美还原外观模式“统一接口、屏蔽复杂”的核心思想。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统1：灯光模块（结构体+函数指针模拟类的行为）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*turnOn)(<span class="type">void</span>);  <span class="comment">// 打开灯光函数指针</span></span><br><span class="line">    <span class="type">void</span> (*turnOff)(<span class="type">void</span>); <span class="comment">// 关闭灯光函数指针</span></span><br><span class="line">&#125; Light;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 灯光打开实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Light_TurnOn</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;灯光已打开，营造温馨氛围\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 灯光关闭实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Light_TurnOff</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;灯光已关闭，节约用电\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工厂函数：创建灯光实例，初始化函数指针</span></span><br><span class="line">Light* <span class="title function_">CreateLight</span><span class="params">()</span> &#123;</span><br><span class="line">    Light* light = (Light*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Light));</span><br><span class="line">    <span class="keyword">if</span> (light == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>; <span class="comment">// 内存分配失败处理，提升代码健壮性</span></span><br><span class="line">    light-&gt;turnOn = Light_TurnOn;</span><br><span class="line">    light-&gt;turnOff = Light_TurnOff;</span><br><span class="line">    <span class="keyword">return</span> light;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统2：空调模块</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*setTemperature)(<span class="type">int</span>); <span class="comment">// 设置温度函数指针</span></span><br><span class="line">    <span class="type">void</span> (*turnOff)(<span class="type">void</span>);       <span class="comment">// 关闭空调函数指针</span></span><br><span class="line">&#125; AirConditioner;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 空调温度设置实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">AC_SetTemperature</span><span class="params">(<span class="type">int</span> temp)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;空调温度设置为%d℃，体感舒适\n&quot;</span>, temp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 空调关闭实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">AC_TurnOff</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;空调已关闭，减少能耗\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工厂函数：创建空调实例</span></span><br><span class="line">AirConditioner* <span class="title function_">CreateAirConditioner</span><span class="params">()</span> &#123;</span><br><span class="line">    AirConditioner* ac = (AirConditioner*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(AirConditioner));</span><br><span class="line">    <span class="keyword">if</span> (ac == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    ac-&gt;setTemperature = AC_SetTemperature;</span><br><span class="line">    ac-&gt;turnOff = AC_TurnOff;</span><br><span class="line">    <span class="keyword">return</span> ac;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子系统3：窗帘模块</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*close)(<span class="type">void</span>); <span class="comment">// 关闭窗帘函数指针</span></span><br><span class="line">    <span class="type">void</span> (*open)(<span class="type">void</span>);  <span class="comment">// 打开窗帘函数指针</span></span><br><span class="line">&#125; Curtain;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 窗帘关闭实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Curtain_Close</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;窗帘已关闭，保障隐私\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 窗帘打开实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Curtain_Open</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;窗帘已打开，引入自然光线\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工厂函数：创建窗帘实例</span></span><br><span class="line">Curtain* <span class="title function_">CreateCurtain</span><span class="params">()</span> &#123;</span><br><span class="line">    Curtain* curtain = (Curtain*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Curtain));</span><br><span class="line">    <span class="keyword">if</span> (curtain == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    curtain-&gt;close = Curtain_Close;</span><br><span class="line">    curtain-&gt;open = Curtain_Open;</span><br><span class="line">    <span class="keyword">return</span> curtain;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 外观类：智能家居统一控制接口（结构体封装子系统指针和方法）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Light* light;                <span class="comment">// 灯光子系统指针</span></span><br><span class="line">    AirConditioner* ac;          <span class="comment">// 空调子系统指针</span></span><br><span class="line">    Curtain* curtain;            <span class="comment">// 窗帘子系统指针</span></span><br><span class="line">    <span class="type">void</span> (*homeMode)(<span class="keyword">struct</span> SmartHomeFacade*); <span class="comment">// 回家模式函数指针</span></span><br><span class="line">    <span class="type">void</span> (*leaveMode)(<span class="keyword">struct</span> SmartHomeFacade*); <span class="comment">// 离家模式函数指针</span></span><br><span class="line">&#125; SmartHomeFacade;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 回家模式实现：整合子系统操作，适配回家场景</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Facade_HomeMode</span><span class="params">(SmartHomeFacade* facade)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n===== 执行回家模式 =====\n&quot;</span>);</span><br><span class="line">    facade-&gt;light-&gt;turnOn();</span><br><span class="line">    facade-&gt;ac-&gt;setTemperature(<span class="number">26</span>);</span><br><span class="line">    facade-&gt;curtain-&gt;open();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 离家模式实现：整合子系统操作，适配离家场景</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Facade_LeaveMode</span><span class="params">(SmartHomeFacade* facade)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n===== 执行离家模式 =====\n&quot;</span>);</span><br><span class="line">    facade-&gt;light-&gt;turnOff();</span><br><span class="line">    facade-&gt;ac-&gt;turnOff();</span><br><span class="line">    facade-&gt;curtain-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工厂函数：创建外观类实例，初始化子系统和方法</span></span><br><span class="line">SmartHomeFacade* <span class="title function_">CreateSmartHomeFacade</span><span class="params">()</span> &#123;</span><br><span class="line">    SmartHomeFacade* facade = (SmartHomeFacade*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(SmartHomeFacade));</span><br><span class="line">    <span class="keyword">if</span> (facade == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">// 初始化子系统实例，隐藏子模块创建细节</span></span><br><span class="line">    facade-&gt;light = CreateLight();</span><br><span class="line">    facade-&gt;ac = CreateAirConditioner();</span><br><span class="line">    facade-&gt;curtain = CreateCurtain();</span><br><span class="line">    <span class="comment">// 绑定外观类方法，封装交互逻辑</span></span><br><span class="line">    facade-&gt;homeMode = Facade_HomeMode;</span><br><span class="line">    facade-&gt;leaveMode = Facade_LeaveMode;</span><br><span class="line">    <span class="keyword">return</span> facade;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放资源：递归释放外观类和子系统内存，避免内存泄漏</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">DestroySmartHomeFacade</span><span class="params">(SmartHomeFacade* facade)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (facade == <span class="literal">NULL</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="built_in">free</span>(facade-&gt;light);</span><br><span class="line">    <span class="built_in">free</span>(facade-&gt;ac);</span><br><span class="line">    <span class="built_in">free</span>(facade-&gt;curtain);</span><br><span class="line">    <span class="built_in">free</span>(facade);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用：仅与外观类交互，无需关注子系统细节</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 创建外观类实例</span></span><br><span class="line">    SmartHomeFacade* smartHome = CreateSmartHomeFacade();</span><br><span class="line">    <span class="keyword">if</span> (smartHome == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;外观类实例创建失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用场景化接口，完成复杂业务操作</span></span><br><span class="line">    smartHome-&gt;homeMode(smartHome);</span><br><span class="line">    smartHome-&gt;leaveMode(smartHome);</span><br><span class="line">    <span class="comment">// 释放内存，提升代码健壮性</span></span><br><span class="line">    DestroySmartHomeFacade(smartHome);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、外观模式的优缺点"><a href="#三、外观模式的优缺点" class="headerlink" title="三、外观模式的优缺点"></a>三、外观模式的优缺点</h2><p>外观模式的核心价值是“简化交互、解耦分层”，其优缺点均围绕这一核心展开。在实际开发中，需结合业务场景的复杂度、扩展需求，权衡使用，避免过度设计或滥用，确保既发挥其核心优势，又规避潜在问题，实现架构设计的合理性。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>简化客户端调用，降低使用成本</strong>：客户端无需了解复杂子系统的内部结构、调用顺序和依赖关系，仅需调用外观类的统一接口，即可完成复杂业务流程，大幅降低客户端的开发、调试和维护成本，提升开发效率。</p>
+</li>
+<li><p><strong>降低系统耦合度，提升可维护性</strong>：外观类作为客户端与子系统的隔离层，子系统的内部修改（如接口调整、逻辑优化、替换子模块）不会直接影响客户端，完全符合“开闭原则”，同时降低系统的整体耦合度，便于子模块的单独维护、迭代与扩展。</p>
+</li>
+<li><p><strong>统一入口管理，便于扩展</strong>：通过外观类集中管理子系统的交互逻辑，新增业务场景（如“睡眠模式”“影院模式”）时，仅需在外观类中新增接口、整合子系统操作，无需修改客户端和子系统代码，扩展便捷，且不破坏原有逻辑。</p>
+</li>
+<li><p><strong>屏蔽底层差异，提升代码一致性</strong>：在多语言、多模块协同开发场景中，外观类可统一不同子系统的调用方式，屏蔽底层实现差异（如不同支付渠道、不同硬件设备的接口差异），让客户端调用更简洁、一致，降低团队协作成本。</p>
+</li>
+<li><p><strong>适配遗留系统改造，降低改造风险</strong>：对于接口混乱、耦合度高的遗留系统，无需修改原有代码，通过外观类封装遗留系统接口，为新系统提供统一调用方式，实现新老系统的兼容对接，降低改造风险和成本。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>违背单一职责原则</strong>：外观类需整合多个子系统的交互逻辑，若业务场景复杂、子系统较多，会导致外观类变得庞大、逻辑臃肿，自身职责过重，增加后期维护和迭代的成本。</p>
+</li>
+<li><p><strong>灵活度不足，扩展受限</strong>：外观类的接口是固定的场景化调用，若客户端需要灵活组合子系统的功能（如仅打开空调、不操作灯光），现有接口可能无法满足，需新增接口或修改原有逻辑，破坏开闭原则，降低系统的灵活性。</p>
+</li>
+<li><p><strong>存在少量性能损耗</strong>：外观类作为中间调用层，会增加少量的函数调用开销，虽在大多数业务场景下可忽略不计，但在高频调用、极致性能优化的场景中（如嵌入式系统、高频交易系统），可能影响系统性能。</p>
+</li>
+<li><p><strong>子系统依赖隐藏，排查问题难度提升</strong>：外观类封装了子系统的依赖关系，若子系统之间的依赖发生变化，可能导致外观类逻辑失效，且问题排查需逐层追溯子系统的交互逻辑，增加问题定位的难度。</p>
+</li>
+</ul>
+<h2 id="四、外观模式的使用场景"><a href="#四、外观模式的使用场景" class="headerlink" title="四、外观模式的使用场景"></a>四、外观模式的使用场景</h2><p>外观模式的核心适用场景是“客户端需要简化与复杂系统的交互，且无需关注子系统内部实现”。以下结合具体场景及典型实战案例，帮助开发者快速判断是否适用，实现精准落地，避免滥用或错用。</p>
+<h3 id="4-1-核心适用场景"><a href="#4-1-核心适用场景" class="headerlink" title="4.1 核心适用场景"></a>4.1 核心适用场景</h3><ul>
+<li><p><strong>复杂系统简化交互</strong>：当系统由多个子模块构成，客户端调用流程繁琐、需了解大量子模块细节时，如框架封装（Spring的ApplicationContext封装底层IOC容器逻辑）、SDK开发（支付SDK封装不同支付渠道的接口）、智能家居控制系统等，通过外观模式可大幅简化客户端调用。</p>
+</li>
+<li><p><strong>遗留系统改造</strong>：老旧系统接口混乱、耦合度高，无法直接修改原有代码，需为新系统提供统一调用方式时，通过外观类封装遗留系统接口，实现新老系统的兼容对接，降低改造风险和成本，无需重构遗留代码。</p>
+</li>
+<li><p><strong>多层架构解耦</strong>：分层架构（如表现层、业务层、数据层）中，为减少层与层之间的直接依赖，通过外观类封装业务层和数据层的核心逻辑，让表现层仅与外观类交互，提升架构的清晰性和可维护性，避免层间耦合过高。</p>
+</li>
+<li><p><strong>团队协作开发</strong>：不同团队负责不同子系统（如支付团队、物流团队、库存团队），通过外观类作为统一出口，协调各子系统的交互逻辑，降低团队之间的沟通成本，避免接口调用混乱，提升协作效率。</p>
+</li>
+<li><p><strong>高频场景化调用</strong>：存在大量场景化的高频调用（如电商的“下单流程”“退款流程”），需整合多个子系统的操作，通过外观类封装为单一接口，提升开发效率，减少重复代码，便于后期维护。</p>
+</li>
+</ul>
+<h3 id="4-2-典型实战案例"><a href="#4-2-典型实战案例" class="headerlink" title="4.2 典型实战案例"></a>4.2 典型实战案例</h3><ul>
+<li><p>框架封装：Spring框架的ApplicationContext，封装了Bean的创建、依赖注入、生命周期管理等复杂逻辑，客户端仅需通过getBean()方法即可获取Bean实例，无需关注底层实现，大幅简化框架的使用。</p>
+</li>
+<li><p>支付SDK开发：支付宝、微信支付SDK，封装了签名、请求发送、结果解析、异常处理等子模块，客户端仅需调用统一的支付接口，即可完成支付流程，无需关注不同支付渠道的底层差异，实现多支付渠道的无缝对接。</p>
+</li>
+<li><p>操作系统API封装：操作系统的底层API复杂且繁多，应用程序通过系统调用的外观接口（如Windows的API函数），简化对底层资源（文件、内存、进程）的操作，无需了解操作系统的底层实现细节。</p>
+</li>
+<li><p>智能家居控制系统：如本文案例，通过外观类封装灯光、空调、窗帘等子系统，提供“回家”“离家”等场景化接口，简化用户操作，让用户无需逐一控制每个设备，实现场景化智能控制。</p>
+</li>
+<li><p>电商下单系统：外观类封装库存检查、支付处理、物流创建、订单记录、消息通知等子系统，客户端调用“createOrder()”接口即可完成下单全流程，无需逐一调用各子系统接口，简化业务逻辑，提升开发效率。</p>
+</li>
+</ul>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>外观模式是一种“极简主义”的结构型设计模式，其核心价值在于<strong>封装系统复杂性，暴露统一简单的高层接口</strong>，本质是通过“中介者”的设计思想，隔离客户端与子系统的直接交互，实现“简化调用、解耦分层”的设计目标。它不改变子系统的功能和内部逻辑，仅负责协调子系统的交互顺序与依赖关系，让客户端从复杂的子模块调用中解放出来，专注于自身业务逻辑的实现，提升代码的可读性、可维护性和开发效率。</p>
+<p>从多语言实现来看，尽管各语言的语法特性差异显著，但核心逻辑高度统一，且均能适配自身的设计理念，实现外观模式的核心价值：</p>
+<ul>
+<li><p>面向对象语言（C#、Python、C++）：通过类封装子系统和外观类，依托构造函数初始化实例，借助面向对象的特性（封装、多态），实现逻辑的清晰分离，适配大多数业务场景；</p>
+</li>
+<li><p>Go语言：遵循“组合优于继承”，通过结构体+方法绑定实现功能，依托工厂函数初始化实例，代码极简高效，贴合高并发、高性能的后端开发需求；</p>
+</li>
+<li><p>纯C语言：通过结构体+函数指针模拟面向对象特性，手动管理内存，底层可控性强，适配嵌入式、底层开发等资源受限场景，虽代码冗余，但能完整实现外观模式的核心逻辑。</p>
+</li>
+</ul>
+<p>在工程实践中，使用外观模式需把握三个核心原则：一是明确业务场景是否存在“客户端需简化复杂系统交互”的需求，避免在简单系统中滥用；二是平衡外观类的职责，避免外观类成为“万能类”，可通过拆分外观类、引入子外观类，缓解职责过重的问题；三是兼顾灵活性与简化性，对于需灵活组合子系统功能的场景，可保留子系统的直接调用入口，避免外观类完全屏蔽子系统，实现“简化调用”与“灵活扩展”的平衡。</p>
+<p>总体而言，外观模式是简化复杂系统交互、降低系统耦合的高效工具，尤其适用于复杂系统、多层架构、遗留系统改造等场景。合理使用外观模式，可让代码更简洁、架构更清晰、维护更高效，是每一位开发者必备的架构设计工具。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/" rel="tag"># 外观模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/10/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/9.%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" rel="prev" title="组合模式">
+                  <i class="fa fa-angle-left"></i> 组合模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/12/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/11.%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" rel="next" title="享元模式">
+                  享元模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

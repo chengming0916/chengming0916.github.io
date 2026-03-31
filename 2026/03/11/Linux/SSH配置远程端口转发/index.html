@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、ssh -N -L 实现内网端口访问的原理与用法ssh -N -L 是 SSH 本地端口转发（Local Port Forwarding）的核心命令，其核心作用是在本地机器的指定端口与远程服务器可访问的内网目标端口之间，建立一条加密传输隧道，从而实现通过访问本地端口，间接访问内网服务的目的，无需直接暴露内网地址。 1. 命令参数解释明确各参数的具体含义，是正确使用该命令、排查问题的基础，核心参">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH配置远程端口转发">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/11/Linux/SSH%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、ssh -N -L 实现内网端口访问的原理与用法ssh -N -L 是 SSH 本地端口转发（Local Port Forwarding）的核心命令，其核心作用是在本地机器的指定端口与远程服务器可访问的内网目标端口之间，建立一条加密传输隧道，从而实现通过访问本地端口，间接访问内网服务的目的，无需直接暴露内网地址。 1. 命令参数解释明确各参数的具体含义，是正确使用该命令、排查问题的基础，核心参">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-11T10:22:34.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:54.445Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="SSH">
+<meta property="article:tag" content="端口转发">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/11/Linux/SSH%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/11/Linux/SSH%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/","path":"2026/03/11/Linux/SSH配置远程端口转发/","title":"SSH配置远程端口转发"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SSH配置远程端口转发 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81ssh-N-L-%E5%AE%9E%E7%8E%B0%E5%86%85%E7%BD%91%E7%AB%AF%E5%8F%A3%E8%AE%BF%E9%97%AE%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E7%94%A8%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">一、ssh -N -L 实现内网端口访问的原理与用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0%E8%A7%A3%E9%87%8A"><span class="nav-number">1.1.</span> <span class="nav-text">1. 命令参数解释</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%85%B8%E5%9E%8B%E5%9C%BA%E6%99%AF%E4%B8%8E%E5%AE%8C%E6%95%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">1.2.</span> <span class="nav-text">2. 典型场景与完整命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%AE%BF%E9%97%AE%E5%86%85%E7%BD%91%E7%AB%AF%E5%8F%A3%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.3.</span> <span class="nav-text">3. 访问内网端口的步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E8%BF%9B%E9%98%B6%E5%9C%BA%E6%99%AF%EF%BC%9A%E5%A4%9A%E5%B1%82%E5%86%85%E7%BD%91%E8%BD%AC%E5%8F%91"><span class="nav-number">1.4.</span> <span class="nav-text">4. 进阶场景：多层内网转发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%85%B3%E9%97%AD%E9%9A%A7%E9%81%93%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">5. 关闭隧道（可选）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">2.</span> <span class="nav-text">二、注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/11/Linux/SSH%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SSH配置远程端口转发 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SSH配置远程端口转发
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-11 18:22:34" itemprop="dateCreated datePublished" datetime="2026-03-11T18:22:34+08:00">2026-03-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:54" itemprop="dateModified" datetime="2026-03-31T15:18:54+08:00">2026-03-31</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="一、ssh-N-L-实现内网端口访问的原理与用法"><a href="#一、ssh-N-L-实现内网端口访问的原理与用法" class="headerlink" title="一、ssh -N -L 实现内网端口访问的原理与用法"></a>一、<code>ssh -N -L</code> 实现内网端口访问的原理与用法</h3><p><code>ssh -N -L</code> 是 SSH 本地端口转发（Local Port Forwarding）的核心命令，其核心作用是在<strong>本地机器的指定端口</strong>与<strong>远程服务器可访问的内网目标端口</strong>之间，建立一条加密传输隧道，从而实现通过访问本地端口，间接访问内网服务的目的，无需直接暴露内网地址。</p>
+<h4 id="1-命令参数解释"><a href="#1-命令参数解释" class="headerlink" title="1. 命令参数解释"></a>1. 命令参数解释</h4><p>明确各参数的具体含义，是正确使用该命令、排查问题的基础，核心参数及常用补充参数如下：</p>
+<ul>
+<li><p><code>-L</code>：本地端口转发的核心参数，格式固定为 <code>本地端口:内网目标地址:内网目标端口</code>，用于指定本地端口、内网目标的地址和端口。</p>
+</li>
+<li><p><code>-N</code>：仅建立 SSH 隧道，不执行远程服务器的任何命令，避免不必要的 shell 登录，专注于端口转发功能。</p>
+</li>
+<li><p>补充常用参数（提升使用便捷性和安全性）：</p>
+</li>
+<li><p><code>-f</code>：将 SSH 隧道后台运行，避免终端关闭后隧道断开，无需一直保持终端窗口打开。</p>
+</li>
+<li><p><code>-i</code>：指定 SSH 私钥文件路径，适用于密钥登录场景，无需手动输入密码，提升登录效率和安全性。</p>
+</li>
+</ul>
+<h4 id="2-典型场景与完整命令"><a href="#2-典型场景与完整命令" class="headerlink" title="2. 典型场景与完整命令"></a>2. 典型场景与完整命令</h4><p>结合实际网络拓扑，给出最常用的应用场景，方便读者直接参考套用：</p>
+<ul>
+<li><p>本地机器：可正常访问公网，能连接公网服务器（IP：<code>203.0.113.10</code>，默认 SSH 端口 22）。</p>
+</li>
+<li><p>公网服务器：具备内网访问权限，可连通内网目标机器（IP：<code>192.168.1.50</code>，内网 Web 服务端口 8080）。</p>
+</li>
+<li><p>核心目标：在本地机器上，访问内网 <code>192.168.1.50:8080</code> 对应的服务。</p>
+</li>
+</ul>
+<p><strong>完整命令示例</strong>（推荐后台运行，避免终端占用）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后台建立加密隧道，将本地8888端口转发至内网192.168.1.50:8080</span></span><br><span class="line">ssh -f -N -L 8888:192.168.1.50:8080 root@203.0.113.10</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-访问内网端口的步骤"><a href="#3-访问内网端口的步骤" class="headerlink" title="3. 访问内网端口的步骤"></a>3. 访问内网端口的步骤</h4><ol>
+<li><strong>执行转发命令</strong>：</li>
+</ol>
+<p>在本地终端运行上述命令后，SSH 会自动在本地监听 8888 端口，此时输入公网服务器登录密码（或通过密钥自动认证），即可完成隧道建立，无需额外操作。</p>
+<ul>
+<li>密钥登录场景（补充 <code>-i</code> 参数，替换私钥文件路径）：</li>
+</ul>
+<ol>
+<li><strong>访问内网服务</strong>：</li>
+</ol>
+<p>隧道建立成功后，无需额外配置，在本地浏览器或对应客户端中，访问 <code>http://localhost:8888</code>（或 <code>127.0.0.1:8888</code>），即可等同于直接访问内网的 <code>192.168.1.50:8080</code> 服务。</p>
+<h4 id="4-进阶场景：多层内网转发"><a href="#4-进阶场景：多层内网转发" class="headerlink" title="4. 进阶场景：多层内网转发"></a>4. 进阶场景：多层内网转发</h4><p>若公网服务器与内网目标机器之间存在多层网络（如公网服务器仅能访问内网网关 <code>192.168.1.1</code>，而网关可访问深层内网 <code>192.168.2.10:3306</code>，如 MySQL 数据库端口），命令格式无需调整，仅需修改内网目标地址即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地3306端口转发至深层内网192.168.2.10:3306（MySQL端口）</span></span><br><span class="line">ssh -f -N -L 3306:192.168.2.10:3306 root@203.0.113.10</span><br></pre></td></tr></table></figure>
+
+<p>此时本地连接 MySQL 数据库时，只需将连接地址设为 <code>localhost</code>，端口设为 3306，即可正常访问内网数据库。</p>
+<h4 id="5-关闭隧道（可选）"><a href="#5-关闭隧道（可选）" class="headerlink" title="5. 关闭隧道（可选）"></a>5. 关闭隧道（可选）</h4><p>若无需继续使用隧道，可通过以下命令关闭，避免占用本地端口和网络资源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查找SSH隧道对应的进程（筛选出目标隧道进程）</span></span><br><span class="line">ps aux | grep <span class="string">&quot;ssh -f -N -L&quot;</span></span><br><span class="line"><span class="comment"># 杀死对应进程（将12345替换为实际查询到的进程PID）</span></span><br><span class="line"><span class="built_in">kill</span> -9 12345</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、注意事项"><a href="#二、注意事项" class="headerlink" title="二、注意事项"></a>二、注意事项</h3><ol>
+<li><p>本地端口不可占用：若本地指定的端口（如示例中的 8888）已被其他程序占用，会提示<code>bind: Address already in use</code>，只需更换一个未被占用的本地端口（如 8889）即可。</p>
+</li>
+<li><p>公网服务器需连通内网目标：公网服务器必须能正常 ping 通内网目标地址（如 <code>192.168.1.50</code>），且内网目标端口未被防火墙拦截，否则隧道虽能建立，但无法正常访问内网服务。</p>
+</li>
+<li><p>权限需达标：SSH 登录公网服务器的用户（如示例中的 root）需具备足够的操作权限，同时内网服务需允许公网服务器的 IP 访问，否则会出现权限不足或访问被拒绝的问题。</p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><p><code>ssh -N -L</code> 命令的核心逻辑的是 <code>本地端口:内网目标地址:内网目标端口 远程服务器地址</code>，建议搭配 <code>-f</code> 参数后台运行，提升使用便捷性。</p>
+</li>
+<li><p>隧道建立后，访问<code>localhost:本地端口</code>，即可间接访问内网目标服务，无需直接接触内网环境。</p>
+</li>
+<li><p>使用该命令的关键前提：公网服务器能正常连通内网目标的地址和端口，且本地指定的转发端口未被占用。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/SSH/" rel="tag"># SSH</a>
+              <a href="/tags/%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/" rel="tag"># 端口转发</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/06/Linux/Ubuntu%E9%85%8D%E7%BD%AEZFS/" rel="prev" title="Ubuntu配置ZFS">
+                  <i class="fa fa-angle-left"></i> Ubuntu配置ZFS
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/%E5%9F%BA%E4%BA%8EDocker%E9%83%A8%E7%BD%B2Label%20Studio%E7%A7%81%E6%9C%89%E6%A0%87%E6%B3%A8%E5%B9%B3%E5%8F%B0/" rel="next" title="基于Docker部署Label Studio私有标注平台">
+                  基于Docker部署Label Studio私有标注平台 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

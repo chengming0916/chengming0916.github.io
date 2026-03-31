@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="模板方法模式（Template Method Pattern）是一种经典的行为型设计模式，其核心思想是定义一个算法的骨架流程，将算法中不变的核心步骤固化在父类的模板方法中，而将算法中可变的具体实现步骤延迟到子类中实现。通过这种“固定骨架、灵活填充”的设计，既能保证算法整体流程的一致性，又能让子类在不改变算法结构的前提下，灵活定制具体步骤的实现，是软件设计中实现代码复用、规范流程、提升扩展性的重要手">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模板方法">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/14/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/13.%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="模板方法模式（Template Method Pattern）是一种经典的行为型设计模式，其核心思想是定义一个算法的骨架流程，将算法中不变的核心步骤固化在父类的模板方法中，而将算法中可变的具体实现步骤延迟到子类中实现。通过这种“固定骨架、灵活填充”的设计，既能保证算法整体流程的一致性，又能让子类在不改变算法结构的前提下，灵活定制具体步骤的实现，是软件设计中实现代码复用、规范流程、提升扩展性的重要手">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.206Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="模板方法">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/14/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/13.%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/14/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/13.%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95/","path":"2019/11/14/学习笔记/设计模式/13.模板方法/","title":"模板方法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>模板方法 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、模板方法模式的核心结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%8A%BD%E8%B1%A1%E7%B1%BB%EF%BC%88Abstract-Class%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 抽象类（Abstract Class）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%85%B7%E4%BD%93%E5%AD%90%E7%B1%BB%EF%BC%88Concrete-Class%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 具体子类（Concrete Class）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现模板方法模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E6%A0%87%E5%87%86%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（面向对象标准实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%8A%A8%E6%80%81%E8%AF%AD%E8%A8%80%E7%AE%80%E6%B4%81%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（动态语言简洁实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Go-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8E%A5%E5%8F%A3-%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%9E%81%E7%AE%80%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Go 实现（接口+结构体的极简实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BB%8F%E5%85%B8%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（面向对象经典实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针模拟实现）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、模板方法模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、模板方法模式的使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%A0%B8%E5%BF%83%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 核心适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%85%B8%E5%9E%8B%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 典型实战案例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/14/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/13.%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="模板方法 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          模板方法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-14 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-14T00:00:00+08:00">2019-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>模板方法模式（Template Method Pattern）是一种经典的行为型设计模式，其核心思想是<strong>定义一个算法的骨架流程</strong>，将算法中不变的核心步骤固化在父类的模板方法中，而将算法中可变的具体实现步骤延迟到子类中实现。通过这种“固定骨架、灵活填充”的设计，既能保证算法整体流程的一致性，又能让子类在不改变算法结构的前提下，灵活定制具体步骤的实现，是软件设计中实现代码复用、规范流程、提升扩展性的重要手段。</p>
+<p>模板方法模式的核心价值在于“封装不变、扩展可变”，它将多个子类共有的通用逻辑提取到父类中，避免代码冗余，同时通过抽象方法预留扩展点，让子类按需实现差异化逻辑，完美契合“开闭原则”——对扩展开放，对修改关闭。</p>
+<h2 id="一、模板方法模式的核心结构"><a href="#一、模板方法模式的核心结构" class="headerlink" title="一、模板方法模式的核心结构"></a>一、模板方法模式的核心结构</h2><p>模板方法模式的结构简洁清晰，核心角色分为两类，二者协同工作，实现“骨架固定、细节灵活”的设计目标，确保算法流程的一致性与实现的灵活性：</p>
+<h3 id="1-1-抽象类（Abstract-Class）"><a href="#1-1-抽象类（Abstract-Class）" class="headerlink" title="1.1 抽象类（Abstract Class）"></a>1.1 抽象类（Abstract Class）</h3><p>模板方法模式的核心角色，负责定义算法的<strong>骨架流程</strong>。它包含两种类型的方法：</p>
+<ul>
+<li><p><strong>模板方法（Template Method）</strong>：定义算法的整体执行流程，通常为非抽象方法（可加final修饰，防止子类重写破坏流程），依次调用算法的各个步骤，包括不变的通用步骤和可变的抽象步骤。</p>
+</li>
+<li><p><strong>基本方法</strong>：构成算法流程的具体步骤，分为两种：一是<strong>抽象方法（Abstract Method）</strong>，由子类实现的可变步骤，父类仅定义方法签名，不提供具体实现；二是<strong>具体方法（Concrete Method）</strong>，父类提供的不变通用步骤，子类可直接复用，无需重写（也可根据需求重写，称为“钩子方法”）。</p>
+</li>
+</ul>
+<h3 id="1-2-具体子类（Concrete-Class）"><a href="#1-2-具体子类（Concrete-Class）" class="headerlink" title="1.2 具体子类（Concrete Class）"></a>1.2 具体子类（Concrete Class）</h3><p>继承抽象类，负责实现抽象类中定义的抽象方法，即填充算法流程中可变的具体步骤。子类无需修改算法的整体流程，仅需专注于自身业务场景下的步骤实现，确保算法流程的一致性，同时实现差异化逻辑。</p>
+<p>核心逻辑链路：客户端调用抽象类的模板方法 → 模板方法按固定流程调用基本方法（通用步骤+子类实现的可变步骤） → 完成算法执行。整个过程中，算法骨架不变，可变细节由子类灵活实现。</p>
+<h2 id="二、多语言实现模板方法模式"><a href="#二、多语言实现模板方法模式" class="headerlink" title="二、多语言实现模板方法模式"></a>二、多语言实现模板方法模式</h2><p>为便于开发者落地实践，本文以“饮品制作流程”为经典案例，实现多语言版本的模板方法模式：饮品制作的整体流程（烧水→冲泡→倒入容器→添加配料）为固定骨架，其中“冲泡”和“添加配料”为可变步骤（不同饮品实现不同），“烧水”和“倒入容器”为通用步骤（所有饮品均可复用）。所有实现均保证完整可运行，贴合各语言设计理念，添加规范注释，兼顾实用性与可读性。</p>
+<h3 id="2-1-C-实现（面向对象标准实现）"><a href="#2-1-C-实现（面向对象标准实现）" class="headerlink" title="2.1 C# 实现（面向对象标准实现）"></a>2.1 C# 实现（面向对象标准实现）</h3><p>C# 作为强类型面向对象语言，通过抽象类定义算法骨架，抽象方法定义可变步骤，具体方法定义通用步骤，模板方法用final（C#中为sealed）修饰防止子类破坏流程，代码结构严谨、可读性高，适配企业级业务系统开发，是最常用的实现方式之一。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象类：饮品制作模板（定义算法骨架）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">BeverageTemplate</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 模板方法：定义饮品制作的固定流程（不可重写，防止破坏流程）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">sealed</span> <span class="keyword">void</span> <span class="title">MakeBeverage</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        BoilWater();       <span class="comment">// 通用步骤：烧水</span></span><br><span class="line">        Brew();            <span class="comment">// 可变步骤：冲泡（子类实现）</span></span><br><span class="line">        PourInCup();       <span class="comment">// 通用步骤：倒入容器</span></span><br><span class="line">        AddCondiments();   <span class="comment">// 可变步骤：添加配料（子类实现）</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;饮品制作完成！\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 具体方法：通用步骤 - 烧水（所有饮品复用）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">BoilWater</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;步骤1：烧开水（100℃）&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 抽象方法：可变步骤 - 冲泡（子类实现差异化逻辑）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">Brew</span>()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 具体方法：通用步骤 - 倒入容器（所有饮品复用）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">PourInCup</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;步骤3：将饮品倒入杯子中&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 抽象方法：可变步骤 - 添加配料（子类实现差异化逻辑）</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">AddCondiments</span>()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体子类1：咖啡制作（实现可变步骤）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Coffee</span> : <span class="title">BeverageTemplate</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Brew</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;步骤2：用沸水冲泡咖啡粉&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">AddCondiments</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;步骤4：添加牛奶和方糖&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体子类2：茶制作（实现可变步骤）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Tea</span> : <span class="title">BeverageTemplate</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Brew</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;步骤2：用沸水冲泡茶叶&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">AddCondiments</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;步骤4：添加柠檬片&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用（仅依赖抽象类，符合依赖倒置原则）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;制作咖啡：&quot;</span>);</span><br><span class="line">        BeverageTemplate coffee = <span class="keyword">new</span> Coffee();</span><br><span class="line">        coffee.MakeBeverage();</span><br><span class="line"></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;制作茶：&quot;</span>);</span><br><span class="line">        BeverageTemplate tea = <span class="keyword">new</span> Tea();</span><br><span class="line">        tea.MakeBeverage();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（动态语言简洁实现）"><a href="#2-2-Python-实现（动态语言简洁实现）" class="headerlink" title="2.2 Python 实现（动态语言简洁实现）"></a>2.2 Python 实现（动态语言简洁实现）</h3><p>Python 遵循“鸭子类型”，无需显式定义抽象类（可借助abc模块模拟），通过类的继承关系实现模板方法模式，语法简洁灵活，无需繁琐的类型声明，依托GC自动管理内存，适配快速开发、脚本开发及轻量级项目场景，完整保留模板方法模式的核心逻辑。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 抽象类：饮品制作模板（借助ABC模块模拟抽象类）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BeverageTemplate</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">make_beverage</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;模板方法：定义饮品制作的固定流程（不可重写，Python中通过命名规范约束）&quot;&quot;&quot;</span>        <span class="variable language_">self</span>.boil_water()       <span class="comment"># 通用步骤：烧水</span></span><br><span class="line">        <span class="variable language_">self</span>.brew()            <span class="comment"># 可变步骤：冲泡（子类实现）</span></span><br><span class="line">        <span class="variable language_">self</span>.pour_in_cup()      <span class="comment"># 通用步骤：倒入容器</span></span><br><span class="line">        <span class="variable language_">self</span>.add_condiments()   <span class="comment"># 可变步骤：添加配料（子类实现）</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;饮品制作完成！\n&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">boil_water</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;具体方法：通用步骤 - 烧水（所有饮品复用）&quot;&quot;&quot;</span>        <span class="built_in">print</span>(<span class="string">&quot;步骤1：烧开水（100℃）&quot;</span>)</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">brew</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：可变步骤 - 冲泡（子类必须实现）&quot;&quot;&quot;</span>        <span class="keyword">pass</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">pour_in_cup</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;具体方法：通用步骤 - 倒入容器（所有饮品复用）&quot;&quot;&quot;</span>        <span class="built_in">print</span>(<span class="string">&quot;步骤3：将饮品倒入杯子中&quot;</span>)</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_condiments</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：可变步骤 - 添加配料（子类必须实现）&quot;&quot;&quot;</span>        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体子类1：咖啡制作</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Coffee</span>(<span class="title class_ inherited__">BeverageTemplate</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">brew</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;步骤2：用沸水冲泡咖啡粉&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_condiments</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;步骤4：添加牛奶和方糖&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体子类2：茶制作</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Tea</span>(<span class="title class_ inherited__">BeverageTemplate</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">brew</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;步骤2：用沸水冲泡茶叶&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_condiments</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;步骤4：添加柠檬片&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;制作咖啡：&quot;</span>)</span><br><span class="line">    coffee = Coffee()</span><br><span class="line">    coffee.make_beverage()</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;制作茶：&quot;</span>)</span><br><span class="line">    tea = Tea()</span><br><span class="line">    tea.make_beverage()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Go-实现（接口-结构体的极简实现）"><a href="#2-3-Go-实现（接口-结构体的极简实现）" class="headerlink" title="2.3 Go 实现（接口+结构体的极简实现）"></a>2.3 Go 实现（接口+结构体的极简实现）</h3><p>Go 语言无类和继承概念，核心遵循“组合优于继承”的设计哲学，通过接口定义可变步骤的契约，结构体嵌入实现通用步骤，模板方法定义固定流程，代码极简、高效，贴合Go语言“简洁、务实、高性能”的设计理念，适配高并发、高性能的后端开发场景。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义可变步骤的接口（抽象方法契约）</span></span><br><span class="line"><span class="keyword">type</span> BeverageInterface <span class="keyword">interface</span> &#123;</span><br><span class="line">    Brew()            <span class="comment">// 可变步骤：冲泡</span></span><br><span class="line">    AddCondiments()   <span class="comment">// 可变步骤：添加配料</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象模板结构体：实现通用步骤，嵌入接口实现可变步骤</span></span><br><span class="line"><span class="keyword">type</span> BeverageTemplate <span class="keyword">struct</span> &#123;</span><br><span class="line">    BeverageInterface <span class="comment">// 嵌入接口，实现依赖注入</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模板方法：定义固定流程（不可重写，Go中通过结构体方法实现）</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *BeverageTemplate)</span></span> MakeBeverage() &#123;</span><br><span class="line">    t.BoilWater()       <span class="comment">// 通用步骤：烧水</span></span><br><span class="line">    t.Brew()            <span class="comment">// 可变步骤：调用接口方法（子类实现）</span></span><br><span class="line">    t.PourInCup()       <span class="comment">// 通用步骤：倒入容器</span></span><br><span class="line">    t.AddCondiments()   <span class="comment">// 可变步骤：调用接口方法（子类实现）</span></span><br><span class="line">    fmt.Println(<span class="string">&quot;饮品制作完成！\n&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通用步骤：烧水（所有饮品复用）</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *BeverageTemplate)</span></span> BoilWater() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;步骤1：烧开水（100℃）&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通用步骤：倒入容器（所有饮品复用）</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *BeverageTemplate)</span></span> PourInCup() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;步骤3：将饮品倒入杯子中&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体子类1：咖啡制作（实现接口的可变步骤）</span></span><br><span class="line"><span class="keyword">type</span> Coffee <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Coffee)</span></span> Brew() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;步骤2：用沸水冲泡咖啡粉&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Coffee)</span></span> AddCondiments() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;步骤4：添加牛奶和方糖&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体子类2：茶制作（实现接口的可变步骤）</span></span><br><span class="line"><span class="keyword">type</span> Tea <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Tea)</span></span> Brew() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;步骤2：用沸水冲泡茶叶&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Tea)</span></span> AddCondiments() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;步骤4：添加柠檬片&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;制作咖啡：&quot;</span>)</span><br><span class="line">    coffee := &amp;Coffee&#123;&#125;</span><br><span class="line">    coffeeTemplate := &amp;BeverageTemplate&#123;BeverageInterface: coffee&#125;</span><br><span class="line">    coffeeTemplate.MakeBeverage()</span><br><span class="line">    </span><br><span class="line">    fmt.Println(<span class="string">&quot;制作茶：&quot;</span>)</span><br><span class="line">    tea := &amp;Tea&#123;&#125;</span><br><span class="line">    teaTemplate := &amp;BeverageTemplate&#123;BeverageInterface: tea&#125;</span><br><span class="line">    teaTemplate.MakeBeverage()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（面向对象经典实现）"><a href="#2-4-C-实现（面向对象经典实现）" class="headerlink" title="2.4 C++ 实现（面向对象经典实现）"></a>2.4 C++ 实现（面向对象经典实现）</h3><p>C++ 作为经典面向对象语言，通过抽象类（纯虚函数）定义可变步骤，具体方法定义通用步骤，模板方法用final修饰防止子类重写，依托继承关系实现代码复用，需手动管理内存，兼顾灵活性与高性能，适配底层开发、高频调用场景，是底层系统、高性能应用的优选实现方式。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象类：饮品制作模板（定义算法骨架）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BeverageTemplate</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 模板方法：固定流程，final修饰防止子类重写</span></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="type">void</span> <span class="title">makeBeverage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">boilWater</span>();       <span class="comment">// 通用步骤：烧水</span></span><br><span class="line">        <span class="built_in">brew</span>();            <span class="comment">// 可变步骤：冲泡（纯虚函数，子类实现）</span></span><br><span class="line">        <span class="built_in">pourInCup</span>();       <span class="comment">// 通用步骤：倒入容器</span></span><br><span class="line">        <span class="built_in">addCondiments</span>();   <span class="comment">// 可变步骤：添加配料（纯虚函数，子类实现）</span></span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;饮品制作完成！\n&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    <span class="comment">// 具体方法：通用步骤 - 烧水（所有饮品复用）</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">boilWater</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;步骤1：烧开水（100℃）&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 纯虚函数：可变步骤 - 冲泡（子类必须实现）</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">brew</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 具体方法：通用步骤 - 倒入容器（所有饮品复用）</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">pourInCup</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;步骤3：将饮品倒入杯子中&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 纯虚函数：可变步骤 - 添加配料（子类必须实现）</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">addCondiments</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 析构函数：虚析构，避免多态场景下内存泄漏</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">BeverageTemplate</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体子类1：咖啡制作</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Coffee</span> : <span class="keyword">public</span> BeverageTemplate &#123;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">brew</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;步骤2：用沸水冲泡咖啡粉&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">addCondiments</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;步骤4：添加牛奶和方糖&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体子类2：茶制作</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Tea</span> : <span class="keyword">public</span> BeverageTemplate &#123;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">brew</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;步骤2：用沸水冲泡茶叶&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">addCondiments</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;步骤4：添加柠檬片&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;制作咖啡：&quot;</span> &lt;&lt; endl;</span><br><span class="line">    BeverageTemplate* coffee = <span class="keyword">new</span> <span class="built_in">Coffee</span>();</span><br><span class="line">    coffee-&gt;<span class="built_in">makeBeverage</span>();</span><br><span class="line">    <span class="keyword">delete</span> coffee; <span class="comment">// 释放资源</span></span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;制作茶：&quot;</span> &lt;&lt; endl;</span><br><span class="line">    BeverageTemplate* tea = <span class="keyword">new</span> <span class="built_in">Tea</span>();</span><br><span class="line">    tea-&gt;<span class="built_in">makeBeverage</span>();</span><br><span class="line">    <span class="keyword">delete</span> tea; <span class="comment">// 释放资源</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针模拟实现）"><a href="#2-5-纯C语言实现（结构体-函数指针模拟实现）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针模拟实现）"></a>2.5 纯C语言实现（结构体+函数指针模拟实现）</h3><p>纯C语言无面向对象特性，无类和继承，通过“结构体封装数据+函数指针封装行为”，手动模拟模板方法模式的核心逻辑，用函数指针实现可变步骤，用普通函数实现通用步骤，需手动管理内存，代码虽略显冗余，但底层可控性强，适配嵌入式、底层开发等资源受限场景，完美还原“固定骨架、灵活填充”的核心思想。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义可变步骤的函数指针（模拟抽象方法）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">void</span> <span class="params">(*BrewFunc)</span><span class="params">()</span>;</span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">void</span> <span class="params">(*AddCondimentsFunc)</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象模板结构体：封装通用步骤和可变步骤的函数指针</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    BrewFunc brew;                <span class="comment">// 可变步骤：冲泡</span></span><br><span class="line">    AddCondimentsFunc add_condiments; <span class="comment">// 可变步骤：添加配料</span></span><br><span class="line">&#125; BeverageTemplate;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通用步骤：烧水（所有饮品复用）</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">boil_water</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;步骤1：烧开水（100℃）\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通用步骤：倒入容器（所有饮品复用）</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">pour_in_cup</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;步骤3：将饮品倒入杯子中\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模板方法：定义固定流程</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">make_beverage</span><span class="params">(BeverageTemplate* template)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (template == <span class="literal">NULL</span> || template-&gt;brew == <span class="literal">NULL</span> || template-&gt;add_condiments == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;模板初始化失败，无法制作饮品\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    boil_water();</span><br><span class="line">    template-&gt;brew();</span><br><span class="line">    pour_in_cup();</span><br><span class="line">    template-&gt;add_condiments();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;饮品制作完成！\n\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现1：咖啡的冲泡和添加配料方法</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">coffee_brew</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;步骤2：用沸水冲泡咖啡粉\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">coffee_add_condiments</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;步骤4：添加牛奶和方糖\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现2：茶的冲泡和添加配料方法</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">tea_brew</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;步骤2：用沸水冲泡茶叶\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">tea_add_condiments</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;步骤4：添加柠檬片\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建咖啡模板实例</span></span><br><span class="line">BeverageTemplate* <span class="title function_">create_coffee_template</span><span class="params">()</span> &#123;</span><br><span class="line">    BeverageTemplate* template = (BeverageTemplate*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(BeverageTemplate));</span><br><span class="line">    <span class="keyword">if</span> (template == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    template-&gt;brew = coffee_brew;</span><br><span class="line">    template-&gt;add_condiments = coffee_add_condiments;</span><br><span class="line">    <span class="keyword">return</span> template;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建茶模板实例</span></span><br><span class="line">BeverageTemplate* <span class="title function_">create_tea_template</span><span class="params">()</span> &#123;</span><br><span class="line">    BeverageTemplate* template = (BeverageTemplate*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(BeverageTemplate));</span><br><span class="line">    <span class="keyword">if</span> (template == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    template-&gt;brew = tea_brew;</span><br><span class="line">    template-&gt;add_condiments = tea_add_condiments;</span><br><span class="line">    <span class="keyword">return</span> template;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放模板资源</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">destroy_template</span><span class="params">(BeverageTemplate* template)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (template != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">free</span>(template);</span><br><span class="line">        template = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;制作咖啡：\n&quot;</span>);</span><br><span class="line">    BeverageTemplate* coffee = create_coffee_template();</span><br><span class="line">    make_beverage(coffee);</span><br><span class="line">    destroy_template(coffee);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;制作茶：\n&quot;</span>);</span><br><span class="line">    BeverageTemplate* tea = create_tea_template();</span><br><span class="line">    make_beverage(tea);</span><br><span class="line">    destroy_template(tea);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、模板方法模式的优缺点"><a href="#三、模板方法模式的优缺点" class="headerlink" title="三、模板方法模式的优缺点"></a>三、模板方法模式的优缺点</h2><p>模板方法模式的核心价值是“封装不变、扩展可变”，其优缺点均围绕这一核心展开。在实际开发中，需结合业务场景的流程复杂度、扩展需求，权衡使用，避免过度设计或滥用，确保既发挥其核心优势，又规避潜在问题，实现架构设计的合理性。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>代码复用性高</strong>：将多个子类共有的通用逻辑提取到抽象类中，避免代码冗余，子类仅需实现差异化的可变步骤，减少重复开发工作量，提升开发效率。</p>
+</li>
+<li><p><strong>流程规范统一</strong>：模板方法定义了算法的固定骨架，确保所有子类的执行流程一致，避免因子类实现差异导致流程混乱，提升系统的规范性和可维护性。</p>
+</li>
+<li><p><strong>扩展性强，符合开闭原则</strong>：新增业务场景时，无需修改抽象类的模板方法和通用步骤，仅需新增子类并实现抽象方法即可，实现“对扩展开放，对修改关闭”，降低代码修改风险。</p>
+</li>
+<li><p><strong>解耦通用逻辑与差异化逻辑</strong>：抽象类负责封装通用逻辑，子类负责实现差异化逻辑，职责划分清晰，便于代码的维护和迭代，降低后期修改成本。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>灵活性受限</strong>：模板方法固定了算法的整体流程，若需修改流程结构，必须修改抽象类的模板方法，违反开闭原则，难以适配流程频繁变化的场景。</p>
+</li>
+<li><p><strong>子类依赖抽象类</strong>：子类的实现依赖抽象类的模板设计，若抽象类发生修改（如新增通用步骤），可能导致所有子类需要调整，增加维护成本。</p>
+</li>
+<li><p><strong>抽象类复杂度提升</strong>：当算法流程步骤较多、通用逻辑复杂时，抽象类的代码会变得繁琐，难以理解和维护，尤其当通用步骤与可变步骤耦合较深时，会降低代码可读性。</p>
+</li>
+<li><p><strong>子类数量可能激增</strong>：每新增一种差异化场景，就需要新增一个子类，若场景过多，会导致子类数量激增，增加系统的管理成本。</p>
+</li>
+</ul>
+<h2 id="四、模板方法模式的使用场景"><a href="#四、模板方法模式的使用场景" class="headerlink" title="四、模板方法模式的使用场景"></a>四、模板方法模式的使用场景</h2><p>模板方法模式的核心适用场景是“存在多个具有相同执行流程、仅部分步骤实现不同的业务场景”。以下结合具体场景及典型实战案例，帮助开发者快速判断是否适用，实现精准落地，避免滥用或错用。</p>
+<h3 id="4-1-核心适用场景"><a href="#4-1-核心适用场景" class="headerlink" title="4.1 核心适用场景"></a>4.1 核心适用场景</h3><ul>
+<li><p><strong>流程固定、细节可变的场景</strong>：多个业务场景的执行流程完全一致，仅部分步骤的具体实现不同，如各类文件解析（读取文件→解析内容→校验数据→保存结果）、各类任务执行（初始化→执行核心逻辑→日志记录→清理资源）。</p>
+</li>
+<li><p><strong>需要统一流程规范的场景</strong>：要求所有子类遵循统一的执行流程，避免流程混乱，如框架开发中的流程模板、企业级系统中的业务流程规范（如订单处理、支付流程）。</p>
+</li>
+<li><p><strong>需要提升代码复用的场景</strong>：多个子类存在大量重复的通用逻辑，需提取到父类中复用，减少代码冗余，如各类工具类、业务服务的通用流程封装。</p>
+</li>
+<li><p><strong>需要灵活扩展的场景</strong>：后期可能新增多种差异化场景，且新增场景不改变原有流程，仅需扩展具体步骤，如插件开发、多类型数据处理。</p>
+</li>
+</ul>
+<h3 id="4-2-典型实战案例"><a href="#4-2-典型实战案例" class="headerlink" title="4.2 典型实战案例"></a>4.2 典型实战案例</h3><ul>
+<li><p><strong>框架开发中的流程模板</strong>：如Spring的生命周期、JUnit的单元测试流程，框架定义固定的执行骨架（初始化→执行核心逻辑→销毁），开发者仅需实现核心逻辑步骤，无需关注整体流程。</p>
+</li>
+<li><p><strong>文件解析工具</strong>：如Excel、CSV、JSON等多种格式的文件解析，整体流程均为“读取文件→解析内容→校验数据→保存结果”，仅解析步骤的实现不同，通过模板方法模式封装通用流程，子类实现差异化解析逻辑。</p>
+</li>
+<li><p><strong>业务流程规范</strong>：如电商系统的订单处理流程（创建订单→库存扣减→支付验证→订单确认→日志记录），通用步骤（日志记录、参数校验）提取到抽象类，子类实现不同类型订单（普通订单、秒杀订单）的差异化步骤。</p>
+</li>
+<li><p><strong>工具类封装</strong>：如各类数据导出工具（导出Excel、PDF、Word），流程均为“查询数据→格式化数据→生成文件→下载文件”，仅生成文件的步骤不同，通过模板方法模式提升代码复用率。</p>
+</li>
+<li><p><strong>游戏开发中的角色技能释放</strong>：不同角色的技能释放流程一致（前置准备→技能释放→效果展示→冷却计时），仅技能释放和效果展示的逻辑不同，通过模板方法模式规范流程，灵活扩展不同角色的技能。</p>
+</li>
+</ul>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>模板方法模式的核心是<strong>“固定骨架、灵活填充”</strong>，它通过抽象类封装算法的不变流程，用抽象方法预留扩展点，让子类实现差异化细节，既保证了流程的一致性和代码复用性，又实现了功能的灵活扩展，是“开闭原则”的典型落地方式。其本质是将“流程控制”与“细节实现”分离，让抽象类负责把控全局流程，子类专注于具体细节，提升代码的可维护性和扩展性。</p>
+<p>从多语言实现来看，尽管各语言的语法特性差异显著，但核心逻辑高度统一，且均能适配自身的设计理念，完整实现模板方法模式的核心价值：</p>
+<ul>
+<li><p>面向对象语言（C#、Python、C++）：通过抽象类+继承关系实现，抽象类定义模板方法和通用步骤，子类继承并实现抽象方法，依托面向对象的封装、多态特性，实现逻辑清晰、易于维护的代码结构，适配大多数业务场景；</p>
+</li>
+<li><p>Go语言：遵循“组合优于继承”，通过接口定义可变步骤契约，结构体嵌入接口实现通用步骤，模板方法定义固定流程，代码极简高效，贴合高并发、高性能的后端开发需求；</p>
+</li>
+<li><p>纯C语言：通过结构体+函数指针模拟面向对象特性，用函数指针实现可变步骤，用普通函数实现通用步骤，手动管理模板实例，底层可控性强，适配嵌入式、底层开发等资源受限场景，虽代码冗余，但能完整还原“固定骨架、灵活填充”的核心思想。</p>
+</li>
+</ul>
+<p>在工程实践中，使用模板方法模式需把握三个核心原则：一是判断业务场景是否具备“固定流程、细节可变”的特征，流程频繁变化的场景不适合使用；二是控制抽象类的复杂度，避免通用步骤与可变步骤耦合，确保职责单一；三是合理设计扩展点，抽象方法的定义需贴合业务扩展需求，避免过度设计抽象方法导致子类实现成本增加。</p>
+<p>总体而言，模板方法模式是实现代码复用、规范流程、提升扩展性的高效工具，尤其在框架开发、业务流程规范、工具类封装等场景中价值显著。合理使用模板方法模式，可让代码结构更清晰、流程更规范、扩展更灵活，是每一位开发者必备的架构设计工具。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95/" rel="tag"># 模板方法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/13/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/12.%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" rel="prev" title="代理模式">
+                  <i class="fa fa-angle-left"></i> 代理模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/15/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/14.%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/" rel="next" title="命令模式">
+                  命令模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

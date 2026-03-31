@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="桥接模式（Bridge Pattern）是结构型设计模式的核心成员之一，其核心设计思想是将抽象部分与它的实现部分分离，使两者能够独立地定义、扩展，互不干扰。这种模式摒弃了传统继承带来的强耦合问题，通过“组合替代继承”的方式，让抽象维度与实现维度可以沿着各自的方向灵活迭代，是解决多维度扩展、避免继承体系臃肿的关键设计方案。 一、桥接模式核心结构桥接模式的设计核心的是“解耦双维度”，通过四个角色的分工">
+<meta property="og:type" content="article">
+<meta property="og:title" content="桥接模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/08/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/7.%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="桥接模式（Bridge Pattern）是结构型设计模式的核心成员之一，其核心设计思想是将抽象部分与它的实现部分分离，使两者能够独立地定义、扩展，互不干扰。这种模式摒弃了传统继承带来的强耦合问题，通过“组合替代继承”的方式，让抽象维度与实现维度可以沿着各自的方向灵活迭代，是解决多维度扩展、避免继承体系臃肿的关键设计方案。 一、桥接模式核心结构桥接模式的设计核心的是“解耦双维度”，通过四个角色的分工">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-31T07:18:55.208Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="桥接模式">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/08/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/7.%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/08/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/7.%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/","path":"2019/11/08/学习笔记/设计模式/7.桥接模式/","title":"桥接模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>桥接模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、桥接模式核心结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现桥接模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E6%A0%87%E5%87%86%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（面向对象标准实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E5%8A%A8%E6%80%81%E8%AF%AD%E8%A8%80%E7%AE%80%E6%B4%81%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（动态语言简洁实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Go-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%84%E5%90%88%E4%BC%98%E4%BA%8E%E7%BB%A7%E6%89%BF%E7%9A%84%E6%9E%81%E7%AE%80%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Go 实现（组合优于继承的极简实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BB%8F%E5%85%B8%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（面向对象经典实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针模拟实现）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、桥接模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、桥接模式的使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.1.</span> <span class="nav-text">典型实战案例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">945</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">208</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/08/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/7.%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="桥接模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          桥接模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-08 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-08T00:00:00+08:00">2019-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-03-31 15:18:55" itemprop="dateModified" datetime="2026-03-31T15:18:55+08:00">2026-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>桥接模式（Bridge Pattern）是结构型设计模式的核心成员之一，其核心设计思想是<strong>将抽象部分与它的实现部分分离</strong>，使两者能够独立地定义、扩展，互不干扰。这种模式摒弃了传统继承带来的强耦合问题，通过“组合替代继承”的方式，让抽象维度与实现维度可以沿着各自的方向灵活迭代，是解决多维度扩展、避免继承体系臃肿的关键设计方案。</p>
+<h2 id="一、桥接模式核心结构"><a href="#一、桥接模式核心结构" class="headerlink" title="一、桥接模式核心结构"></a>一、桥接模式核心结构</h2><p>桥接模式的设计核心的是“解耦双维度”，通过四个角色的分工协作，实现抽象与实现的分离，确保两个维度可独立扩展，各角色职责清晰、边界明确：</p>
+<ul>
+<li><p><strong>抽象化（Abstraction）</strong>：定义抽象层的核心接口，同时持有一个指向实现化对象的引用，是“抽象维度”的顶层抽象，负责封装抽象层的通用逻辑，不直接依赖具体实现。</p>
+</li>
+<li><p><strong>扩展抽象化（Refined Abstraction）</strong>：继承或实现抽象化接口，是抽象维度的具体扩展，在抽象层基础上增加特定业务逻辑，无需关注实现层的具体细节。</p>
+</li>
+<li><p><strong>实现化（Implementor）</strong>：定义实现层的核心接口，仅声明实现层的基础方法，供扩展抽象化调用，是“实现维度”的顶层规范，与抽象层解耦。</p>
+</li>
+<li><p><strong>具体实现化（Concrete Implementor）</strong>：实现实现化接口，是实现维度的具体落地，负责提供底层的实现逻辑，可独立扩展新的实现方式，无需修改抽象层代码。</p>
+</li>
+</ul>
+<p>核心逻辑拆解：抽象维度通过持有实现维度的引用，间接调用实现维度的方法，实现“抽象依赖实现、实现不依赖抽象”的解耦效果。当需要扩展时，可单独新增抽象维度的扩展类（如新增智能遥控器）或实现维度的具体类（如新增投影仪），无需修改原有代码，完全符合“开闭原则”。</p>
+<h2 id="二、多语言实现桥接模式"><a href="#二、多语言实现桥接模式" class="headerlink" title="二、多语言实现桥接模式"></a>二、多语言实现桥接模式</h2><p>桥接模式的核心是“双维度分离与组合”，不同语言因语法特性差异，实现方式略有不同，但核心逻辑高度统一。以下基于“设备控制”的统一场景（遥控器_抽象维度_与设备_实现维度_的桥接），实现C#、Python、Golang、C++、纯C五种语言的完整可运行案例，清晰呈现各语言的适配方式。</p>
+<h3 id="2-1-C-实现（面向对象标准实现）"><a href="#2-1-C-实现（面向对象标准实现）" class="headerlink" title="2.1 C# 实现（面向对象标准实现）"></a>2.1 C# 实现（面向对象标准实现）</h3><p>C# 作为强类型面向对象语言，通过接口清晰界定实现化规范，通过抽象类定义抽象层，依托继承与组合完成桥接，代码结构严谨，贴合企业级开发规范。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Threading;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现化接口（Implementor）：设备的核心操作规范</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IDevice</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 设备开机方法</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">TurnOn</span>()</span>;</span><br><span class="line">    <span class="comment">// 设备关机方法</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">TurnOff</span>()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化1：电视（设备维度的具体实现）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TV</span> : <span class="title">IDevice</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOn</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;电视已开机，正在加载节目...&quot;</span>);</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOff</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;电视已关机，已保存观看记录\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化2：空调（设备维度的扩展实现）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AirConditioner</span> : <span class="title">IDevice</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOn</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;空调已开机，正在调节至26℃...&quot;</span>);</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TurnOff</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;空调已关机，已关闭节能模式\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象化（Abstraction）：遥控器的抽象层，持有设备引用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">RemoteControl</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 持有实现化对象的引用，建立抽象与实现的桥接</span></span><br><span class="line">    <span class="keyword">protected</span> IDevice _device;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 构造函数注入设备，实现松耦合</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RemoteControl</span>(<span class="params">IDevice device</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _device = device;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 抽象方法：遥控器核心操作（由扩展抽象化实现）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">PowerOperation</span>()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展抽象化：普通遥控器（抽象维度的具体实现）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">BasicRemote</span> : <span class="title">RemoteControl</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BasicRemote</span>(<span class="params">IDevice device</span>) : <span class="title">base</span>(<span class="params">device</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现抽象方法，封装遥控器的操作逻辑</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PowerOperation</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;执行普通遥控器电源操作：&quot;</span>);</span><br><span class="line">        _device.TurnOn();</span><br><span class="line">        Thread.Sleep(<span class="number">1000</span>); <span class="comment">// 模拟设备运行1秒</span></span><br><span class="line">        _device.TurnOff();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用：仅关注抽象层与实现层的组合，无需感知桥接细节</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 组合1：普通遥控器 + 电视</span></span><br><span class="line">        IDevice tv = <span class="keyword">new</span> TV();</span><br><span class="line">        RemoteControl tvRemote = <span class="keyword">new</span> BasicRemote(tv);</span><br><span class="line">        tvRemote.PowerOperation();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 组合2：普通遥控器 + 空调</span></span><br><span class="line">        IDevice ac = <span class="keyword">new</span> AirConditioner();</span><br><span class="line">        RemoteControl acRemote = <span class="keyword">new</span> BasicRemote(ac);</span><br><span class="line">        acRemote.PowerOperation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（动态语言简洁实现）"><a href="#2-2-Python-实现（动态语言简洁实现）" class="headerlink" title="2.2 Python 实现（动态语言简洁实现）"></a>2.2 Python 实现（动态语言简洁实现）</h3><p>Python 遵循“鸭子类型”，无需显式定义接口，通过类的继承模拟抽象层与实现层，依托组合建立桥接关系，代码简洁灵活，无需繁琐的类型声明，适配快速开发场景。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实现化类（Implementor）：设备的抽象基类，定义实现层规范</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Device</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;设备开机方法，由具体设备实现&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">&quot;具体设备需实现开机方法&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;设备关机方法，由具体设备实现&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">&quot;具体设备需实现关机方法&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体实现化1：电视</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TV</span>(<span class="title class_ inherited__">Device</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;电视已开机，正在加载节目...&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;电视已关机，已保存观看记录\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体实现化2：空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AirConditioner</span>(<span class="title class_ inherited__">Device</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;空调已开机，正在调节至26℃...&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">turn_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;空调已关机，已关闭节能模式\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 抽象化类（Abstraction）：遥控器抽象层，持有设备引用</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RemoteControl</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, device</span>):</span><br><span class="line">        <span class="comment"># 组合设备对象，建立桥接</span></span><br><span class="line">        <span class="variable language_">self</span>.device = device</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_operation</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;遥控器核心操作，由扩展抽象化实现&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError(<span class="string">&quot;具体遥控器需实现电源操作方法&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 扩展抽象化：普通遥控器</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BasicRemote</span>(<span class="title class_ inherited__">RemoteControl</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_operation</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;执行普通遥控器电源操作：&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.device.turn_on()</span><br><span class="line">        time.sleep(<span class="number">1</span>)  <span class="comment"># 模拟设备运行1秒</span></span><br><span class="line">        <span class="variable language_">self</span>.device.turn_off()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用：灵活组合抽象与实现</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 组合1：普通遥控器控制电视</span></span><br><span class="line">    tv = TV()</span><br><span class="line">    tv_remote = BasicRemote(tv)</span><br><span class="line">    tv_remote.power_operation()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 组合2：普通遥控器控制空调</span></span><br><span class="line">    ac = AirConditioner()</span><br><span class="line">    ac_remote = BasicRemote(ac)</span><br><span class="line">    ac_remote.power_operation()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Go-实现（组合优于继承的极简实现）"><a href="#2-3-Go-实现（组合优于继承的极简实现）" class="headerlink" title="2.3 Go 实现（组合优于继承的极简实现）"></a>2.3 Go 实现（组合优于继承的极简实现）</h3><p>Go 语言无类和继承概念，核心遵循“组合优于继承”的设计哲学，通过接口定义实现化规范，通过结构体组合建立抽象与实现的桥接，贴合Go语言极简、高效的开发理念。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   mt<span class="string">&quot;</span></span><br><span class="line"><span class="string">  time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现化接口（Implementor）：设备操作接口</span></span><br><span class="line"><span class="keyword">type</span> Device <span class="keyword">interface</span> &#123;</span><br><span class="line">   rnOn()  <span class="comment">// 开机方法</span></span><br><span class="line"> TurnOff() <span class="comment">// 关机方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化1：电视</span></span><br><span class="line"><span class="keyword">type</span> TV <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现Device接口的开机方法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TV)</span></span> TurnOn() &#123;</span><br><span class="line">     Println(<span class="string">&quot;电视已开机，正在加载节目...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现Device接口的关机方法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TV)</span></span> TurnOff() &#123;</span><br><span class="line">        ftln(<span class="string">&quot;电视已关机，已保存观看记录\n&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化2：空调</span></span><br><span class="line"><span class="keyword">type</span> AirConditioner <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现Device接口的开机方法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *AirConditioner)</span></span> TurnOn() &#123;</span><br><span class="line">  mt.Println(<span class="string">&quot;空调已开机，正在调节至26℃...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现Device接口的关机方法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *AirConditioner)</span></span> TurnOff() &#123;</span><br><span class="line">     Println(<span class="string">&quot;空调已关机，已关闭节能模式\n&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象化结构体（Abstraction）：遥控器抽象层，组合设备接口</span></span><br><span class="line"><span class="keyword">type</span> RemoteControl <span class="keyword">struct</span> &#123;</span><br><span class="line">  evice Device <span class="comment">// 持有实现化接口引用，建立桥接</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展抽象化：普通遥控器，组合抽象化结构体</span></span><br><span class="line"><span class="keyword">type</span> BasicRemote <span class="keyword">struct</span> &#123;</span><br><span class="line"> RemoteControl <span class="comment">// 嵌入结构体，实现抽象层的继承效果</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展抽象化的核心操作方法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *BasicRemote)</span></span> PowerOperation() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;执行普通遥控器电源操作：&quot;</span>)</span><br><span class="line"> b.device.TurnOn()</span><br><span class="line">  ime.Sleep(<span class="number">1</span> * time.Second) <span class="comment">// 模拟设备运行1秒</span></span><br><span class="line">  .device.TurnOff()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用：通过接口组合，实现灵活适配</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  / 组合<span class="number">1</span>：普通遥控器 + 电视</span><br><span class="line"> tv := &amp;TV&#123;&#125;</span><br><span class="line"> tvRemote := &amp;BasicRemote&#123;RemoteControl&#123;device: tv&#125;&#125;</span><br><span class="line"> tvRemote.PowerOperation()</span><br><span class="line"></span><br><span class="line">  / 组合<span class="number">2</span>：普通遥控器 + 空调</span><br><span class="line">       &amp;AirConditioner&#123;&#125;</span><br><span class="line">  cRemote := &amp;BasicRemote&#123;RemoteControl&#123;device: ac&#125;&#125;</span><br><span class="line">   Remote.PowerOperation()</span><br><span class="line">&#125;</span><br><span class="line">     ac      a  ac :=      /                           /      b      t                           d   fmt.      fmt.Prin   fmt.            Tu      <span class="string">&quot;     &quot;</span>f</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（面向对象经典实现）"><a href="#2-4-C-实现（面向对象经典实现）" class="headerlink" title="2.4 C++ 实现（面向对象经典实现）"></a>2.4 C++ 实现（面向对象经典实现）</h3><p>C++ 作为经典面向对象语言，通过纯虚函数定义抽象接口（抽象化与实现化），依托类继承实现扩展，通过指针持有实现化对象，完成桥接逻辑，兼顾灵活性与性能，适配底层开发场景。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;chrono&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现化接口（Implementor）：设备操作抽象接口</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Device</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 纯虚函数，定义设备开机规范</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">turnOn</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 纯虚函数，定义设备关机规范</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">turnOff</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 虚析构函数，避免析构时内存泄漏</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Device</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化1：电视</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TV</span> : <span class="keyword">public</span> Device &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOn</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;电视已开机，正在加载节目...&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOff</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;电视已关机，已保存观看记录\n&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化2：空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AirConditioner</span> : <span class="keyword">public</span> Device &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOn</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;空调已开机，正在调节至26℃...&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">turnOff</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;空调已关机，已关闭节能模式\n&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象化类（Abstraction）：遥控器抽象层</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RemoteControl</span> &#123;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    Device* device; <span class="comment">// 持有实现化对象指针，建立桥接</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 构造函数注入设备</span></span><br><span class="line">    <span class="built_in">RemoteControl</span>(Device* dev) : <span class="built_in">device</span>(dev) &#123;&#125;</span><br><span class="line">    <span class="comment">// 虚析构函数</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">RemoteControl</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="comment">// 纯虚函数，定义遥控器核心操作</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">powerOperation</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展抽象化：普通遥控器</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BasicRemote</span> : <span class="keyword">public</span> RemoteControl &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">BasicRemote</span>(Device* dev) : <span class="built_in">RemoteControl</span>(dev) &#123;&#125;</span><br><span class="line">    <span class="comment">// 实现核心操作方法</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">powerOperation</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;执行普通遥控器电源操作：&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        device-&gt;<span class="built_in">turnOn</span>();</span><br><span class="line">        <span class="comment">// 模拟设备运行1秒</span></span><br><span class="line">        std::this_thread::<span class="built_in">sleep_for</span>(std::chrono::<span class="built_in">seconds</span>(<span class="number">1</span>));</span><br><span class="line">        device-&gt;<span class="built_in">turnOff</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用：管理抽象与实现的组合，释放内存</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 组合1：普通遥控器 + 电视</span></span><br><span class="line">    Device* tv = <span class="keyword">new</span> <span class="built_in">TV</span>();</span><br><span class="line">    RemoteControl* tvRemote = <span class="keyword">new</span> <span class="built_in">BasicRemote</span>(tv);</span><br><span class="line">    tvRemote-&gt;<span class="built_in">powerOperation</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 组合2：普通遥控器 + 空调</span></span><br><span class="line">    Device* ac = <span class="keyword">new</span> <span class="built_in">AirConditioner</span>();</span><br><span class="line">    RemoteControl* acRemote = <span class="keyword">new</span> <span class="built_in">BasicRemote</span>(ac);</span><br><span class="line">    acRemote-&gt;<span class="built_in">powerOperation</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存，避免泄漏</span></span><br><span class="line">    <span class="keyword">delete</span> tvRemote;</span><br><span class="line">    <span class="keyword">delete</span> tv;</span><br><span class="line">    <span class="keyword">delete</span> acRemote;</span><br><span class="line">    <span class="keyword">delete</span> ac;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针模拟实现）"><a href="#2-5-纯C语言实现（结构体-函数指针模拟实现）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针模拟实现）"></a>2.5 纯C语言实现（结构体+函数指针模拟实现）</h3><p>纯C语言无面向对象特性，通过“结构体封装数据+函数指针模拟接口”，模拟抽象化与实现化的分离，依托结构体嵌套和函数指针赋值，建立桥接关系，代码虽冗余但底层可控，适配嵌入式、底层开发场景。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现化结构体（模拟Implementor接口）：设备操作规范</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Device</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*turn_on)(<span class="keyword">struct</span> Device*);  <span class="comment">// 开机函数指针</span></span><br><span class="line">    <span class="type">void</span> (*turn_off)(<span class="keyword">struct</span> Device*); <span class="comment">// 关机函数指针</span></span><br><span class="line">&#125; Device;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化1：电视（嵌入Device结构体，实现设备接口）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">TV</span> &#123;</span></span><br><span class="line">    Device device; <span class="comment">// 嵌套实现化结构体，建立桥接基础</span></span><br><span class="line">&#125; TV;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 电视的开机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">tv_turn_on</span><span class="params">(Device* dev)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;电视已开机，正在加载节目...\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 电视的关机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">tv_turn_off</span><span class="params">(Device* dev)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;电视已关机，已保存观看记录\n\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化电视：绑定函数指针，实现设备接口</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">tv_init</span><span class="params">(TV* tv)</span> &#123;</span><br><span class="line">    tv-&gt;device.turn_on = tv_turn_on;</span><br><span class="line">    tv-&gt;device.turn_off = tv_turn_off;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现化2：空调（嵌入Device结构体）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">AirConditioner</span> &#123;</span></span><br><span class="line">    Device device; <span class="comment">// 嵌套实现化结构体</span></span><br><span class="line">&#125; AirConditioner;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 空调的开机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">ac_turn_on</span><span class="params">(Device* dev)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;空调已开机，正在调节至26℃...\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 空调的关机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">ac_turn_off</span><span class="params">(Device* dev)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;空调已关机，已关闭节能模式\n\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化空调：绑定函数指针</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">ac_init</span><span class="params">(AirConditioner* ac)</span> &#123;</span><br><span class="line">    ac-&gt;device.turn_on = ac_turn_on;</span><br><span class="line">    ac-&gt;device.turn_off = ac_turn_off;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象化结构体（模拟Abstraction）：遥控器抽象层</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">RemoteControl</span> &#123;</span></span><br><span class="line">    Device* device; <span class="comment">// 持有实现化结构体指针，建立桥接</span></span><br><span class="line">    <span class="type">void</span> (*power_operation)(<span class="keyword">struct</span> RemoteControl*); <span class="comment">// 核心操作函数指针</span></span><br><span class="line">&#125; RemoteControl;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展抽象化：普通遥控器的核心操作实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">basic_remote_power_operation</span><span class="params">(RemoteControl* remote)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;执行普通遥控器电源操作：\n&quot;</span>);</span><br><span class="line">    remote-&gt;device-&gt;turn_on(remote-&gt;device);</span><br><span class="line">    sleep(<span class="number">1</span>); <span class="comment">// 模拟设备运行1秒</span></span><br><span class="line">    remote-&gt;device-&gt;turn_off(remote-&gt;device);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化遥控器：绑定设备和核心操作方法</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">remote_control_init</span><span class="params">(RemoteControl* remote, Device* dev)</span> &#123;</span><br><span class="line">    remote-&gt;device = dev;</span><br><span class="line">    remote-&gt;power_operation = basic_remote_power_operation;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用：手动组合抽象与实现，完成桥接逻辑</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 组合1：普通遥控器 + 电视</span></span><br><span class="line">    TV tv;</span><br><span class="line">    tv_init(&amp;tv);</span><br><span class="line">    RemoteControl tv_remote;</span><br><span class="line">    remote_control_init(&amp;tv_remote, (Device*)&amp;tv);</span><br><span class="line">    tv_remote.power_operation(&amp;tv_remote);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 组合2：普通遥控器 + 空调</span></span><br><span class="line">    AirConditioner ac;</span><br><span class="line">    ac_init(&amp;ac);</span><br><span class="line">    RemoteControl ac_remote;</span><br><span class="line">    remote_control_init(&amp;ac_remote, (Device*)&amp;ac);</span><br><span class="line">    ac_remote.power_operation(&amp;ac_remote);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、桥接模式的优缺点"><a href="#三、桥接模式的优缺点" class="headerlink" title="三、桥接模式的优缺点"></a>三、桥接模式的优缺点</h2><p>桥接模式的核心价值的是“解耦双维度、优化扩展能力”，其优缺点均围绕这一核心展开，需结合系统复杂度和扩展需求权衡使用，避免过度设计。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>彻底解耦抽象与实现</strong>：抽象层与实现层完全分离，两者可独立迭代，新增抽象维度或实现维度无需修改原有代码，符合“开闭原则”，降低系统维护成本。</p>
+</li>
+<li><p><strong>避免继承爆炸</strong>：解决了多维度扩展带来的继承体系臃肿问题（例如“遥控器类型×设备类型”的组合，若用继承会产生大量子类），通过组合实现更灵活的扩展。</p>
+</li>
+<li><p><strong>提升系统扩展性</strong>：抽象维度和实现维度可单独扩展，例如新增“语音遥控器”（扩展抽象化）无需修改设备代码，新增“投影仪”（具体实现化）无需修改遥控器代码。</p>
+</li>
+<li><p><strong>符合合成复用原则</strong>：优先使用对象组合而非继承，降低代码耦合度，提升代码的可复用性和可维护性。</p>
+</li>
+<li><p><strong>支持动态切换实现</strong>：可在运行时动态更换实现化对象，例如遥控器可切换控制电视、空调等不同设备，灵活性极高。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>增加系统复杂度</strong>：引入抽象层、实现层及桥接关系，会增加代码量和类&#x2F;结构体数量，简单场景下会提升理解成本和开发成本。</p>
+</li>
+<li><p><strong>设计门槛较高</strong>：需要提前精准识别系统中的“抽象维度”和“实现维度”，对设计人员的架构能力要求较高，若维度划分不当，反而会导致代码更难维护。</p>
+</li>
+<li><p><strong>间接调用带来轻微性能损耗</strong>：抽象层通过引用&#x2F;指针调用实现层方法，存在少量间接调用开销（通常可忽略，仅在高频调用场景下需关注）。</p>
+</li>
+</ul>
+<h2 id="四、桥接模式的使用场景"><a href="#四、桥接模式的使用场景" class="headerlink" title="四、桥接模式的使用场景"></a>四、桥接模式的使用场景</h2><p>桥接模式的核心适用场景是“系统存在两个及以上独立变化的维度”，且需要长期扩展，具体场景如下：</p>
+<ul>
+<li><p><strong>系统存在双独立扩展维度</strong>：例如“产品类型（抽象）与产品品牌（实现）”“UI组件（抽象）与渲染引擎（实现）”“遥控器（抽象）与设备（实现）”，两者需独立扩展。</p>
+</li>
+<li><p><strong>避免继承体系臃肿</strong>：当一个类的扩展方向超过一个时，继承会导致子类数量呈指数级增长（继承爆炸），桥接模式可通过组合替代继承，简化架构。</p>
+</li>
+<li><p><strong>抽象与实现需解耦</strong>：例如跨平台开发中，“业务逻辑（抽象）”与“平台API（实现）”分离，适配不同操作系统（Windows、Linux、Mac），无需修改业务逻辑代码。</p>
+</li>
+<li><p><strong>需要动态切换实现</strong>：需在运行时灵活切换对象的实现方式，例如视频播放器的“播放逻辑（抽象）”与“解码方式（实现）”，可动态切换硬解码、软解码。</p>
+</li>
+<li><p><strong>复用现有实现</strong>：已有多个实现类，需在不修改其代码的前提下，为其提供统一的抽象接口，实现多实现的统一调用。</p>
+</li>
+</ul>
+<h3 id="典型实战案例"><a href="#典型实战案例" class="headerlink" title="典型实战案例"></a>典型实战案例</h3><ul>
+<li><p>图形界面框架：“窗口样式（抽象维度：普通窗口、弹窗、全屏窗口）”与“底层渲染（实现维度：DirectX、OpenGL、CPU渲染）”分离，支持灵活扩展。</p>
+</li>
+<li><p>数据库驱动：“数据库操作接口（抽象维度：查询、插入、删除）”与“不同数据库适配（实现维度：MySQL、PostgreSQL、Oracle）”分离，统一操作接口。</p>
+</li>
+<li><p>外设控制库：“控制逻辑（抽象维度：普通控制、智能控制）”与“外设协议（实现维度：蓝牙、WiFi、红外）”分离，适配不同类型外设。</p>
+</li>
+<li><p>日志框架：“日志操作（抽象维度：普通日志、异步日志）”与“日志输出方式（实现维度：文件输出、控制台输出、远程上报）”分离，支持动态切换输出方式。</p>
+</li>
+</ul>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>桥接模式的核心是“分离抽象与实现，通过组合实现解耦”，其本质是打破继承的强耦合枷锁，让两个独立变化的维度能够自由扩展、互不干扰。它不是为了简化代码，而是为了优化系统架构，提升系统的可扩展性和可维护性，尤其适用于复杂系统的多维度扩展场景。</p>
+<p>从多语言实现来看，尽管语法形式差异显著，但核心逻辑高度统一，且适配不同语言的设计理念：</p>
+<ul>
+<li><p>面向对象语言（C#、Python、C++）：依托接口&#x2F;抽象类定义双维度规范，通过继承扩展抽象层，通过组合建立桥接，代码结构清晰、易维护；</p>
+</li>
+<li><p>Go语言：遵循“组合优于继承”，通过接口定义实现化规范，通过结构体嵌套组合抽象层与实现层，极简且高效，贴合语言特性；</p>
+</li>
+<li><p>纯C语言：通过结构体+函数指针模拟面向对象特性，手动实现双维度分离与桥接，底层可控，适配嵌入式等资源受限场景。</p>
+</li>
+</ul>
+<p>在工程实践中，使用桥接模式需注意两点：一是明确识别系统的双独立维度，避免维度划分不当导致的架构冗余；二是避免过度使用，简单场景（无多维度扩展需求）下，直接使用继承或组合更简洁。当系统需要长期扩展、存在多维度变化时，桥接模式是平衡扩展性与耦合度的最优设计方案之一，是每一位开发者必备的架构设计工具。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/" rel="tag"># 桥接模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/07/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/6.%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="prev" title="适配器模式">
+                  <i class="fa fa-angle-left"></i> 适配器模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/09/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/8.%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F/" rel="next" title="装饰模式">
+                  装饰模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

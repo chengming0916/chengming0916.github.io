@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、Podman 简介：Docker 的现代替代品1.1 什么是 Podman？Podman 是一个开源的容器运行时工具，可在大多数 Linux 平台上使用。它旨在提供与 Docker 相似的功能，但采用了更现代、更安全的架构。 1.2 Podman 与 Docker 的核心区别   特性 Docker Podman    守护进程 需要 dockerd 守护进程以 root 权限运行 无需守护进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Podman常用命令总结">
+<meta property="og:url" content="http://chengming0916.github.io/2022/01/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Podman%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、Podman 简介：Docker 的现代替代品1.1 什么是 Podman？Podman 是一个开源的容器运行时工具，可在大多数 Linux 平台上使用。它旨在提供与 Docker 相似的功能，但采用了更现代、更安全的架构。 1.2 Podman 与 Docker 的核心区别   特性 Docker Podman    守护进程 需要 dockerd 守护进程以 root 权限运行 无需守护进">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-51264f7541c9542bd5060c32a3e61cfa_1440w.jpg">
+<meta property="article:published_time" content="2022-01-29T07:33:11.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.472Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Podman">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic3.zhimg.com/v2-51264f7541c9542bd5060c32a3e61cfa_1440w.jpg">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2022/01/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Podman%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2022/01/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Podman%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/","path":"2022/01/29/容器技术/Podman常用命令总结/","title":"Podman常用命令总结"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Podman常用命令总结 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Podman-%E7%AE%80%E4%BB%8B%EF%BC%9ADocker-%E7%9A%84%E7%8E%B0%E4%BB%A3%E6%9B%BF%E4%BB%A3%E5%93%81"><span class="nav-number">1.</span> <span class="nav-text">一、Podman 简介：Docker 的现代替代品</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-Podman%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是 Podman？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Podman-%E4%B8%8E-Docker-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 Podman 与 Docker 的核心区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E5%85%BC%E5%AE%B9%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 兼容性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">二、安装与基础配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%AE%89%E8%A3%85-Podman"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 安装 Podman</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%85%8D%E7%BD%AE%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E4%B8%8E%E5%8A%A0%E9%80%9F%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 配置镜像仓库与加速器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%85%8D%E7%BD%AE%E5%AD%98%E5%82%A8%E9%A9%B1%E5%8A%A8%EF%BC%88%E6%8E%A8%E8%8D%90-fuse-overlayfs%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 配置存储驱动（推荐 fuse-overlayfs）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Podman-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="nav-number">3.</span> <span class="nav-text">三、Podman 常用命令速查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%AE%B9%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 容器生命周期管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 镜像管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%AE%B9%E5%99%A8%E4%BA%A4%E4%BA%92%E4%B8%8E%E8%AF%8A%E6%96%AD"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 容器交互与诊断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9E%E6%88%98%E6%93%8D%E4%BD%9C%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">四、实战操作示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E8%BF%90%E8%A1%8C%E4%B8%80%E4%B8%AA-Web-%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%B9%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 运行一个 Web 服务器容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%9E%84%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 构建自定义镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F%E5%88%B0%E4%BB%93%E5%BA%93"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 推送镜像到仓库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE%EF%BC%9ARootless%EF%BC%88%E6%97%A0%E6%A0%B9%EF%BC%89%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">五、高级配置：Rootless（无根）模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E7%B3%BB%E7%BB%9F%E7%BA%A7%E5%89%8D%E6%8F%90%E9%85%8D%E7%BD%AE"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 系统级前提配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%94%A8%E6%88%B7%E7%BA%A7%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 用户级配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-Rootless-%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E5%8D%B7%E6%8C%82%E8%BD%BD"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 Rootless 模式下的卷挂载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-Rootless-%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 Rootless 模式下的端口映射</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="nav-number">6.</span> <span class="nav-text">六、故障排除与技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E8%AE%BE%E7%BD%AE%E5%91%BD%E4%BB%A4%E5%88%AB%E5%90%8D"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 设置命令别名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E7%94%A8%E6%88%B7%E9%95%9C%E5%83%8F%E9%9A%94%E7%A6%BB"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 用户镜像隔离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E8%BF%9B%E7%A8%8B%E6%A0%91"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 查看容器进程树</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">七、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2022/01/29/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Podman%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Podman常用命令总结 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Podman常用命令总结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-01-29 15:33:11" itemprop="dateCreated datePublished" datetime="2022-01-29T15:33:11+08:00">2022-01-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Podman-简介：Docker-的现代替代品"><a href="#一、Podman-简介：Docker-的现代替代品" class="headerlink" title="一、Podman 简介：Docker 的现代替代品"></a>一、Podman 简介：Docker 的现代替代品</h2><h3 id="1-1-什么是-Podman？"><a href="#1-1-什么是-Podman？" class="headerlink" title="1.1 什么是 Podman？"></a>1.1 什么是 Podman？</h3><p>Podman 是一个开源的容器运行时工具，可在大多数 Linux 平台上使用。它旨在提供与 Docker 相似的功能，但采用了更现代、更安全的架构。</p>
+<h3 id="1-2-Podman-与-Docker-的核心区别"><a href="#1-2-Podman-与-Docker-的核心区别" class="headerlink" title="1.2 Podman 与 Docker 的核心区别"></a>1.2 Podman 与 Docker 的核心区别</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">Docker</th>
+<th align="left">Podman</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>守护进程</strong></td>
+<td align="left">需要 <code>dockerd</code> 守护进程以 root 权限运行</td>
+<td align="left"><strong>无需守护进程</strong>，直接与 OCI 运行时交互</td>
+</tr>
+<tr>
+<td align="left"><strong>运行权限</strong></td>
+<td align="left">通常需要 root 权限</td>
+<td align="left">支持<strong>无根（rootless）模式</strong>，普通用户可直接运行</td>
+</tr>
+<tr>
+<td align="left"><strong>进程模型</strong></td>
+<td align="left">复杂：<code>dockerd</code> -&gt; <code>containerd</code> -&gt; <code>containerd-shim</code> -&gt; <code>runc</code></td>
+<td align="left">简洁：<code>podman</code> -&gt; <code>conmon</code> -&gt; <code>runc</code></td>
+</tr>
+<tr>
+<td align="left"><strong>安全性</strong></td>
+<td align="left">root 守护进程存在潜在安全风险</td>
+<td align="left">无 root 守护进程，安全性更高</td>
+</tr>
+</tbody></table>
+<p><strong>架构对比图</strong>：<br><img src="https://pic3.zhimg.com/v2-51264f7541c9542bd5060c32a3e61cfa_1440w.jpg"></p>
+<p>Podman 直接调用 OCI 运行时（如 <code>runc</code>），通过 <code>conmon</code>（容器监控器）管理容器进程，无需 <code>dockerd</code> 这类以 root 身份运行的守护进程。</p>
+<h3 id="1-3-兼容性"><a href="#1-3-兼容性" class="headerlink" title="1.3 兼容性"></a>1.3 兼容性</h3><p>Podman 的命令行接口与 Docker 高度兼容，大多数 Docker 命令可以直接替换为 <code>podman</code>。它支持管理和运行任何符合 <strong>OCI（开放容器倡议）</strong> 规范的容器和镜像，并能无缝使用 Docker Hub 等镜像仓库。</p>
+<p><strong>官网</strong>：<a target="_blank" rel="noopener" href="https://podman.io/">podman.io</a></p>
+<hr>
+<h2 id="二、安装与基础配置"><a href="#二、安装与基础配置" class="headerlink" title="二、安装与基础配置"></a>二、安装与基础配置</h2><h3 id="2-1-安装-Podman"><a href="#2-1-安装-Podman" class="headerlink" title="2.1 安装 Podman"></a>2.1 安装 Podman</h3><p>在 CentOS&#x2F;RHEL 8 及更高版本上，Podman 通常是预装的。如需安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum -y install podman</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-配置镜像仓库与加速器"><a href="#2-2-配置镜像仓库与加速器" class="headerlink" title="2.2 配置镜像仓库与加速器"></a>2.2 配置镜像仓库与加速器</h3><p>编辑配置文件 <code>/etc/containers/registries.conf</code>：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置镜像搜索源</span></span><br><span class="line"><span class="section">[registries.search]</span></span><br><span class="line"><span class="attr">registries</span> = [<span class="string">&#x27;docker.io&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置非安全仓库（如内网HTTP Harbor）</span></span><br><span class="line"><span class="section">[registries.insecure]</span></span><br><span class="line"><span class="attr">registries</span> = [<span class="string">&#x27;10.0.0.1&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置镜像加速器（如阿里云）</span></span><br><span class="line"><span class="section">[registries.search]</span></span><br><span class="line"><span class="attr">registries</span> = [<span class="string">&#x27;https://l9h8fu9j.mirror.aliyuncs.com&#x27;</span>, <span class="string">&#x27;docker.io&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-配置存储驱动（推荐-fuse-overlayfs）"><a href="#2-3-配置存储驱动（推荐-fuse-overlayfs）" class="headerlink" title="2.3 配置存储驱动（推荐 fuse-overlayfs）"></a>2.3 配置存储驱动（推荐 fuse-overlayfs）</h3><p>编辑 <code>/etc/containers/storage.conf</code>，确保普通用户模式性能更佳：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[storage]</span></span><br><span class="line"><span class="attr">driver</span> = <span class="string">&quot;overlay&quot;</span></span><br><span class="line"><span class="attr">mount_program</span> = <span class="string">&quot;/usr/bin/fuse-overlayfs&quot;</span>  <span class="comment"># 取消注释此行</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、Podman-常用命令速查"><a href="#三、Podman-常用命令速查" class="headerlink" title="三、Podman 常用命令速查"></a>三、Podman 常用命令速查</h2><p>Podman 命令与 Docker 命令高度相似，以下是对照表：</p>
+<h3 id="3-1-容器生命周期管理"><a href="#3-1-容器生命周期管理" class="headerlink" title="3.1 容器生命周期管理"></a>3.1 容器生命周期管理</h3><table>
+<thead>
+<tr>
+<th align="left">功能</th>
+<th align="left">Docker 命令</th>
+<th align="left">Podman 命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">创建并运行容器</td>
+<td align="left"><code>docker run</code></td>
+<td align="left"><code>podman run</code></td>
+</tr>
+<tr>
+<td align="left">启动已停止容器</td>
+<td align="left"><code>docker start</code></td>
+<td align="left"><code>podman start</code></td>
+</tr>
+<tr>
+<td align="left">停止运行中容器</td>
+<td align="left"><code>docker stop</code></td>
+<td align="left"><code>podman stop</code></td>
+</tr>
+<tr>
+<td align="left">重启容器</td>
+<td align="left"><code>docker restart</code></td>
+<td align="left"><code>podman restart</code></td>
+</tr>
+<tr>
+<td align="left">终止容器</td>
+<td align="left"><code>docker kill</code></td>
+<td align="left"><code>podman kill</code></td>
+</tr>
+<tr>
+<td align="left">删除容器</td>
+<td align="left"><code>docker rm</code></td>
+<td align="left"><code>podman rm</code></td>
+</tr>
+<tr>
+<td align="left">列出容器</td>
+<td align="left"><code>docker ps</code></td>
+<td align="left"><code>podman ps</code></td>
+</tr>
+</tbody></table>
+<h3 id="3-2-镜像管理"><a href="#3-2-镜像管理" class="headerlink" title="3.2 镜像管理"></a>3.2 镜像管理</h3><table>
+<thead>
+<tr>
+<th align="left">功能</th>
+<th align="left">Docker 命令</th>
+<th align="left">Podman 命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">拉取镜像</td>
+<td align="left"><code>docker pull</code></td>
+<td align="left"><code>podman pull</code></td>
+</tr>
+<tr>
+<td align="left">列出镜像</td>
+<td align="left"><code>docker images</code></td>
+<td align="left"><code>podman images</code></td>
+</tr>
+<tr>
+<td align="left">删除镜像</td>
+<td align="left"><code>docker rmi</code></td>
+<td align="left"><code>podman rmi</code></td>
+</tr>
+<tr>
+<td align="left">构建镜像</td>
+<td align="left"><code>docker build</code></td>
+<td align="left"><code>podman build</code></td>
+</tr>
+<tr>
+<td align="left">导出镜像</td>
+<td align="left"><code>docker save</code></td>
+<td align="left"><code>podman save</code></td>
+</tr>
+<tr>
+<td align="left">导入镜像</td>
+<td align="left"><code>docker load</code></td>
+<td align="left"><code>podman load</code></td>
+</tr>
+</tbody></table>
+<h3 id="3-3-容器交互与诊断"><a href="#3-3-容器交互与诊断" class="headerlink" title="3.3 容器交互与诊断"></a>3.3 容器交互与诊断</h3><table>
+<thead>
+<tr>
+<th align="left">功能</th>
+<th align="left">Docker 命令</th>
+<th align="left">Podman 命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">进入容器</td>
+<td align="left"><code>docker exec</code></td>
+<td align="left"><code>podman exec</code></td>
+</tr>
+<tr>
+<td align="left">查看日志</td>
+<td align="left"><code>docker logs</code></td>
+<td align="left"><code>podman logs</code></td>
+</tr>
+<tr>
+<td align="left">检查容器</td>
+<td align="left"><code>docker inspect</code></td>
+<td align="left"><code>podman inspect</code></td>
+</tr>
+<tr>
+<td align="left">查看进程</td>
+<td align="left"><code>docker top</code></td>
+<td align="left"><code>podman top</code></td>
+</tr>
+<tr>
+<td align="left">复制文件</td>
+<td align="left"><code>docker cp</code></td>
+<td align="left"><code>podman cp</code></td>
+</tr>
+</tbody></table>
+<p><strong>便捷参数</strong>：许多命令支持 <code>--latest</code> 或 <code>-l</code> 参数来操作最近创建的容器，避免输入冗长的容器ID。</p>
+<hr>
+<h2 id="四、实战操作示例"><a href="#四、实战操作示例" class="headerlink" title="四、实战操作示例"></a>四、实战操作示例</h2><h3 id="4-1-运行一个-Web-服务器容器"><a href="#4-1-运行一个-Web-服务器容器" class="headerlink" title="4.1 运行一个 Web 服务器容器"></a>4.1 运行一个 Web 服务器容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取并运行 Apache httpd 容器</span></span><br><span class="line">podman run -d --name my_httpd docker.io/library/httpd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看运行中的容器</span></span><br><span class="line">podman ps</span><br><span class="line"><span class="comment"># CONTAINER ID  IMAGE                          COMMAND           CREATED        STATUS        PORTS  NAMES</span></span><br><span class="line"><span class="comment"># 0492e405b9ec  docker.io/library/httpd:latest httpd-foreground  2 minutes ago  Up 2 minutes         my_httpd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取容器的 IP 地址并访问</span></span><br><span class="line">podman inspect my_httpd | grep IPAddress</span><br><span class="line"><span class="comment"># “IPAddress”: “10.88.0.5”</span></span><br><span class="line">curl 10.88.0.5</span><br><span class="line"><span class="comment"># It works!</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-构建自定义镜像"><a href="#4-2-构建自定义镜像" class="headerlink" title="4.2 构建自定义镜像"></a>4.2 构建自定义镜像</h3><ol>
+<li><strong>准备 Dockerfile</strong>：<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> docker.io/library/centos:<span class="number">7</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> yum -y install nginx &amp;&amp; yum clean all</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;nginx&quot;</span>, <span class="string">&quot;-g&quot;</span>, <span class="string">&quot;daemon off;&quot;</span>]</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>构建镜像</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">podman build -t my-nginx:latest .</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="4-3-推送镜像到仓库"><a href="#4-3-推送镜像到仓库" class="headerlink" title="4.3 推送镜像到仓库"></a>4.3 推送镜像到仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 为镜像打标签</span></span><br><span class="line">podman tag my-nginx:latest docker.io/yourusername/my-nginx:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 登录 Docker Hub</span></span><br><span class="line">podman login docker.io</span><br><span class="line"><span class="comment"># Username: yourusername</span></span><br><span class="line"><span class="comment"># Password: *******</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 推送镜像</span></span><br><span class="line">podman push docker.io/yourusername/my-nginx:latest</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、高级配置：Rootless（无根）模式"><a href="#五、高级配置：Rootless（无根）模式" class="headerlink" title="五、高级配置：Rootless（无根）模式"></a>五、高级配置：Rootless（无根）模式</h2><p>Podman 的核心优势之一是支持普通用户无需 <code>sudo</code> 即可运行容器。</p>
+<h3 id="5-1-系统级前提配置"><a href="#5-1-系统级前提配置" class="headerlink" title="5.1 系统级前提配置"></a>5.1 系统级前提配置</h3><p>管理员需要在主机上完成以下配置：</p>
+<ol>
+<li><p><strong>安装必要软件</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum -y install slirp4netns fuse-overlayfs shadow-utils</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>配置用户子UID&#x2F;GID</strong>：<br>Podman 要求用户在 <code>/etc/subuid</code> 和 <code>/etc/subgid</code> 文件中拥有唯一的 UID&#x2F;GID 范围。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看现有分配</span></span><br><span class="line"><span class="built_in">cat</span> /etc/subuid</span><br><span class="line"><span class="built_in">cat</span> /etc/subgid</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为用户 `tom` 分配 UID/GID 范围（管理员操作）</span></span><br><span class="line"><span class="built_in">sudo</span> usermod --add-subuids 100000-165535 --add-subgids 100000-165535 tom</span><br></pre></td></tr></table></figure>
+<p>文件格式为：<code>用户名:起始UID:数量</code></p>
+</li>
+<li><p><strong>调整内核参数（允许绑定低端口）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 允许非特权用户绑定 80 及以上端口</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;net.ipv4.ip_unprivileged_port_start=80&#x27;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> -a /etc/sysctl.conf</span><br><span class="line"><span class="built_in">sudo</span> sysctl -p</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许非特权用户使用 ping（ICMP）</span></span><br><span class="line"><span class="built_in">sudo</span> sysctl -w <span class="string">&quot;net.ipv4.ping_group_range=0 2000000&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="5-2-用户级配置"><a href="#5-2-用户级配置" class="headerlink" title="5.2 用户级配置"></a>5.2 用户级配置</h3><p>普通用户 <code>tom</code> 登录后，可以创建个人配置文件 <code>~/.config/containers/</code> 来覆盖系统默认设置。</p>
+<h3 id="5-3-Rootless-模式下的卷挂载"><a href="#5-3-Rootless-模式下的卷挂载" class="headerlink" title="5.3 Rootless 模式下的卷挂载"></a>5.3 Rootless 模式下的卷挂载</h3><p>在 rootless 模式下挂载卷时，容器内的文件属主会映射到主机用户的子UID。使用 <code>--userns=keep-id</code> 选项可以让容器内的进程以与主机用户相同的 UID 运行，简化文件权限管理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建数据目录</span></span><br><span class="line"><span class="built_in">mkdir</span> ~/data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 运行容器并挂载卷（使用 keep-id 保持用户ID一致）</span></span><br><span class="line">podman run -it -v <span class="string">&quot;<span class="variable">$HOME</span>/data:/data&quot;</span> --userns=keep-id docker.io/library/busybox /bin/sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在容器内创建的文件，在主机上查看属主将是 `tom` 用户</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4-Rootless-模式下的端口映射"><a href="#5-4-Rootless-模式下的端口映射" class="headerlink" title="5.4 Rootless 模式下的端口映射"></a>5.4 Rootless 模式下的端口映射</h3><ul>
+<li><strong>默认</strong>：非特权用户只能映射 <strong>1024 及以上</strong> 的端口。</li>
+<li><strong>配置后</strong>：通过修改 <code>net.ipv4.ip_unprivileged_port_start=80</code>，可以映射 <strong>80 及以上</strong> 的端口。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 映射 8080 端口（始终允许）</span></span><br><span class="line">podman run -d -p 8080:80 docker.io/library/httpd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 映射 80 端口（需上述内核配置）</span></span><br><span class="line">podman run -d -p 80:80 docker.io/library/httpd</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h2 id="六、故障排除与技巧"><a href="#六、故障排除与技巧" class="headerlink" title="六、故障排除与技巧"></a>六、故障排除与技巧</h2><h3 id="6-1-设置命令别名"><a href="#6-1-设置命令别名" class="headerlink" title="6.1 设置命令别名"></a>6.1 设置命令别名</h3><p>如果习惯 Docker 命令，可以为 Podman 设置别名实现无缝切换：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;alias docker=podman&quot;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p>现在，你可以继续使用 <code>docker</code> 命令，但实际上调用的是 <code>podman</code>。</p>
+<h3 id="6-2-用户镜像隔离"><a href="#6-2-用户镜像隔离" class="headerlink" title="6.2 用户镜像隔离"></a>6.2 用户镜像隔离</h3><p>Root 用户和普通用户拥有独立的镜像和容器存储空间，互不可见。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># root 用户查看</span></span><br><span class="line"><span class="built_in">sudo</span> podman images</span><br><span class="line"></span><br><span class="line"><span class="comment"># 普通用户 tom 查看</span></span><br><span class="line">podman images</span><br><span class="line"><span class="comment"># 输出为空，除非 tom 自己拉取或构建过镜像</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-查看容器进程树"><a href="#6-3-查看容器进程树" class="headerlink" title="6.3 查看容器进程树"></a>6.3 查看容器进程树</h3><p>利用 Podman 简洁的进程模型进行调试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看容器相关进程</span></span><br><span class="line">pstree -p | grep -A 5 -B 5 podman</span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line">podman top &lt;容器名&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h2><p>Podman 作为 Docker 的现代替代品，凭借其<strong>无需守护进程</strong>、<strong>原生支持 Rootless 模式</strong>和<strong>与 Docker CLI 高度兼容</strong>的特性，为容器运行提供了更安全、更灵活的解决方案。</p>
+<p><strong>迁移建议</strong>：</p>
+<ol>
+<li>对于新项目或新环境，<strong>优先考虑 Podman</strong>。</li>
+<li>对于现有 Docker 用户，可以通过设置别名 <code>alias docker=podman</code> 平滑过渡。</li>
+<li>充分利用 <strong>Rootless 模式</strong> 提升安全性，特别是在多用户环境或 CI&#x2F;CD 流水线中。</li>
+</ol>
+<p>通过掌握 Podman 的核心概念、命令和配置，你可以在享受容器技术便利的同时，构建更安全、更高效的容器化工作流。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Podman/" rel="tag"># Podman</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/01/19/%E6%9C%AA%E5%88%86%E7%B1%BB/Git%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86/" rel="prev" title="Git设置代理">
+                  <i class="fa fa-angle-left"></i> Git设置代理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/06/24/%E6%9C%AA%E5%88%86%E7%B1%BB/ffmpeg-mp3%E8%BD%ACpcm/" rel="next" title="FFmpeg mp3转pcm">
+                  FFmpeg mp3转pcm <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

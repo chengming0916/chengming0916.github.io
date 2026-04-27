@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、准备工作1.1 获取服务器本文使用阿里云 ECS 服务器（香港节点，CentOS 7.9 64位）进行演示。学生用户可通过阿里云学生计划免费领取服务器。 重要信息记录：  公网 IP 地址：在服务器控制台查看并记录（后续配置需要） 操作系统：CentOS 7.9 64位  1.2 安装 Docker（如未安装）1.2.1 更新系统并安装依赖12sudo yum update -ysudo yu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 搭建 IPsec VPN 服务器">
+<meta property="og:url" content="http://chengming0916.github.io/2024/10/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E6%90%AD%E5%BB%BAIPsecVPN%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、准备工作1.1 获取服务器本文使用阿里云 ECS 服务器（香港节点，CentOS 7.9 64位）进行演示。学生用户可通过阿里云学生计划免费领取服务器。 重要信息记录：  公网 IP 地址：在服务器控制台查看并记录（后续配置需要） 操作系统：CentOS 7.9 64位  1.2 安装 Docker（如未安装）1.2.1 更新系统并安装依赖12sudo yum update -ysudo yu">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-10-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.470Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="VPN">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/10/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E6%90%AD%E5%BB%BAIPsecVPN%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/10/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E6%90%AD%E5%BB%BAIPsecVPN%E6%9C%8D%E5%8A%A1%E5%99%A8/","path":"2024/10/12/容器技术/Docker搭建IPsecVPN服务器/","title":"Docker 搭建 IPsec VPN 服务器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Docker 搭建 IPsec VPN 服务器 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">一、准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E8%8E%B7%E5%8F%96%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 获取服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%AE%89%E8%A3%85-Docker%EF%BC%88%E5%A6%82%E6%9C%AA%E5%AE%89%E8%A3%85%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 安装 Docker（如未安装）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-%E6%9B%B4%E6%96%B0%E7%B3%BB%E7%BB%9F%E5%B9%B6%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 更新系统并安装依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-2-%E6%B7%BB%E5%8A%A0-Docker-%E5%AE%98%E6%96%B9%E4%BB%93%E5%BA%93"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 添加 Docker 官方仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-3-%E5%AE%89%E8%A3%85-Docker"><span class="nav-number">1.2.3.</span> <span class="nav-text">1.2.3 安装 Docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-4-%E5%90%AF%E5%8A%A8%E5%B9%B6%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF"><span class="nav-number">1.2.4.</span> <span class="nav-text">1.2.4 启动并设置开机自启</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-5-%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.5.</span> <span class="nav-text">1.2.5 验证安装</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE-VPN-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">二、配置 VPN 服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%88%9B%E5%BB%BA%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 创建配置目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 创建环境配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 配置文件内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%83%A8%E7%BD%B2-VPN-%E5%AE%B9%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">三、部署 VPN 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E9%A6%96%E6%AC%A1%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 首次运行容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%A4%84%E7%90%86%E7%89%B9%E6%9D%83%E6%A8%A1%E5%BC%8F%E9%94%99%E8%AF%AF"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 处理特权模式错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%A3%80%E6%9F%A5%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 检查容器状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">4.</span> <span class="nav-text">四、配置服务器防火墙</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%BC%80%E6%94%BE%E5%BF%85%E8%A6%81%E7%AB%AF%E5%8F%A3"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 开放必要端口</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8-iptables%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89"><span class="nav-number">4.1.1.</span> <span class="nav-text">方法一：使用 iptables（命令行）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8%E4%BA%91%E6%8E%A7%E5%88%B6%E5%8F%B0%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">4.1.2.</span> <span class="nav-text">方法二：使用云控制台（推荐）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E9%87%8D%E5%90%AF%E5%AE%B9%E5%99%A8%E4%BD%BF%E9%85%8D%E7%BD%AE%E7%94%9F%E6%95%88"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 重启容器使配置生效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81Windows-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5%E9%85%8D%E7%BD%AE"><span class="nav-number">5.</span> <span class="nav-text">五、Windows 客户端连接配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%88%9B%E5%BB%BA-VPN-%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 创建 VPN 连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E4%BF%AE%E6%94%B9%E6%B3%A8%E5%86%8C%E8%A1%A8%EF%BC%88%E8%A7%A3%E5%86%B3%E8%BF%9E%E6%8E%A5%E9%97%AE%E9%A2%98%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 修改注册表（解决连接问题）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E8%BF%9E%E6%8E%A5-VPN"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 连接 VPN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81Android-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5%E9%85%8D%E7%BD%AE"><span class="nav-number">6.</span> <span class="nav-text">六、Android 客户端连接配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%88%9B%E5%BB%BA-VPN-%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 创建 VPN 连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E4%BF%9D%E5%AD%98%E5%B9%B6%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 保存并连接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4"><span class="nav-number">7.</span> <span class="nav-text">七、故障排除</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 常见问题及解决</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%981%EF%BC%9A%E5%AE%B9%E5%99%A8%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%EF%BC%8C%E6%8F%90%E7%A4%BA%E7%89%B9%E6%9D%83%E6%A8%A1%E5%BC%8F%E9%94%99%E8%AF%AF"><span class="nav-number">7.1.1.</span> <span class="nav-text">问题1：容器启动失败，提示特权模式错误</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%982%EF%BC%9A%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5%E8%B6%85%E6%97%B6"><span class="nav-number">7.1.2.</span> <span class="nav-text">问题2：客户端连接超时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%983%EF%BC%9AWindows-%E8%BF%9E%E6%8E%A5%E9%94%99%E8%AF%AF-789"><span class="nav-number">7.1.3.</span> <span class="nav-text">问题3：Windows 连接错误 789</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%984%EF%BC%9A%E8%83%BD%E8%BF%9E%E6%8E%A5%E4%BD%86%E6%97%A0%E6%B3%95%E4%B8%8A%E7%BD%91"><span class="nav-number">7.1.4.</span> <span class="nav-text">问题4：能连接但无法上网</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E6%9F%A5%E7%9C%8B%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 查看连接状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">8.</span> <span class="nav-text">八、安全建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E5%AF%86%E7%A0%81%E5%AE%89%E5%85%A8"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 密码安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E5%85%A8"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 服务器安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E5%A4%87%E4%BB%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 备份配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">九、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/10/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E6%90%AD%E5%BB%BAIPsecVPN%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Docker 搭建 IPsec VPN 服务器 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker 搭建 IPsec VPN 服务器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-10-12 00:00:00" itemprop="dateCreated datePublished" datetime="2024-10-12T00:00:00+08:00">2024-10-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、准备工作"><a href="#一、准备工作" class="headerlink" title="一、准备工作"></a>一、准备工作</h2><h3 id="1-1-获取服务器"><a href="#1-1-获取服务器" class="headerlink" title="1.1 获取服务器"></a>1.1 获取服务器</h3><p>本文使用阿里云 ECS 服务器（香港节点，CentOS 7.9 64位）进行演示。学生用户可通过阿里云学生计划免费领取服务器。</p>
+<p><strong>重要信息记录</strong>：</p>
+<ul>
+<li><strong>公网 IP 地址</strong>：在服务器控制台查看并记录（后续配置需要）</li>
+<li><strong>操作系统</strong>：CentOS 7.9 64位</li>
+</ul>
+<h3 id="1-2-安装-Docker（如未安装）"><a href="#1-2-安装-Docker（如未安装）" class="headerlink" title="1.2 安装 Docker（如未安装）"></a>1.2 安装 Docker（如未安装）</h3><h4 id="1-2-1-更新系统并安装依赖"><a href="#1-2-1-更新系统并安装依赖" class="headerlink" title="1.2.1 更新系统并安装依赖"></a>1.2.1 更新系统并安装依赖</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum update -y</span><br><span class="line"><span class="built_in">sudo</span> yum install -y yum-utils device-mapper-persistent-data lvm2</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-2-添加-Docker-官方仓库"><a href="#1-2-2-添加-Docker-官方仓库" class="headerlink" title="1.2.2 添加 Docker 官方仓库"></a>1.2.2 添加 Docker 官方仓库</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-3-安装-Docker"><a href="#1-2-3-安装-Docker" class="headerlink" title="1.2.3 安装 Docker"></a>1.2.3 安装 Docker</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install -y docker-ce docker-ce-cli containerd.io</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-4-启动并设置开机自启"><a href="#1-2-4-启动并设置开机自启" class="headerlink" title="1.2.4 启动并设置开机自启"></a>1.2.4 启动并设置开机自启</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl start docker</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> docker</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-5-验证安装"><a href="#1-2-5-验证安装" class="headerlink" title="1.2.5 验证安装"></a>1.2.5 验证安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 Docker 版本</span></span><br><span class="line">docker --version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试 Docker 运行</span></span><br><span class="line"><span class="built_in">sudo</span> docker run hello-world</span><br></pre></td></tr></table></figure>
+
+<p><strong>验证成功标志</strong>：能看到 <code>hello-world</code> 镜像拉取成功并运行。</p>
+<hr>
+<h2 id="二、配置-VPN-服务器"><a href="#二、配置-VPN-服务器" class="headerlink" title="二、配置 VPN 服务器"></a>二、配置 VPN 服务器</h2><h3 id="2-1-创建配置目录"><a href="#2-1-创建配置目录" class="headerlink" title="2.1 创建配置目录"></a>2.1 创建配置目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /vpn</span><br><span class="line"><span class="built_in">cd</span> /vpn</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-创建环境配置文件"><a href="#2-2-创建环境配置文件" class="headerlink" title="2.2 创建环境配置文件"></a>2.2 创建环境配置文件</h3><p>创建并编辑 <code>.env</code> 文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nano /vpn/.env</span><br><span class="line"><span class="comment"># 或使用 vim</span></span><br><span class="line"><span class="comment"># vim /vpn/.env</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-配置文件内容"><a href="#2-3-配置文件内容" class="headerlink" title="2.3 配置文件内容"></a>2.3 配置文件内容</h3><p>将以下配置粘贴到 <code>.env</code> 文件中，<strong>根据实际情况修改</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># IPsec 预共享密钥（重要！）</span></span><br><span class="line">VPN_IPSEC_PSK=AKIDkQD7!</span><br><span class="line"></span><br><span class="line"><span class="comment"># 主 VPN 账号和密码</span></span><br><span class="line">VPN_USER=<span class="built_in">test</span></span><br><span class="line">VPN_PASSWORD=vpn1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务器公网 IP（必须修改为你的服务器 IP）</span></span><br><span class="line">VPN_PUBLIC_IP=36.111.xxx.xxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 额外 VPN 用户（用户名用空格分隔）</span></span><br><span class="line">VPN_ADDL_USERS=vpn1 vpn2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对应额外用户的密码（顺序与用户名对应）</span></span><br><span class="line">VPN_ADDL_PASSWORDS=vpn11234 pass21234</span><br><span class="line"></span><br><span class="line"><span class="comment"># DNS 服务器配置</span></span><br><span class="line">VPN_DNS_SRV1=8.8.8.8</span><br><span class="line">VPN_DNS_SRV2=114.114.114.114</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置说明</strong>：</p>
+<ul>
+<li><code>VPN_PUBLIC_IP</code>：必须替换为你的服务器公网 IP</li>
+<li><code>VPN_IPSEC_PSK</code>：建议使用强密码，包含大小写字母、数字和特殊字符</li>
+<li>多个用户配置：确保用户名和密码顺序对应</li>
+</ul>
+<hr>
+<h2 id="三、部署-VPN-容器"><a href="#三、部署-VPN-容器" class="headerlink" title="三、部署 VPN 容器"></a>三、部署 VPN 容器</h2><h3 id="3-1-首次运行容器"><a href="#3-1-首次运行容器" class="headerlink" title="3.1 首次运行容器"></a>3.1 首次运行容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    --name ipsec-vpn-server \</span><br><span class="line">    --env-file /vpn/.env \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -p 500:500/udp \</span><br><span class="line">    -p 4500:4500/udp \</span><br><span class="line">    -v /lib/modules:/lib/modules:ro \</span><br><span class="line">    -d hwdsl2/ipsec-vpn-server</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-处理特权模式错误"><a href="#3-2-处理特权模式错误" class="headerlink" title="3.2 处理特权模式错误"></a>3.2 处理特权模式错误</h3><p>如果出现错误提示需要特权模式，按以下步骤操作：</p>
+<p><strong>停止并删除现有容器</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker stop ipsec-vpn-server</span><br><span class="line">docker <span class="built_in">rm</span> ipsec-vpn-server</span><br></pre></td></tr></table></figure>
+
+<p><strong>重新以特权模式运行</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    --name ipsec-vpn-server \</span><br><span class="line">    --env-file /vpn/.env \</span><br><span class="line">    --restart=always \</span><br><span class="line">    --privileged \</span><br><span class="line">    -p 500:500/udp \</span><br><span class="line">    -p 4500:4500/udp \</span><br><span class="line">    -v /lib/modules:/lib/modules:ro \</span><br><span class="line">    -d hwdsl2/ipsec-vpn-server</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-检查容器状态"><a href="#3-3-检查容器状态" class="headerlink" title="3.3 检查容器状态"></a>3.3 检查容器状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看容器运行状态</span></span><br><span class="line">docker ps</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看容器日志</span></span><br><span class="line">docker logs ipsec-vpn-server</span><br></pre></td></tr></table></figure>
+
+<p><strong>成功标志</strong>：日志中显示 <code>IPsec VPN server started</code> 或类似信息。</p>
+<hr>
+<h2 id="四、配置服务器防火墙"><a href="#四、配置服务器防火墙" class="headerlink" title="四、配置服务器防火墙"></a>四、配置服务器防火墙</h2><h3 id="4-1-开放必要端口"><a href="#4-1-开放必要端口" class="headerlink" title="4.1 开放必要端口"></a>4.1 开放必要端口</h3><p>VPN 服务需要以下 UDP 端口：</p>
+<ul>
+<li><strong>500</strong>：ISAKMP（IKE 协商）</li>
+<li><strong>4500</strong>：NAT-T（NAT 穿越）</li>
+<li><strong>1701</strong>：L2TP（可选）</li>
+</ul>
+<h4 id="方法一：使用-iptables（命令行）"><a href="#方法一：使用-iptables（命令行）" class="headerlink" title="方法一：使用 iptables（命令行）"></a>方法一：使用 iptables（命令行）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开放 UDP 500 端口</span></span><br><span class="line"><span class="built_in">sudo</span> iptables -A INPUT -p udp --dport 500 -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开放 UDP 4500 端口</span></span><br><span class="line"><span class="built_in">sudo</span> iptables -A INPUT -p udp --dport 4500 -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开放 UDP 1701 端口（L2TP）</span></span><br><span class="line"><span class="built_in">sudo</span> iptables -A INPUT -p udp --dport 1701 -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存规则（CentOS 7）</span></span><br><span class="line"><span class="built_in">sudo</span> service iptables save</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法二：使用云控制台（推荐）"><a href="#方法二：使用云控制台（推荐）" class="headerlink" title="方法二：使用云控制台（推荐）"></a>方法二：使用云控制台（推荐）</h4><p>以阿里云为例：</p>
+<ol>
+<li>登录阿里云控制台</li>
+<li>进入 ECS 实例详情页</li>
+<li>找到「安全组」配置</li>
+<li>点击「配置规则」</li>
+<li>手动添加以下入方向规则：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>授权策略</th>
+<th>协议类型</th>
+<th>端口范围</th>
+<th>授权对象</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>允许</td>
+<td>UDP</td>
+<td>500&#x2F;500</td>
+<td>0.0.0.0&#x2F;0</td>
+<td>IPsec ISAKMP</td>
+</tr>
+<tr>
+<td>允许</td>
+<td>UDP</td>
+<td>4500&#x2F;4500</td>
+<td>0.0.0.0&#x2F;0</td>
+<td>IPsec NAT-T</td>
+</tr>
+<tr>
+<td>允许</td>
+<td>UDP</td>
+<td>1701&#x2F;1701</td>
+<td>0.0.0.0&#x2F;0</td>
+<td>L2TP（可选）</td>
+</tr>
+</tbody></table>
+<h3 id="4-2-重启容器使配置生效"><a href="#4-2-重启容器使配置生效" class="headerlink" title="4.2 重启容器使配置生效"></a>4.2 重启容器使配置生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart ipsec-vpn-server</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、Windows-客户端连接配置"><a href="#五、Windows-客户端连接配置" class="headerlink" title="五、Windows 客户端连接配置"></a>五、Windows 客户端连接配置</h2><h3 id="5-1-创建-VPN-连接"><a href="#5-1-创建-VPN-连接" class="headerlink" title="5.1 创建 VPN 连接"></a>5.1 创建 VPN 连接</h3><ol>
+<li>打开「设置」→「网络和 Internet」→「VPN」</li>
+<li>点击「添加 VPN 连接」</li>
+<li>填写以下信息：<ul>
+<li><strong>VPN 提供商</strong>：Windows（内置）</li>
+<li><strong>连接名称</strong>：自定义（如 MyVPN）</li>
+<li><strong>服务器名称或地址</strong>：你的服务器公网 IP</li>
+<li><strong>VPN 类型</strong>：使用预共享密钥的 L2TP&#x2F;IPsec</li>
+<li><strong>预共享密钥</strong>：<code>.env</code> 文件中的 <code>VPN_IPSEC_PSK</code></li>
+<li><strong>登录信息的类型</strong>：用户名和密码</li>
+<li><strong>用户名</strong>：<code>.env</code> 文件中的 <code>VPN_USER</code></li>
+<li><strong>密码</strong>：<code>.env</code> 文件中的 <code>VPN_PASSWORD</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="5-2-修改注册表（解决连接问题）"><a href="#5-2-修改注册表（解决连接问题）" class="headerlink" title="5.2 修改注册表（解决连接问题）"></a>5.2 修改注册表（解决连接问题）</h3><p>以管理员身份打开 PowerShell 或命令提示符，执行：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">REG ADD HKLM\SYSTEM\CurrentControlSet\Services\PolicyAgent /v AssumeUDPEncapsulationContextOnSendRule /t REG_DWORD /d <span class="number">0</span>x2 /f</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-连接-VPN"><a href="#5-3-连接-VPN" class="headerlink" title="5.3 连接 VPN"></a>5.3 连接 VPN</h3><ol>
+<li>执行上述命令后<strong>重启计算机</strong></li>
+<li>在系统托盘点击网络图标</li>
+<li>选择创建的 VPN 连接</li>
+<li>点击「连接」</li>
+<li>输入用户名和密码（如已保存则自动连接）</li>
+</ol>
+<hr>
+<h2 id="六、Android-客户端连接配置"><a href="#六、Android-客户端连接配置" class="headerlink" title="六、Android 客户端连接配置"></a>六、Android 客户端连接配置</h2><h3 id="6-1-创建-VPN-连接"><a href="#6-1-创建-VPN-连接" class="headerlink" title="6.1 创建 VPN 连接"></a>6.1 创建 VPN 连接</h3><ol>
+<li>打开「设置」→「更多连接」→「VPN」</li>
+<li>点击「添加 VPN」或「+」</li>
+<li>填写以下信息：<ul>
+<li><strong>名称</strong>：自定义（如 MyVPN）</li>
+<li><strong>类型</strong>：L2TP&#x2F;IPSec PSK</li>
+<li><strong>服务器地址</strong>：你的服务器公网 IP</li>
+<li><strong>L2TP 密钥</strong>：留空</li>
+<li><strong>IPSec 标识符</strong>：留空</li>
+<li><strong>IPSec 预共享密钥</strong>：<code>.env</code> 文件中的 <code>VPN_IPSEC_PSK</code></li>
+<li><strong>用户名</strong>：<code>.env</code> 文件中的 <code>VPN_USER</code></li>
+<li><strong>密码</strong>：<code>.env</code> 文件中的 <code>VPN_PASSWORD</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="6-2-保存并连接"><a href="#6-2-保存并连接" class="headerlink" title="6.2 保存并连接"></a>6.2 保存并连接</h3><ol>
+<li>点击「保存」</li>
+<li>在 VPN 列表中选择刚创建的连接</li>
+<li>点击「连接」</li>
+</ol>
+<hr>
+<h2 id="七、故障排除"><a href="#七、故障排除" class="headerlink" title="七、故障排除"></a>七、故障排除</h2><h3 id="7-1-常见问题及解决"><a href="#7-1-常见问题及解决" class="headerlink" title="7.1 常见问题及解决"></a>7.1 常见问题及解决</h3><h4 id="问题1：容器启动失败，提示特权模式错误"><a href="#问题1：容器启动失败，提示特权模式错误" class="headerlink" title="问题1：容器启动失败，提示特权模式错误"></a>问题1：容器启动失败，提示特权模式错误</h4><p><strong>解决</strong>：使用 <code>--privileged</code> 参数重新运行容器（见3.2节）</p>
+<h4 id="问题2：客户端连接超时"><a href="#问题2：客户端连接超时" class="headerlink" title="问题2：客户端连接超时"></a>问题2：客户端连接超时</h4><p><strong>检查步骤</strong>：</p>
+<ol>
+<li>确认服务器公网 IP 正确</li>
+<li>检查防火墙端口是否开放</li>
+<li>验证容器是否正常运行<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker logs ipsec-vpn-server</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="问题3：Windows-连接错误-789"><a href="#问题3：Windows-连接错误-789" class="headerlink" title="问题3：Windows 连接错误 789"></a>问题3：Windows 连接错误 789</h4><p><strong>解决</strong>：</p>
+<ol>
+<li>确保已执行注册表修改命令（5.2节）</li>
+<li>重启计算机</li>
+<li>检查预共享密钥是否正确</li>
+</ol>
+<h4 id="问题4：能连接但无法上网"><a href="#问题4：能连接但无法上网" class="headerlink" title="问题4：能连接但无法上网"></a>问题4：能连接但无法上网</h4><p><strong>检查</strong>：</p>
+<ol>
+<li>确认 DNS 配置正确</li>
+<li>检查服务器是否开启 IP 转发<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 1 &gt; /proc/sys/net/ipv4/ip_forward</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="7-2-查看连接状态"><a href="#7-2-查看连接状态" class="headerlink" title="7.2 查看连接状态"></a>7.2 查看连接状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看容器实时日志</span></span><br><span class="line">docker logs -f ipsec-vpn-server</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前连接用户</span></span><br><span class="line">docker <span class="built_in">exec</span> ipsec-vpn-server ipsec status</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="八、安全建议"><a href="#八、安全建议" class="headerlink" title="八、安全建议"></a>八、安全建议</h2><h3 id="8-1-密码安全"><a href="#8-1-密码安全" class="headerlink" title="8.1 密码安全"></a>8.1 密码安全</h3><ol>
+<li><strong>使用强密码</strong>：预共享密钥和用户密码应包含大小写字母、数字和特殊字符</li>
+<li><strong>定期更换</strong>：建议每月更换一次密码</li>
+<li><strong>最小权限</strong>：只为必要用户创建 VPN 账号</li>
+</ol>
+<h3 id="8-2-服务器安全"><a href="#8-2-服务器安全" class="headerlink" title="8.2 服务器安全"></a>8.2 服务器安全</h3><ol>
+<li><strong>限制访问</strong>：在安全组中限制源 IP（如只允许特定国家或 IP 段）</li>
+<li><strong>监控日志</strong>：定期检查 VPN 连接日志</li>
+<li><strong>更新维护</strong>：定期更新 Docker 镜像和系统</li>
+</ol>
+<h3 id="8-3-备份配置"><a href="#8-3-备份配置" class="headerlink" title="8.3 备份配置"></a>8.3 备份配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份 .env 配置文件</span></span><br><span class="line"><span class="built_in">cp</span> /vpn/.env /vpn/.env.backup.$(<span class="built_in">date</span> +%Y%m%d)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出容器配置</span></span><br><span class="line">docker <span class="built_in">export</span> ipsec-vpn-server &gt; /vpn/vpn-backup.tar</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="九、总结"><a href="#九、总结" class="headerlink" title="九、总结"></a>九、总结</h2><p>通过以上步骤，你已成功在 CentOS 7 服务器上使用 Docker 搭建了 IPsec VPN 服务器。关键要点：</p>
+<ol>
+<li><strong>环境准备</strong>：确保 Docker 正确安装</li>
+<li><strong>配置正确</strong>：<code>.env</code> 文件中的公网 IP 必须准确</li>
+<li><strong>端口开放</strong>：确保 UDP 500 和 4500 端口对外开放</li>
+<li><strong>客户端配置</strong>：注意 Windows 需要修改注册表</li>
+</ol>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>使用 Docker 部署，简单快速</li>
+<li>支持多用户同时连接</li>
+<li>跨平台客户端支持（Windows、Android、iOS、macOS）</li>
+<li>配置易于备份和迁移</li>
+</ul>
+<p><strong>后续维护</strong>：</p>
+<ul>
+<li>定期检查容器日志</li>
+<li>关注安全更新</li>
+<li>监控服务器资源使用情况</li>
+</ul>
+<p>现在你可以安全地通过 VPN 访问你的服务器资源，或用于保护公共 Wi-Fi 下的网络通信。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/VPN/" rel="tag"># VPN</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/10/09/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Javascript/Android%20SlidingMenu%E7%BB%84%E4%BB%B6%E5%AE%8C%E6%95%B4%E6%95%99%E7%A8%8B%E4%B8%8E%E5%AE%9E%E6%88%98/" rel="prev" title="Android SlidingMenu组件完整教程与实战">
+                  <i class="fa fa-angle-left"></i> Android SlidingMenu组件完整教程与实战
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/11/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2EMQX.md/" rel="next" title="K3s部署EMQX.md">
+                  K3s部署EMQX.md <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

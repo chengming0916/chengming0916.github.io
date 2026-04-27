@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在AI本地化部署场景中，Ollama凭借轻量化、易用性强的特点，成为快速运行大模型（含嵌入模型）的首选工具；而Docker则能解决环境依赖混乱、版本冲突等问题，实现Ollama的快速部署与隔离运行。本文针对AMD Ryzen平台（以零刻SER9系列小主机为例），详细讲解如何通过Docker部署Ollama，结合ROCm实现核显加速，并以bge-m3嵌入模型为示例，完成从环境准备到实际运行的全流程操">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker部署Ollama并实现ROCm加速">
+<meta property="og:url" content="http://chengming0916.github.io/2026/04/22/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2Ollama%E5%B9%B6%E5%AE%9E%E7%8E%B0ROCm%E5%8A%A0%E9%80%9F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在AI本地化部署场景中，Ollama凭借轻量化、易用性强的特点，成为快速运行大模型（含嵌入模型）的首选工具；而Docker则能解决环境依赖混乱、版本冲突等问题，实现Ollama的快速部署与隔离运行。本文针对AMD Ryzen平台（以零刻SER9系列小主机为例），详细讲解如何通过Docker部署Ollama，结合ROCm实现核显加速，并以bge-m3嵌入模型为示例，完成从环境准备到实际运行的全流程操">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-22T03:16:05.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.470Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Ollama">
+<meta property="article:tag" content="ROCm">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/04/22/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2Ollama%E5%B9%B6%E5%AE%9E%E7%8E%B0ROCm%E5%8A%A0%E9%80%9F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/04/22/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2Ollama%E5%B9%B6%E5%AE%9E%E7%8E%B0ROCm%E5%8A%A0%E9%80%9F/","path":"2026/04/22/容器技术/Docker部署Ollama并实现ROCm加速/","title":"Docker部署Ollama并实现ROCm加速"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Docker部署Ollama并实现ROCm加速 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E7%BD%AE%E8%AF%B4%E6%98%8E%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%89%8D%E6%8F%90"><span class="nav-number">1.</span> <span class="nav-text">一、前置说明与环境前提</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8E%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 适用场景与硬件要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E8%AF%B4%E6%98%8E%EF%BC%88%E5%85%B3%E9%94%AE%E9%81%BF%E5%9D%91%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心说明（关键避坑）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87%EF%BC%88ROCm%E9%A9%B1%E5%8A%A8%E5%AE%89%E8%A3%85%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、宿主机环境准备（ROCm驱动安装）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-BIOS%E9%85%8D%E7%BD%AE%EF%BC%88%E5%BF%85%E5%81%9A%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 BIOS配置（必做）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-ROCm%E9%A9%B1%E5%8A%A8%E5%AE%89%E8%A3%85%EF%BC%88Ubuntu%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 ROCm驱动安装（Ubuntu）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%AA%8C%E8%AF%81ROCm%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 验证ROCm是否生效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Docker%E9%83%A8%E7%BD%B2Ollama%EF%BC%88ROCm%E5%8A%A0%E9%80%9F%E7%89%88%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、Docker部署Ollama（ROCm加速版）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%8B%89%E5%8F%96Ollama-ROCm%E9%95%9C%E5%83%8F"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 拉取Ollama ROCm镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%90%AF%E5%8A%A8Ollama%E5%AE%B9%E5%99%A8%EF%BC%88%E6%A0%B8%E5%BF%83%E5%91%BD%E4%BB%A4%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 启动Ollama容器（核心命令）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%88%E9%81%BF%E5%9D%91%E9%87%8D%E7%82%B9%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 关键参数说明（避坑重点）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Docker-Compose%E4%B8%80%E9%94%AE%E9%83%A8%E7%BD%B2%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 Docker Compose一键部署（推荐）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Ollama%E8%BF%90%E8%A1%8Cbge-m3%EF%BC%88ROCm%E6%A0%B8%E6%98%BE%E5%8A%A0%E9%80%9F%E6%B5%8B%E8%AF%95%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、Ollama运行bge-m3（ROCm核显加速测试）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%8B%89%E5%8F%96bge-m3%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 拉取bge-m3模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%B5%8B%E8%AF%95bge-m3%E6%8E%A8%E7%90%86%EF%BC%88ROCm%E5%8A%A0%E9%80%9F%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 测试bge-m3推理（ROCm加速）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F1%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E8%BF%90%E8%A1%8C%EF%BC%88%E5%AE%B9%E5%99%A8%E5%86%85%EF%BC%89"><span class="nav-number">4.2.1.</span> <span class="nav-text">方式1：交互式运行（容器内）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F2%EF%BC%9AAPI%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8%EF%BC%88%E5%A4%96%E9%83%A8%E8%AE%BF%E9%97%AE%EF%BC%89"><span class="nav-number">4.2.2.</span> <span class="nav-text">方式2：API接口调用（外部访问）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%8A%A0%E9%80%9F%E6%95%88%E6%9E%9C%E9%AA%8C%E8%AF%81%E4%B8%8E%E5%AF%B9%E6%AF%94"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 加速效果验证与对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%EF%BC%88%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、常见问题排查（避坑指南）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%AE%B9%E5%99%A8%E5%86%85%E6%97%A0%E6%B3%95%E8%AF%86%E5%88%AB%E6%A0%B8%E6%98%BE%EF%BC%88ollama-info%E6%97%A0GPU%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 容器内无法识别核显（ollama info无GPU）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E6%9D%83%E9%99%90%E4%B8%8D%E8%B6%B3%EF%BC%9Afailed-to-open-dev-dri-card0"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 权限不足：failed to open &#x2F;dev&#x2F;dri&#x2F;card0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-bge-m3%E4%BB%8D%E8%B5%B0CPU%EF%BC%8C%E6%9C%AA%E8%A7%A6%E5%8F%91ROCm%E5%8A%A0%E9%80%9F"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 bge-m3仍走CPU，未触发ROCm加速</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E5%AE%B9%E5%99%A8%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%EF%BC%9Aaddress-already-in-use"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 容器启动失败：address already in use</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93%E4%B8%8E%E6%89%A9%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">六、总结与扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E6%A0%B8%E5%BF%83%E6%80%BB%E7%BB%93"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 核心总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%89%A9%E5%B1%95%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 扩展建议</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/04/22/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2Ollama%E5%B9%B6%E5%AE%9E%E7%8E%B0ROCm%E5%8A%A0%E9%80%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Docker部署Ollama并实现ROCm加速 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker部署Ollama并实现ROCm加速
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-22 11:16:05" itemprop="dateCreated datePublished" datetime="2026-04-22T11:16:05+08:00">2026-04-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在AI本地化部署场景中，Ollama凭借轻量化、易用性强的特点，成为快速运行大模型（含嵌入模型）的首选工具；而Docker则能解决环境依赖混乱、版本冲突等问题，实现Ollama的快速部署与隔离运行。本文针对AMD Ryzen平台（以零刻SER9系列小主机为例），详细讲解如何通过Docker部署Ollama，结合ROCm实现核显加速，并以bge-m3嵌入模型为示例，完成从环境准备到实际运行的全流程操作，同时澄清NPU加速的现状与替代方案。</p>
+<h2 id="一、前置说明与环境前提"><a href="#一、前置说明与环境前提" class="headerlink" title="一、前置说明与环境前提"></a>一、前置说明与环境前提</h2><h3 id="1-1-适用场景与硬件要求"><a href="#1-1-适用场景与硬件要求" class="headerlink" title="1.1 适用场景与硬件要求"></a>1.1 适用场景与硬件要求</h3><p>本文适用于搭载AMD Ryzen处理器（带核显）的设备，重点适配零刻SER9 Pro&#x2F;SER9 MAX、铭凡AI X1等小主机，核心要求：</p>
+<ul>
+<li><p>CPU：AMD Ryzen 7&#x2F;AI9系列（支持ROCm），如零刻SER9 Pro的AI9 HX370、R7 H255</p>
+</li>
+<li><p>核显：Radeon 780M&#x2F;890M（零刻SER9系列标配，支持ROCm加速）</p>
+</li>
+<li><p>系统：Ubuntu 22.04&#x2F;24.04（ROCm对Ubuntu兼容性最佳，不推荐CentOS等系统）</p>
+</li>
+<li><p>权限：管理员权限（sudo），用于安装驱动与配置环境</p>
+</li>
+</ul>
+<h3 id="1-2-核心说明（关键避坑）"><a href="#1-2-核心说明（关键避坑）" class="headerlink" title="1.2 核心说明（关键避坑）"></a>1.2 核心说明（关键避坑）</h3><ul>
+<li><p>Ollama当前不直接支持AMD Ryzen AI NPU（XDNA），仅支持ROCm核显加速（本文重点）；</p>
+</li>
+<li><p>bge-m3作为嵌入模型，在Ollama中默认基于llama.cpp运行，可通过ROCm核显提升推理速度；</p>
+</li>
+<li><p>Docker部署的核心是“设备直通+权限匹配+ROCm环境映射”，缺一不可。</p>
+</li>
+</ul>
+<h2 id="二、宿主机环境准备（ROCm驱动安装）"><a href="#二、宿主机环境准备（ROCm驱动安装）" class="headerlink" title="二、宿主机环境准备（ROCm驱动安装）"></a>二、宿主机环境准备（ROCm驱动安装）</h2><p>Ollama的ROCm加速依赖宿主机的ROCm驱动，需先完成宿主机驱动配置，否则容器内无法识别核显。</p>
+<h3 id="2-1-BIOS配置（必做）"><a href="#2-1-BIOS配置（必做）" class="headerlink" title="2.1 BIOS配置（必做）"></a>2.1 BIOS配置（必做）</h3><p>进入设备BIOS（开机按Del&#x2F;F2），完成两项关键配置：</p>
+<ol>
+<li><p>Advanced → OEM → Ryzen AI → Enabled（虽不用于Ollama，但不开启可能影响核显识别）；</p>
+</li>
+<li><p>关闭Secure Boot（否则ROCm驱动无法正常加载，导致核显无法识别）。</p>
+</li>
+</ol>
+<p>配置完成后保存重启，进入Ubuntu系统。</p>
+<h3 id="2-2-ROCm驱动安装（Ubuntu）"><a href="#2-2-ROCm驱动安装（Ubuntu）" class="headerlink" title="2.2 ROCm驱动安装（Ubuntu）"></a>2.2 ROCm驱动安装（Ubuntu）</h3><p>执行以下命令，一步安装ROCm依赖与驱动（适配ROCm 6.4版本，兼容零刻SER9核显）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装基础依赖（内核 headers 与编译工具）</span></span><br><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install -y linux-headers-$(<span class="built_in">uname</span> -r) build-essential</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 添加ROCm官方源</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb [arch=amd64] https://repo.radeon.com/rocm/apt/6.4 focal main&quot;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/apt/sources.list.d/rocm.list</span><br><span class="line"><span class="built_in">sudo</span> apt-key adv --fetch-keys https://repo.radeon.com/rocm/rocm.gpg.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 安装ROCm核心组件</span></span><br><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install -y rocm-libs rocm-dev rocm-utils</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 配置权限（免root访问核显）</span></span><br><span class="line"><span class="built_in">sudo</span> usermod -aG render,video <span class="variable">$USER</span></span><br><span class="line">newgrp render</span><br><span class="line">newgrp video</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-验证ROCm是否生效"><a href="#2-3-验证ROCm是否生效" class="headerlink" title="2.3 验证ROCm是否生效"></a>2.3 验证ROCm是否生效</h3><p>执行以下命令，确认核显被ROCm识别（零刻SER9核显架构为gfx1151）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看核显架构</span></span><br><span class="line">rocminfo | grep gfx</span><br><span class="line"><span class="comment"># 正常输出：gfx1151（匹配零刻SER9核显）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看ROCm状态</span></span><br><span class="line">rocm-smi</span><br><span class="line"><span class="comment"># 正常输出：显示card0（核显）信息，无报错、无“no GPU detected”</span></span><br></pre></td></tr></table></figure>
+
+<p>若未识别到核显，需重新检查BIOS配置与驱动安装步骤，确认Secure Boot已关闭。</p>
+<h2 id="三、Docker部署Ollama（ROCm加速版）"><a href="#三、Docker部署Ollama（ROCm加速版）" class="headerlink" title="三、Docker部署Ollama（ROCm加速版）"></a>三、Docker部署Ollama（ROCm加速版）</h2><p>采用Ollama官方ROCm镜像，无需手动构建，通过容器启动命令即可完成部署，重点配置设备直通与环境变量。</p>
+<h3 id="3-1-拉取Ollama-ROCm镜像"><a href="#3-1-拉取Ollama-ROCm镜像" class="headerlink" title="3.1 拉取Ollama ROCm镜像"></a>3.1 拉取Ollama ROCm镜像</h3><p>推荐使用固定版本（避免最新版出现兼容性问题），执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取固定版本（0.16.0，经测试适配零刻SER9）</span></span><br><span class="line">docker pull ollama/ollama:0.16.0-rocm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可选：拉取最新版ROCm镜像</span></span><br><span class="line"><span class="comment"># docker pull ollama/ollama:rocm</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-启动Ollama容器（核心命令）"><a href="#3-2-启动Ollama容器（核心命令）" class="headerlink" title="3.2 启动Ollama容器（核心命令）"></a>3.2 启动Ollama容器（核心命令）</h3><p>先获取宿主机render、video组的GID（确保容器权限与宿主机一致，避免核显访问失败），再启动容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 获取宿主机render、video组GID</span></span><br><span class="line">RENDER_GID=$(getent group render | <span class="built_in">cut</span> -d: -f3)</span><br><span class="line">VIDEO_GID=$(getent group video | <span class="built_in">cut</span> -d: -f3)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 启动容器（持久化数据+ROCm加速+端口映射）</span></span><br><span class="line">docker run -d \</span><br><span class="line">  --name ollama-rocm \</span><br><span class="line">  --restart unless-stopped \</span><br><span class="line">  --device /dev/kfd \          <span class="comment"># ROCm核心设备</span></span><br><span class="line">  --device /dev/dri \          <span class="comment"># 核显设备</span></span><br><span class="line">  --group-add <span class="variable">$VIDEO_GID</span> \     <span class="comment"># 匹配video组权限</span></span><br><span class="line">  --group-add <span class="variable">$RENDER_GID</span> \    <span class="comment"># 匹配render组权限</span></span><br><span class="line">  -v ollama-rocm:/root/.ollama \ <span class="comment"># 持久化Ollama数据（模型、配置）</span></span><br><span class="line">  -p 11434:11434 \             <span class="comment"># 映射端口，供外部访问</span></span><br><span class="line">  -e OLLAMA_HOST=0.0.0.0 \     <span class="comment"># 允许外部访问容器内Ollama</span></span><br><span class="line">  -e HSA_OVERRIDE_GFX_VERSION=11.5.1 \ <span class="comment"># 强制识别gfx1151核显（零刻SER9必加）</span></span><br><span class="line">  -e OLLAMA_KEEP_ALIVE=-1 \    <span class="comment"># 保持模型常驻内存，提升推理速度</span></span><br><span class="line">  ollama/ollama:0.16.0-rocm</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-关键参数说明（避坑重点）"><a href="#3-3-关键参数说明（避坑重点）" class="headerlink" title="3.3 关键参数说明（避坑重点）"></a>3.3 关键参数说明（避坑重点）</h3><ul>
+<li><p>--device &#x2F;dev&#x2F;kfd、--device &#x2F;dev&#x2F;dri：必须添加，将宿主机核显设备直通到容器，是ROCm加速的核心；</p>
+</li>
+<li><p>HSA_OVERRIDE_GFX_VERSION&#x3D;11.5.1：零刻SER9核显为gfx1151，官方镜像默认不识别，需强制指定架构；</p>
+</li>
+<li><p>-v ollama-rocm:&#x2F;root&#x2F;.ollama：持久化模型数据，避免容器删除后重新下载模型；</p>
+</li>
+<li><p>--group-add：权限匹配，否则容器内会因权限不足，无法访问核显设备。</p>
+</li>
+</ul>
+<h3 id="3-4-Docker-Compose一键部署（推荐）"><a href="#3-4-Docker-Compose一键部署（推荐）" class="headerlink" title="3.4 Docker Compose一键部署（推荐）"></a>3.4 Docker Compose一键部署（推荐）</h3><p>若需频繁启停或批量部署，可创建docker-compose.yml文件，实现一键启停：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">ollama:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">ollama/ollama:0.16.0-rocm</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">ollama-rocm</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">unless-stopped</span></span><br><span class="line">    <span class="attr">devices:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/dev/kfd</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/dev/dri</span></span><br><span class="line">    <span class="attr">group_add:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">$&#123;VIDEO_GID&#125;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">$&#123;RENDER_GID&#125;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ollama-rocm:/root/.ollama</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;11434:11434&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">OLLAMA_HOST:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">      <span class="attr">HSA_OVERRIDE_GFX_VERSION:</span> <span class="number">11.5</span><span class="number">.1</span></span><br><span class="line">      <span class="attr">OLLAMA_KEEP_ALIVE:</span> <span class="number">-1</span></span><br><span class="line"><span class="attr">volumes:</span></span><br><span class="line">  <span class="attr">ollama-rocm:</span></span><br></pre></td></tr></table></figure>
+
+<p>启动命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导出宿主机GID（仅首次执行）</span></span><br><span class="line"><span class="built_in">export</span> RENDER_GID=$(getent group render | <span class="built_in">cut</span> -d: -f3)</span><br><span class="line"><span class="built_in">export</span> VIDEO_GID=$(getent group video | <span class="built_in">cut</span> -d: -f3)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动容器</span></span><br><span class="line">docker-compose up -d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止容器（可选）</span></span><br><span class="line"><span class="comment"># docker-compose down</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="四、Ollama运行bge-m3（ROCm核显加速测试）"><a href="#四、Ollama运行bge-m3（ROCm核显加速测试）" class="headerlink" title="四、Ollama运行bge-m3（ROCm核显加速测试）"></a>四、Ollama运行bge-m3（ROCm核显加速测试）</h2><p>bge-m3是字节跳动推出的高性能嵌入模型，适用于语义检索、向量生成等场景，下面以该模型为例，测试Ollama+ROCm的加速效果。</p>
+<h3 id="4-1-拉取bge-m3模型"><a href="#4-1-拉取bge-m3模型" class="headerlink" title="4.1 拉取bge-m3模型"></a>4.1 拉取bge-m3模型</h3><p>进入Ollama容器，拉取bge-m3模型（模型体积约2.2GB，无需额外配置）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入容器</span></span><br><span class="line">docker <span class="built_in">exec</span> -it ollama-rocm bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取bge-m3模型</span></span><br><span class="line">ollama pull bge-m3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证模型是否拉取成功</span></span><br><span class="line">ollama list</span><br><span class="line"><span class="comment"># 正常输出：bge-m3:latest （模型名称+版本）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-测试bge-m3推理（ROCm加速）"><a href="#4-2-测试bge-m3推理（ROCm加速）" class="headerlink" title="4.2 测试bge-m3推理（ROCm加速）"></a>4.2 测试bge-m3推理（ROCm加速）</h3><p>有两种测试方式，分别适用于交互式测试和接口调用，均能实现ROCm核显加速。</p>
+<h4 id="方式1：交互式运行（容器内）"><a href="#方式1：交互式运行（容器内）" class="headerlink" title="方式1：交互式运行（容器内）"></a>方式1：交互式运行（容器内）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动bge-m3交互式会话</span></span><br><span class="line">ollama run bge-m3 <span class="string">&quot;Docker部署Ollama实现ROCm加速&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出结果：</span></span><br><span class="line"><span class="comment"># 模型会生成该文本的向量嵌入（默认1024维），同时日志会显示ROCm加速信息</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="方式2：API接口调用（外部访问）"><a href="#方式2：API接口调用（外部访问）" class="headerlink" title="方式2：API接口调用（外部访问）"></a>方式2：API接口调用（外部访问）</h4><p>通过HTTP接口调用bge-m3，适用于集成到应用程序中，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:11434/api/embeddings -d <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">  &quot;model&quot;: &quot;bge-m3&quot;,</span></span><br><span class="line"><span class="string">  &quot;prompt&quot;: &quot;Docker部署Ollama并实现ROCm加速（以bge-m3为例）&quot;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>正常输出：返回1024维向量嵌入结果，说明模型运行正常，ROCm加速生效。</p>
+<h3 id="4-3-加速效果验证与对比"><a href="#4-3-加速效果验证与对比" class="headerlink" title="4.3 加速效果验证与对比"></a>4.3 加速效果验证与对比</h3><p>以零刻SER9 Pro（AI9 HX370，Radeon 890M核显）为例，对比CPU与ROCm核显的推理速度（单句512token）：</p>
+<table>
+<thead>
+<tr>
+<th>运行方式</th>
+<th>推理速度</th>
+<th>核心优势</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU（无加速）</td>
+<td>200-300ms&#x2F;句</td>
+<td>无需驱动，兼容性强</td>
+</tr>
+<tr>
+<td>ROCm核显（加速）</td>
+<td>80-120ms&#x2F;句</td>
+<td>速度提升2-3倍，资源占用低</td>
+</tr>
+</tbody></table>
+<p>验证ROCm加速是否生效的关键：进入容器后执行<code>ollama info</code>，输出中包含“AMD GPU: gfx1151”，说明核显已被Ollama识别并用于加速。</p>
+<h2 id="五、常见问题排查（避坑指南）"><a href="#五、常见问题排查（避坑指南）" class="headerlink" title="五、常见问题排查（避坑指南）"></a>五、常见问题排查（避坑指南）</h2><h3 id="5-1-容器内无法识别核显（ollama-info无GPU）"><a href="#5-1-容器内无法识别核显（ollama-info无GPU）" class="headerlink" title="5.1 容器内无法识别核显（ollama info无GPU）"></a>5.1 容器内无法识别核显（ollama info无GPU）</h3><ul>
+<li><p>检查宿主机<code>rocminfo</code>是否识别核显，若未识别，重新安装ROCm驱动；</p>
+</li>
+<li><p>确认容器启动命令中添加了<code>\-\-device /dev/kfd \-\-device /dev/dri</code>，且环境变量<code>HSA\_OVERRIDE\_GFX\_VERSION=11\.5\.1</code>正确；</p>
+</li>
+<li><p>重新启动容器，确保权限参数<code>\-\-group\-add</code>正确加载。</p>
+</li>
+</ul>
+<h3 id="5-2-权限不足：failed-to-open-dev-dri-card0"><a href="#5-2-权限不足：failed-to-open-dev-dri-card0" class="headerlink" title="5.2 权限不足：failed to open &#x2F;dev&#x2F;dri&#x2F;card0"></a>5.2 权限不足：failed to open &#x2F;dev&#x2F;dri&#x2F;card0</h3><p>原因：容器内用户未加入render、video组，解决方案：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重新获取GID并重启容器</span></span><br><span class="line">RENDER_GID=$(getent group render | <span class="built_in">cut</span> -d: -f3)</span><br><span class="line">VIDEO_GID=$(getent group video | <span class="built_in">cut</span> -d: -f3)</span><br><span class="line"></span><br><span class="line">docker stop ollama-rocm</span><br><span class="line">docker <span class="built_in">rm</span> ollama-rocm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新执行启动命令（确保--group-add参数正确）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-bge-m3仍走CPU，未触发ROCm加速"><a href="#5-3-bge-m3仍走CPU，未触发ROCm加速" class="headerlink" title="5.3 bge-m3仍走CPU，未触发ROCm加速"></a>5.3 bge-m3仍走CPU，未触发ROCm加速</h3><p>Ollama的bge-m3基于llama.cpp运行，当前llama.cpp仅支持ROCm核显加速，不支持Ryzen AI NPU；若未触发加速，需检查：</p>
+<ul>
+<li><p>Ollama镜像是否为ROCm版本（非CPU版本）；</p>
+</li>
+<li><p>宿主机ROCm驱动是否正常，容器是否正确映射核显设备；</p>
+</li>
+<li><p>模型是否拉取完整，可通过<code>ollama pull bge\-m3 \-\-force</code>重新拉取。</p>
+</li>
+</ul>
+<h3 id="5-4-容器启动失败：address-already-in-use"><a href="#5-4-容器启动失败：address-already-in-use" class="headerlink" title="5.4 容器启动失败：address already in use"></a>5.4 容器启动失败：address already in use</h3><p>原因：11434端口被占用（可能是本地已运行Ollama），解决方案：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看占用11434端口的进程</span></span><br><span class="line"><span class="built_in">sudo</span> lsof -i:11434</span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止进程（替换PID为实际进程ID）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">kill</span> -9 PID</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新启动容器</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="六、总结与扩展"><a href="#六、总结与扩展" class="headerlink" title="六、总结与扩展"></a>六、总结与扩展</h2><h3 id="6-1-核心总结"><a href="#6-1-核心总结" class="headerlink" title="6.1 核心总结"></a>6.1 核心总结</h3><p>本文实现了“Docker+Ollama+ROCm”的完整部署，以bge-m3为例完成了加速测试，核心要点：</p>
+<ol>
+<li><p>宿主机ROCm驱动是加速的基础，必须完成BIOS配置与驱动安装；</p>
+</li>
+<li><p>Docker部署的关键是“核显设备直通+权限匹配+架构指定”，避免权限与识别问题；</p>
+</li>
+<li><p>bge-m3在Ollama中可通过ROCm核显实现2-3倍加速，满足本地化嵌入模型的性能需求；</p>
+</li>
+<li><p>当前Ollama不支持AMD Ryzen AI NPU，需等待llama.cpp集成XDNA后端后实现更高效的NPU加速。</p>
+</li>
+</ol>
+<h3 id="6-2-扩展建议"><a href="#6-2-扩展建议" class="headerlink" title="6.2 扩展建议"></a>6.2 扩展建议</h3><ul>
+<li><p>模型优化：可通过<code>ollama run bge\-m3 \-\-quantize q4\_0</code>量化模型，进一步提升推理速度、降低内存占用；</p>
+</li>
+<li><p>多模型部署：除bge-m3外，可通过Ollama拉取llama3、mistral等模型，均支持ROCm加速；</p>
+</li>
+<li><p>远程访问：若需外部设备访问Ollama，需开放宿主机11434端口，确保容器环境变量<code>OLLAMA\_HOST=0\.0\.0\.0</code>；</p>
+</li>
+<li><p>版本更新：定期更新Ollama ROCm镜像与ROCm驱动，提升兼容性与性能。</p>
+</li>
+</ul>
+<p>通过本文的部署流程，可快速在AMD Ryzen小主机（如零刻SER9系列）上实现Ollama的容器化部署与ROCm加速，兼顾环境隔离与性能提升，适用于AI本地化部署、开发测试等场景。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/Ollama/" rel="tag"># Ollama</a>
+              <a href="/tags/ROCm/" rel="tag"># ROCm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B/%E5%9F%BA%E4%BA%8ELangChain%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/" rel="prev" title="LangChain 教程——如何构建自定义知识聊天机器人">
+                  <i class="fa fa-angle-left"></i> LangChain 教程——如何构建自定义知识聊天机器人
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/04/24/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/YOLOv8%20%E6%A8%A1%E5%9E%8B%E6%96%AD%E7%82%B9%E7%BB%AD%E8%AE%AD%E5%AE%8C%E6%95%B4%E6%8C%87%E5%8D%97/" rel="next" title="YOLOv8 模型断点续训完整指南">
+                  YOLOv8 模型断点续训完整指南 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

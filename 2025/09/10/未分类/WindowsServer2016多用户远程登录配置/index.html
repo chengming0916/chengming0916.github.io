@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="概述Windows Server 2016默认情况下只允许一个用户通过远程桌面连接登录。通过配置远程桌面服务，可以实现多用户同时远程登录服务器，提高团队协作效率，避免用户争抢登录权限。 一、安装远程桌面服务1.1 安装步骤 打开服务器管理器 点击添加角色和功能 在”服务器角色”页面，勾选远程桌面服务 继续选择远程桌面会话主机和远程桌面授权 完成安装向导，重启服务器  二、配置组策略设置2.1 打开">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WindowsServer2016多用户远程登录配置">
+<meta property="og:url" content="http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="概述Windows Server 2016默认情况下只允许一个用户通过远程桌面连接登录。通过配置远程桌面服务，可以实现多用户同时远程登录服务器，提高团队协作效率，避免用户争抢登录权限。 一、安装远程桌面服务1.1 安装步骤 打开服务器管理器 点击添加角色和功能 在”服务器角色”页面，勾选远程桌面服务 继续选择远程桌面会话主机和远程桌面授权 完成安装向导，重启服务器  二、配置组策略设置2.1 打开">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/IMG-20260417144637988.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/IMG-20260417144638015.png">
+<meta property="article:published_time" content="2025-09-10T00:43:46.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.492Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/IMG-20260417144637988.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/","path":"2025/09/10/未分类/WindowsServer2016多用户远程登录配置/","title":"WindowsServer2016多用户远程登录配置"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>WindowsServer2016多用户远程登录配置 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.</span> <span class="nav-text">一、安装远程桌面服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 安装步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE%E7%BB%84%E7%AD%96%E7%95%A5%E8%AE%BE%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">二、配置组策略设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%89%93%E5%BC%80%E7%BB%84%E7%AD%96%E7%95%A5%E7%BC%96%E8%BE%91%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 打开组策略编辑器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%85%8D%E7%BD%AE%E8%BF%9E%E6%8E%A5%E9%99%90%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 配置连接限制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2%E6%8E%88%E6%9D%83%EF%BC%88%E7%A0%B4%E8%A7%A3120%E5%A4%A9%E9%99%90%E5%88%B6%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">三、配置远程桌面授权（破解120天限制）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%BF%80%E6%B4%BB%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 激活远程桌面授权服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%AE%89%E8%A3%85%E8%AE%B8%E5%8F%AF%E8%AF%81"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 安装许可证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%85%8D%E7%BD%AE%E6%8E%88%E6%9D%83%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 配置授权模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%85%B6%E4%BB%96%E9%87%8D%E8%A6%81%E9%85%8D%E7%BD%AE"><span class="nav-number">5.</span> <span class="nav-text">四、其他重要配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90%E9%85%8D%E7%BD%AE"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 用户权限配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E9%98%B2%E7%81%AB%E5%A2%99%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 防火墙配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 性能优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%AA%8C%E8%AF%81%E9%85%8D%E7%BD%AE"><span class="nav-number">6.</span> <span class="nav-text">五、验证配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%B5%8B%E8%AF%95%E5%A4%9A%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 测试多用户登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E6%A3%80%E6%9F%A5%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 检查连接状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E7%9B%91%E6%8E%A7%E6%80%A7%E8%83%BD"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 监控性能</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4"><span class="nav-number">7.</span> <span class="nav-text">六、故障排除</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 常见问题及解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%981%EF%BC%9A%E7%94%A8%E6%88%B7%E6%97%A0%E6%B3%95%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95"><span class="nav-number">7.1.1.</span> <span class="nav-text">问题1：用户无法远程登录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%982%EF%BC%9A%E8%BF%9E%E6%8E%A5%E6%95%B0%E9%87%8F%E8%BE%BE%E5%88%B0%E4%B8%8A%E9%99%90"><span class="nav-number">7.1.2.</span> <span class="nav-text">问题2：连接数量达到上限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%983%EF%BC%9A120%E5%A4%A9%E8%AF%95%E7%94%A8%E6%9C%9F%E8%AD%A6%E5%91%8A"><span class="nav-number">7.1.3.</span> <span class="nav-text">问题3：120天试用期警告</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E8%AF%8A%E6%96%AD%E5%91%BD%E4%BB%A4"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 诊断命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">8.</span> <span class="nav-text">七、安全建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="nav-number">8.1.</span> <span class="nav-text">7.1 访问控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8"><span class="nav-number">8.2.</span> <span class="nav-text">7.2 网络安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E7%9B%91%E6%8E%A7%E4%B8%8E%E5%AE%A1%E8%AE%A1"><span class="nav-number">8.3.</span> <span class="nav-text">7.3 监控与审计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">9.</span> <span class="nav-text">八、最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E5%AE%B9%E9%87%8F%E8%A7%84%E5%88%92"><span class="nav-number">9.1.</span> <span class="nav-text">8.1 容量规划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E7%BB%B4%E6%8A%A4%E8%AE%A1%E5%88%92"><span class="nav-number">9.2.</span> <span class="nav-text">8.2 维护计划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86"><span class="nav-number">9.3.</span> <span class="nav-text">8.3 用户管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="WindowsServer2016多用户远程登录配置 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          WindowsServer2016多用户远程登录配置
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-10 08:43:46" itemprop="dateCreated datePublished" datetime="2025-09-10T08:43:46+08:00">2025-09-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Windows Server 2016默认情况下只允许一个用户通过远程桌面连接登录。通过配置远程桌面服务，可以实现多用户同时远程登录服务器，提高团队协作效率，避免用户争抢登录权限。</p>
+<h2 id="一、安装远程桌面服务"><a href="#一、安装远程桌面服务" class="headerlink" title="一、安装远程桌面服务"></a>一、安装远程桌面服务</h2><h3 id="1-1-安装步骤"><a href="#1-1-安装步骤" class="headerlink" title="1.1 安装步骤"></a>1.1 安装步骤</h3><ol>
+<li>打开<strong>服务器管理器</strong></li>
+<li>点击<strong>添加角色和功能</strong></li>
+<li>在”服务器角色”页面，勾选<strong>远程桌面服务</strong></li>
+<li>继续选择<strong>远程桌面会话主机</strong>和<strong>远程桌面授权</strong></li>
+<li>完成安装向导，重启服务器<br><img src="/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/IMG-20260417144637988.png"></li>
+</ol>
+<h2 id="二、配置组策略设置"><a href="#二、配置组策略设置" class="headerlink" title="二、配置组策略设置"></a>二、配置组策略设置</h2><h3 id="2-1-打开组策略编辑器"><a href="#2-1-打开组策略编辑器" class="headerlink" title="2.1 打开组策略编辑器"></a>2.1 打开组策略编辑器</h3><ol>
+<li>按 <code>Win + R</code> 打开运行对话框</li>
+<li>输入 <code>gpedit.msc</code> 并回车</li>
+</ol>
+<h3 id="2-2-配置连接限制"><a href="#2-2-配置连接限制" class="headerlink" title="2.2 配置连接限制"></a>2.2 配置连接限制</h3><ol>
+<li>导航到：<strong>计算机配置</strong> → <strong>管理模板</strong> → <strong>Windows组件</strong> → <strong>远程桌面服务</strong></li>
+<li>双击打开 <strong>远程桌面会话主机</strong> → <strong>连接</strong></li>
+<li>找到并双击 <strong>限制连接的数量</strong></li>
+<li>选择 <strong>已启用</strong></li>
+<li>设置 <strong>允许的RD最大连接数</strong>（建议根据服务器性能设置，如10-20个）</li>
+<li>点击 <strong>确定</strong> 保存设置<br><img src="/2025/09/10/%E6%9C%AA%E5%88%86%E7%B1%BB/WindowsServer2016%E5%A4%9A%E7%94%A8%E6%88%B7%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE/IMG-20260417144638015.png"></li>
+</ol>
+<h2 id="三、配置远程桌面授权（破解120天限制）"><a href="#三、配置远程桌面授权（破解120天限制）" class="headerlink" title="三、配置远程桌面授权（破解120天限制）"></a>三、配置远程桌面授权（破解120天限制）</h2><h3 id="3-1-激活远程桌面授权服务器"><a href="#3-1-激活远程桌面授权服务器" class="headerlink" title="3.1 激活远程桌面授权服务器"></a>3.1 激活远程桌面授权服务器</h3><ol>
+<li>打开 <strong>服务器管理器</strong> → <strong>工具</strong> → <strong>远程桌面服务</strong> → <strong>远程桌面授权管理器</strong></li>
+<li>右键点击服务器名称，选择 <strong>激活服务器</strong></li>
+<li>按照向导完成激活过程</li>
+</ol>
+<h3 id="3-2-安装许可证"><a href="#3-2-安装许可证" class="headerlink" title="3.2 安装许可证"></a>3.2 安装许可证</h3><ol>
+<li>在远程桌面授权管理器中，右键点击服务器</li>
+<li>选择 <strong>安装许可证</strong></li>
+<li>按照向导选择合适的许可证类型</li>
+</ol>
+<h3 id="3-3-配置授权模式"><a href="#3-3-配置授权模式" class="headerlink" title="3.3 配置授权模式"></a>3.3 配置授权模式</h3><ol>
+<li>打开组策略编辑器</li>
+<li>导航到：<strong>计算机配置</strong> → <strong>管理模板</strong> → <strong>Windows组件</strong> → <strong>远程桌面服务</strong> → <strong>远程桌面会话主机</strong> → <strong>授权</strong></li>
+<li>配置以下设置：<ul>
+<li><strong>设置远程桌面授权模式</strong>：选择 <strong>按用户</strong> 或 <strong>按设备</strong></li>
+<li><strong>指定远程桌面授权服务器</strong>：输入许可证服务器的地址</li>
+</ul>
+</li>
+</ol>
+<h2 id="四、其他重要配置"><a href="#四、其他重要配置" class="headerlink" title="四、其他重要配置"></a>四、其他重要配置</h2><h3 id="4-1-用户权限配置"><a href="#4-1-用户权限配置" class="headerlink" title="4.1 用户权限配置"></a>4.1 用户权限配置</h3><ol>
+<li>打开 <strong>服务器管理器</strong> → <strong>工具</strong> → <strong>计算机管理</strong></li>
+<li>导航到：<strong>系统工具</strong> → <strong>本地用户和组</strong> → <strong>组</strong></li>
+<li>双击 <strong>Remote Desktop Users</strong> 组</li>
+<li>添加需要远程登录的用户或用户组</li>
+</ol>
+<h3 id="4-2-防火墙配置"><a href="#4-2-防火墙配置" class="headerlink" title="4.2 防火墙配置"></a>4.2 防火墙配置</h3><p>确保防火墙允许远程桌面连接：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 允许远程桌面连接</span></span><br><span class="line">netsh advfirewall firewall add rule name=<span class="string">&quot;Remote Desktop&quot;</span> <span class="built_in">dir</span>=<span class="keyword">in</span> action=allow protocol=TCP localport=<span class="number">3389</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-性能优化"><a href="#4-3-性能优化" class="headerlink" title="4.3 性能优化"></a>4.3 性能优化</h3><ol>
+<li>打开 <strong>系统属性</strong> → <strong>高级</strong> → <strong>性能设置</strong></li>
+<li>选择 <strong>调整为最佳性能</strong> 或根据需求自定义</li>
+<li>在远程桌面会话主机配置中，可以调整：<ul>
+<li>会话超时设置</li>
+<li>重定向设置</li>
+<li>客户端体验设置</li>
+</ul>
+</li>
+</ol>
+<h2 id="五、验证配置"><a href="#五、验证配置" class="headerlink" title="五、验证配置"></a>五、验证配置</h2><h3 id="5-1-测试多用户登录"><a href="#5-1-测试多用户登录" class="headerlink" title="5.1 测试多用户登录"></a>5.1 测试多用户登录</h3><ol>
+<li>从不同的客户端计算机同时使用远程桌面连接</li>
+<li>使用不同的用户账户登录</li>
+<li>验证所有用户都能成功连接</li>
+</ol>
+<h3 id="5-2-检查连接状态"><a href="#5-2-检查连接状态" class="headerlink" title="5.2 检查连接状态"></a>5.2 检查连接状态</h3><ol>
+<li>在服务器上打开 <strong>任务管理器</strong></li>
+<li>切换到 <strong>用户</strong> 选项卡</li>
+<li>查看当前登录的用户数量</li>
+</ol>
+<h3 id="5-3-监控性能"><a href="#5-3-监控性能" class="headerlink" title="5.3 监控性能"></a>5.3 监控性能</h3><ol>
+<li>使用 <strong>性能监视器</strong> 监控服务器资源使用情况</li>
+<li>关注CPU、内存和网络使用率</li>
+<li>根据监控结果调整连接数量限制</li>
+</ol>
+<h2 id="六、故障排除"><a href="#六、故障排除" class="headerlink" title="六、故障排除"></a>六、故障排除</h2><h3 id="6-1-常见问题及解决方案"><a href="#6-1-常见问题及解决方案" class="headerlink" title="6.1 常见问题及解决方案"></a>6.1 常见问题及解决方案</h3><h4 id="问题1：用户无法远程登录"><a href="#问题1：用户无法远程登录" class="headerlink" title="问题1：用户无法远程登录"></a>问题1：用户无法远程登录</h4><p><strong>解决方案</strong>：</p>
+<ul>
+<li>检查用户是否已添加到Remote Desktop Users组</li>
+<li>验证防火墙设置</li>
+<li>检查网络连通性</li>
+</ul>
+<h4 id="问题2：连接数量达到上限"><a href="#问题2：连接数量达到上限" class="headerlink" title="问题2：连接数量达到上限"></a>问题2：连接数量达到上限</h4><p><strong>解决方案</strong>：</p>
+<ul>
+<li>增加连接数量限制</li>
+<li>检查是否有闲置会话未断开</li>
+<li>配置会话超时设置</li>
+</ul>
+<h4 id="问题3：120天试用期警告"><a href="#问题3：120天试用期警告" class="headerlink" title="问题3：120天试用期警告"></a>问题3：120天试用期警告</h4><p><strong>解决方案</strong>：</p>
+<ul>
+<li>确保远程桌面授权已正确激活</li>
+<li>安装有效的许可证</li>
+<li>配置授权服务器设置</li>
+</ul>
+<h3 id="6-2-诊断命令"><a href="#6-2-诊断命令" class="headerlink" title="6.2 诊断命令"></a>6.2 诊断命令</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看远程桌面服务状态</span></span><br><span class="line"><span class="built_in">Get-Service</span> TermService</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前远程桌面会话</span></span><br><span class="line">qwinsta</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看远程桌面授权状态</span></span><br><span class="line">gpresult /<span class="built_in">h</span> report.html</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、安全建议"><a href="#七、安全建议" class="headerlink" title="七、安全建议"></a>七、安全建议</h2><h3 id="7-1-访问控制"><a href="#7-1-访问控制" class="headerlink" title="7.1 访问控制"></a>7.1 访问控制</h3><ol>
+<li>使用强密码策略</li>
+<li>启用账户锁定策略</li>
+<li>定期审计用户权限</li>
+</ol>
+<h3 id="7-2-网络安全"><a href="#7-2-网络安全" class="headerlink" title="7.2 网络安全"></a>7.2 网络安全</h3><ol>
+<li>更改默认的RDP端口（3389）</li>
+<li>使用VPN进行远程访问</li>
+<li>启用网络级别身份验证（NLA）</li>
+</ol>
+<h3 id="7-3-监控与审计"><a href="#7-3-监控与审计" class="headerlink" title="7.3 监控与审计"></a>7.3 监控与审计</h3><ol>
+<li>启用安全审计日志</li>
+<li>监控异常登录尝试</li>
+<li>定期检查系统日志</li>
+</ol>
+<h2 id="八、最佳实践"><a href="#八、最佳实践" class="headerlink" title="八、最佳实践"></a>八、最佳实践</h2><h3 id="8-1-容量规划"><a href="#8-1-容量规划" class="headerlink" title="8.1 容量规划"></a>8.1 容量规划</h3><ul>
+<li>根据服务器硬件配置合理设置最大连接数</li>
+<li>每个用户建议分配至少1GB内存</li>
+<li>监控性能指标，及时调整配置</li>
+</ul>
+<h3 id="8-2-维护计划"><a href="#8-2-维护计划" class="headerlink" title="8.2 维护计划"></a>8.2 维护计划</h3><ul>
+<li>定期更新操作系统和安全补丁</li>
+<li>备份重要配置和用户数据</li>
+<li>定期测试灾难恢复计划</li>
+</ul>
+<h3 id="8-3-用户管理"><a href="#8-3-用户管理" class="headerlink" title="8.3 用户管理"></a>8.3 用户管理</h3><ul>
+<li>建立清晰的用户权限管理制度</li>
+<li>定期清理不再需要的用户账户</li>
+<li>提供用户培训，确保正确使用远程桌面</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过以上配置，Windows Server 2016可以支持多用户同时远程登录，显著提高团队协作效率。关键配置步骤包括：</p>
+<ol>
+<li><strong>安装远程桌面服务</strong>：包括远程桌面会话主机和授权服务</li>
+<li><strong>配置组策略</strong>：设置最大连接数和其他相关参数</li>
+<li><strong>激活授权服务</strong>：破解120天试用期限制</li>
+<li><strong>优化性能和安全</strong>：根据实际需求调整配置</li>
+</ol>
+<p>建议在生产环境中部署前进行充分测试，确保配置满足业务需求和安全要求。定期维护和监控是保证系统稳定运行的重要保障。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/04/Linux/Ubuntu18.04%E5%AE%89%E8%A3%85ROS-Melodic/" rel="prev" title="Ubuntu18.04安装ROS-Melodic">
+                  <i class="fa fa-angle-left"></i> Ubuntu18.04安装ROS-Melodic
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/09/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Qt/%E8%A7%A3%E5%86%B3QDebug%E6%89%93%E5%8D%B0%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98/" rel="next" title="解决QDebug打印中文乱码问题">
+                  解决QDebug打印中文乱码问题 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

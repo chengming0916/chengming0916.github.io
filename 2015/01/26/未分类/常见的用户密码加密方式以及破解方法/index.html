@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、引言在互联网时代，信息安全事件频发，其中撞库扫号事件尤为常见。这些事件的根本原因在于企业信息泄露，且泄露数据未加密或加密方式较弱，导致黑客能够还原出原始用户密码。 据统计，已曝光的信息泄露事件超过百起，涉及多家一线互联网公司，泄露数据总量超过10亿条。完全防止信息泄露极为困难，但通过采用合适的密码加密算法，即使数据泄露，黑客也难以还原原始密码。本文将系统介绍常见的用户密码加密方式及其破解方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常见的用户密码加密方式以及破解方法">
+<meta property="og:url" content="http://chengming0916.github.io/2015/01/26/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%B8%B8%E8%A7%81%E7%9A%84%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F%E4%BB%A5%E5%8F%8A%E7%A0%B4%E8%A7%A3%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、引言在互联网时代，信息安全事件频发，其中撞库扫号事件尤为常见。这些事件的根本原因在于企业信息泄露，且泄露数据未加密或加密方式较弱，导致黑客能够还原出原始用户密码。 据统计，已曝光的信息泄露事件超过百起，涉及多家一线互联网公司，泄露数据总量超过10亿条。完全防止信息泄露极为困难，但通过采用合适的密码加密算法，即使数据泄露，黑客也难以还原原始密码。本文将系统介绍常见的用户密码加密方式及其破解方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-01-26T11:47:53.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.495Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="加密算法">
+<meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="密码安全">
+<meta property="article:tag" content="密码破解">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/01/26/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%B8%B8%E8%A7%81%E7%9A%84%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F%E4%BB%A5%E5%8F%8A%E7%A0%B4%E8%A7%A3%E6%96%B9%E6%B3%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/01/26/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%B8%B8%E8%A7%81%E7%9A%84%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F%E4%BB%A5%E5%8F%8A%E7%A0%B4%E8%A7%A3%E6%96%B9%E6%B3%95/","path":"2015/01/26/未分类/常见的用户密码加密方式以及破解方法/","title":"常见的用户密码加密方式以及破解方法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>常见的用户密码加密方式以及破解方法 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、用户密码加密方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%98%8E%E6%96%87%E4%BF%9D%E5%AD%98"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 明文保存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 对称加密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%8D%95%E5%90%91HASH%E7%AE%97%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 单向HASH算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E5%A2%9E%E5%BC%BA%E5%9E%8BHASH%E7%AE%97%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 增强型HASH算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-PBKDF2%E7%AE%97%E6%B3%95"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 PBKDF2算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-bcrypt-scrypt%E7%AE%97%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 bcrypt&#x2F;scrypt算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E5%AF%B9%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">三、算法对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">四、密码破解方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%A0%B4%E8%A7%A3"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 对称加密破解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-HASH%E7%AE%97%E6%B3%95%E7%A0%B4%E8%A7%A3"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 HASH算法破解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-1-%E5%BD%A9%E8%99%B9%E8%A1%A8%E5%8E%9F%E7%90%86"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1 彩虹表原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-2-%E9%A2%84%E8%AE%A1%E7%AE%97%E5%93%88%E5%B8%8C%E9%93%BE"><span class="nav-number">4.2.2.</span> <span class="nav-text">4.2.2 预计算哈希链</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-3-%E5%BD%A9%E8%99%B9%E8%A1%A8%E4%BC%98%E5%8C%96"><span class="nav-number">4.2.3.</span> <span class="nav-text">4.2.3 彩虹表优化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%B8%8D%E5%90%8C%E7%AE%97%E6%B3%95%E7%9A%84%E7%A0%B4%E8%A7%A3%E9%9A%BE%E5%BA%A6"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 不同算法的破解难度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E9%99%85%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">五、实际案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E4%BA%8B%E4%BB%B6%E5%BD%B1%E5%93%8D"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 信息泄露事件影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%AF%86%E7%A0%81%E7%AD%96%E7%95%A5%E5%BB%BA%E8%AE%AE"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 密码策略建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-number">6.</span> <span class="nav-text">六、技术实现示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-PBKDF2%E5%AE%9E%E7%8E%B0%EF%BC%88Python%EF%BC%89"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 PBKDF2实现（Python）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-bcrypt%E5%AE%9E%E7%8E%B0%EF%BC%88Python%EF%BC%89"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 bcrypt实现（Python）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93%E4%B8%8E%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">七、总结与建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E6%A0%B8%E5%BF%83%E8%A6%81%E7%82%B9"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 核心要点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E4%BC%81%E4%B8%9A%E5%AE%9E%E8%B7%B5"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 企业实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E6%9C%AA%E6%9D%A5%E8%B6%8B%E5%8A%BF"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 未来趋势</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/01/26/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%B8%B8%E8%A7%81%E7%9A%84%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F%E4%BB%A5%E5%8F%8A%E7%A0%B4%E8%A7%A3%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="常见的用户密码加密方式以及破解方法 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          常见的用户密码加密方式以及破解方法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-01-26 19:47:53" itemprop="dateCreated datePublished" datetime="2015-01-26T19:47:53+08:00">2015-01-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h2><p>在互联网时代，信息安全事件频发，其中撞库扫号事件尤为常见。这些事件的根本原因在于企业信息泄露，且泄露数据未加密或加密方式较弱，导致黑客能够还原出原始用户密码。</p>
+<p>据统计，已曝光的信息泄露事件超过百起，涉及多家一线互联网公司，泄露数据总量超过10亿条。完全防止信息泄露极为困难，但通过采用合适的密码加密算法，即使数据泄露，黑客也难以还原原始密码。本文将系统介绍常见的用户密码加密方式及其破解方法。</p>
+<h2 id="二、用户密码加密方式"><a href="#二、用户密码加密方式" class="headerlink" title="二、用户密码加密方式"></a>二、用户密码加密方式</h2><h3 id="2-1-明文保存"><a href="#2-1-明文保存" class="headerlink" title="2.1 明文保存"></a>2.1 明文保存</h3><p><strong>方式描述</strong>：直接将用户设置的原始密码存储在数据库中。</p>
+<p><strong>示例</strong>：用户密码”123456”，数据库中直接存储”123456”。</p>
+<p><strong>安全性分析</strong>：</p>
+<ul>
+<li>安全性最低</li>
+<li>一旦数据库泄露，所有密码立即暴露</li>
+<li>实际中仍有部分公司采用此方式</li>
+</ul>
+<h3 id="2-2-对称加密"><a href="#2-2-对称加密" class="headerlink" title="2.2 对称加密"></a>2.2 对称加密</h3><p><strong>常用算法</strong>：3DES、AES等</p>
+<p><strong>工作原理</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">明文密码 → 对称加密算法 → 密文</span><br><span class="line">密文 → 对称解密算法 → 明文密码</span><br></pre></td></tr></table></figure>
+
+<p><strong>安全性分析</strong>：</p>
+<ul>
+<li>可通过密钥解密还原原始密码</li>
+<li>密钥管理复杂，容易泄露</li>
+<li>密钥与数据分离存储可提高安全性，但管理成本高</li>
+</ul>
+<h3 id="2-3-单向HASH算法"><a href="#2-3-单向HASH算法" class="headerlink" title="2.3 单向HASH算法"></a>2.3 单向HASH算法</h3><p><strong>常用算法</strong>：MD5、SHA1、SHA256等</p>
+<p><strong>工作原理</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">明文密码 → HASH函数 → 固定长度HASH值</span><br></pre></td></tr></table></figure>
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>不可逆，无法从HASH值还原原始密码</li>
+<li>实现简单，曾被广泛使用</li>
+<li>易受彩虹表攻击</li>
+</ul>
+<h3 id="2-4-增强型HASH算法"><a href="#2-4-增强型HASH算法" class="headerlink" title="2.4 增强型HASH算法"></a>2.4 增强型HASH算法</h3><p><strong>改进方式</strong>：</p>
+<ol>
+<li><strong>加盐（Salt）</strong>：在密码前后添加随机字符串</li>
+<li><strong>多次HASH</strong>：对密码进行多次HASH运算</li>
+</ol>
+<p><strong>示例</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加盐HASH</span></span><br><span class="line"><span class="built_in">hash</span> = md5(salt + password + salt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多次HASH</span></span><br><span class="line"><span class="built_in">hash</span> = md5(md5(md5(password)))</span><br></pre></td></tr></table></figure>
+
+<p><strong>安全性分析</strong>：</p>
+<ul>
+<li>固定盐值：盐值泄露后仍可建立彩虹表</li>
+<li>多次HASH：增加破解时间，但本质未变</li>
+</ul>
+<h3 id="2-5-PBKDF2算法"><a href="#2-5-PBKDF2算法" class="headerlink" title="2.5 PBKDF2算法"></a>2.5 PBKDF2算法</h3><p><strong>算法原理</strong>：</p>
+<ul>
+<li>基于HASH算法增加随机盐</li>
+<li>进行多次HASH迭代</li>
+</ul>
+<p><strong>推荐参数</strong>：</p>
+<ul>
+<li>HASH算法：SHA1或SHA256</li>
+<li>盐长度：≥8字节</li>
+<li>迭代次数：≥1000次</li>
+</ul>
+<p><strong>安全性分析</strong>：</p>
+<ul>
+<li>随机盐大幅增加彩虹表建表难度</li>
+<li>多次迭代显著增加计算成本</li>
+<li>美国国家标准与技术研究院推荐算法</li>
+</ul>
+<h3 id="2-6-bcrypt-scrypt算法"><a href="#2-6-bcrypt-scrypt算法" class="headerlink" title="2.6 bcrypt&#x2F;scrypt算法"></a>2.6 bcrypt&#x2F;scrypt算法</h3><p><strong>bcrypt特点</strong>：</p>
+<ul>
+<li>基于Blowfish加密算法</li>
+<li>内置盐值</li>
+<li>可调节计算成本</li>
+</ul>
+<p><strong>scrypt特点</strong>：</p>
+<ul>
+<li>设计用于抵抗硬件攻击</li>
+<li>需要大量内存</li>
+<li>计算成本可调</li>
+</ul>
+<p><strong>安全性分析</strong>：</p>
+<ul>
+<li>有效抵御彩虹表攻击</li>
+<li>参数可调，适应不同安全需求</li>
+</ul>
+<h2 id="三、算法对比"><a href="#三、算法对比" class="headerlink" title="三、算法对比"></a>三、算法对比</h2><table>
+<thead>
+<tr>
+<th>加密方式</th>
+<th>安全性</th>
+<th>性能</th>
+<th>实现复杂度</th>
+<th>抗彩虹表</th>
+<th>推荐程度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>明文保存</td>
+<td>极低</td>
+<td>极高</td>
+<td>极低</td>
+<td>无</td>
+<td>不推荐</td>
+</tr>
+<tr>
+<td>对称加密</td>
+<td>中等</td>
+<td>高</td>
+<td>中等</td>
+<td>无</td>
+<td>不推荐</td>
+</tr>
+<tr>
+<td>单向HASH</td>
+<td>低</td>
+<td>高</td>
+<td>低</td>
+<td>弱</td>
+<td>不推荐</td>
+</tr>
+<tr>
+<td>增强HASH</td>
+<td>中等</td>
+<td>中</td>
+<td>中</td>
+<td>中等</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>PBKDF2</td>
+<td>高</td>
+<td>中</td>
+<td>中</td>
+<td>强</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td>bcrypt</td>
+<td>高</td>
+<td>中</td>
+<td>中</td>
+<td>强</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td>scrypt</td>
+<td>高</td>
+<td>低</td>
+<td>高</td>
+<td>强</td>
+<td>推荐</td>
+</tr>
+</tbody></table>
+<h2 id="四、密码破解方法"><a href="#四、密码破解方法" class="headerlink" title="四、密码破解方法"></a>四、密码破解方法</h2><h3 id="4-1-对称加密破解"><a href="#4-1-对称加密破解" class="headerlink" title="4.1 对称加密破解"></a>4.1 对称加密破解</h3><p><strong>前提条件</strong>：获取加密密钥</p>
+<p><strong>破解方式</strong>：</p>
+<ol>
+<li>获取加密密钥</li>
+<li>使用密钥解密数据</li>
+<li>还原原始密码</li>
+</ol>
+<p><strong>防护措施</strong>：</p>
+<ul>
+<li>加强密钥管理</li>
+<li>密钥与数据分离存储</li>
+<li>定期更换密钥</li>
+</ul>
+<h3 id="4-2-HASH算法破解"><a href="#4-2-HASH算法破解" class="headerlink" title="4.2 HASH算法破解"></a>4.2 HASH算法破解</h3><h4 id="4-2-1-彩虹表原理"><a href="#4-2-1-彩虹表原理" class="headerlink" title="4.2.1 彩虹表原理"></a>4.2.1 彩虹表原理</h4><p>彩虹表是一种预先计算的HASH值表，用于快速查找HASH对应的原始密码。</p>
+<p><strong>建表示例（6位数字密码）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>原始密码</th>
+<th>MD5值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000000</td>
+<td>670B1E</td>
+</tr>
+<tr>
+<td>000001</td>
+<td>1A99CD</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td>999999</td>
+<td>819287</td>
+</tr>
+</tbody></table>
+<p><strong>问题</strong>：密码复杂度增加时，表规模急剧增大。</p>
+<h4 id="4-2-2-预计算哈希链"><a href="#4-2-2-预计算哈希链" class="headerlink" title="4.2.2 预计算哈希链"></a>4.2.2 预计算哈希链</h4><p><strong>建表过程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">原始密码 → HASH → R运算 → HASH → R运算 → ... → 链尾</span><br></pre></td></tr></table></figure>
+
+<p><strong>特点</strong>：</p>
+<ul>
+<li>大幅减少存储空间</li>
+<li>增加查表计算量</li>
+<li>存在数据重复问题</li>
+</ul>
+<h4 id="4-2-3-彩虹表优化"><a href="#4-2-3-彩虹表优化" class="headerlink" title="4.2.3 彩虹表优化"></a>4.2.3 彩虹表优化</h4><p><strong>改进</strong>：每条链使用不同的R算法</p>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>减少链间重复</li>
+<li>提高查表效率</li>
+<li>命名来源：不同R算法如彩虹分层</li>
+</ul>
+<h3 id="4-3-不同算法的破解难度"><a href="#4-3-不同算法的破解难度" class="headerlink" title="4.3 不同算法的破解难度"></a>4.3 不同算法的破解难度</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>密钥&#x2F;盐长度</th>
+<th>彩虹表攻击</th>
+<th>暴力破解</th>
+<th>实际可行性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DES</td>
+<td>56位</td>
+<td>可行</td>
+<td>中等</td>
+<td>可行</td>
+</tr>
+<tr>
+<td>AES-128</td>
+<td>128位</td>
+<td>不可行</td>
+<td>极难</td>
+<td>不可行</td>
+</tr>
+<tr>
+<td>MD5</td>
+<td>-</td>
+<td>容易</td>
+<td>中等</td>
+<td>可行</td>
+</tr>
+<tr>
+<td>SHA256</td>
+<td>-</td>
+<td>中等</td>
+<td>困难</td>
+<td>部分可行</td>
+</tr>
+<tr>
+<td>PBKDF2</td>
+<td>≥8字节盐</td>
+<td>极难</td>
+<td>极难</td>
+<td>不可行</td>
+</tr>
+</tbody></table>
+<h2 id="五、实际案例分析"><a href="#五、实际案例分析" class="headerlink" title="五、实际案例分析"></a>五、实际案例分析</h2><h3 id="5-1-信息泄露事件影响"><a href="#5-1-信息泄露事件影响" class="headerlink" title="5.1 信息泄露事件影响"></a>5.1 信息泄露事件影响</h3><p><strong>典型场景</strong>：</p>
+<ol>
+<li>企业数据库泄露</li>
+<li>黑客获取加密密码</li>
+<li>使用彩虹表破解</li>
+<li>撞库攻击其他网站</li>
+</ol>
+<p><strong>防护策略</strong>：</p>
+<ul>
+<li>使用强加密算法（PBKDF2&#x2F;bcrypt&#x2F;scrypt）</li>
+<li>定期强制密码修改</li>
+<li>实施多因素认证</li>
+</ul>
+<h3 id="5-2-密码策略建议"><a href="#5-2-密码策略建议" class="headerlink" title="5.2 密码策略建议"></a>5.2 密码策略建议</h3><p><strong>企业级建议</strong>：</p>
+<ol>
+<li><strong>加密算法</strong>：采用PBKDF2、bcrypt或scrypt</li>
+<li><strong>参数设置</strong>：<ul>
+<li>盐值长度≥16字节</li>
+<li>迭代次数≥10000次</li>
+<li>定期更新加密参数</li>
+</ul>
+</li>
+<li><strong>密码策略</strong>：<ul>
+<li>最小长度12字符</li>
+<li>包含大小写字母、数字、特殊字符</li>
+<li>禁止使用常见密码</li>
+<li>定期更换密码</li>
+</ul>
+</li>
+</ol>
+<p><strong>用户建议</strong>：</p>
+<ol>
+<li>使用密码管理器</li>
+<li>不同网站使用不同密码</li>
+<li>启用双因素认证</li>
+<li>定期检查密码是否泄露</li>
+</ol>
+<h2 id="六、技术实现示例"><a href="#六、技术实现示例" class="headerlink" title="六、技术实现示例"></a>六、技术实现示例</h2><h3 id="6-1-PBKDF2实现（Python）"><a href="#6-1-PBKDF2实现（Python）" class="headerlink" title="6.1 PBKDF2实现（Python）"></a>6.1 PBKDF2实现（Python）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hash_password</span>(<span class="params">password</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;使用PBKDF2_HMAC_SHA256加密密码&quot;&quot;&quot;</span></span><br><span class="line">    salt = os.urandom(<span class="number">16</span>)  <span class="comment"># 16字节随机盐</span></span><br><span class="line">    iterations = <span class="number">100000</span>    <span class="comment"># 10万次迭代</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 生成密钥</span></span><br><span class="line">    key = hashlib.pbkdf2_hmac(</span><br><span class="line">        <span class="string">&#x27;sha256&#x27;</span>,</span><br><span class="line">        password.encode(<span class="string">&#x27;utf-8&#x27;</span>),</span><br><span class="line">        salt,</span><br><span class="line">        iterations,</span><br><span class="line">        dklen=<span class="number">32</span></span><br><span class="line">    )</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 存储格式：迭代次数:盐:密钥</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;iterations&#125;</span>:<span class="subst">&#123;binascii.hexlify(salt).decode()&#125;</span>:<span class="subst">&#123;binascii.hexlify(key).decode()&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">verify_password</span>(<span class="params">stored_password, provided_password</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;验证密码&quot;&quot;&quot;</span></span><br><span class="line">    iterations, salt, key = stored_password.split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">    salt = binascii.unhexlify(salt)</span><br><span class="line">    key = binascii.unhexlify(key)</span><br><span class="line">    </span><br><span class="line">    new_key = hashlib.pbkdf2_hmac(</span><br><span class="line">        <span class="string">&#x27;sha256&#x27;</span>,</span><br><span class="line">        provided_password.encode(<span class="string">&#x27;utf-8&#x27;</span>),</span><br><span class="line">        salt,</span><br><span class="line">        <span class="built_in">int</span>(iterations),</span><br><span class="line">        dklen=<span class="number">32</span></span><br><span class="line">    )</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> new_key == key</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-bcrypt实现（Python）"><a href="#6-2-bcrypt实现（Python）" class="headerlink" title="6.2 bcrypt实现（Python）"></a>6.2 bcrypt实现（Python）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> bcrypt</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hash_password_bcrypt</span>(<span class="params">password</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;使用bcrypt加密密码&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 生成盐并哈希密码</span></span><br><span class="line">    salt = bcrypt.gensalt(rounds=<span class="number">12</span>)  <span class="comment"># 12轮，约0.3秒</span></span><br><span class="line">    hashed = bcrypt.hashpw(password.encode(<span class="string">&#x27;utf-8&#x27;</span>), salt)</span><br><span class="line">    <span class="keyword">return</span> hashed.decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">verify_password_bcrypt</span>(<span class="params">hashed_password, provided_password</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;验证bcrypt密码&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> bcrypt.checkpw(</span><br><span class="line">        provided_password.encode(<span class="string">&#x27;utf-8&#x27;</span>),</span><br><span class="line">        hashed_password.encode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、总结与建议"><a href="#七、总结与建议" class="headerlink" title="七、总结与建议"></a>七、总结与建议</h2><h3 id="7-1-核心要点"><a href="#7-1-核心要点" class="headerlink" title="7.1 核心要点"></a>7.1 核心要点</h3><ol>
+<li><strong>避免使用</strong>：明文存储、弱HASH算法（MD5&#x2F;SHA1）</li>
+<li><strong>推荐使用</strong>：PBKDF2、bcrypt、scrypt等现代算法</li>
+<li><strong>关键参数</strong>：足够长的随机盐、足够的迭代次数</li>
+<li><strong>防护重点</strong>：抵御彩虹表攻击，增加破解成本</li>
+</ol>
+<h3 id="7-2-企业实践"><a href="#7-2-企业实践" class="headerlink" title="7.2 企业实践"></a>7.2 企业实践</h3><ol>
+<li><strong>新系统</strong>：直接采用bcrypt或scrypt</li>
+<li><strong>旧系统迁移</strong>：逐步升级到PBKDF2</li>
+<li><strong>监控预警</strong>：建立密码泄露监控机制</li>
+<li><strong>用户教育</strong>：提高用户密码安全意识</li>
+</ol>
+<h3 id="7-3-未来趋势"><a href="#7-3-未来趋势" class="headerlink" title="7.3 未来趋势"></a>7.3 未来趋势</h3><ol>
+<li><strong>无密码认证</strong>：生物识别、硬件密钥</li>
+<li><strong>量子安全</strong>：抗量子计算加密算法</li>
+<li><strong>自适应安全</strong>：根据威胁动态调整安全策略</li>
+</ol>
+<p>通过采用合适的密码加密算法，即使发生数据泄露，也能有效保护用户密码安全，从根本上减少撞库扫号事件的发生。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/" rel="tag"># 加密算法</a>
+              <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" rel="tag"># 信息安全</a>
+              <a href="/tags/%E5%AF%86%E7%A0%81%E5%AE%89%E5%85%A8/" rel="tag"># 密码安全</a>
+              <a href="/tags/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3/" rel="tag"># 密码破解</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/01/21/%E6%9C%AA%E5%88%86%E7%B1%BB/7-Zip%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" rel="prev" title="7-Zip命令行使用指南">
+                  <i class="fa fa-angle-left"></i> 7-Zip命令行使用指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/01/26/Linux/Windows%E4%B8%8ELinux%E7%9B%B8%E4%BA%92%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2%E8%BF%9E%E6%8E%A5/" rel="next" title="Windows与Linux相互远程桌面连接">
+                  Windows与Linux相互远程桌面连接 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

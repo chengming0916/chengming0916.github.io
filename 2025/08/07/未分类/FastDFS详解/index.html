@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="1 背景与演进1.1 为什么需要分布式文件系统   阶段 特点 优缺点    单机时代 项目目录下建立静态文件夹 简单但文件与代码耦合，流量大时影响业务   独立文件服务器 图片服务器 + Nginx 独立部署 性能分离但存在单机瓶颈   分布式文件系统 存储 + 仲裁 + 容灾三系统配合 高可用、可扩展，但复杂度较高   1.2 适用场景FastDFS 特别适合以中小文件（建议范围：4KB &amp;l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FastDFS详解">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/%E6%9C%AA%E5%88%86%E7%B1%BB/FastDFS%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="1 背景与演进1.1 为什么需要分布式文件系统   阶段 特点 优缺点    单机时代 项目目录下建立静态文件夹 简单但文件与代码耦合，流量大时影响业务   独立文件服务器 图片服务器 + Nginx 独立部署 性能分离但存在单机瓶颈   分布式文件系统 存储 + 仲裁 + 容灾三系统配合 高可用、可扩展，但复杂度较高   1.2 适用场景FastDFS 特别适合以中小文件（建议范围：4KB &amp;l">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.479Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="FastDFS">
+<meta property="article:tag" content="分布式文件系统">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/%E6%9C%AA%E5%88%86%E7%B1%BB/FastDFS%E8%AF%A6%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/08/07/%E6%9C%AA%E5%88%86%E7%B1%BB/FastDFS%E8%AF%A6%E8%A7%A3/","path":"2025/08/07/未分类/FastDFS详解/","title":"FastDFS详解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>FastDFS详解 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%83%8C%E6%99%AF%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="nav-number">1.</span> <span class="nav-text">1 背景与演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 为什么需要分布式文件系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-FastDFS-%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">2 FastDFS 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 核心特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%9E%B6%E6%9E%84%E5%AE%9A%E4%BD%8D"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 架构定位</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">3.</span> <span class="nav-text">3 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%9C%8D%E5%8A%A1%E8%A7%92%E8%89%B2"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 服务角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%A0%B8%E5%BF%83%E6%9C%AF%E8%AF%AD"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 核心术语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-Storage-%E7%BB%84%E7%BB%87%E7%BB%93%E6%9E%84"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 Storage 组织结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%B8%8A%E4%BC%A0%E6%9C%BA%E5%88%B6"><span class="nav-number">4.</span> <span class="nav-text">4 上传机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%B8%8A%E4%BC%A0%E6%B5%81%E7%A8%8B"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 上传流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E9%80%89%E6%8B%A9%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 选择策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-FileId-%E7%94%9F%E6%88%90"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 FileId 生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E6%96%87%E4%BB%B6%E5%90%8D%E7%BB%84%E6%88%90"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 文件名组成</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%B8%8B%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="nav-number">5.</span> <span class="nav-text">5 下载机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E4%B8%8B%E8%BD%BD%E6%B5%81%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 下载流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-Storage-%E9%80%89%E6%8B%A9%E7%AD%96%E7%95%A5"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 Storage 选择策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">6.</span> <span class="nav-text">6 同步机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%90%8C%E6%AD%A5%E5%8E%9F%E7%90%86"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 同步原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%97%B6%E9%92%9F%E5%90%8C%E6%AD%A5%E8%A6%81%E6%B1%82"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 时钟同步要求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%96%87%E4%BB%B6%E5%AE%9A%E4%BD%8D%EF%BC%88FID%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">7 文件定位（FID）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-FID-%E7%BB%84%E6%88%90"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 FID 组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D%E5%8E%9F%E7%90%86"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 快速定位原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2"><span class="nav-number">8.</span> <span class="nav-text">8 集群部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E5%85%B8%E5%9E%8B%E6%9E%B6%E6%9E%84"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 典型架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E9%83%A8%E7%BD%B2%E5%BB%BA%E8%AE%AE"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 部署建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-Java-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8"><span class="nav-number">9.</span> <span class="nav-text">9 Java 客户端使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-Maven-%E4%BE%9D%E8%B5%96"><span class="nav-number">9.1.</span> <span class="nav-text">9.1 Maven 依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">9.2.</span> <span class="nav-text">9.2 配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-3-%E4%B8%8A%E4%BC%A0%E7%A4%BA%E4%BE%8B"><span class="nav-number">9.3.</span> <span class="nav-text">9.3 上传示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E6%80%BB%E7%BB%93"><span class="nav-number">10.</span> <span class="nav-text">10 总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="nav-number">10.1.</span> <span class="nav-text">10.1 核心优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-2-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">10.2.</span> <span class="nav-text">10.2 适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-3-%E5%8F%82%E8%80%83%E8%B5%84%E6%BA%90"><span class="nav-number">10.3.</span> <span class="nav-text">10.3 参考资源</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/%E6%9C%AA%E5%88%86%E7%B1%BB/FastDFS%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="FastDFS详解 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FastDFS详解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-08-07 00:00:00" itemprop="dateCreated datePublished" datetime="2025-08-07T00:00:00+08:00">2025-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="1-背景与演进"><a href="#1-背景与演进" class="headerlink" title="1 背景与演进"></a>1 背景与演进</h2><h3 id="1-1-为什么需要分布式文件系统"><a href="#1-1-为什么需要分布式文件系统" class="headerlink" title="1.1 为什么需要分布式文件系统"></a>1.1 为什么需要分布式文件系统</h3><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>特点</th>
+<th>优缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>单机时代</strong></td>
+<td>项目目录下建立静态文件夹</td>
+<td>简单但文件与代码耦合，流量大时影响业务</td>
+</tr>
+<tr>
+<td><strong>独立文件服务器</strong></td>
+<td>图片服务器 + Nginx 独立部署</td>
+<td>性能分离但存在单机瓶颈</td>
+</tr>
+<tr>
+<td><strong>分布式文件系统</strong></td>
+<td>存储 + 仲裁 + 容灾三系统配合</td>
+<td>高可用、可扩展，但复杂度较高</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-适用场景"><a href="#1-2-适用场景" class="headerlink" title="1.2 适用场景"></a>1.2 适用场景</h3><p>FastDFS 特别适合以<strong>中小文件</strong>（建议范围：4KB &lt; file_size &lt; 500MB）为载体的在线服务：</p>
+<ul>
+<li>相册网站</li>
+<li>视频网站</li>
+<li>网盘、社区、广告等业务存储</li>
+</ul>
+<hr>
+<h2 id="2-FastDFS-概述"><a href="#2-FastDFS-概述" class="headerlink" title="2 FastDFS 概述"></a>2 FastDFS 概述</h2><h3 id="2-1-核心特性"><a href="#2-1-核心特性" class="headerlink" title="2.1 核心特性"></a>2.1 核心特性</h3><ul>
+<li><strong>轻量级</strong>：纯 C 实现，支持 Linux、FreeBSD 等 UNIX 系统</li>
+<li><strong>文件一对一</strong>：文件不分块存储，与 OS 文件系统一一对应</li>
+<li><strong>去重</strong>：相同内容文件只保存一份，节约磁盘空间</li>
+<li><strong>HTTP 支持</strong>：内置 Web Server 或配合 Nginx&#x2F;Apache</li>
+<li><strong>在线扩容</strong>：支持动态扩展存储容量</li>
+<li><strong>主从文件</strong>：支持主从文件机制</li>
+<li><strong>高性能</strong>：V2.0 采用 libevent 网络通信，支持大并发</li>
+</ul>
+<h3 id="2-2-架构定位"><a href="#2-2-架构定位" class="headerlink" title="2.2 架构定位"></a>2.2 架构定位</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────┐</span><br><span class="line">│                    Client                            │</span><br><span class="line">│              (业务请求发起方)                          │</span><br><span class="line">└─────────────────────┬───────────────────────────────┘</span><br><span class="line">                      │</span><br><span class="line">              ┌───────▼───────┐</span><br><span class="line">              │   Tracker     │</span><br><span class="line">              │   (调度中心)   │</span><br><span class="line">              └───────┬───────┘</span><br><span class="line">                      │</span><br><span class="line">        ┌─────────────┼─────────────┐</span><br><span class="line">        │             │             │</span><br><span class="line">   ┌────▼────┐   ┌────▼────┐   ┌────▼────┐</span><br><span class="line">   │Storage 1│   │Storage 2│   │Storage N│</span><br><span class="line">   │ (Group1)│   │ (Group1)│   │ (Group2)│</span><br><span class="line">   └─────────┘   └─────────┘   └─────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-核心概念"><a href="#3-核心概念" class="headerlink" title="3 核心概念"></a>3 核心概念</h2><h3 id="3-1-服务角色"><a href="#3-1-服务角色" class="headerlink" title="3.1 服务角色"></a>3.1 服务角色</h3><table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Tracker Server</strong></td>
+<td>调度、负载均衡</td>
+<td>内存记录所有 storage 状态，无持久化，易扩展</td>
+</tr>
+<tr>
+<td><strong>Storage Server</strong></td>
+<td>文件存储</td>
+<td>以组为单位组织，文件属性（meta-data）一并保存</td>
+</tr>
+<tr>
+<td><strong>Client</strong></td>
+<td>业务请求发起</td>
+<td>通过专有 API 与 tracker&#x2F;storage 交互</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-核心术语"><a href="#3-2-核心术语" class="headerlink" title="3.2 核心术语"></a>3.2 核心术语</h3><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Group &#x2F; Volume</strong></td>
+<td>卷&#x2F;组，同组内服务器文件完全相同，互为备份</td>
+</tr>
+<tr>
+<td><strong>Meta-data</strong></td>
+<td>文件属性，Key-Value 键值对（如：width&#x3D;1024）</td>
+</tr>
+<tr>
+<td><strong>FID</strong></td>
+<td>File ID，文件唯一标识</td>
+</tr>
+</tbody></table>
+<h3 id="3-3-Storage-组织结构"><a href="#3-3-Storage-组织结构" class="headerlink" title="3.3 Storage 组织结构"></a>3.3 Storage 组织结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Storage Server</span><br><span class="line">├── /data/disk1/     # 数据存储目录1</span><br><span class="line">│   ├── 00/</span><br><span class="line">│   │   ├── 00/</span><br><span class="line">│   │   ├── 01/</span><br><span class="line">│   │   └── ...</span><br><span class="line">│   └── FF/</span><br><span class="line">├── /data/disk2/     # 数据存储目录2</span><br><span class="line">└── ...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>每个存储目录创建 2 级子目录（每级 256 个）</li>
+<li>总共 65536 个文件目录</li>
+<li>文件按 hash 路由到对应子目录</li>
+</ul>
+<hr>
+<h2 id="4-上传机制"><a href="#4-上传机制" class="headerlink" title="4 上传机制"></a>4 上传机制</h2><h3 id="4-1-上传流程"><a href="#4-1-上传流程" class="headerlink" title="4.1 上传流程"></a>4.1 上传流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐</span><br><span class="line">│  Client  │────▶│ Tracker  │────▶│ Storage  │────▶│ 写入磁盘  │</span><br><span class="line">└──────────┘     └──────────┘     └──────────┘     └──────────┘</span><br><span class="line">                      │                │</span><br><span class="line">                      ▼                ▼</span><br><span class="line">               返回 ip:port      生成 file_id</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-选择策略"><a href="#4-2-选择策略" class="headerlink" title="4.2 选择策略"></a>4.2 选择策略</h3><p><strong>1. 选择 Group</strong></p>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Round robin</td>
+<td>所有 group 间轮询</td>
+</tr>
+<tr>
+<td>Specified group</td>
+<td>指定确定 group</td>
+</tr>
+<tr>
+<td>Load balance</td>
+<td>剩余空间多的 group 优先</td>
+</tr>
+</tbody></table>
+<p><strong>2. 选择 Storage Server</strong></p>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Round robin</td>
+<td>group 内所有 storage 间轮询</td>
+</tr>
+<tr>
+<td>First server ordered by IP</td>
+<td>按 IP 排序</td>
+</tr>
+<tr>
+<td>First server ordered by priority</td>
+<td>按优先级排序</td>
+</tr>
+</tbody></table>
+<p><strong>3. 选择 Storage Path</strong></p>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Round robin</td>
+<td>多个存储目录间轮询</td>
+</tr>
+<tr>
+<td>剩余空间优先</td>
+<td>剩余存储空间最多的目录优先</td>
+</tr>
+</tbody></table>
+<h3 id="4-3-FileId-生成"><a href="#4-3-FileId-生成" class="headerlink" title="4.3 FileId 生成"></a>4.3 FileId 生成</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FileId = base64(storage_ip + 文件创建时间 + 文件大小 + crc32 + 随机数)</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-文件名组成"><a href="#4-4-文件名组成" class="headerlink" title="4.4 文件名组成"></a>4.4 文件名组成</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">文件名 = group + 虚拟磁盘路径 + 两级子目录 + file_id + 文件后缀</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">group1/M00/00/00/wKgBaE9u4O6Ab7SDAAvgG5Q3vw428.jpg</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-下载机制"><a href="#5-下载机制" class="headerlink" title="5 下载机制"></a>5 下载机制</h2><h3 id="5-1-下载流程"><a href="#5-1-下载流程" class="headerlink" title="5.1 下载流程"></a>5.1 下载流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐</span><br><span class="line">│  Client  │────▶│ Tracker  │────▶│ Storage  │────▶│ 返回文件  │</span><br><span class="line">└──────────┘     └──────────┘     └──────────┘     └──────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-Storage-选择策略"><a href="#5-2-Storage-选择策略" class="headerlink" title="5.2 Storage 选择策略"></a>5.2 Storage 选择策略</h3><p>Tracker 按以下优先级选择可读的 storage：</p>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>条件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>源头 storage</td>
+<td>文件上传时的源服务器，肯定包含文件</td>
+</tr>
+<tr>
+<td>2</td>
+<td>同步完成</td>
+<td>文件创建时间 + 最大同步时间 &lt; 当前时间</td>
+</tr>
+<tr>
+<td>3</td>
+<td>同步时间戳</td>
+<td>文件创建时间 &lt; storage 同步时间戳</td>
+</tr>
+<tr>
+<td>4</td>
+<td>延迟阈值</td>
+<td>当前时间 - 文件创建时间 &gt; 同步延迟阈值</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="6-同步机制"><a href="#6-同步机制" class="headerlink" title="6 同步机制"></a>6 同步机制</h2><h3 id="6-1-同步原理"><a href="#6-1-同步原理" class="headerlink" title="6.1 同步原理"></a>6.1 同步原理</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">┌──────────┐      binlog       ┌──────────┐</span><br><span class="line">│Storage A │ ───────────────▶ │Storage B │</span><br><span class="line">└──────────┐                   └──────────┘</span><br><span class="line">     │                               │</span><br><span class="line">     └─────────── 上报 ──────────────┘</span><br><span class="line">                   Tracker</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Storage 写文件后，后台异步同步到同组其他 server</li>
+<li>同步信息以 binlog 形式记录（不包含文件数据）</li>
+<li>同步进度以时间戳方式记录</li>
+</ul>
+<h3 id="6-2-时钟同步要求"><a href="#6-2-时钟同步要求" class="headerlink" title="6.2 时钟同步要求"></a>6.2 时钟同步要求</h3><p>集群内所有服务器<strong>时钟必须保持同步</strong>，否则同步进度计算会出错。</p>
+<hr>
+<h2 id="7-文件定位（FID）"><a href="#7-文件定位（FID）" class="headerlink" title="7 文件定位（FID）"></a>7 文件定位（FID）</h2><h3 id="7-1-FID-组成"><a href="#7-1-FID-组成" class="headerlink" title="7.1 FID 组成"></a>7.1 FID 组成</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FID = group + 虚拟磁盘路径 + 两级子目录 + file_id + 文件后缀</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-快速定位原理"><a href="#7-2-快速定位原理" class="headerlink" title="7.2 快速定位原理"></a>7.2 快速定位原理</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>解析 group</td>
+<td>tracker 定位到目标 storage group</td>
+</tr>
+<tr>
+<td>2</td>
+<td>解析路径</td>
+<td>根据虚拟磁盘路径定位存储目录</td>
+</tr>
+<tr>
+<td>3</td>
+<td>解析目录</td>
+<td>根据两级子目录定位具体目录</td>
+</tr>
+<tr>
+<td>4</td>
+<td>查找文件</td>
+<td>根据文件名定位文件</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-集群部署"><a href="#8-集群部署" class="headerlink" title="8 集群部署"></a>8 集群部署</h2><h3 id="8-1-典型架构"><a href="#8-1-典型架构" class="headerlink" title="8.1 典型架构"></a>8.1 典型架构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                ┌─────────────────────────────────────┐</span><br><span class="line">                │              Nginx                  │</span><br><span class="line">                │         (负载均衡/静态资源)           │</span><br><span class="line">                └─────────────────┬───────────────────┘</span><br><span class="line">                                  │</span><br><span class="line">       ┌──────────────────────────┼──────────────────────────┐</span><br><span class="line">       │                          │                          │</span><br><span class="line">┌──────▼──────┐           ┌──────▼──────┐           ┌──────▼──────┐</span><br><span class="line">│   Tracker1  │           │   Tracker2  │           │   Tracker3  │</span><br><span class="line">└──────┬──────┘           └──────┬──────┘           └──────┬──────┘</span><br><span class="line">       │                          │                          │</span><br><span class="line">┌──────┴──────┐           ┌──────┴──────┐           ┌──────┴──────┐</span><br><span class="line">│   Group1    │           │   Group2    │           │   Group3    │</span><br><span class="line">│ S1  S2  S3  │           │ S4  S5  S6  │           │ S7  S8  S9  │</span><br><span class="line">└─────────────┘           └─────────────┘           └─────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-部署建议"><a href="#8-2-部署建议" class="headerlink" title="8.2 部署建议"></a>8.2 部署建议</h3><table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tracker 数量</td>
+<td>至少 2 台，实现高可用</td>
+</tr>
+<tr>
+<td>Group 内 Storage</td>
+<td>3 台以上，互为备份</td>
+</tr>
+<tr>
+<td>存储目录</td>
+<td>多磁盘挂载，充分利用空间</td>
+</tr>
+<tr>
+<td>时钟同步</td>
+<td>所有节点配置 NTP 服务</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="9-Java-客户端使用"><a href="#9-Java-客户端使用" class="headerlink" title="9 Java 客户端使用"></a>9 Java 客户端使用</h2><h3 id="9-1-Maven-依赖"><a href="#9-1-Maven-依赖" class="headerlink" title="9.1 Maven 依赖"></a>9.1 Maven 依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.csource<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastdfs-client-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.29-RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-配置文件"><a href="#9-2-配置文件" class="headerlink" title="9.2 配置文件"></a>9.2 配置文件</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">fastdfs.tracker_list</span>=<span class="string">192.168.1.100:22122,192.168.1.101:22122</span></span><br><span class="line"><span class="attr">fastdfs.connect_timeout_in_seconds</span>=<span class="string">5</span></span><br><span class="line"><span class="attr">fastdfs.network_timeout_in_seconds</span>=<span class="string">30</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="9-3-上传示例"><a href="#9-3-上传示例" class="headerlink" title="9.3 上传示例"></a>9.3 上传示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TrackerClient</span> <span class="variable">trackerClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TrackerClient</span>();</span><br><span class="line"><span class="type">TrackerServer</span> <span class="variable">trackerServer</span> <span class="operator">=</span> trackerClient.getConnection();</span><br><span class="line"><span class="type">StorageServer</span> <span class="variable">storageServer</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">StorageClient</span> <span class="variable">storageClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StorageClient</span>(trackerServer, storageServer);</span><br><span class="line">String[] result = storageClient.upload_file(<span class="string">&quot;/path/to/file.jpg&quot;</span>, <span class="string">&quot;jpg&quot;</span>, <span class="literal">null</span>);</span><br><span class="line">System.out.println(<span class="string">&quot;Group: &quot;</span> + result[<span class="number">0</span>]);</span><br><span class="line">System.out.println(<span class="string">&quot;Path: &quot;</span> + result[<span class="number">1</span>]);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="10-总结"><a href="#10-总结" class="headerlink" title="10 总结"></a>10 总结</h2><h3 id="10-1-核心优势"><a href="#10-1-核心优势" class="headerlink" title="10.1 核心优势"></a>10.1 核心优势</h3><ul>
+<li><strong>高性能</strong>：轻量级设计，支持高并发</li>
+<li><strong>高可用</strong>：多 tracker、多 storage 集群支持</li>
+<li><strong>可扩展</strong>：在线扩容，灵活增加存储节点</li>
+<li><strong>低成本</strong>：开源免费，硬件要求低</li>
+</ul>
+<h3 id="10-2-适用场景"><a href="#10-2-适用场景" class="headerlink" title="10.2 适用场景"></a>10.2 适用场景</h3><ul>
+<li>中小文件为主的在线服务</li>
+<li>需要高可用存储的业务系统</li>
+<li>对成本敏感但需要分布式存储的场景</li>
+</ul>
+<h3 id="10-3-参考资源"><a href="#10-3-参考资源" class="headerlink" title="10.3 参考资源"></a>10.3 参考资源</h3><table>
+<thead>
+<tr>
+<th>资源</th>
+<th>链接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>官方 GitHub</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/happyfish100/">https://github.com/happyfish100/</a></td>
+</tr>
+<tr>
+<td>配置文档</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/happyfish100/fastdfs/wiki/">https://github.com/happyfish100/fastdfs/wiki/</a></td>
+</tr>
+<tr>
+<td>Java 客户端</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/happyfish100/fastdfs-client-java">https://github.com/happyfish100/fastdfs-client-java</a></td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/FastDFS/" rel="tag"># FastDFS</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 分布式文件系统</a>
+              <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/07/%E6%9C%AA%E5%88%86%E7%B1%BB/GlusterFS%E5%88%86%E5%B8%83%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="prev" title="GlusterFS分布式文件系统">
+                  <i class="fa fa-angle-left"></i> GlusterFS分布式文件系统
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/08/07/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/CoreDNS%E6%9E%84%E5%BB%BA%E9%AB%98%E6%80%A7%E8%83%BDDNS%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="next" title="CoreDNS构建高性能DNS服务器">
+                  CoreDNS构建高性能DNS服务器 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

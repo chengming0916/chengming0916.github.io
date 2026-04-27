@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、核心定位本文作为GitOps环境搭建系列的第七篇，聚焦核心组件ArgoCD的部署与配置。ArgoCD是Argo Project开源的声明式GitOps持续部署工具，专为Kubernetes应用部署与生命周期管理设计。 在GitOps环境中，ArgoCD扮演”部署自动化中枢”角色，作为GitOps流程的核心执行引擎，实现”Git为单一可信数据源”的理念。ArgoCD自动对比Git仓库中的期望状态">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于K3s搭建GitOps环境7-部署ArgoCD">
+<meta property="og:url" content="http://chengming0916.github.io/2026/04/10/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%837-%E9%83%A8%E7%BD%B2ArgoCD/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、核心定位本文作为GitOps环境搭建系列的第七篇，聚焦核心组件ArgoCD的部署与配置。ArgoCD是Argo Project开源的声明式GitOps持续部署工具，专为Kubernetes应用部署与生命周期管理设计。 在GitOps环境中，ArgoCD扮演”部署自动化中枢”角色，作为GitOps流程的核心执行引擎，实现”Git为单一可信数据源”的理念。ArgoCD自动对比Git仓库中的期望状态">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-10T07:00:27.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.471Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="ArgoCD">
+<meta property="article:tag" content="GitOps">
+<meta property="article:tag" content="K3s">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/04/10/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%837-%E9%83%A8%E7%BD%B2ArgoCD/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/04/10/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%837-%E9%83%A8%E7%BD%B2ArgoCD/","path":"2026/04/10/容器技术/GitOps/基于K3s搭建GitOps环境7-部署ArgoCD/","title":"基于K3s搭建GitOps环境7-部署ArgoCD"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于K3s搭建GitOps环境7-部署ArgoCD | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%BD%8D"><span class="nav-number">1.</span> <span class="nav-text">一、核心定位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2%E5%89%8D%E7%BD%AE%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">二、部署前置检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%A0%87%E5%87%86%E5%8C%96%E9%83%A8%E7%BD%B2ArgoCD"><span class="nav-number">3.</span> <span class="nav-text">三、标准化部署ArgoCD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-1-%E6%B7%BB%E5%8A%A0ArgoCD-Helm%E4%BB%93%E5%BA%93"><span class="nav-number">3.1.1.</span> <span class="nav-text">3.1.1 添加ArgoCD Helm仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-2-%E5%88%9B%E5%BB%BA%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">3.1.2.</span> <span class="nav-text">3.1.2 创建命名空间</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E7%BC%96%E5%86%99%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 编写配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E4%B8%80%E9%94%AE%E9%83%A8%E7%BD%B2ArgoCD"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 一键部署ArgoCD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%8A%B6%E6%80%81"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 验证部署状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%85%8D%E7%BD%AEHTTPS%E8%AE%BF%E9%97%AE"><span class="nav-number">4.</span> <span class="nav-text">四、配置HTTPS访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%88%9B%E5%BB%BAArgoCD%E8%AF%81%E4%B9%A6"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 创建ArgoCD证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E9%85%8D%E7%BD%AEIngressRoute"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 配置IngressRoute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%BA%94%E7%94%A8HTTPS%E9%85%8D%E7%BD%AE"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 应用HTTPS配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E8%AE%BF%E9%97%AE%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96ArgoCD"><span class="nav-number">5.</span> <span class="nav-text">五、访问与初始化ArgoCD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E8%8E%B7%E5%8F%96%E5%88%9D%E5%A7%8B%E5%AF%86%E7%A0%81"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 获取初始密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E8%AE%BF%E9%97%AEArgoCD-Web-UI"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 访问ArgoCD Web UI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-CLI%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 CLI工具安装与配置（可选）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%BB%93%E6%9E%9C"><span class="nav-number">6.</span> <span class="nav-text">六、验证部署结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%AA%8C%E8%AF%81%E7%BB%84%E4%BB%B6%E7%8A%B6%E6%80%81"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 验证组件状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%B5%8B%E8%AF%95GitOps%E5%8A%9F%E8%83%BD"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 测试GitOps功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E6%B8%85%E7%90%86%E6%B5%8B%E8%AF%95%E8%B5%84%E6%BA%90"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 清理测试资源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">七、生产环境配置建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 安全加固</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E8%B5%84%E6%BA%90%E4%BC%98%E5%8C%96"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 资源优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E7%9B%91%E6%8E%A7%E9%85%8D%E7%BD%AE"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 监控配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">8.</span> <span class="nav-text">八、日常运维命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%BF%AE%E5%A4%8D"><span class="nav-number">9.</span> <span class="nav-text">九、常见问题修复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E9%85%8D%E7%BD%AE%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">十、配置参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/04/10/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%837-%E9%83%A8%E7%BD%B2ArgoCD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于K3s搭建GitOps环境7-部署ArgoCD | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于K3s搭建GitOps环境7-部署ArgoCD
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-10 15:00:27" itemprop="dateCreated datePublished" datetime="2026-04-10T15:00:27+08:00">2026-04-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、核心定位"><a href="#一、核心定位" class="headerlink" title="一、核心定位"></a>一、核心定位</h2><p>本文作为GitOps环境搭建系列的第七篇，聚焦核心组件ArgoCD的部署与配置。ArgoCD是Argo Project开源的声明式GitOps持续部署工具，专为Kubernetes应用部署与生命周期管理设计。</p>
+<p>在GitOps环境中，ArgoCD扮演”部署自动化中枢”角色，作为GitOps流程的核心执行引擎，实现”Git为单一可信数据源”的理念。ArgoCD自动对比Git仓库中的期望状态与K3s集群中的实际状态，完成配置同步与部署，实现从代码到部署的完整自动化。</p>
+<h2 id="二、部署前置检查"><a href="#二、部署前置检查" class="headerlink" title="二、部署前置检查"></a>二、部署前置检查</h2><p>部署前需验证K3s集群状态及前序组件运行情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 验证K3s集群状态</span></span><br><span class="line">kubectl get nodes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 验证Traefik运行状态</span></span><br><span class="line">kubectl get pods -n kube-system -l app=traefik</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证cert-manager运行状态</span></span><br><span class="line">kubectl get pods -n cert-manager</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 验证Gitea运行状态</span></span><br><span class="line">kubectl get pods -n gitea</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 验证Helm可用性</span></span><br><span class="line">helm version --short</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 验证域名解析</span></span><br><span class="line">nslookup argocd.example.io</span><br></pre></td></tr></table></figure>
+
+<p><strong>前置条件检查清单：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> K3s集群运行正常</li>
+<li><input disabled="" type="checkbox"> Traefik反向代理可用</li>
+<li><input disabled="" type="checkbox"> cert-manager证书管理可用</li>
+<li><input disabled="" type="checkbox"> Gitea代码仓库可用（可选，用于测试）</li>
+<li><input disabled="" type="checkbox"> 域名<code>argocd.example.io</code>已解析至K3s节点IP</li>
+<li><input disabled="" type="checkbox"> Helm工具可用</li>
+</ul>
+<h2 id="三、标准化部署ArgoCD"><a href="#三、标准化部署ArgoCD" class="headerlink" title="三、标准化部署ArgoCD"></a>三、标准化部署ArgoCD</h2><h3 id="3-1-环境准备"><a href="#3-1-环境准备" class="headerlink" title="3.1 环境准备"></a>3.1 环境准备</h3><h4 id="3-1-1-添加ArgoCD-Helm仓库"><a href="#3-1-1-添加ArgoCD-Helm仓库" class="headerlink" title="3.1.1 添加ArgoCD Helm仓库"></a>3.1.1 添加ArgoCD Helm仓库</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加ArgoCD官方Helm仓库</span></span><br><span class="line">helm repo add argo https://argoproj.github.io/argo-helm --force-update</span><br><span class="line">helm repo update</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-1-2-创建命名空间"><a href="#3-1-2-创建命名空间" class="headerlink" title="3.1.2 创建命名空间"></a>3.1.2 创建命名空间</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建ArgoCD专属命名空间</span></span><br><span class="line">kubectl create namespace argocd</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-编写配置文件"><a href="#3-2-编写配置文件" class="headerlink" title="3.2 编写配置文件"></a>3.2 编写配置文件</h3><p>创建<code>argocd-values.yaml</code>配置文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># argocd-values.yaml</span></span><br><span class="line"><span class="comment"># 参考：https://gitee.com/Chemmy/kube-template/blob/master/devops/ArgoCD/argocd-values.yaml</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 全局配置</span></span><br><span class="line"><span class="attr">global:</span></span><br><span class="line">  <span class="comment"># 设置访问域名为 argocd.example.io</span></span><br><span class="line">  <span class="attr">domain:</span> <span class="string">argocd.example.io</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Argo CD 核心配置</span></span><br><span class="line"><span class="attr">configs:</span></span><br><span class="line">  <span class="attr">cm:</span></span><br><span class="line">    <span class="comment"># 启用本地 admin 用户</span></span><br><span class="line">    <span class="attr">admin.enabled:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">params:</span></span><br><span class="line">    <span class="comment"># 禁用 Argo CD Server 的 HTTPS，让 Traefik 处理 TLS</span></span><br><span class="line">    <span class="attr">server.insecure:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Server 配置</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="comment"># 启用 Ingress，由 Traefik 接管</span></span><br><span class="line">  <span class="attr">ingress:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 指定 IngressClass 为 traefik（K3s 默认）</span></span><br><span class="line">    <span class="attr">annotations:</span></span><br><span class="line">      <span class="attr">traefik.ingress.kubernetes.io/router.tls:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">      <span class="attr">traefik.ingress.kubernetes.io/router.entrypoints:</span> <span class="string">websecure</span></span><br><span class="line">    <span class="attr">ingressClassName:</span> <span class="string">&quot;traefik&quot;</span></span><br><span class="line">    <span class="attr">hosts:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">argocd.example.io</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">service:</span></span><br><span class="line">    <span class="comment"># 使用 ClusterIP，Traefik 通过 Service 发现后端</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Redis（Argo CD 必需，保持启用）</span></span><br><span class="line"><span class="attr">redis:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 关闭通知模块节省资源</span></span><br><span class="line"><span class="attr">notifications:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Dex（如无需 SSO 登录，可关闭以节省资源）</span></span><br><span class="line"><span class="attr">dex:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 其他组件保持默认</span></span><br><span class="line"><span class="attr">crds:</span></span><br><span class="line">  <span class="attr">install:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">keep:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-一键部署ArgoCD"><a href="#3-3-一键部署ArgoCD" class="headerlink" title="3.3 一键部署ArgoCD"></a>3.3 一键部署ArgoCD</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署ArgoCD</span></span><br><span class="line">helm install argocd argo/argo-cd \</span><br><span class="line">  --namespace argocd \</span><br><span class="line">  --version 9.4.1 \</span><br><span class="line">  -f argocd-values.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用在线配置</span></span><br><span class="line">helm install argocd argo/argo-cd \</span><br><span class="line">  --namespace argocd \</span><br><span class="line">  --version 9.4.1 \</span><br><span class="line">  --<span class="built_in">set</span> global.domain=argocd.example.io \</span><br><span class="line">  --<span class="built_in">set</span> server.ingress.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> server.ingress.ingressClassName=traefik \</span><br><span class="line">  --<span class="built_in">set</span> server.ingress.hosts[0]=argocd.example.io \</span><br><span class="line">  --<span class="built_in">set</span> server.insecure=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> notifications.enabled=<span class="literal">false</span> \</span><br><span class="line">  --<span class="built_in">set</span> dex.enabled=<span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-验证部署状态"><a href="#3-4-验证部署状态" class="headerlink" title="3.4 验证部署状态"></a>3.4 验证部署状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看ArgoCD Pod状态</span></span><br><span class="line">kubectl get pods -n argocd -w</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Ingress资源</span></span><br><span class="line">kubectl get ingress -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看ArgoCD服务状态</span></span><br><span class="line">kubectl get svc -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看部署完成状态</span></span><br><span class="line">kubectl <span class="built_in">wait</span> --<span class="keyword">for</span>=condition=Ready pods -l app.kubernetes.io/name=argocd-server -n argocd --<span class="built_in">timeout</span>=300s</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、配置HTTPS访问"><a href="#四、配置HTTPS访问" class="headerlink" title="四、配置HTTPS访问"></a>四、配置HTTPS访问</h2><h3 id="4-1-创建ArgoCD证书"><a href="#4-1-创建ArgoCD证书" class="headerlink" title="4.1 创建ArgoCD证书"></a>4.1 创建ArgoCD证书</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># argocd-certificate.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">cert-manager.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Certificate</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">argocd-cert</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">argocd</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">secretName:</span> <span class="string">argocd-tls-secret</span></span><br><span class="line">  <span class="attr">issuerRef:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">selfsigned-cluster-issuer</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">ClusterIssuer</span></span><br><span class="line">  <span class="attr">commonName:</span> <span class="string">argocd.example.io</span></span><br><span class="line">  <span class="attr">dnsNames:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">argocd.example.io</span></span><br><span class="line">  <span class="attr">duration:</span> <span class="string">2160h</span></span><br><span class="line">  <span class="attr">renewBefore:</span> <span class="string">360h</span></span><br><span class="line">  <span class="attr">privateKey:</span></span><br><span class="line">    <span class="attr">algorithm:</span> <span class="string">RSA</span></span><br><span class="line">    <span class="attr">size:</span> <span class="number">2048</span></span><br><span class="line">  <span class="attr">usages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">server</span> <span class="string">auth</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-配置IngressRoute"><a href="#4-2-配置IngressRoute" class="headerlink" title="4.2 配置IngressRoute"></a>4.2 配置IngressRoute</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># argocd-ingressroute.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">traefik.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">IngressRoute</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">argocd-websecure</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">argocd</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">entryPoints:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">websecure</span></span><br><span class="line">  <span class="attr">routes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">match:</span> <span class="string">Host(`argocd.example.io`)</span> <span class="string">&amp;&amp;</span> <span class="string">PathPrefix(`/`)</span></span><br><span class="line">      <span class="attr">kind:</span> <span class="string">Rule</span></span><br><span class="line">      <span class="attr">services:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">argocd-server</span></span><br><span class="line">          <span class="attr">passHostHeader:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">  <span class="attr">tls:</span></span><br><span class="line">    <span class="attr">secretName:</span> <span class="string">argocd-tls-secret</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-应用HTTPS配置"><a href="#4-3-应用HTTPS配置" class="headerlink" title="4.3 应用HTTPS配置"></a>4.3 应用HTTPS配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用证书和路由配置</span></span><br><span class="line">kubectl apply -f argocd-certificate.yaml</span><br><span class="line">kubectl apply -f argocd-ingressroute.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证证书状态</span></span><br><span class="line">kubectl get certificate -n argocd</span><br><span class="line">kubectl describe certificate argocd-cert -n argocd</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、访问与初始化ArgoCD"><a href="#五、访问与初始化ArgoCD" class="headerlink" title="五、访问与初始化ArgoCD"></a>五、访问与初始化ArgoCD</h2><h3 id="5-1-获取初始密码"><a href="#5-1-获取初始密码" class="headerlink" title="5.1 获取初始密码"></a>5.1 获取初始密码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取初始管理员密码</span></span><br><span class="line">kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=<span class="string">&quot;&#123;.data.password&#125;&quot;</span> | <span class="built_in">base64</span> -d &amp;&amp; <span class="built_in">echo</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用更安全的方式</span></span><br><span class="line">ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=<span class="string">&quot;&#123;.data.password&#125;&quot;</span> | <span class="built_in">base64</span> -d)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;ArgoCD初始密码: <span class="variable">$ARGOCD_PASSWORD</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-访问ArgoCD-Web-UI"><a href="#5-2-访问ArgoCD-Web-UI" class="headerlink" title="5.2 访问ArgoCD Web UI"></a>5.2 访问ArgoCD Web UI</h3><ol>
+<li>浏览器访问：<code>https://argocd.example.io</code></li>
+<li>用户名：<code>admin</code></li>
+<li>密码：使用上述获取的初始密码</li>
+<li>首次登录后立即修改密码（User Info → Update Password）</li>
+</ol>
+<h3 id="5-3-CLI工具安装与配置（可选）"><a href="#5-3-CLI工具安装与配置（可选）" class="headerlink" title="5.3 CLI工具安装与配置（可选）"></a>5.3 CLI工具安装与配置（可选）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux系统安装ArgoCD CLI</span></span><br><span class="line">curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64</span><br><span class="line"><span class="built_in">sudo</span> install -m 755 argocd-linux-amd64 /usr/local/bin/argocd</span><br><span class="line"><span class="built_in">rm</span> -f argocd-linux-amd64</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证安装</span></span><br><span class="line">argocd version --client</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登录ArgoCD</span></span><br><span class="line">argocd login argocd.example.io --grpc-web --username admin --password <span class="variable">$ARGOCD_PASSWORD</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用token登录（更安全）</span></span><br><span class="line">argocd account generate-token --account admin</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、验证部署结果"><a href="#六、验证部署结果" class="headerlink" title="六、验证部署结果"></a>六、验证部署结果</h2><h3 id="6-1-验证组件状态"><a href="#6-1-验证组件状态" class="headerlink" title="6.1 验证组件状态"></a>6.1 验证组件状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有ArgoCD组件状态</span></span><br><span class="line">kubectl get all -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看证书和路由状态</span></span><br><span class="line">kubectl get certificate,ingressroute -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看ArgoCD日志</span></span><br><span class="line">kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server --<span class="built_in">tail</span>=50</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试HTTPS访问</span></span><br><span class="line">curl -k https://argocd.example.io</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-测试GitOps功能"><a href="#6-2-测试GitOps功能" class="headerlink" title="6.2 测试GitOps功能"></a>6.2 测试GitOps功能</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建测试应用（使用Gitea仓库）</span></span><br><span class="line"><span class="built_in">cat</span> &gt; test-application.yaml &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: argoproj.io/v1alpha1</span></span><br><span class="line"><span class="string">kind: Application</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: test-app</span></span><br><span class="line"><span class="string">  namespace: argocd</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  project: default</span></span><br><span class="line"><span class="string">  source:</span></span><br><span class="line"><span class="string">    repoURL: https://gitea.example.io/gitea_admin/test-repo.git</span></span><br><span class="line"><span class="string">    targetRevision: HEAD</span></span><br><span class="line"><span class="string">    path: k8s/</span></span><br><span class="line"><span class="string">  destination:</span></span><br><span class="line"><span class="string">    server: https://kubernetes.default.svc</span></span><br><span class="line"><span class="string">    namespace: default</span></span><br><span class="line"><span class="string">  syncPolicy:</span></span><br><span class="line"><span class="string">    automated:</span></span><br><span class="line"><span class="string">      prune: true</span></span><br><span class="line"><span class="string">      selfHeal: true</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用测试配置</span></span><br><span class="line">kubectl apply -f test-application.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看应用状态</span></span><br><span class="line">kubectl get application -n argocd</span><br><span class="line">argocd app get test-app</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-清理测试资源"><a href="#6-3-清理测试资源" class="headerlink" title="6.3 清理测试资源"></a>6.3 清理测试资源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 清理测试应用</span></span><br><span class="line">kubectl delete -f test-application.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、生产环境配置建议"><a href="#七、生产环境配置建议" class="headerlink" title="七、生产环境配置建议"></a>七、生产环境配置建议</h2><h3 id="7-1-安全加固"><a href="#7-1-安全加固" class="headerlink" title="7.1 安全加固"></a>7.1 安全加固</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在argocd-values.yaml中添加安全配置</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">extraArgs:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--insecure</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--disable-auth</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--rootpath=/argocd</span></span><br><span class="line">  <span class="attr">ingress:</span></span><br><span class="line">    <span class="attr">annotations:</span></span><br><span class="line">      <span class="attr">traefik.ingress.kubernetes.io/whitelist-source-range:</span> <span class="string">&quot;192.168.0.0/16,10.0.0.0/8&quot;</span></span><br><span class="line">      <span class="attr">traefik.ingress.kubernetes.io/rate-limit:</span> <span class="string">&quot;10&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-资源优化"><a href="#7-2-资源优化" class="headerlink" title="7.2 资源优化"></a>7.2 资源优化</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 调整资源限制</span></span><br><span class="line"><span class="attr">controller:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">repoServer:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-监控配置"><a href="#7-3-监控配置" class="headerlink" title="7.3 监控配置"></a>7.3 监控配置</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启用监控</span></span><br><span class="line"><span class="attr">controller:</span></span><br><span class="line">  <span class="attr">metrics:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">serviceMonitor:</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">metrics:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="八、日常运维命令"><a href="#八、日常运维命令" class="headerlink" title="八、日常运维命令"></a>八、日常运维命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看ArgoCD状态</span></span><br><span class="line">argocd version</span><br><span class="line">argocd cluster list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 管理应用</span></span><br><span class="line">argocd app list</span><br><span class="line">argocd app get &lt;app-name&gt;</span><br><span class="line">argocd app <span class="built_in">sync</span> &lt;app-name&gt;</span><br><span class="line">argocd app <span class="built_in">history</span> &lt;app-name&gt;</span><br><span class="line">argocd app rollback &lt;app-name&gt; --<span class="built_in">id</span> &lt;revision-id&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 管理项目</span></span><br><span class="line">argocd proj list</span><br><span class="line">argocd proj get &lt;project-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line">kubectl logs -f deployment/argocd-server -n argocd</span><br><span class="line">kubectl logs -f deployment/argocd-repo-server -n argocd</span><br><span class="line">kubectl logs -f deployment/argocd-application-controller -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启组件</span></span><br><span class="line">kubectl rollout restart deployment argocd-server -n argocd</span><br><span class="line">kubectl rollout restart deployment argocd-repo-server -n argocd</span><br><span class="line">kubectl rollout restart deployment argocd-application-controller -n argocd</span><br></pre></td></tr></table></figure>
+
+<h2 id="九、常见问题修复"><a href="#九、常见问题修复" class="headerlink" title="九、常见问题修复"></a>九、常见问题修复</h2><table>
+<thead>
+<tr>
+<th>问题现象</th>
+<th>排查方向</th>
+<th>修复方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无法访问Web UI</td>
+<td>域名解析&#x2F;IngressRoute</td>
+<td>检查域名解析，验证IngressRoute配置，查看Traefik日志</td>
+</tr>
+<tr>
+<td>证书警告或错误</td>
+<td>证书签发&#x2F;Secret</td>
+<td>检查cert-manager状态，验证证书Secret是否存在</td>
+</tr>
+<tr>
+<td>无法同步Git仓库</td>
+<td>网络&#x2F;认证</td>
+<td>检查网络连通性，配置SSH密钥或访问令牌</td>
+</tr>
+<tr>
+<td>资源同步失败</td>
+<td>权限&#x2F;资源配置</td>
+<td>检查ServiceAccount权限，验证资源配置格式</td>
+</tr>
+<tr>
+<td>CLI登录失败</td>
+<td>网络&#x2F;认证</td>
+<td>检查网络代理，验证用户名密码，使用–grpc-web参数</td>
+</tr>
+<tr>
+<td>内存占用过高</td>
+<td>资源限制&#x2F;应用数量</td>
+<td>调整资源限制，减少监控的应用数量</td>
+</tr>
+</tbody></table>
+<h2 id="十、配置参考"><a href="#十、配置参考" class="headerlink" title="十、配置参考"></a>十、配置参考</h2><p>所有ArgoCD配置文件和部署脚本请参考：<br><strong><a target="_blank" rel="noopener" href="https://gitee.com/Chemmy/kube-template/tree/master/devops/ArgoCD">https://gitee.com/Chemmy/kube-template/tree/master/devops/ArgoCD</a></strong></p>
+<p>该目录包含：</p>
+<ul>
+<li>ArgoCD Helm values配置</li>
+<li>证书和路由配置</li>
+<li>生产环境优化配置</li>
+<li>示例应用配置</li>
+<li>监控和备份脚本</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文完成了ArgoCD在K3s集群中的标准化部署，实现了GitOps核心组件的完整功能。ArgoCD作为GitOps环境的核心执行引擎，为自动化部署提供了强大的能力。</p>
+<p>部署完成后，建议创建测试应用验证同步功能，配置自动同步策略，并设置适当的资源限制。下一篇文章将部署Tekton CI流水线，为GitOps环境提供持续集成能力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/ArgoCD/" rel="tag"># ArgoCD</a>
+              <a href="/tags/GitOps/" rel="tag"># GitOps</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/25/Linux/%E9%BA%92%E9%BA%9FV10%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AENVIDIA%E6%98%BE%E5%8D%A1%E9%A9%B1%E5%8A%A8%E5%8F%8ADockerGPU%E6%94%AF%E6%8C%81/" rel="prev" title="麒麟V10系统配置NVIDIA显卡驱动及DockerGPU支持">
+                  <i class="fa fa-angle-left"></i> 麒麟V10系统配置NVIDIA显卡驱动及DockerGPU支持
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/04/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%838-%E9%83%A8%E7%BD%B2Tekton/" rel="next" title="基于K3s搭建GitOps环境8-部署Tekton">
+                  基于K3s搭建GitOps环境8-部署Tekton <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

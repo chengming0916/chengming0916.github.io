@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、 核心概念与工具1.1 启动模式检测：UEFI vs BIOS在开始分区前，需确定系统的启动模式，这将决定分区表类型。 12# 检查是否为 UEFI 启动ls &#x2F;sys&#x2F;firmware&#x2F;efi&#x2F;efivars  目录存在：系统以 UEFI 模式启动，必须使用 GPT 分区表。 目录不存在：系统以传统 BIOS&#x2F;CSM 模式启动，通常使用 MBR 分区表。  1.2 分区工具选择 f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux硬盘分区">
+<meta property="og:url" content="http://chengming0916.github.io/2018/03/22/Linux/Linux%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、 核心概念与工具1.1 启动模式检测：UEFI vs BIOS在开始分区前，需确定系统的启动模式，这将决定分区表类型。 12# 检查是否为 UEFI 启动ls &#x2F;sys&#x2F;firmware&#x2F;efi&#x2F;efivars  目录存在：系统以 UEFI 模式启动，必须使用 GPT 分区表。 目录不存在：系统以传统 BIOS&#x2F;CSM 模式启动，通常使用 MBR 分区表。  1.2 分区工具选择 f">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-22T01:31:46.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.633Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Parted">
+<meta property="article:tag" content="分区">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2018/03/22/Linux/Linux%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2018/03/22/Linux/Linux%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA/","path":"2018/03/22/Linux/Linux硬盘分区/","title":"Linux硬盘分区"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Linux硬盘分区 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B8%8E%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">一、 核心概念与工具</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-%E5%90%AF%E5%8A%A8%E6%A8%A1%E5%BC%8F%E6%A3%80%E6%B5%8B%EF%BC%9AUEFI-vs-BIOS"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 启动模式检测：UEFI vs BIOS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-%E5%88%86%E5%8C%BA%E5%B7%A5%E5%85%B7%E9%80%89%E6%8B%A9"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 分区工具选择</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-parted-%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 parted 命令详解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-4-GPT-%E5%88%86%E5%8C%BA%E8%A1%A8%E7%AE%80%E4%BB%8B"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 GPT 分区表简介</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E5%AE%9E%E6%88%98%E5%88%86%E5%8C%BA%E6%B5%81%E7%A8%8B%EF%BC%88%E4%BB%A5-Arch-Linux-%E5%AE%89%E8%A3%85%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、 实战分区流程（以 Arch Linux 安装为例）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-%E7%8E%AF%E5%A2%83%E6%A3%80%E6%9F%A5%E4%B8%8E%E8%A7%84%E5%88%92"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 环境检查与规划</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-%E6%89%A7%E8%A1%8C%E5%88%86%E5%8C%BA%E6%93%8D%E4%BD%9C"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 执行分区操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%88%86%E5%8C%BA"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 格式化分区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-%E6%8C%82%E8%BD%BD%E5%88%86%E5%8C%BA"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 挂载分区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-5-%E7%94%9F%E6%88%90%E5%BC%95%E5%AF%BC%EF%BC%88GRUB-%E7%A4%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 生成引导（GRUB 示例）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E9%AB%98%E7%BA%A7%E6%A1%88%E4%BE%8B%E4%B8%8E%E8%84%9A%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">三、 高级案例与脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-%E6%95%85%E9%9A%9C%E5%A4%84%E7%90%86%EF%BC%9A%E5%9D%8F%E7%9B%98%E6%9B%B4%E6%8D%A2%E4%B8%8E%E9%87%8D%E5%BB%BA"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 故障处理：坏盘更换与重建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%88%86%E5%8C%BA%E8%84%9A%E6%9C%AC"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 自动化分区脚本</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-%E6%89%B9%E9%87%8F%E5%88%86%E5%8C%BA%E4%B8%8E%E6%8C%82%E8%BD%BD"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 批量分区与挂载</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="nav-number">4.</span> <span class="nav-text">四、 关键注意事项与技巧</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2018/03/22/Linux/Linux%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Linux硬盘分区 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux硬盘分区
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-03-22 09:31:46" itemprop="dateCreated datePublished" datetime="2018-03-22T09:31:46+08:00">2018-03-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="一、-核心概念与工具"><a href="#一、-核心概念与工具" class="headerlink" title="一、 核心概念与工具"></a>一、 核心概念与工具</h4><h5 id="1-1-启动模式检测：UEFI-vs-BIOS"><a href="#1-1-启动模式检测：UEFI-vs-BIOS" class="headerlink" title="1.1 启动模式检测：UEFI vs BIOS"></a>1.1 启动模式检测：UEFI vs BIOS</h5><p>在开始分区前，需确定系统的启动模式，这将决定分区表类型。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查是否为 UEFI 启动</span></span><br><span class="line"><span class="built_in">ls</span> /sys/firmware/efi/efivars</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>目录存在</strong>：系统以 <strong>UEFI</strong> 模式启动，<strong>必须使用 GPT 分区表</strong>。</li>
+<li><strong>目录不存在</strong>：系统以传统 <strong>BIOS&#x2F;CSM</strong> 模式启动，通常使用 <strong>MBR 分区表</strong>。</li>
+</ul>
+<h5 id="1-2-分区工具选择"><a href="#1-2-分区工具选择" class="headerlink" title="1.2 分区工具选择"></a>1.2 分区工具选择</h5><ul>
+<li><strong><code>fdisk</code><strong>：传统工具，简单易用，但</strong>不支持 GPT 分区表</strong>，无法处理大于 2TB 的磁盘。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fdisk -l <span class="comment"># 查看所有分区</span></span><br><span class="line"><span class="comment"># 常用交互命令：p(显示), n(新建), d(删除), t(改类型), w(写入), q(退出)</span></span><br></pre></td></tr></table></figure></li>
+<li><strong><code>parted</code><strong>：功能强大的现代化工具，</strong>支持 GPT 和 MBR</strong>，可处理任意大小的磁盘，支持脚本化。</li>
+</ul>
+<h5 id="1-3-parted-命令详解"><a href="#1-3-parted-命令详解" class="headerlink" title="1.3 parted 命令详解"></a>1.3 <code>parted</code> 命令详解</h5><p><strong>基本语法</strong>：<code>parted [选项] &lt;设备&gt; [命令]</code></p>
+<ul>
+<li><strong>常用选项</strong>：<ul>
+<li><code>-l</code>：列出所有设备的分区信息。</li>
+<li><code>-s</code>：脚本模式，不提示用户。</li>
+<li><code>-i</code>：交互模式（默认）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>交互模式常用命令</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">命令</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>print</code></td>
+<td align="left">打印当前磁盘的分区表。</td>
+</tr>
+<tr>
+<td align="left"><code>mklabel &lt;类型&gt;</code></td>
+<td align="left">创建新的磁盘标签（分区表），如 <code>gpt</code> 或 <code>msdos</code> (MBR)。</td>
+</tr>
+<tr>
+<td align="left"><code>mkpart &lt;类型&gt; [文件系统] 起点 终点</code></td>
+<td align="left">创建分区。类型：<code>primary</code>(主), <code>extended</code>(扩展), <code>logical</code>(逻辑)。</td>
+</tr>
+<tr>
+<td align="left"><code>rm &lt;分区号&gt;</code></td>
+<td align="left">删除指定编号的分区。</td>
+</tr>
+<tr>
+<td align="left"><code>set &lt;分区号&gt; &lt;标志&gt; on/off</code></td>
+<td align="left">设置分区标志，如 <code>boot</code>, <code>lvm</code>。</td>
+</tr>
+<tr>
+<td align="left"><code>unit &lt;单位&gt;</code></td>
+<td align="left">设置显示单位，如 <code>GB</code>, <code>MB</code>, <code>s</code>(扇区), <code>%</code>(百分比)。</td>
+</tr>
+<tr>
+<td align="left"><code>quit</code></td>
+<td align="left">退出。</td>
+</tr>
+</tbody></table>
+<p><strong>示例：创建 GPT 分区表并分区</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">parted /dev/sda</span><br><span class="line">(parted) mklabel gpt</span><br><span class="line">(parted) mkpart primary ext4 1MiB 500GiB</span><br><span class="line">(parted) mkpart primary linux-swap 500GiB 508GiB</span><br><span class="line">(parted) <span class="built_in">print</span></span><br><span class="line">(parted) quit</span><br></pre></td></tr></table></figure>
+
+<h5 id="1-4-GPT-分区表简介"><a href="#1-4-GPT-分区表简介" class="headerlink" title="1.4 GPT 分区表简介"></a>1.4 GPT 分区表简介</h5><p>对于 UEFI 系统或大容量磁盘（&gt;2TB），推荐使用 **GPT (GUID Partition Table)**。</p>
+<ul>
+<li><strong>优点</strong>：<ul>
+<li>支持超过 2TB 的磁盘。</li>
+<li>最多支持 128 个主分区。</li>
+<li>包含冗余的备份分区表，更健壮。</li>
+<li>使用全局唯一标识符 (GUID)。</li>
+</ul>
+</li>
+<li><strong>结构</strong>：包含一个保护性 MBR (LBA 0)、GPT 头 (LBA 1) 和分区表项 (LBA 2-33)。备份结构位于磁盘末尾。</li>
+</ul>
+<h4 id="二、-实战分区流程（以-Arch-Linux-安装为例）"><a href="#二、-实战分区流程（以-Arch-Linux-安装为例）" class="headerlink" title="二、 实战分区流程（以 Arch Linux 安装为例）"></a>二、 实战分区流程（以 Arch Linux 安装为例）</h4><h5 id="2-1-环境检查与规划"><a href="#2-1-环境检查与规划" class="headerlink" title="2.1 环境检查与规划"></a>2.1 环境检查与规划</h5><ol>
+<li><strong>检查启动模式</strong>（见 1.1）。</li>
+<li><strong>规划分区方案</strong>（示例）：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="left">挂载点</th>
+<th align="left">设备</th>
+<th align="left">大小</th>
+<th align="left">文件系统</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>/boot/efi</code> (UEFI) 或 <code>/boot</code> (BIOS)</td>
+<td align="left"><code>/dev/sda1</code></td>
+<td align="left">512 MiB</td>
+<td align="left">FAT32</td>
+<td align="left">EFI 系统分区 (ESP) 或 BIOS 启动分区。</td>
+</tr>
+<tr>
+<td align="left"><code>[SWAP]</code></td>
+<td align="left"><code>/dev/sda2</code></td>
+<td align="left">8 GiB</td>
+<td align="left">swap</td>
+<td align="left">交换空间。</td>
+</tr>
+<tr>
+<td align="left"><code>/</code></td>
+<td align="left"><code>/dev/sda3</code></td>
+<td align="left">200 GiB</td>
+<td align="left">ext4</td>
+<td align="left">根分区。</td>
+</tr>
+<tr>
+<td align="left"><code>/home</code></td>
+<td align="left"><code>/dev/sda4</code></td>
+<td align="left">剩余空间</td>
+<td align="left">ext4</td>
+<td align="left">用户家目录。</td>
+</tr>
+</tbody></table>
+<h5 id="2-2-执行分区操作"><a href="#2-2-执行分区操作" class="headerlink" title="2.2 执行分区操作"></a>2.2 执行分区操作</h5><p>使用 <code>parted</code> 或 <code>fdisk</code> 按规划创建分区。以下是 <code>parted</code> 的 UEFI+GPT 方案示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">parted /dev/sda</span><br><span class="line">(parted) mklabel gpt</span><br><span class="line">(parted) mkpart ESP fat32 1MiB 513MiB</span><br><span class="line">(parted) <span class="built_in">set</span> 1 esp on <span class="comment"># 为 ESP 分区设置 `esp` 标志</span></span><br><span class="line">(parted) mkpart primary linux-swap 513MiB 8705MiB <span class="comment"># 8GiB swap</span></span><br><span class="line">(parted) mkpart primary ext4 8705MiB 208705MiB <span class="comment"># 200GiB root</span></span><br><span class="line">(parted) mkpart primary ext4 208705MiB 100% <span class="comment"># 剩余空间给 home</span></span><br><span class="line">(parted) <span class="built_in">print</span></span><br><span class="line">(parted) quit</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-3-格式化分区"><a href="#2-3-格式化分区" class="headerlink" title="2.3 格式化分区"></a>2.3 格式化分区</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># UEFI: 格式化 ESP 分区为 FAT32</span></span><br><span class="line">mkfs.fat -F 32 /dev/sda1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 格式化交换分区</span></span><br><span class="line">mkswap /dev/sda2</span><br><span class="line">swapon /dev/sda2 <span class="comment"># 启用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 格式化根分区和家目录分区</span></span><br><span class="line">mkfs.ext4 /dev/sda3</span><br><span class="line">mkfs.ext4 /dev/sda4</span><br><span class="line"><span class="comment"># 或使用其他文件系统，如 xfs: mkfs.xfs /dev/sda4</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-4-挂载分区"><a href="#2-4-挂载分区" class="headerlink" title="2.4 挂载分区"></a>2.4 挂载分区</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 挂载根分区</span></span><br><span class="line">mount /dev/sda3 /mnt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建并挂载其他目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /mnt/boot/efi <span class="comment"># UEFI</span></span><br><span class="line">mount /dev/sda1 /mnt/boot/efi</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -p /mnt/home</span><br><span class="line">mount /dev/sda4 /mnt/home</span><br><span class="line"></span><br><span class="line"><span class="comment"># BIOS 系统挂载 /boot (如果单独分区)</span></span><br><span class="line"><span class="comment"># mkdir -p /mnt/boot</span></span><br><span class="line"><span class="comment"># mount /dev/sda1 /mnt/boot</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-5-生成引导（GRUB-示例）"><a href="#2-5-生成引导（GRUB-示例）" class="headerlink" title="2.5 生成引导（GRUB 示例）"></a>2.5 生成引导（GRUB 示例）</h5><ul>
+<li><strong>BIOS 系统</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pacman -S grub os-prober</span><br><span class="line">grub-install --target=i386-pc --recheck /dev/sda <span class="comment"># 注意是磁盘 (sda)，不是分区 (sda1)</span></span><br><span class="line">grub-mkconfig -o /boot/grub/grub.cfg</span><br></pre></td></tr></table></figure></li>
+<li><strong>UEFI 系统</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pacman -S grub efibootmgr</span><br><span class="line">grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB</span><br><span class="line">grub-mkconfig -o /boot/grub/grub.cfg</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="三、-高级案例与脚本"><a href="#三、-高级案例与脚本" class="headerlink" title="三、 高级案例与脚本"></a>三、 高级案例与脚本</h4><h5 id="3-1-故障处理：坏盘更换与重建"><a href="#3-1-故障处理：坏盘更换与重建" class="headerlink" title="3.1 故障处理：坏盘更换与重建"></a>3.1 故障处理：坏盘更换与重建</h5><p>案例：在 RAID 卡（如 MegaRAID）环境下更换故障硬盘并重建。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 清除控制器上保留的缓存（如果之前有虚拟磁盘丢失）</span></span><br><span class="line">/opt/MegaRAID/MegaCli/MegaCli64 -DiscardPreservedCache -L&lt;VD编号&gt; -a0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 将新物理盘做成单盘 RAID0（根据 Enclosure ID 和 Slot Number）</span></span><br><span class="line">/opt/MegaRAID/MegaCli/MegaCli64 -CfgLdAdd -r0[8:11] WB RA Direct -a0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 开始重建（可选，通常会自动开始）</span></span><br><span class="line">/opt/MegaRAID/MegaCli/MegaCli64 -PDRbld -ShowProg -PhysDrv [8:11] -a0</span><br></pre></td></tr></table></figure>
+<p>之后，对新磁盘 (<code>/dev/sdk</code>) 进行分区、格式化、更新 <code>/etc/fstab</code> 并挂载。</p>
+<p><strong>注意</strong>：如果 <code>mount -a</code> 失败，尝试执行 <code>systemctl daemon-reload</code> 后重试。</p>
+<h5 id="3-2-自动化分区脚本"><a href="#3-2-自动化分区脚本" class="headerlink" title="3.2 自动化分区脚本"></a>3.2 自动化分区脚本</h5><p>以下脚本用于将单块磁盘快速分区为单个 GPT 分区并格式化为 ext4。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># fenqu.sh - 快速格式化单磁盘为单个分区</span></span><br><span class="line">disk_to_parted=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$#</span> -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Usage: <span class="variable">$0</span> /dev/sdX&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;****** Partitioning <span class="variable">$&#123;disk_to_parted&#125;</span> ... ******&quot;</span></span><br><span class="line">parted -s <span class="variable">$&#123;disk_to_parted&#125;</span> mklabel gpt</span><br><span class="line">parted -s <span class="variable">$&#123;disk_to_parted&#125;</span> mkpart primary 0% 100%</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;****** Formatting <span class="variable">$&#123;disk_to_parted&#125;</span>1 as ext4 ... ******&quot;</span></span><br><span class="line">mkfs.ext4 <span class="variable">$&#123;disk_to_parted&#125;</span>1</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;****** New UUID: ******&quot;</span></span><br><span class="line">blkid <span class="variable">$&#123;disk_to_parted&#125;</span>1</span><br></pre></td></tr></table></figure>
+<p><strong>使用方式</strong>：<code>sh fenqu.sh /dev/sdb</code></p>
+<h5 id="3-3-批量分区与挂载"><a href="#3-3-批量分区与挂载" class="headerlink" title="3.3 批量分区与挂载"></a>3.3 批量分区与挂载</h5><p>在多磁盘环境中（如 Hadoop 数据节点），可以结合循环和 <code>blkid</code> 实现批量操作。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 批量分区格式化（排除系统盘 sda 和特定盘 sdb）</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> $(lsblk | grep -v sda | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> | sed <span class="string">&#x27;1d&#x27;</span> | grep -v sdb); <span class="keyword">do</span></span><br><span class="line">    sh fenqu.sh /dev/<span class="variable">$&#123;i&#125;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 获取所有新分区的 UUID，用于编写 /etc/fstab</span></span><br><span class="line">blkid | grep -v sda | grep -v sdb | awk -F <span class="string">&#x27;&quot;&#x27;</span> <span class="string">&#x27;&#123;print &quot;UUID=&quot;$2&quot; /hadoop/&quot;NR&quot; ext4 defaults 0 0&quot;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 创建挂载点并挂载</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..8&#125;; <span class="keyword">do</span> <span class="built_in">mkdir</span> -p /hadoop/0<span class="variable">$i</span>; <span class="keyword">done</span></span><br><span class="line">mount -a</span><br></pre></td></tr></table></figure>
+
+<h4 id="四、-关键注意事项与技巧"><a href="#四、-关键注意事项与技巧" class="headerlink" title="四、 关键注意事项与技巧"></a>四、 关键注意事项与技巧</h4><ol>
+<li><strong>分区对齐</strong>：使用 <code>parted</code> 时，建议起点从 <code>1MiB</code> (2048扇区) 开始，以获得最佳性能，避免“未对齐”警告。</li>
+<li><strong>谨慎操作</strong>：<code>parted</code> 命令在交互模式下<strong>立即生效</strong>，没有类似 <code>fdisk</code> 的“写入”确认步骤。删除或格式化前务必确认设备名。</li>
+<li><strong>低格填零</strong>：如需彻底清空磁盘（如安全擦除），可使用 <code>dd</code>，但极其耗时且伤盘。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=16M status=progress</span><br></pre></td></tr></table></figure></li>
+<li><strong>文件系统选择</strong>：<ul>
+<li><code>ext4</code>：稳定、兼容性好，通用选择。</li>
+<li><code>xfs</code>：擅长处理大文件和高并发，适合数据存储。</li>
+<li><code>btrfs</code>：支持快照、压缩等高级特性，但相对年轻。</li>
+</ul>
+</li>
+<li>**<code>/etc/fstab</code>**：使用 <code>UUID=</code> 而非 <code>/dev/sdX</code> 来标识分区，避免设备名变化导致启动失败。使用 <code>blkid</code> 命令获取 UUID。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Parted/" rel="tag"># Parted</a>
+              <a href="/tags/%E5%88%86%E5%8C%BA/" rel="tag"># 分区</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/21/Linux/ArchLinux%E5%AE%89%E8%A3%85/" rel="prev" title="ArchLinux安装">
+                  <i class="fa fa-angle-left"></i> ArchLinux安装
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/07/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/RabbitMQ%E6%95%99%E7%A8%8BC#%E7%89%88%20-%20%E4%B8%BB%E9%A2%98/" rel="next" title="[译]RabbitMQ教程C#版 - 主题">
+                  [译]RabbitMQ教程C#版 - 主题 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

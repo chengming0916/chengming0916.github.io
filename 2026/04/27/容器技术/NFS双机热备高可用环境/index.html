@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、 架构概述与设计目标1.1 设计目标 **高可用 (HA)**：通过 Keepalived 实现 NFS 服务的 VIP (Virtual IP) 漂移，当主节点故障时，备用节点自动接管服务，客户端无感知。 数据同步：通过 Rsync + Inotify 实现主备节点间共享数据的实时单向同步，确保备用节点上的数据与主节点一致。 服务监控：Keepalived 监控 NFS 服务进程，异常时尝试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NFS双机热备高可用环境">
+<meta property="og:url" content="http://chengming0916.github.io/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、 架构概述与设计目标1.1 设计目标 **高可用 (HA)**：通过 Keepalived 实现 NFS 服务的 VIP (Virtual IP) 漂移，当主节点故障时，备用节点自动接管服务，客户端无感知。 数据同步：通过 Rsync + Inotify 实现主备节点间共享数据的实时单向同步，确保备用节点上的数据与主节点一致。 服务监控：Keepalived 监控 NFS 服务进程，异常时尝试">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/IMG-20260420132935648.png">
+<meta property="article:published_time" content="2026-04-27T10:12:38.472Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.472Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="NFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/IMG-20260420132935648.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/","path":"2026/04/27/容器技术/NFS双机热备高可用环境/","title":"NFS双机热备高可用环境"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NFS双机热备高可用环境 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0%E4%B8%8E%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">一、 架构概述与设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 设计目标</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E4%B8%8E%E6%9E%B6%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心组件与架构</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">2.</span> <span class="nav-text">二、 环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%A7%84%E5%88%92"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 服务器规划</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-%E5%9F%BA%E7%A1%80%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 基础系统配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E9%83%A8%E7%BD%B2-NFS-%E6%9C%8D%E5%8A%A1-%E4%B8%BB%E5%A4%87%E8%8A%82%E7%82%B9%E7%9B%B8%E5%90%8C%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">三、 部署 NFS 服务 (主备节点相同操作)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 安装与配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-%E9%AA%8C%E8%AF%81-NFS-%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 验证 NFS 服务</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E9%85%8D%E7%BD%AE-Keepalived-%E5%AE%9E%E7%8E%B0%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">四、 配置 Keepalived 实现高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-1-%E5%AE%89%E8%A3%85-Keepalived"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 安装 Keepalived</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-%E9%85%8D%E7%BD%AE-Keepalived-%E4%B8%BB%E5%A4%87%E5%B7%AE%E5%BC%82"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 配置 Keepalived (主备差异)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-3-%E5%88%9B%E5%BB%BA-NFS-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E8%84%9A%E6%9C%AC"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 创建 NFS 健康检查脚本</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-4-%E5%90%AF%E5%8A%A8%E4%B8%8E%E9%AA%8C%E8%AF%81-Keepalived"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 启动与验证 Keepalived</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E9%85%8D%E7%BD%AE-Rsync-Inotify-%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">5.</span> <span class="nav-text">五、 配置 Rsync + Inotify 实现数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 安装软件包</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-2-%E9%85%8D%E7%BD%AE-Rsync-%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 配置 Rsync 服务端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-3-%E9%85%8D%E7%BD%AE-Rsync-%E8%AE%A4%E8%AF%81"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 配置 Rsync 认证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-4-%E5%90%AF%E5%8A%A8-Rsync-%E6%9C%8D%E5%8A%A1"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 启动 Rsync 服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-5-%E9%85%8D%E7%BD%AE%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E8%84%9A%E6%9C%AC-%E6%A0%B8%E5%BF%83"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 配置自动同步脚本 (核心)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%AD%E3%80%81-%E6%9C%80%E7%BB%88%E9%AA%8C%E8%AF%81%E4%B8%8E%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、 最终验证与总结</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#6-1-%E5%8A%9F%E8%83%BD%E9%AA%8C%E8%AF%81"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 功能验证</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-2-%E9%83%A8%E7%BD%B2%E5%88%B0-Kubernetes"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 部署到 Kubernetes</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-3-%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 关键注意事项</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NFS双机热备高可用环境 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NFS双机热备高可用环境
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-27 18:12:38" itemprop="dateCreated datePublished" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="一、-架构概述与设计目标"><a href="#一、-架构概述与设计目标" class="headerlink" title="一、 架构概述与设计目标"></a>一、 架构概述与设计目标</h4><h5 id="1-1-设计目标"><a href="#1-1-设计目标" class="headerlink" title="1.1 设计目标"></a>1.1 设计目标</h5><ul>
+<li>**高可用 (HA)**：通过 Keepalived 实现 NFS 服务的 VIP (Virtual IP) 漂移，当主节点故障时，备用节点自动接管服务，客户端无感知。</li>
+<li><strong>数据同步</strong>：通过 Rsync + Inotify 实现主备节点间共享数据的<strong>实时单向同步</strong>，确保备用节点上的数据与主节点一致。</li>
+<li><strong>服务监控</strong>：Keepalived 监控 NFS 服务进程，异常时尝试重启，重启失败则主动放弃 VIP，触发故障转移。</li>
+</ul>
+<h5 id="1-2-核心组件与架构"><a href="#1-2-核心组件与架构" class="headerlink" title="1.2 核心组件与架构"></a>1.2 核心组件与架构</h5><ul>
+<li><strong>NFS Server</strong> (主&#x2F;备)：提供实际的共享存储服务。</li>
+<li><strong>Keepalived</strong>：提供 VIP (<code>172.16.60.244</code>) 并监控 NFS 服务健康状态。</li>
+<li><strong>Rsync + Inotify</strong>：实现主备节点 <code>/data/k8s_storage</code> 目录的数据同步。</li>
+<li>**客户端 (K8s Nodes)**：通过 VIP 挂载 NFS，不感知后端物理服务器切换。</li>
+</ul>
+<p><img src="/2026/04/27/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/IMG-20260420132935648.png" alt="架构示意图"></p>
+<h4 id="二、-环境准备"><a href="#二、-环境准备" class="headerlink" title="二、 环境准备"></a>二、 环境准备</h4><h5 id="2-1-服务器规划"><a href="#2-1-服务器规划" class="headerlink" title="2.1 服务器规划"></a>2.1 服务器规划</h5><table>
+<thead>
+<tr>
+<th align="left">角色</th>
+<th align="left">主机名</th>
+<th align="left">IP 地址</th>
+<th align="left">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>NFS Master</strong></td>
+<td align="left">nfs-master</td>
+<td align="left">172.16.60.235</td>
+<td align="left">初始 VIP 持有者</td>
+</tr>
+<tr>
+<td align="left"><strong>NFS Slave</strong></td>
+<td align="left">nfs-slave</td>
+<td align="left">172.16.60.236</td>
+<td align="left">备用节点</td>
+</tr>
+<tr>
+<td align="left"><strong>虚拟 IP (VIP)</strong></td>
+<td align="left">-</td>
+<td align="left">172.16.60.244</td>
+<td align="left">供 K8s 集群挂载的地址</td>
+</tr>
+</tbody></table>
+<p><strong>技术要求</strong>：</p>
+<ul>
+<li>两台 NFS 节点服务器配置应尽可能一致。</li>
+<li>建议为 NFS 共享目录 (<code>/data/k8s_storage</code>) 使用独立的硬盘或分区。</li>
+</ul>
+<h5 id="2-2-基础系统配置"><a href="#2-2-基础系统配置" class="headerlink" title="2.2 基础系统配置"></a>2.2 基础系统配置</h5><p>在两台节点服务器上执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 关闭防火墙</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 关闭 SELinux (需重启生效)</span></span><br><span class="line">sed -i <span class="string">&#x27;s/SELINUX=enforcing/SELINUX=disabled/g&#x27;</span> /etc/selinux/config</span><br><span class="line">setenforce 0</span><br></pre></td></tr></table></figure>
+
+<h4 id="三、-部署-NFS-服务-主备节点相同操作"><a href="#三、-部署-NFS-服务-主备节点相同操作" class="headerlink" title="三、 部署 NFS 服务 (主备节点相同操作)"></a>三、 部署 NFS 服务 (主备节点相同操作)</h4><h5 id="3-1-安装与配置"><a href="#3-1-安装与配置" class="headerlink" title="3.1 安装与配置"></a>3.1 安装与配置</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装 NFS 软件包</span></span><br><span class="line">yum install -y nfs-utils rpcbind</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建共享目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /data/k8s_storage</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 配置 NFS 导出 (`/etc/exports`)</span></span><br><span class="line"><span class="comment"># 允许 K8s 节点网段 (172.16.60.0/24) 挂载</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;/data/k8s_storage 172.16.60.0/24(rw,sync,no_root_squash)&quot;</span> &gt; /etc/exports</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 使配置生效</span></span><br><span class="line">exportfs -arv</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 启动并设置开机自启</span></span><br><span class="line">systemctl <span class="built_in">enable</span> --now rpcbind nfs-server</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-2-验证-NFS-服务"><a href="#3-2-验证-NFS-服务" class="headerlink" title="3.2 验证 NFS 服务"></a>3.2 验证 NFS 服务</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看本机 NFS 导出列表</span></span><br><span class="line">showmount -e localhost</span><br><span class="line"><span class="comment"># 输出应类似：/data/k8s_storage 172.16.60.0/24</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 K8s 节点上测试手动挂载 (可选)</span></span><br><span class="line">mount -t nfs 172.16.60.235:/data/k8s_storage /mnt</span><br><span class="line"><span class="built_in">df</span> -h | grep k8s_storage</span><br><span class="line">umount /mnt</span><br></pre></td></tr></table></figure>
+
+<h4 id="四、-配置-Keepalived-实现高可用"><a href="#四、-配置-Keepalived-实现高可用" class="headerlink" title="四、 配置 Keepalived 实现高可用"></a>四、 配置 Keepalived 实现高可用</h4><p><strong>核心要点</strong>：配置为**非抢占模式 (<code>nopreempt</code>)**，避免 VIP 在节点恢复后频繁来回切换，可能导致数据不一致。</p>
+<h5 id="4-1-安装-Keepalived"><a href="#4-1-安装-Keepalived" class="headerlink" title="4.1 安装 Keepalived"></a>4.1 安装 Keepalived</h5><p>在两台节点上执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y keepalived</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-2-配置-Keepalived-主备差异"><a href="#4-2-配置-Keepalived-主备差异" class="headerlink" title="4.2 配置 Keepalived (主备差异)"></a>4.2 配置 Keepalived (主备差异)</h5><ul>
+<li><strong>Master 节点</strong> (<code>/etc/keepalived/keepalived.conf</code>)：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    router_id nfs_master</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_nfs &#123;</span><br><span class="line">    script <span class="string">&quot;/etc/keepalived/nfs_check.sh&quot;</span></span><br><span class="line">    interval 2</span><br><span class="line">    weight -20</span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP                <span class="comment"># 初始状态都设为 BACKUP</span></span><br><span class="line">    interface eth0</span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 100                <span class="comment"># Master 优先级更高</span></span><br><span class="line">    advert_int 1</span><br><span class="line">    nopreempt                   <span class="comment"># 关键：非抢占模式</span></span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass 1111</span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">        chk_nfs</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        172.16.60.244/24</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>Slave 节点</strong>：配置文件与 Master <strong>几乎相同</strong>，仅需修改两处：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">global_defs &#123;</span><br><span class="line">    router_id nfs_slave         <span class="comment"># 修改 router_id</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    ...</span><br><span class="line">    priority 80                 <span class="comment"># 降低优先级</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="4-3-创建-NFS-健康检查脚本"><a href="#4-3-创建-NFS-健康检查脚本" class="headerlink" title="4.3 创建 NFS 健康检查脚本"></a>4.3 创建 NFS 健康检查脚本</h5><p>在两台节点上创建 <code>/etc/keepalived/nfs_check.sh</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">A=`ps -C nfsd --no-header | <span class="built_in">wc</span> -l`</span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$A</span> -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">    systemctl restart nfs-server.service</span><br><span class="line">    <span class="built_in">sleep</span> 2</span><br><span class="line">    <span class="keyword">if</span> [ `ps -C nfsd --no-header | <span class="built_in">wc</span> -l` -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">        pkill keepalived  <span class="comment"># 如果重启失败，杀死 keepalived 触发 VIP 转移</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>赋予执行权限：<code>chmod +x /etc/keepalived/nfs_check.sh</code></p>
+<h5 id="4-4-启动与验证-Keepalived"><a href="#4-4-启动与验证-Keepalived" class="headerlink" title="4.4 启动与验证 Keepalived"></a>4.4 启动与验证 Keepalived</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> --now keepalived</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 VIP 绑定情况</span></span><br><span class="line">ip addr show eth0 | grep 172.16.60.244</span><br><span class="line"><span class="comment"># 输出类似：inet 172.16.60.244/32 scope global eth0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试 VIP 可连通性</span></span><br><span class="line">ping -c 3 172.16.60.244</span><br></pre></td></tr></table></figure>
+
+<p><strong>故障转移测试</strong>：</p>
+<ol>
+<li>在持有 VIP 的 Master 节点上停止 keepalived：<code>systemctl stop keepalived</code>。</li>
+<li>观察 VIP 是否漂移到 Slave 节点 (<code>ip addr</code> 命令)。</li>
+<li><strong>注意</strong>：由于是非抢占模式，当原 Master 节点恢复后，VIP <strong>不会</strong>自动漂回。</li>
+</ol>
+<h4 id="五、-配置-Rsync-Inotify-实现数据同步"><a href="#五、-配置-Rsync-Inotify-实现数据同步" class="headerlink" title="五、 配置 Rsync + Inotify 实现数据同步"></a>五、 配置 Rsync + Inotify 实现数据同步</h4><p><strong>核心逻辑</strong>：<strong>只有当前持有 VIP 的节点，才启动 <code>inotifywait</code> 监控进程，将数据同步到对端。</strong> 避免双向同步导致数据循环和冲突。</p>
+<h5 id="5-1-安装软件包"><a href="#5-1-安装软件包" class="headerlink" title="5.1 安装软件包"></a>5.1 安装软件包</h5><p>在两台节点上执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y rsync inotify-tools</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-2-配置-Rsync-服务端"><a href="#5-2-配置-Rsync-服务端" class="headerlink" title="5.2 配置 Rsync 服务端"></a>5.2 配置 Rsync 服务端</h5><ul>
+<li><strong>Master 节点</strong> (<code>/etc/rsyncd.conf</code>)：<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">uid</span> = root</span><br><span class="line"><span class="attr">gid</span> = root</span><br><span class="line">use <span class="attr">chroot</span> = <span class="number">0</span></span><br><span class="line"><span class="attr">port</span> = <span class="number">873</span></span><br><span class="line">hosts <span class="attr">allow</span> = <span class="number">172.16</span>.<span class="number">60.0</span>/<span class="number">24</span></span><br><span class="line">max <span class="attr">connections</span> = <span class="number">0</span></span><br><span class="line"><span class="attr">timeout</span> = <span class="number">300</span></span><br><span class="line">pid <span class="attr">file</span> = /var/run/rsyncd.pid</span><br><span class="line">lock <span class="attr">file</span> = /var/run/rsyncd.lock</span><br><span class="line">log <span class="attr">file</span> = /var/log/rsyncd.log</span><br><span class="line">log <span class="attr">format</span> = %t %a %m %f %b</span><br><span class="line">transfer <span class="attr">logging</span> = <span class="literal">yes</span></span><br><span class="line"></span><br><span class="line"><span class="section">[master_web]</span></span><br><span class="line"><span class="attr">path</span> = /data/k8s_storage</span><br><span class="line"><span class="attr">comment</span> = master_web</span><br><span class="line">ignore errors</span><br><span class="line">read <span class="attr">only</span> = <span class="literal">no</span></span><br><span class="line"><span class="attr">list</span> = <span class="literal">no</span></span><br><span class="line">auth <span class="attr">users</span> = rsync</span><br><span class="line">secrets <span class="attr">file</span> = /etc/rsyncd.passwd</span><br></pre></td></tr></table></figure></li>
+<li><strong>Slave 节点</strong>：配置与 Master 基本相同，仅修改模块名：<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[slave_web]</span>  <span class="comment"># 修改此处</span></span><br><span class="line"><span class="attr">path</span> = /data/k8s_storage</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="5-3-配置-Rsync-认证"><a href="#5-3-配置-Rsync-认证" class="headerlink" title="5.3 配置 Rsync 认证"></a>5.3 配置 Rsync 认证</h5><p>在两台节点上创建密码文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 服务端密码文件 (`/etc/rsyncd.passwd`)</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;rsync:123456&quot;</span> &gt; /etc/rsyncd.passwd</span><br><span class="line"><span class="built_in">chmod</span> 600 /etc/rsyncd.passwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 客户端密码文件 (`/opt/rsyncd.passwd`，用于同步时认证对端)</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;123456&quot;</span> &gt; /opt/rsyncd.passwd</span><br><span class="line"><span class="built_in">chmod</span> 600 /opt/rsyncd.passwd</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-4-启动-Rsync-服务"><a href="#5-4-启动-Rsync-服务" class="headerlink" title="5.4 启动 Rsync 服务"></a>5.4 启动 Rsync 服务</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> --now rsyncd</span><br><span class="line">ss -tlnp | grep 873  <span class="comment"># 验证端口监听</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="5-5-配置自动同步脚本-核心"><a href="#5-5-配置自动同步脚本-核心" class="headerlink" title="5.5 配置自动同步脚本 (核心)"></a>5.5 配置自动同步脚本 (核心)</h5><p><strong>原理</strong>：每个节点都运行一个监控脚本 (<code>vip_monitor.sh</code>)，定期检查本机是否持有 VIP。如果持有，则启动数据同步进程 (<code>rsync_inotify.sh</code>) 同步到对端；如果不持有，则杀死本机的同步进程。</p>
+<ol>
+<li><p><strong>创建数据同步脚本</strong> (<code>/opt/rsync_inotify.sh</code>)：</p>
+<ul>
+<li><strong>Master 节点内容</strong> (同步到 Slave)：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">host=172.16.60.236   <span class="comment"># Slave IP</span></span><br><span class="line">src=/data/k8s_storage/</span><br><span class="line">des=slave_web        <span class="comment"># Slave 的 rsync 模块名</span></span><br><span class="line">password=/opt/rsyncd.passwd</span><br><span class="line">user=rsync</span><br><span class="line">inotifywait=/usr/bin/inotifywait</span><br><span class="line"></span><br><span class="line"><span class="variable">$inotifywait</span> -mrq --timefmt <span class="string">&#x27;%Y%m%d %H:%M&#x27;</span> --format <span class="string">&#x27;%T %w%f%e&#x27;</span> \</span><br><span class="line">  -e modify,delete,create,attrib <span class="variable">$src</span> \</span><br><span class="line">| <span class="keyword">while</span> <span class="built_in">read</span> files; <span class="keyword">do</span></span><br><span class="line">    rsync -avzP --delete --<span class="built_in">timeout</span>=100 --password-file=<span class="variable">$&#123;password&#125;</span> <span class="variable">$src</span> <span class="variable">$user</span>@<span class="variable">$host</span>::<span class="variable">$des</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;files&#125;</span> was rsynced&quot;</span> &gt;&gt; /tmp/rsync.log 2&gt;&amp;1</span><br><span class="line">  <span class="keyword">done</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>Slave 节点内容</strong> (同步到 Master)：只需修改 <code>host</code> 和 <code>des</code> 变量为 Master 的信息。</li>
+</ul>
+</li>
+<li><p><strong>创建 VIP 监控脚本</strong> (<code>/opt/vip_monitor.sh</code>)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">VIP_NUM=`ip addr | grep 244 | <span class="built_in">wc</span> -l`</span><br><span class="line">RSYNC_INOTIRY_NUM=`ps -ef | grep /usr/bin/inotifywait | grep -v grep | <span class="built_in">wc</span> -l`</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$&#123;VIP_NUM&#125;</span> -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="comment"># 本机持有 VIP</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$&#123;RSYNC_INOTIRY_NUM&#125;</span> -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="comment"># 如果同步进程未启动，则启动它</span></span><br><span class="line">        <span class="built_in">nohup</span> sh /opt/rsync_inotify.sh &amp;</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="comment"># 本机不持有 VIP</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$&#123;RSYNC_INOTIRY_NUM&#125;</span> -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="comment"># 如果同步进程正在运行，则杀死它</span></span><br><span class="line">        pkill -f rsync_inotify.sh</span><br><span class="line">        pkill -f inotifywait</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>创建持续运行脚本</strong> (<code>/opt/rsync_monit.sh</code>)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="keyword">while</span> [ <span class="string">&quot;1&quot;</span> = <span class="string">&quot;1&quot;</span> ]</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    /bin/bash /opt/vip_monitor.sh &gt; /dev/null 2&gt;&amp;1</span><br><span class="line">    <span class="built_in">sleep</span> 5  <span class="comment"># 每5秒检查一次VIP状态</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>设置开机自启与启动</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x /opt/*.sh</span><br><span class="line"><span class="comment"># 将以下内容添加到 /etc/rc.local (并确保 rc.local 有执行权限)</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nohup /bin/bash /opt/rsync_monit.sh &amp;&quot;</span> &gt;&gt; /etc/rc.local</span><br><span class="line"><span class="built_in">chmod</span> +x /etc/rc.d/rc.local</span><br><span class="line"></span><br><span class="line"><span class="comment"># 立即启动</span></span><br><span class="line"><span class="built_in">nohup</span> /bin/bash /opt/rsync_monit.sh &amp;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="六、-最终验证与总结"><a href="#六、-最终验证与总结" class="headerlink" title="六、 最终验证与总结"></a>六、 最终验证与总结</h4><h5 id="6-1-功能验证"><a href="#6-1-功能验证" class="headerlink" title="6.1 功能验证"></a>6.1 功能验证</h5><ol>
+<li><strong>VIP 漂移与数据同步</strong>：<ul>
+<li>在 VIP 当前所在节点 (如 Master) 的 <code>/data/k8s_storage</code> 创建文件。</li>
+<li>观察文件是否自动同步到对端节点。</li>
+<li>停止当前节点的 <code>keepalived</code>，触发 VIP 漂移。</li>
+<li>在新的 VIP 持有节点上创建文件，观察同步是否反向进行。</li>
+</ul>
+</li>
+<li><strong>NFS 服务故障</strong>：<ul>
+<li>在 VIP 持有节点上强制停止 NFS 服务 (<code>systemctl stop nfs-server</code>)。</li>
+<li>观察 <code>nfs_check.sh</code> 脚本是否会重启 NFS，如果重启失败，VIP 是否漂移。</li>
+</ul>
+</li>
+</ol>
+<h5 id="6-2-部署到-Kubernetes"><a href="#6-2-部署到-Kubernetes" class="headerlink" title="6.2 部署到 Kubernetes"></a>6.2 部署到 Kubernetes</h5><p>在 K8s 的 PersistentVolume (PV) 定义中，使用 <strong>VIP (<code>172.16.60.244</code>)</strong> 作为 NFS 服务器地址。这样，无论后端哪台物理服务器实际提供服务，K8s 集群都能持续访问存储。</p>
+<h5 id="6-3-关键注意事项"><a href="#6-3-关键注意事项" class="headerlink" title="6.3 关键注意事项"></a>6.3 关键注意事项</h5><ul>
+<li><strong>非抢占模式</strong>：是此架构稳定性的关键，避免脑裂和数据不一致。</li>
+<li><strong>单向同步</strong>：确保同一时刻只有一端向另一端同步数据。</li>
+<li><strong>网络与性能</strong>：主备节点间网络延迟会影响同步实时性。对于超大规模或IO密集型场景，需评估 <code>rsync</code> 性能是否满足。</li>
+<li><strong>数据一致性</strong>：<code>rsync</code> 不是分布式文件系统，在主备切换瞬间，如果数据未完全同步，可能存在极小时间窗口的数据不一致风险。对于极高一致性要求场景，需考虑更高级的存储方案（如 Ceph&#x2F;GlusterFS）。</li>
+<li><strong>安全</strong>：生产环境应使用更复杂的 <code>rsync</code> 密码，并考虑使用 SSH 隧道加密同步流量。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/NFS/" rel="tag"># NFS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/27/copilot/memory/Recent%20Conversations/" rel="prev" title="">
+                  <i class="fa fa-angle-left"></i> 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/04/27/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/CQRS%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F/" rel="next" title="CQRS架构模式">
+                  CQRS架构模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、概述与准备工作1.1 GPU 加速的优势与局限优势：  速度极快：GPU 拥有强大的并行计算能力，视频编解码速度远超 CPU。 释放 CPU：将繁重的视频处理任务卸载到 GPU，让 CPU 专注于其他应用。  局限：  质量与体积：GPU 编码器（硬件编码）的压缩效率通常低于 CPU 编码器（软件编码，如 libx264）。在相同码率下，GPU 编码的视频质量可能稍差，或为达到相同质量需要更大">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows下使用GPU加速ffmpeg">
+<meta property="og:url" content="http://chengming0916.github.io/2024/09/15/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E4%BD%BF%E7%94%A8GPU%E5%8A%A0%E9%80%9Fffmpeg/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、概述与准备工作1.1 GPU 加速的优势与局限优势：  速度极快：GPU 拥有强大的并行计算能力，视频编解码速度远超 CPU。 释放 CPU：将繁重的视频处理任务卸载到 GPU，让 CPU 专注于其他应用。  局限：  质量与体积：GPU 编码器（硬件编码）的压缩效率通常低于 CPU 编码器（软件编码，如 libx264）。在相同码率下，GPU 编码的视频质量可能稍差，或为达到相同质量需要更大">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-15T11:02:01.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.494Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="GPU">
+<meta property="article:tag" content="ffmpeg">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/09/15/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E4%BD%BF%E7%94%A8GPU%E5%8A%A0%E9%80%9Fffmpeg/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/09/15/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E4%BD%BF%E7%94%A8GPU%E5%8A%A0%E9%80%9Fffmpeg/","path":"2024/09/15/未分类/Windows下使用GPU加速ffmpeg/","title":"Windows下使用GPU加速ffmpeg"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Windows下使用GPU加速ffmpeg | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0%E4%B8%8E%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">一、概述与准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-GPU-%E5%8A%A0%E9%80%9F%E7%9A%84%E4%BC%98%E5%8A%BF%E4%B8%8E%E5%B1%80%E9%99%90"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 GPU 加速的优势与局限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E4%B8%8B%E8%BD%BD-FFmpeg"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 下载 FFmpeg</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81NVIDIA-GPU-%E5%8A%A0%E9%80%9F%E9%85%8D%E7%BD%AE%E4%B8%8E%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、NVIDIA GPU 加速配置与使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%AE%89%E8%A3%85-CUDA-%E9%A9%B1%E5%8A%A8%EF%BC%88%E5%BF%85%E9%9C%80%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 安装 CUDA 驱动（必需）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%A3%80%E6%9F%A5-FFmpeg-%E6%98%AF%E5%90%A6%E6%94%AF%E6%8C%81-CUDA-NVENC"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 检查 FFmpeg 是否支持 CUDA&#x2F;NVENC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%A0%B8%E5%BF%83%E5%91%BD%E4%BB%A4%E4%B8%8E%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 核心命令与参数详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E5%B8%B8%E7%94%A8%E8%BD%AC%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 常用转码示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%A4%9A-GPU-%E7%B3%BB%E7%BB%9F%E6%8C%87%E5%AE%9A%E8%AE%BE%E5%A4%87"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 多 GPU 系统指定设备</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81AMD-GPU-%E5%8A%A0%E9%80%9F%E9%85%8D%E7%BD%AE%E4%B8%8E%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">三、AMD GPU 加速配置与使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A3%80%E6%9F%A5-AMF-%E6%94%AF%E6%8C%81"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 检查 AMF 支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%A0%B8%E5%BF%83%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 核心命令示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Intel-GPU-%E5%8A%A0%E9%80%9F%EF%BC%88Quick-Sync-Video-QSV%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、Intel GPU 加速（Quick Sync Video, QSV）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 命令示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%80%9A%E7%94%A8%E5%BB%BA%E8%AE%AE%E4%B8%8E%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4"><span class="nav-number">5.</span> <span class="nav-text">五、通用建议与故障排除</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E7%BC%96%E8%A7%A3%E7%A0%81%E5%99%A8%EF%BC%9F"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 如何选择编解码器？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 常见问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E8%B4%A8%E9%87%8F%E4%B8%8E%E9%80%9F%E5%BA%A6%E7%9A%84%E6%9D%83%E8%A1%A1"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 质量与速度的权衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E7%9B%91%E6%8E%A7-GPU-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 监控 GPU 使用情况</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/15/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E4%BD%BF%E7%94%A8GPU%E5%8A%A0%E9%80%9Fffmpeg/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Windows下使用GPU加速ffmpeg | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows下使用GPU加速ffmpeg
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-15 19:02:01" itemprop="dateCreated datePublished" datetime="2024-09-15T19:02:01+08:00">2024-09-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、概述与准备工作"><a href="#一、概述与准备工作" class="headerlink" title="一、概述与准备工作"></a>一、概述与准备工作</h2><h3 id="1-1-GPU-加速的优势与局限"><a href="#1-1-GPU-加速的优势与局限" class="headerlink" title="1.1 GPU 加速的优势与局限"></a>1.1 GPU 加速的优势与局限</h3><p><strong>优势</strong>：</p>
+<ul>
+<li><strong>速度极快</strong>：GPU 拥有强大的并行计算能力，视频编解码速度远超 CPU。</li>
+<li><strong>释放 CPU</strong>：将繁重的视频处理任务卸载到 GPU，让 CPU 专注于其他应用。</li>
+</ul>
+<p><strong>局限</strong>：</p>
+<ul>
+<li><strong>质量与体积</strong>：GPU 编码器（硬件编码）的压缩效率通常<strong>低于</strong> CPU 编码器（软件编码，如 <code>libx264</code>）。在相同码率下，GPU 编码的视频质量可能稍差，或为达到相同质量需要更大的文件体积。</li>
+<li><strong>功能限制</strong>：GPU 编码器支持的编码参数（如 <code>crf</code>、<code>preset</code>）通常比软件编码器少。</li>
+</ul>
+<p><strong>适用场景</strong>：适用于对<strong>处理速度要求极高</strong>，且对最终文件体积或极致画质要求不苛刻的场景，如实时流媒体、大规模视频转码批处理。</p>
+<h3 id="1-2-下载-FFmpeg"><a href="#1-2-下载-FFmpeg" class="headerlink" title="1.2 下载 FFmpeg"></a>1.2 下载 FFmpeg</h3><ol>
+<li>访问 FFmpeg 官网下载页：<a target="_blank" rel="noopener" href="https://ffmpeg.org/download.html">https://ffmpeg.org/download.html</a></li>
+<li>对于 Windows 用户，建议直接下载编译好的版本，例如来自 <a target="_blank" rel="noopener" href="https://www.gyan.dev/ffmpeg/builds/">gyan.dev</a> 或 <a target="_blank" rel="noopener" href="https://github.com/BtbN/FFmpeg-Builds/releases">BtbN</a> 的构建包。</li>
+<li>下载后解压，将 <code>bin</code> 目录路径（如 <code>C:\ffmpeg\bin</code>）添加到系统的 <code>PATH</code> 环境变量中，以便在命令行中直接使用 <code>ffmpeg</code> 命令。</li>
+</ol>
+<hr>
+<h2 id="二、NVIDIA-GPU-加速配置与使用"><a href="#二、NVIDIA-GPU-加速配置与使用" class="headerlink" title="二、NVIDIA GPU 加速配置与使用"></a>二、NVIDIA GPU 加速配置与使用</h2><h3 id="2-1-安装-CUDA-驱动（必需）"><a href="#2-1-安装-CUDA-驱动（必需）" class="headerlink" title="2.1 安装 CUDA 驱动（必需）"></a>2.1 安装 CUDA 驱动（必需）</h3><p>FFmpeg 的 NVIDIA GPU 加速依赖于 NVIDIA 的 <strong>CUDA</strong> 和 <strong>NVENC&#x2F;NVDEC</strong> 驱动。</p>
+<ol>
+<li>访问 NVIDIA 开发者网站：<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-downloads">https://developer.nvidia.com/cuda-downloads</a></li>
+<li>选择适合你系统的版本（操作系统、架构、版本、安装类型）。对于大多数用户，选择 <code>Windows</code> -&gt; <code>x86_64</code> -&gt; <code>10</code> -&gt; <code>exe(local)</code> 即可。</li>
+<li>下载并运行安装程序，按提示完成安装。</li>
+</ol>
+<h3 id="2-2-检查-FFmpeg-是否支持-CUDA-NVENC"><a href="#2-2-检查-FFmpeg-是否支持-CUDA-NVENC" class="headerlink" title="2.2 检查 FFmpeg 是否支持 CUDA&#x2F;NVENC"></a>2.2 检查 FFmpeg 是否支持 CUDA&#x2F;NVENC</h3><p>在命令提示符中运行以下命令，查看支持的硬件加速方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccels</span><br></pre></td></tr></table></figure>
+<p>如果输出中包含 <code>cuda</code>、<code>cuvid</code> 或 <code>nvdec</code>，则说明当前 FFmpeg 版本支持 NVIDIA 硬件加速。</p>
+<h3 id="2-3-核心命令与参数详解"><a href="#2-3-核心命令与参数详解" class="headerlink" title="2.3 核心命令与参数详解"></a>2.3 核心命令与参数详解</h3><p>一个完整的 NVIDIA GPU 加速转码命令包含<strong>硬件解码</strong>、<strong>处理</strong>和<strong>硬件编码</strong>三个部分。</p>
+<p><strong>基础命令结构</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccel cuvid -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -y output.mp4</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数分解</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">作用</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>-hwaccel cuvid</code></td>
+<td align="left">指定使用 CUDA 视频加速 API 进行解码。</td>
+<td align="left">也可用 <code>nvdec</code>（更新）。</td>
+</tr>
+<tr>
+<td align="left"><code>-c:v h264_cuvid</code></td>
+<td align="left"><strong>硬件解码器</strong>。指定使用 NVIDIA 的 H.264 解码器。</td>
+<td align="left">根据输入视频编码格式选择：<code>hevc_cuvid</code> (H.265), <code>mpeg2_cuvid</code>, <code>vp9_cuvid</code> 等。</td>
+</tr>
+<tr>
+<td align="left"><code>-i input.mp4</code></td>
+<td align="left">输入文件。</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><code>-c:v h264_nvenc</code></td>
+<td align="left"><strong>硬件编码器</strong>。指定使用 NVIDIA 的 H.264 编码器。</td>
+<td align="left">可选：<code>hevc_nvenc</code> (H.265), <code>av1_nvenc</code>。</td>
+</tr>
+<tr>
+<td align="left"><code>-y</code></td>
+<td align="left">覆盖输出文件。</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left"><code>output.mp4</code></td>
+<td align="left">输出文件。</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h3 id="2-4-常用转码示例"><a href="#2-4-常用转码示例" class="headerlink" title="2.4 常用转码示例"></a>2.4 常用转码示例</h3><p><strong>1. 改变码率（控制体积）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccel cuvid -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -b:v 2000k -y output.mp4</span><br></pre></td></tr></table></figure>
+<p><code>-b:v 2000k</code>：将视频码率设置为 2000 Kbps。</p>
+<p><strong>2. 改变帧率</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccel cuvid -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -r 30 -y output.mp4</span><br></pre></td></tr></table></figure>
+<p><code>-r 30</code>：将输出视频帧率设置为 30 fps。</p>
+<p><strong>3. 缩放分辨率（使用 GPU 滤镜）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccel cuvid -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -vf <span class="string">&quot;scale_npp=1280:-2&quot;</span> -y output.mp4</span><br></pre></td></tr></table></figure>
+<p><code>-vf &quot;scale_npp=1280:-2&quot;</code>：使用 NVIDIA 的 <code>scale_npp</code> 滤镜将宽度缩放到 1280 像素，高度按比例自动计算（<code>-2</code> 保证为偶数）。<strong>注意</strong>：GPU 滤镜与 CPU 滤镜（<code>scale</code>）不同。</p>
+<p><strong>4. 综合示例（转码、缩放、修改码率）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccel cuvid -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -b:v 1500k -vf <span class="string">&quot;scale_npp=1920:1080&quot;</span> -r 25 -y output.mp4</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-多-GPU-系统指定设备"><a href="#2-5-多-GPU-系统指定设备" class="headerlink" title="2.5 多 GPU 系统指定设备"></a>2.5 多 GPU 系统指定设备</h3><p>如果系统装有多个 NVIDIA GPU，可以使用 <code>-hwaccel_device</code> 参数指定使用哪一块 GPU。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用第一块 GPU (索引 0)</span></span><br><span class="line">ffmpeg -hwaccel cuvid -hwaccel_device 0 -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -y output_gpu0.mp4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用第二块 GPU (索引 1)</span></span><br><span class="line">ffmpeg -hwaccel cuvid -hwaccel_device 1 -c:v h264_cuvid -i input.mp4 -c:v h264_nvenc -y output_gpu1.mp4</span><br></pre></td></tr></table></figure>
+<p><strong>性能提示</strong>：单个 GPU 通常在同一时间只能高效处理一个编码任务。多个转码任务不会自动分配到不同 GPU，需要手动指定。</p>
+<hr>
+<h2 id="三、AMD-GPU-加速配置与使用"><a href="#三、AMD-GPU-加速配置与使用" class="headerlink" title="三、AMD GPU 加速配置与使用"></a>三、AMD GPU 加速配置与使用</h2><p>AMD GPU 加速无需安装额外的 SDK（如 CUDA），只要 FFmpeg 编译时启用了 <code>AMF</code>（AMD Media Framework）支持即可。大多数预编译的 Windows 版 FFmpeg 已包含此支持。</p>
+<h3 id="3-1-检查-AMF-支持"><a href="#3-1-检查-AMF-支持" class="headerlink" title="3.1 检查 AMF 支持"></a>3.1 检查 AMF 支持</h3><p>运行以下命令，查看编码器列表：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -encoders | findstr amf</span><br></pre></td></tr></table></figure>
+<p>如果看到 <code>h264_amf</code>、<code>hevc_amf</code> 等编码器，则说明支持 AMD GPU 加速。</p>
+<h3 id="3-2-核心命令示例"><a href="#3-2-核心命令示例" class="headerlink" title="3.2 核心命令示例"></a>3.2 核心命令示例</h3><p><strong>基础转码命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -c:v h264_amf -y output.mp4</span><br></pre></td></tr></table></figure>
+<p>参数比 NVIDIA 方案更简洁，因为 AMD 目前主要提供<strong>硬件编码器</strong>，解码通常仍由 CPU 或通用硬件解码器完成。</p>
+<p><strong>调整编码参数</strong>：<br>AMD AMF 编码器支持一些特定的参数来控制质量和速度。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -c:v h264_amf -quality quality -y output.mp4</span><br></pre></td></tr></table></figure>
+<p><code>-quality</code>：可设置为 <code>speed</code>（速度优先）、<code>balanced</code>（平衡）或 <code>quality</code>（质量优先）。</p>
+<p><strong>更多参数示例</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -c:v h264_amf -b:v 3M -usage transcoding -profile high -y output.mp4</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>-usage transcoding</code>：指定为转码用途。</li>
+<li><code>-profile high</code>：指定 H.264 High Profile。</li>
+</ul>
+<hr>
+<h2 id="四、Intel-GPU-加速（Quick-Sync-Video-QSV）"><a href="#四、Intel-GPU-加速（Quick-Sync-Video-QSV）" class="headerlink" title="四、Intel GPU 加速（Quick Sync Video, QSV）"></a>四、Intel GPU 加速（Quick Sync Video, QSV）</h2><p>许多 Intel 酷睿处理器集成了核芯显卡，支持 QSV 技术，也可用于 FFmpeg 加速。</p>
+<h3 id="4-1-命令示例"><a href="#4-1-命令示例" class="headerlink" title="4.1 命令示例"></a>4.1 命令示例</h3><p><strong>基础命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -hwaccel qsv -c:v h264_qsv -i input.mp4 -c:v h264_qsv -y output.mp4</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>-hwaccel qsv</code>：启用 QSV 硬件加速。</li>
+<li><code>-c:v h264_qsv</code>：既作解码器也作编码器。</li>
+</ul>
+<p><strong>使用不同的编解码器</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># H.265/HEVC 编解码</span></span><br><span class="line">ffmpeg -hwaccel qsv -c:v hevc_qsv -i input.hevc -c:v hevc_qsv -y output.mp4</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、通用建议与故障排除"><a href="#五、通用建议与故障排除" class="headerlink" title="五、通用建议与故障排除"></a>五、通用建议与故障排除</h2><h3 id="5-1-如何选择编解码器？"><a href="#5-1-如何选择编解码器？" class="headerlink" title="5.1 如何选择编解码器？"></a>5.1 如何选择编解码器？</h3><ol>
+<li><strong>查看支持的编码器</strong>：<code>ffmpeg -encoders</code></li>
+<li><strong>查看支持的解码器</strong>：<code>ffmpeg -decoders</code></li>
+<li>在输出中查找 <code>nvenc</code>、<code>amf</code>、<code>qsv</code> 等关键词。</li>
+</ol>
+<h3 id="5-2-常见问题"><a href="#5-2-常见问题" class="headerlink" title="5.2 常见问题"></a>5.2 常见问题</h3><ul>
+<li><p><strong>错误：<code>Driver does not support the required nvenc API version</code></strong><br><strong>原因</strong>：GPU 驱动或 FFmpeg 版本太旧。<br><strong>解决</strong>：更新 NVIDIA 显卡驱动至最新版，并使用最新的 FFmpeg 构建。</p>
+</li>
+<li><p><strong>错误：<code>No NVENC capable devices found</code></strong><br><strong>原因</strong>：消费级 GPU 的 NVENC 会话数有上限，或 GPU 不支持。<br><strong>解决</strong>：检查 GPU 是否支持 NVENC（GeForce 600 系列后基本都支持）。关闭其他占用 NVENC 的程序。</p>
+</li>
+<li><p><strong>AMD&#x2F;Intel 加速未生效</strong><br><strong>解决</strong>：确保在 BIOS&#x2F;UEFI 中已启用集成显卡，并且安装了最新的显卡驱动。</p>
+</li>
+</ul>
+<h3 id="5-3-质量与速度的权衡"><a href="#5-3-质量与速度的权衡" class="headerlink" title="5.3 质量与速度的权衡"></a>5.3 质量与速度的权衡</h3><ul>
+<li><strong>追求极限压缩率&#x2F;画质</strong>：使用 CPU 软件编码，如 <code>-c:v libx264 -crf 23 -preset slow</code>。</li>
+<li><strong>追求极限速度</strong>：使用 GPU 硬件编码，并选择 <code>-preset fast</code>（如 <code>-preset p7</code> 用于 NVENC）。</li>
+<li><strong>平衡之选</strong>：可以考虑使用 GPU 解码 + CPU 编码（<code>-c:v libx264</code>），或使用 GPU 编码但设置较高的码率来弥补画质损失。</li>
+</ul>
+<h3 id="5-4-监控-GPU-使用情况"><a href="#5-4-监控-GPU-使用情况" class="headerlink" title="5.4 监控 GPU 使用情况"></a>5.4 监控 GPU 使用情况</h3><ul>
+<li><strong>NVIDIA</strong>：使用 <code>nvidia-smi</code> 命令监控 GPU 利用率、显存占用和编码会话。</li>
+<li><strong>任务管理器</strong>：在“性能”选项卡中查看 GPU 的“视频编码”利用率。</li>
+</ul>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><table>
+<thead>
+<tr>
+<th align="left">平台</th>
+<th align="left">加速类型</th>
+<th align="left">关键参数</th>
+<th align="left">特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>NVIDIA</strong></td>
+<td align="left">解码 + 编码</td>
+<td align="left"><code>-hwaccel cuvid</code>, <code>-c:v h264_cuvid</code>, <code>-c:v h264_nvenc</code></td>
+<td align="left">生态完善，文档丰富，多 GPU 支持好。</td>
+</tr>
+<tr>
+<td align="left"><strong>AMD</strong></td>
+<td align="left">主要编码</td>
+<td align="left"><code>-c:v h264_amf</code></td>
+<td align="left">无需额外 SDK，配置简单。</td>
+</tr>
+<tr>
+<td align="left"><strong>Intel</strong></td>
+<td align="left">解码 + 编码</td>
+<td align="left"><code>-hwaccel qsv</code>, <code>-c:v h264_qsv</code></td>
+<td align="left">适合笔记本和台式机核显，功耗低。</td>
+</tr>
+</tbody></table>
+<p><strong>最终建议</strong>：</p>
+<ol>
+<li>根据你的显卡型号选择对应的方案。</li>
+<li>首次使用时，先用一段短视频测试命令是否可行。</li>
+<li>对于生产环境，务必对比输出视频的质量、体积和处理速度，找到符合你需求的最佳参数组合。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/GPU/" rel="tag"># GPU</a>
+              <a href="/tags/ffmpeg/" rel="tag"># ffmpeg</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%A0%86%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" rel="prev" title="堆排序算法CSharp实现">
+                  <i class="fa fa-angle-left"></i> 堆排序算法CSharp实现
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/20/Hexo%E5%8D%9A%E5%AE%A2/%E4%BD%BF%E7%94%A8Obsidian%E9%85%8D%E5%90%88Hexo%E5%86%99%E5%8D%9A%E5%AE%A2/" rel="next" title="使用Obsidian配合Hexo写博客">
+                  使用Obsidian配合Hexo写博客 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

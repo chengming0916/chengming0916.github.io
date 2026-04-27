@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="你可能已经了解到过去几个月中发布的大量人工智能应用程序。你甚至可能已经开始使用其中的一些。 ChatPDF [https:&#x2F;&#x2F;www.chatpdf.com&#x2F;] 和 CustomGPT AI [https:&#x2F;&#x2F;customgpt.ai&#x2F;use-cases&#x2F;] 等人工智能工具对人们非常有用，这是有道理的。你需要翻阅长达 50 页的文档才能找到一个简单答案的时代已经一去不复返了。取而代之的是，你可以依">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LangChain 教程——如何构建自定义知识聊天机器人">
+<meta property="og:url" content="http://chengming0916.github.io/2026/04/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B/%E5%9F%BA%E4%BA%8ELangChain%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="你可能已经了解到过去几个月中发布的大量人工智能应用程序。你甚至可能已经开始使用其中的一些。 ChatPDF [https:&#x2F;&#x2F;www.chatpdf.com&#x2F;] 和 CustomGPT AI [https:&#x2F;&#x2F;customgpt.ai&#x2F;use-cases&#x2F;] 等人工智能工具对人们非常有用，这是有道理的。你需要翻阅长达 50 页的文档才能找到一个简单答案的时代已经一去不复返了。取而代之的是，你可以依">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.freecodecamp.org/news/content/images/2023/05/Screenshot-2023-05-29-at-5.40.38-PM.png">
+<meta property="og:image" content="https://www.freecodecamp.org/news/content/images/2023/05/------LangChain.png">
+<meta property="og:image" content="https://www.freecodecamp.org/news/content/images/2023/05/ByteSizedThumbnail--1200---800-px---10-.png">
+<meta property="article:published_time" content="2026-04-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.419Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="clippings">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freecodecamp.org/news/content/images/2023/05/Screenshot-2023-05-29-at-5.40.38-PM.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/04/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B/%E5%9F%BA%E4%BA%8ELangChain%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/04/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B/%E5%9F%BA%E4%BA%8ELangChain%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/","path":"2026/04/22/大模型/基于LangChain构建一个聊天机器人/","title":"LangChain 教程——如何构建自定义知识聊天机器人"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>LangChain 教程——如何构建自定义知识聊天机器人 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">2 设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Jupyter-%E7%AC%94%E8%AE%B0%E6%9C%AC"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Jupyter 笔记本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AE%89%E8%A3%85-LangChain"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 安装 LangChain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 快速入门</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Message-History-%E6%B6%88%E6%81%AF%E5%8E%86%E5%8F%B2%E8%AE%B0%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">3 Message History(消息历史记录)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Prompt-templates-%E6%8F%90%E7%A4%BA%E6%A8%A1%E6%9D%BF"><span class="nav-number">4.</span> <span class="nav-text">4 Prompt templates(提示模板)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%AE%A1%E7%90%86%E5%AF%B9%E8%AF%9D%E5%8E%86%E5%8F%B2%E8%AE%B0%E5%BD%95"><span class="nav-number">5.</span> <span class="nav-text">5 管理对话历史记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Streaming"><span class="nav-number">6.</span> <span class="nav-text">6 Streaming</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-LangChain"><span class="nav-number">7.</span> <span class="nav-text">什么是 LangChain</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LangChain-%E6%98%AF%E6%80%8E%E6%A0%B7%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="nav-number">8.</span> <span class="nav-text">LangChain 是怎样工作的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%8E%E6%A0%B7%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8-LangChain"><span class="nav-number">9.</span> <span class="nav-text">怎样开始使用 LangChain</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Models%EF%BC%88LLM-Wrappers%EF%BC%89"><span class="nav-number">9.1.</span> <span class="nav-text">Models（LLM Wrappers）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Prompts%EF%BC%88%E6%8F%90%E7%A4%BA%EF%BC%89"><span class="nav-number">9.2.</span> <span class="nav-text">Prompts（提示）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Chains%EF%BC%88%E9%93%BE%EF%BC%89"><span class="nav-number">9.3.</span> <span class="nav-text">Chains（链）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Embeddings%EF%BC%88%E5%B5%8C%E5%85%A5%EF%BC%89%E5%92%8C-Vector-Stores%EF%BC%88%E5%90%91%E9%87%8F%E5%AD%98%E5%82%A8%EF%BC%89"><span class="nav-number">9.4.</span> <span class="nav-text">Embeddings（嵌入）和 Vector Stores（向量存储）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Agents"><span class="nav-number">9.5.</span> <span class="nav-text">Agents</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%AB%E7%9A%84%E5%9B%A0%E7%B4%A0"><span class="nav-number">10.</span> <span class="nav-text">别的因素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/04/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B/%E5%9F%BA%E4%BA%8ELangChain%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="LangChain 教程——如何构建自定义知识聊天机器人 | Chemmy's Blog">
+      <meta itemprop="description" content="你可能已经了解到过去几个月中发布的大量人工智能应用程序。你甚至可能已经开始使用其中的一些。 ChatPDF [https:&#x2F;&#x2F;www.chatpdf.com&#x2F;] 和 CustomGPT AI [https:&#x2F;&#x2F;customgpt.ai&#x2F;use-cases&#x2F;] 等人工智能工具对人们非常有用，这是有道理的。你需要翻阅长达 50 页的文档才能找到一个简单答案的时代已经一去不复返了。取而代之的是，你可以依靠人工智能来完成繁重的工作。 但是，这些开发人员究竟是如何创建和使用这些工具的呢？他们中的许多人都在使用一个名为 LangChain 的开源框架。 在本文中，我将向你介绍 LangChain，并向你展示如何将其与 OpenAI 的 API 结合使用，以创建这些改变游戏规则的工具。希望我的介绍能激发你们的灵感，创造出属于自己的工具。那么，让我们开始吧！ 什么是 LangChain LangChain [https:&#x2F;&#x2F;github.com&#x2F;hwchase17&#x2F;langchain&#x2F;]是一个开源框架，允许人工智能开发人员将 GPT-4 等大型语言模型（LLM）与外部数据相结合。它提供 P">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LangChain 教程——如何构建自定义知识聊天机器人
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-22 00:00:00" itemprop="dateCreated datePublished" datetime="2026-04-22T00:00:00+08:00">2026-04-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">你可能已经了解到过去几个月中发布的大量人工智能应用程序。你甚至可能已经开始使用其中的一些。 ChatPDF [https://www.chatpdf.com/] 和 CustomGPT AI [https://customgpt.ai/use-cases/] 等人工智能工具对人们非常有用，这是有道理的。你需要翻阅长达 50 页的文档才能找到一个简单答案的时代已经一去不复返了。取而代之的是，你可以依靠人工智能来完成繁重的工作。 但是，这些开发人员究竟是如何创建和使用这些工具的呢？他们中的许多人都在使用一个名为 LangChain 的开源框架。 在本文中，我将向你介绍 LangChain，并向你展示如何将其与 OpenAI 的 API 结合使用，以创建这些改变游戏规则的工具。希望我的介绍能激发你们的灵感，创造出属于自己的工具。那么，让我们开始吧！ 什么是 LangChain LangChain [https://github.com/hwchase17/langchain/]是一个开源框架，允许人工智能开发人员将 GPT-4 等大型语言模型（LLM）与外部数据相结合。它提供 P</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h2><p>我们将通过一个示例来说明如何设计和实现 LLM 支持的聊天机器人。这个聊天机器人将能够进行对话并 <strong>记住以前的互动</strong> 。</p>
+<p>请注意，我们构建的这个聊天机器人将仅使用语言模型进行对话。您可能正在寻找其他几个相关概念：</p>
+<ul>
+<li>对话式 RAG：通过外部数据源启用聊天机器人体验</li>
+<li>智能体：构建可执行作的聊天机器人</li>
+</ul>
+<p>本教程将介绍对这两个更高级的主题有帮助的基础知识，但如果您愿意，请直接跳到那里。</p>
+<h2 id="2-设置"><a href="#2-设置" class="headerlink" title="2 设置"></a>2 设置</h2><h3 id="2-1-Jupyter-笔记本"><a href="#2-1-Jupyter-笔记本" class="headerlink" title="2.1 Jupyter 笔记本"></a>2.1 Jupyter 笔记本</h3><p>本指南（以及文档中的大多数其他指南）使用 Jupyter 笔记本，并假设读者也使用 Jupyter 笔记本。Jupyter 笔记本非常适合学习如何使用 LLM 系统，因为很多时候事情可能会出错（意外输出、API 关闭等），在交互式环境中浏览指南是更好地了解它们的好方法。</p>
+<p>本教程和其他教程可能在 Jupyter 笔记本中运行最方便。有关如何安装的说明，请参阅 <a target="_blank" rel="noopener" href="https://jupyter.org/install">此处</a> 。</p>
+<h3 id="2-2-安装-LangChain"><a href="#2-2-安装-LangChain" class="headerlink" title="2.2 安装 LangChain"></a>2.2 安装 LangChain</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install langchain</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install langchain -c conda-forge</span><br></pre></td></tr></table></figure>
+
+<p>如果你想尝试使用LangSmith，可以访问 <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/docs/tutorials/chatbot/">这里</a> 学习</p>
+<h3 id="2-3-快速入门"><a href="#2-3-快速入门" class="headerlink" title="2.3 快速入门"></a>2.3 快速入门</h3><p>首先，让我们学习如何单独使用语言模型。LangChain 支持许多不同的语言模型，您可以互换使用——请在下方选择您想要使用的语言模型！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -qU langchain-openai</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -qU langchain-openai</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> getpass</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">os.environ[<span class="string">&quot;OPENAI_API_KEY&quot;</span>] = getpass.getpass()</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI</span><br><span class="line"></span><br><span class="line">model = ChatOpenAI(model=<span class="string">&quot;gpt-3.5-turbo&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI</span><br><span class="line"></span><br><span class="line">api_key = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">model = ChatOpenAI(</span><br><span class="line">    base_url=<span class="string">&quot;https://api.deepseek.com/v1&quot;</span>,</span><br><span class="line">    api_key=api_key,</span><br><span class="line">    model=<span class="string">&quot;deepseek-chat&quot;</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> getpass</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">os.environ[<span class="string">&quot;TOGETHER_API_KEY&quot;</span>] = getpass.getpass()</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI</span><br><span class="line"></span><br><span class="line">model = ChatOpenAI(</span><br><span class="line">    base_url=<span class="string">&quot;https://api.together.xyz/v1&quot;</span>,</span><br><span class="line">    api_key=os.environ[<span class="string">&quot;TOGETHER_API_KEY&quot;</span>],</span><br><span class="line">    model=<span class="string">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>我们首先直接使用模型。ChatModel是 LangChain “Runnables” 的实例，这意味着它们公开了一个用于与它们交互的标准接口。要简单地调用模型，我们可以将消息列表传递给.invoke 方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_core.messages <span class="keyword">import</span> HumanMessage</span><br><span class="line"></span><br><span class="line">model.invoke([HumanMessage(content=<span class="string">&quot;Hi! I&#x27;m Bob&quot;</span>)])</span><br></pre></td></tr></table></figure>
+
+<p>API 参考： <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/messages/langchain_core.messages.human.HumanMessage.html">HumanMessage</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AIMessage(content=<span class="string">&#x27;Hello Bob! How can I assist you today?&#x27;</span>, response_metadata=&#123;<span class="string">&#x27;token_usage&#x27;</span>: &#123;<span class="string">&#x27;completion_tokens&#x27;</span>: 10, <span class="string">&#x27;prompt_tokens&#x27;</span>: 12, <span class="string">&#x27;total_tokens&#x27;</span>: 22&#125;, <span class="string">&#x27;model_name&#x27;</span>: <span class="string">&#x27;gpt-3.5-turbo-0125&#x27;</span>, <span class="string">&#x27;system_fingerprint&#x27;</span>: None, <span class="string">&#x27;finish_reason&#x27;</span>: <span class="string">&#x27;stop&#x27;</span>, <span class="string">&#x27;logprobs&#x27;</span>: None&#125;, <span class="built_in">id</span>=<span class="string">&#x27;run-d939617f-0c3b-45e9-a93f-13dafecbd4b5-0&#x27;</span>, usage_metadata=&#123;<span class="string">&#x27;input_tokens&#x27;</span>: 12, <span class="string">&#x27;output_tokens&#x27;</span>: 10, <span class="string">&#x27;total_tokens&#x27;</span>: 22&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>该模型本身没有任何状态的概念。例如，如果您提出后续问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.invoke([HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>)])</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AIMessage(content=<span class="string">&quot;I&#x27;m sorry, I don&#x27;t have access to personal information unless you provide it to me. How may I assist you today?&quot;</span>, response_metadata=&#123;<span class="string">&#x27;token_usage&#x27;</span>: &#123;<span class="string">&#x27;completion_tokens&#x27;</span>: 26, <span class="string">&#x27;prompt_tokens&#x27;</span>: 12, <span class="string">&#x27;total_tokens&#x27;</span>: 38&#125;, <span class="string">&#x27;model_name&#x27;</span>: <span class="string">&#x27;gpt-3.5-turbo-0125&#x27;</span>, <span class="string">&#x27;system_fingerprint&#x27;</span>: None, <span class="string">&#x27;finish_reason&#x27;</span>: <span class="string">&#x27;stop&#x27;</span>, <span class="string">&#x27;logprobs&#x27;</span>: None&#125;, <span class="built_in">id</span>=<span class="string">&#x27;run-47bc8c20-af7b-4fd2-9345-f0e9fdf18ce3-0&#x27;</span>, usage_metadata=&#123;<span class="string">&#x27;input_tokens&#x27;</span>: 12, <span class="string">&#x27;output_tokens&#x27;</span>: 26, <span class="string">&#x27;total_tokens&#x27;</span>: 38&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到，它没有将之前的对话转化为上下文，也无法回答问题。这会导致糟糕的聊天机器人体验！</p>
+<p>为了解决这个问题，我们需要将整个对话历史传递到模型中。让我们看看当我们这样做时会发生什么：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_core.messages <span class="keyword">import</span> AIMessage</span><br><span class="line"></span><br><span class="line">model.invoke(</span><br><span class="line">    [</span><br><span class="line">        HumanMessage(content=<span class="string">&quot;Hi! I&#x27;m Bob&quot;</span>),</span><br><span class="line">        AIMessage(content=<span class="string">&quot;Hello Bob! How can I assist you today?&quot;</span>),</span><br><span class="line">        HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>),</span><br><span class="line">    ]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>API 参考： <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/messages/langchain_core.messages.ai.AIMessage.html">AIMessage</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AIMessage(content=<span class="string">&#x27;Your name is Bob. How can I help you, Bob?&#x27;</span>, response_metadata=&#123;<span class="string">&#x27;token_usage&#x27;</span>: &#123;<span class="string">&#x27;completion_tokens&#x27;</span>: 13, <span class="string">&#x27;prompt_tokens&#x27;</span>: 35, <span class="string">&#x27;total_tokens&#x27;</span>: 48&#125;, <span class="string">&#x27;model_name&#x27;</span>: <span class="string">&#x27;gpt-3.5-turbo-0125&#x27;</span>, <span class="string">&#x27;system_fingerprint&#x27;</span>: None, <span class="string">&#x27;finish_reason&#x27;</span>: <span class="string">&#x27;stop&#x27;</span>, <span class="string">&#x27;logprobs&#x27;</span>: None&#125;, <span class="built_in">id</span>=<span class="string">&#x27;run-9f90291b-4df9-41dc-9ecf-1ee1081f4490-0&#x27;</span>, usage_metadata=&#123;<span class="string">&#x27;input_tokens&#x27;</span>: 35, <span class="string">&#x27;output_tokens&#x27;</span>: 13, <span class="string">&#x27;total_tokens&#x27;</span>: 48&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到，模型能够记住之前的对话并回答问题。</p>
+<p>这是支撑聊天机器人进行对话交互能力的基本思想。那么我们如何最好地实现这一点呢？</p>
+<h2 id="3-Message-History-消息历史记录"><a href="#3-Message-History-消息历史记录" class="headerlink" title="3 Message History(消息历史记录)"></a>3 Message History(消息历史记录)</h2><p>我们可以使用 <code>Message History</code> 类来包装我们的模型并使其有状态。这将跟踪模型的输入和输出，并将它们存储在某个数据存储中。然后，未来的交互将加载这些消息，并将它们作为 input 的一部分传递到链中。让我们看看如何使用它！</p>
+<p>首先，让我们确保安装 <code>langchain-community</code> ，因为我们将使用其中的集成来存储消息历史记录。</p>
+<p>之后，我们可以导入相关的类并设置我们的链，该链包装模型并添加此消息历史记录。这里的一个关键部分是我们作为 get_session_history 传入的函数。此函数应接收 session_id 并返回 Message History 对象。此session_id用于区分单独的对话，在调用新链时应作为配置的一部分传入（我们将展示如何执行此作）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_core.chat_history <span class="keyword">import</span> (</span><br><span class="line">    BaseChatMessageHistory,</span><br><span class="line">    InMemoryChatMessageHistory,</span><br><span class="line">)</span><br><span class="line"><span class="keyword">from</span> langchain_core.runnables.history <span class="keyword">import</span> RunnableWithMessageHistory</span><br><span class="line"></span><br><span class="line">store = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_session_history</span>(<span class="params">session_id: <span class="built_in">str</span></span>) -&gt; BaseChatMessageHistory:</span><br><span class="line">    <span class="keyword">if</span> session_id <span class="keyword">not</span> <span class="keyword">in</span> store:</span><br><span class="line">        store[session_id] = InMemoryChatMessageHistory()</span><br><span class="line">    <span class="keyword">return</span> store[session_id]</span><br><span class="line"></span><br><span class="line">with_message_history = RunnableWithMessageHistory(model, get_session_history)</span><br></pre></td></tr></table></figure>
+
+<p>API 参考： <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/chat_history/langchain_core.chat_history.BaseChatMessageHistory.html">BaseChatMessageHistory</a> | <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/chat_history/langchain_core.chat_history.InMemoryChatMessageHistory.html">InMemoryChatMessageHistory</a> | <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/runnables/langchain_core.runnables.history.RunnableWithMessageHistory.html">RunnableWithMessageHistory</a></p>
+<p>我们现在需要创建一个config，每次都传递给 runnable。此配置包含的信息不是直接输入的一部分，但仍然有用。在本例中，我们希望包含一个 session_id。这应该看起来像：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc2&quot;</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;Hi! I&#x27;m Bob&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Hi Bob! How can I assist you today?&#x27;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Your name is Bob. How can I help you today, Bob?&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们的聊天机器人现在记住了关于我们的事情。 如果我们更改配置以引用不同的session_id，我们可以看到它开始了全新的对话。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc3&quot;</span>&#125;&#125; <span class="comment"># session_id 改为abc3</span></span><br><span class="line"></span><br><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;I&#x27;m sorry, I cannot determine your name as I am an AI assistant and do not have access to that information.&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到它没有记住之前的对话。</p>
+<p>我们也可以返回到之前的对话，只需将 session_id 更改为 abc2 即可。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc2&quot;</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Your name is Bob. How can I help you today, Bob?&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>这就是我们支持聊天机器人与许多用户进行对话的方式！</p>
+<p>现在，我们所做的只是在模型周围添加一个简单的持久层。我们可以通过添加提示模板来开始使它变得更加复杂和个性化。</p>
+<h2 id="4-Prompt-templates-提示模板"><a href="#4-Prompt-templates-提示模板" class="headerlink" title="4 Prompt templates(提示模板)"></a>4 Prompt templates(提示模板)</h2><p>提示模板有助于将原始用户信息转换为 LLM 可以使用的格式。在本例中，原始用户输入只是一条消息，我们将其传递给 LLM。现在让我们让它稍微复杂一点。首先，让我们添加一条带有一些自定义指令的系统消息（但仍将消息作为输入）。接下来，除了消息之外，我们还将添加更多输入。</p>
+<p>首先，让我们添加一条系统消息。为此，我们将创建一个 ChatPromptTemplate。我们将使用 MessagesPlaceholder 来传递所有消息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_core.prompts <span class="keyword">import</span> ChatPromptTemplate, MessagesPlaceholder</span><br><span class="line"></span><br><span class="line">prompt = ChatPromptTemplate.from_messages(</span><br><span class="line">    [</span><br><span class="line">        (</span><br><span class="line">            <span class="string">&quot;system&quot;</span>,</span><br><span class="line">            <span class="string">&quot;You are a helpful assistant. Answer all questions to the best of your ability.&quot;</span>,</span><br><span class="line">        ),</span><br><span class="line">        MessagesPlaceholder(variable_name=<span class="string">&quot;messages&quot;</span>),</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">chain = prompt | model</span><br></pre></td></tr></table></figure>
+
+<p>API 参考： <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/prompts/langchain_core.prompts.chat.ChatPromptTemplate.html">ChatPromptTemplate</a> | <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/prompts/langchain_core.prompts.chat.MessagesPlaceholder.html">MessagesPlaceholder</a></p>
+<p>请注意，这会略微改变输入类型 - 我们现在传入的 <strong>不是消息列表</strong> ，而是传入一个带有 messages 键的 <strong>字典</strong> ，其中包含一个消息列表。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">response = chain.invoke(&#123;<span class="string">&quot;messages&quot;</span>: [HumanMessage(content=<span class="string">&quot;hi! I&#x27;m bob&quot;</span>)]&#125;)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Hello Bob! How can I assist you today?&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在，我们可以像以前一样将其包装在相同的 Messages History 对象中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">with_message_history = RunnableWithMessageHistory(chain, get_session_history)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc5&quot;</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;Hi! I&#x27;m Jim&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Hi Jim! How can I assist you today?&#x27;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Your name is Jim. How can I help you today, Jim?&#x27;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    [HumanMessage(content=<span class="string">&quot;What&#x27;s my name?&quot;</span>)],</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Your name is Jim. How can I help you today, Jim?&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在让我们的提示稍微复杂一点。我们假设提示模板现在如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">prompt = ChatPromptTemplate.from_messages(</span><br><span class="line">    [</span><br><span class="line">        (</span><br><span class="line">            <span class="string">&quot;system&quot;</span>,</span><br><span class="line">            <span class="string">&quot;You are a helpful assistant. Answer all questions to the best of your ability in &#123;language&#125;.&quot;</span>,</span><br><span class="line">        ),</span><br><span class="line">        MessagesPlaceholder(variable_name=<span class="string">&quot;messages&quot;</span>),</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">chain = prompt | model</span><br></pre></td></tr></table></figure>
+
+<p>请注意，我们已向提示添加了新的language输入。现在，我们可以调用链并传入我们选择的语言。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">response = chain.invoke(</span><br><span class="line">    &#123;<span class="string">&quot;messages&quot;</span>: [HumanMessage(content=<span class="string">&quot;hi! I&#x27;m bob&quot;</span>)], <span class="string">&quot;language&quot;</span>: <span class="string">&quot;Spanish&quot;</span>&#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;¡Hola Bob! ¿Cómo puedo ayudarte hoy?&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在让我们将这个更复杂的链包装在 Message History 类中。这一次，由于输入中有多个 key，我们需要指定正确的 key 来保存聊天记录。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">with_message_history = RunnableWithMessageHistory(</span><br><span class="line">    chain,</span><br><span class="line">    get_session_history,</span><br><span class="line">    input_messages_key=<span class="string">&quot;messages&quot;</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc11&quot;</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    &#123;<span class="string">&quot;messages&quot;</span>: [HumanMessage(content=<span class="string">&quot;hi! I&#x27;m todd&quot;</span>)], <span class="string">&quot;language&quot;</span>: <span class="string">&quot;Spanish&quot;</span>&#125;,</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;¡Hola Todd! ¿En qué puedo ayudarte hoy?&#x27;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    &#123;<span class="string">&quot;messages&quot;</span>: [HumanMessage(content=<span class="string">&quot;whats my name?&quot;</span>)], <span class="string">&quot;language&quot;</span>: <span class="string">&quot;Spanish&quot;</span>&#125;,</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Tu nombre es Todd.&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>提示</p>
+<p>这里我认为有几个比较重要的概念：</p>
+<ul>
+<li>HumanMessage&#x2F;AIMessage 是消息的类型</li>
+<li>session_id 是确定使用哪组消息的关键</li>
+<li>RunnableWithMessageHistory 是将消息历史记录与模型结合在一起的关键它需要传入model变量和get_session_history函数，而get_session_history函数需要传入session_id来获取消息历史记录</li>
+<li>如果使用了prompt_template，那么我们需要传给invoke的参数是一个字典，而不是一个消息列表，字典的key是prompt_template中定义的变量名</li>
+</ul>
+<h2 id="5-管理对话历史记录"><a href="#5-管理对话历史记录" class="headerlink" title="5 管理对话历史记录"></a>5 管理对话历史记录</h2><p>构建聊天机器人时要了解的一个重要概念是如何管理对话历史记录。</p>
+<p>如果不进行管理，消息列表将变得不受限制，并可能使 LLM 的上下文窗口溢出。</p>
+<p>因此，添加一个限制您传入的消息大小的步骤非常重要。</p>
+<p><strong>重要的是，你要在加载“消息历史”里的旧消息之后，再进行提示模板的操作。</strong></p>
+<p>为此，我们可以在 prompt 前面添加一个简单的步骤，以适当地修改 <code>messages</code> 键，然后将该新链包装在 <code>Message History</code> 类中。</p>
+<p>LangChain 附带了一些内置的 helpers，用于 <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/docs/how_to/#messages">管理消息列表</a> 。在本例中，我们将使用 trim_messages 帮助程序来减少我们发送到模型的消息数量。 <strong>修剪器</strong> 允许我们指定要保留的令牌数量，以及其他参数，例如我们是否要始终保留系统消息以及是否允许部分消息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_core.messages <span class="keyword">import</span> SystemMessage, trim_messages</span><br><span class="line"></span><br><span class="line">trimmer = trim_messages(</span><br><span class="line">    max_tokens=<span class="number">65</span>,</span><br><span class="line">    strategy=<span class="string">&quot;last&quot;</span>,</span><br><span class="line">    token_counter=model,</span><br><span class="line">    include_system=<span class="literal">True</span>,</span><br><span class="line">    allow_partial=<span class="literal">False</span>,</span><br><span class="line">    start_on=<span class="string">&quot;human&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">messages = [</span><br><span class="line">    SystemMessage(content=<span class="string">&quot;you&#x27;re a good assistant&quot;</span>),</span><br><span class="line">    HumanMessage(content=<span class="string">&quot;hi! I&#x27;m bob&quot;</span>),</span><br><span class="line">    AIMessage(content=<span class="string">&quot;hi!&quot;</span>),</span><br><span class="line">    HumanMessage(content=<span class="string">&quot;I like vanilla ice cream&quot;</span>),</span><br><span class="line">    AIMessage(content=<span class="string">&quot;nice&quot;</span>),</span><br><span class="line">    HumanMessage(content=<span class="string">&quot;whats 2 + 2&quot;</span>),</span><br><span class="line">    AIMessage(content=<span class="string">&quot;4&quot;</span>),</span><br><span class="line">    HumanMessage(content=<span class="string">&quot;thanks&quot;</span>),</span><br><span class="line">    AIMessage(content=<span class="string">&quot;no problem!&quot;</span>),</span><br><span class="line">    HumanMessage(content=<span class="string">&quot;having fun?&quot;</span>),</span><br><span class="line">    AIMessage(content=<span class="string">&quot;yes!&quot;</span>),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">trimmer.invoke(messages)</span><br></pre></td></tr></table></figure>
+
+<p>API 参考： <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/messages/langchain_core.messages.system.SystemMessage.html">SystemMessage</a> | <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/messages/langchain_core.messages.utils.trim_messages.html">trim_messages</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[SystemMessage(content=<span class="string">&quot;you&#x27;re a good assistant&quot;</span>),</span><br><span class="line"> HumanMessage(content=<span class="string">&#x27;whats 2 + 2&#x27;</span>),</span><br><span class="line"> AIMessage(content=<span class="string">&#x27;4&#x27;</span>),</span><br><span class="line"> HumanMessage(content=<span class="string">&#x27;thanks&#x27;</span>),</span><br><span class="line"> AIMessage(content=<span class="string">&#x27;no problem!&#x27;</span>),</span><br><span class="line"> HumanMessage(content=<span class="string">&#x27;having fun?&#x27;</span>),</span><br><span class="line"> AIMessage(content=<span class="string">&#x27;yes!&#x27;</span>)]</span><br></pre></td></tr></table></figure>
+
+<p>要在我们的链中使用它，我们只需要在将 <code>messages</code> input 传递给 prompt 之前运行 trimmer。</p>
+<p>现在，如果我们尝试向模型询问我们的名字，它不会知道它，因为我们修剪了聊天记录的那部分：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> itemgetter</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain_core.runnables <span class="keyword">import</span> RunnablePassthrough</span><br><span class="line"></span><br><span class="line">chain = (</span><br><span class="line">    RunnablePassthrough.assign(messages=itemgetter(<span class="string">&quot;messages&quot;</span>) | trimmer)</span><br><span class="line">    | prompt</span><br><span class="line">    | model</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response = chain.invoke(</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;messages&quot;</span>: messages + [HumanMessage(content=<span class="string">&quot;what&#x27;s my name?&quot;</span>)],</span><br><span class="line">        <span class="string">&quot;language&quot;</span>: <span class="string">&quot;English&quot;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+
+<p>API 参考： <a target="_blank" rel="noopener" href="https://python.langchain.com/v0.2/api_reference/core/runnables/langchain_core.runnables.passthrough.RunnablePassthrough.html">RunnablePassthrough</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;I&#x27;m sorry, but I don&#x27;t have access to your personal information. How can I assist you today?&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>但是，如果我们询问最后几封邮件中的信息，它会知道：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">response = chain.invoke(</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;messages&quot;</span>: messages + [HumanMessage(content=<span class="string">&quot;what math problem did i ask&quot;</span>)],</span><br><span class="line">        <span class="string">&quot;language&quot;</span>: <span class="string">&quot;English&quot;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;You asked &quot;what\&#x27;</span>s 2 + 2?<span class="string">&quot;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在让我们将其包装在 Message History 中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">with_message_history = RunnableWithMessageHistory(</span><br><span class="line">    chain,</span><br><span class="line">    get_session_history,</span><br><span class="line">    input_messages_key=<span class="string">&quot;messages&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc20&quot;</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;messages&quot;</span>: messages + [HumanMessage(content=<span class="string">&quot;whats my name?&quot;</span>)],</span><br><span class="line">        <span class="string">&quot;language&quot;</span>: <span class="string">&quot;English&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;I&#x27;m sorry, I don&#x27;t have access to that information. How can I assist you today?&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>正如预期的那样，我们声明我们名称的第一条消息已被修剪。此外，聊天记录中现在有两条新消息（我们的最新问题和最新回复）。这意味着过去在我们的对话历史记录中可以访问的更多信息不再可用！在这种情况下，我们的初始数学问题也已从历史记录中修剪下来，因此模型不再知道它：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">response = with_message_history.invoke(</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;messages&quot;</span>: [HumanMessage(content=<span class="string">&quot;what math problem did i ask?&quot;</span>)],</span><br><span class="line">        <span class="string">&quot;language&quot;</span>: <span class="string">&quot;English&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    config=config,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response.content</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;You haven&#x27;t asked a math problem yet. Feel free to ask any math-related question you have, and I&#x27;ll be happy to help you with it.&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-Streaming"><a href="#6-Streaming" class="headerlink" title="6 Streaming"></a>6 Streaming</h2><p>现在我们有一个正常运行的聊天机器人。但是，聊天机器人应用程序的一个非常重要的 UX 考虑因素是流式传输。LLM 有时可能需要一段时间才能响应，因此，为了改善用户体验，大多数应用程序所做的一件事是在生成每个令牌时将其流回。这样，用户就可以看到进度。</p>
+<p>这实际上非常简单！</p>
+<p>所有链都开放.stream 方法，使用消息历史记录的链也不例外。我们可以简单地使用该方法来获取流式响应。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config = &#123;<span class="string">&quot;configurable&quot;</span>: &#123;<span class="string">&quot;session_id&quot;</span>: <span class="string">&quot;abc15&quot;</span>&#125;&#125;</span><br><span class="line"><span class="keyword">for</span> r <span class="keyword">in</span> with_message_history.stream(</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;messages&quot;</span>: [HumanMessage(content=<span class="string">&quot;hi! I&#x27;m todd. tell me a joke&quot;</span>)],</span><br><span class="line">        <span class="string">&quot;language&quot;</span>: <span class="string">&quot;English&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    config=config,</span><br><span class="line">):</span><br><span class="line">    <span class="built_in">print</span>(r.content, end=<span class="string">&quot;|&quot;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|Hi| Todd|!| Sure|,| here|<span class="string">&#x27;s| a| joke| for| you|:| Why| couldn|&#x27;</span>t| the| bicycle| find| its| way| home|?| Because| it| lost| its| bearings|!| 😄||</span><br></pre></td></tr></table></figure>
+
+<p><strong>原文：</strong> <a target="_blank" rel="noopener" href="https://www.freecodecamp.org/news/langchain-how-to-create-custom-knowledge-chatbots/">LangChain Tutorial – How to Build a Custom-Knowledge Chatbot</a></p>
+<p>你可能已经了解到过去几个月中发布的大量人工智能应用程序。你甚至可能已经开始使用其中的一些。</p>
+<p><a target="_blank" rel="noopener" href="https://www.chatpdf.com/">ChatPDF</a> 和 <a target="_blank" rel="noopener" href="https://customgpt.ai/use-cases/">CustomGPT AI</a> 等人工智能工具对人们非常有用，这是有道理的。你需要翻阅长达 50 页的文档才能找到一个简单答案的时代已经一去不复返了。取而代之的是，你可以依靠人工智能来完成繁重的工作。</p>
+<p>但是，这些开发人员究竟是如何创建和使用这些工具的呢？他们中的许多人都在使用一个名为 LangChain 的开源框架。</p>
+<p>在本文中，我将向你介绍 LangChain，并向你展示如何将其与 OpenAI 的 API 结合使用，以创建这些改变游戏规则的工具。希望我的介绍能激发你们的灵感，创造出属于自己的工具。那么，让我们开始吧！</p>
+<h2 id="什么是-LangChain"><a href="#什么是-LangChain" class="headerlink" title="什么是 LangChain"></a>什么是 LangChain</h2><p><img src="https://www.freecodecamp.org/news/content/images/2023/05/Screenshot-2023-05-29-at-5.40.38-PM.png" alt="Screenshot-2023-05-29-at-5.40.38-PM"></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/hwchase17/langchain/">LangChain</a> 是一个开源框架，允许人工智能开发人员将 GPT-4 等大型语言模型（LLM）与外部数据相结合。它提供 Python 或 JavaScript（TypeScript）包。</p>
+<p>大家可能知道，GPT 模型是在 2021 年之前的数据上训练出来的，这可能是一个很大的局限。虽然这些模型的常识很不错，但如果能将它们与自定义数据和计算连接起来，就会打开很多大门。这正是 LangChain 所要做的。</p>
+<p>从本质上讲，它可以让你的 LLM 在得出答案时参考整个数据库。因此，你现在可以让你的 GPT 模型访问报告、文档和网站信息等形式的最新数据。</p>
+<p>最近，LangChain 的受欢迎程度大幅上升，尤其是在三月份推出 GPT-4 之后。这要归功于它的多功能性，以及与功能强大的 LLM 配合后所带来的多种可能性。</p>
+<h2 id="LangChain-是怎样工作的"><a href="#LangChain-是怎样工作的" class="headerlink" title="LangChain 是怎样工作的"></a>LangChain 是怎样工作的</h2><p>可能会觉得 LangChain 听起来很复杂，但实际上它非常容易上手。</p>
+<p>简而言之，LangChain 就是将大量数据组成一个 LLM 可以轻松引用的数据链，而且计算能力越低越好。它的工作原理是将大量数据（例如 50 页的 PDF 文件）分解成 <code>块(chunks)</code> ，然后将这些 <code>块(chunks)</code> 嵌入到 向量存储(Vector Store) 中。</p>
+<p><img src="https://www.freecodecamp.org/news/content/images/2023/05/------LangChain.png" alt="------LangChain"></p>
+<p>以上是创建向量存储(Vector Store) 的简单示意图。</p>
+<p>现在，我们已经有了大型文档的向量化表示，可以将其与 LLM 结合使用，在创建 提示-完成对<br>(prompt-completion pair) 时，只检索我们需要引用的信息。</p>
+<p>当我们在新聊天机器人中插入 提示(prompt) 时，LangChain 会查询 向量存储库(Vector Store) 以获取相关信息。把它想象成你文档的迷你谷歌。一旦检索到相关信息，我们就会将其与 提示(prompt ) 信息一起输入 LLM，生成我们的答案。</p>
+<p><img src="https://www.freecodecamp.org/news/content/images/2023/05/ByteSizedThumbnail--1200---800-px---10-.png" alt="ByteSizedThumbnail--1200---800-px---10-"></p>
+<p>以上展示了 LangChain 如何与 OpenAI 的 LLM 协同工作。</p>
+<p>LangChain 还允许你创建可以执行操作的应用程序，例如上网、发送电子邮件和完成其他与 API 相关的任务。请查看 <a target="_blank" rel="noopener" href="https://agentsgpt.reworkd.ai/">AgentsGPT</a> ，这就是一个很好的例子。</p>
+<p>这有很多可能的用例，以下是我想到的几个：</p>
+<ul>
+<li>个人 AI 电子邮件助理</li>
+<li>人工智能学习伙伴</li>
+<li>人工智能数据分析</li>
+<li>定制公司客户服务聊天机器人</li>
+<li>社交媒体内容创建助手</li>
+</ul>
+<p>还有更多。我将在今后的文章中介绍正确的构建教程，敬请期待。</p>
+<h2 id="怎样开始使用-LangChain"><a href="#怎样开始使用-LangChain" class="headerlink" title="怎样开始使用 LangChain"></a>怎样开始使用 LangChain</h2><p>LangChain 应用程序由 5 个主要部分组成：</p>
+<ol>
+<li>Models (LLM Wrappers)</li>
+<li>Prompts</li>
+<li>Chains</li>
+<li>Embeddings and Vector Stores</li>
+<li>Agents</li>
+</ol>
+<p>我将为你逐一介绍，以便你对 LangChain 的工作原理有一个高层次的了解。接下来，你应该能够应用这些概念，开始制作自己的用例并创建自己的应用程序。</p>
+<p>我将用 Rabbitmetrics 的简短代码片段（ <a target="_blank" rel="noopener" href="https://github.com/rabbitmetrics/langchain-13-min/blob/main/notebooks/langchain-13-min.ipynb">Github</a> ）来解释一切。他就这一主题提供了很好的教程。通过这些代码片段，你可以完成所有设置并准备使用 LangChain。</p>
+<p>首先，我们来设置环境。你可以用 pip 安装 3 个需要的库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python-dotenv==1.0.0</span><br><span class="line">langchain==0.0.137</span><br><span class="line">pinecone-client==2.2.1</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://www.pinecone.io/">Pinecone</a> 是我们将与 LangChain 结合使用的向量存储。使用这些工具时，请确保将 OpenAI、Pinecone Environment 和 Pinecone API 的 API 密钥存储到环境文件中。你可以在它们各自的网站上找到这些信息。然后，我们只需在环境文件中加载以下内容即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Load environment variables</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv,find_dotenv</span><br><span class="line">load_dotenv(find_dotenv())</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们可以开始了！</p>
+<h3 id="Models（LLM-Wrappers）"><a href="#Models（LLM-Wrappers）" class="headerlink" title="Models（LLM Wrappers）"></a>Models（LLM Wrappers）</h3><p>为了与我们的 LLM 进行交互，我们将为 OpenAI 的 GPT 模型实例化一个封装器。在本例中，我们将使用 OpenAI 的 GPT-3.5-turbo，因为它最具性价比。但如果你有授权，也可以使用功能更强大的 GPT4。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># import schema for chat messages and ChatOpenAI in order to query chatmodels GPT-3.5-turbo or GPT-4</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain.schema <span class="keyword">import</span> (</span><br><span class="line">    AIMessage,</span><br><span class="line">    HumanMessage,</span><br><span class="line">    SystemMessage</span><br><span class="line">)</span><br><span class="line"><span class="keyword">from</span> langchain.chat_models <span class="keyword">import</span> ChatOpenAI</span><br><span class="line">     </span><br><span class="line"></span><br><span class="line">chat = ChatOpenAI(model_name=<span class="string">&quot;gpt-3.5-turbo&quot;</span>,temperature=<span class="number">0.3</span>)</span><br><span class="line">messages = [</span><br><span class="line">    SystemMessage(content=<span class="string">&quot;You are an expert data scientist&quot;</span>),</span><br><span class="line">    HumanMessage(content=<span class="string">&quot;Write a Python script that trains a neural network on simulated data &quot;</span>)</span><br><span class="line">]</span><br><span class="line">response=chat(messages)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(response.content,end=<span class="string">&#x27;\n&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>本质上， <code>SystemMessage</code> 为 GPT-3.5-turbo 模块提供了上下文，它将为每个提示-完成对引用该模块。 HumanMessage 指的是你在 ChatGPT 界面中输入的内容(你的提示)。</p>
+<p>但对于定制知识聊天机器人，我们经常抽象出 提示（prompt）中的重复组件。例如，如果我正在创建一个推文生成器应用程序，我不想继续输入 <code>给我写一条关于...的推文</code> 。其实， <a target="_blank" rel="noopener" href="https://ilampadman.com/best-ai-writer-best-ai-copywriter">AI 写作工具</a> 就是这么简单开发出来的！</p>
+<p>那么让我们看看如何使用 提示模板(prompt templates) 将其抽象出来。</p>
+<h3 id="Prompts（提示）"><a href="#Prompts（提示）" class="headerlink" title="Prompts（提示）"></a>Prompts（提示）</h3><p>LangChain 提供 PromptTemplates，允许你根据用户输入动态更改提示，类似于使用正则表达式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import prompt and define PromptTemplate</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain <span class="keyword">import</span> PromptTemplate</span><br><span class="line"></span><br><span class="line">template = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">You are an expert data scientist with an expertise in building deep learning models. </span></span><br><span class="line"><span class="string">Explain the concept of &#123;concept&#125; in a couple of lines</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">prompt = PromptTemplate(</span><br><span class="line">    input_variables=[<span class="string">&quot;concept&quot;</span>],</span><br><span class="line">    template=template,</span><br><span class="line">)</span><br><span class="line">     </span><br><span class="line"></span><br><span class="line"><span class="comment"># Run LLM with PromptTemplate</span></span><br><span class="line"></span><br><span class="line">llm(prompt.<span class="built_in">format</span>(concept=<span class="string">&quot;autoencoder&quot;</span>))</span><br><span class="line">llm(prompt.<span class="built_in">format</span>(concept=<span class="string">&quot;regularization&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>你可以通过不同的方式改变它们以适合你的用例。 如果你熟悉使用 ChatGPT，这对你来说应该很舒服。</p>
+<h3 id="Chains（链）"><a href="#Chains（链）" class="headerlink" title="Chains（链）"></a>Chains（链）</h3><p>链（Chains）允许你采用简单的 PromptTemplates 并在它们之上构建功能。本质上，链就像 <a target="_blank" rel="noopener" href="https://www.freecodecamp.org/news/function-composition-in-javascript/">复合函数(composite functions)</a> ，允许你将 PromptTemplates 和 LLM 集成在一起。</p>
+<p>使用之前的装饰器(wrappers) 和 PromptTemplates，我们可以使用单个链运行相同的提示，该链采用 PromptTemplate 并将其与 LLM 组合：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import LLMChain and define chain with language model and prompt as arguments.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain.chains <span class="keyword">import</span> LLMChain</span><br><span class="line">chain = LLMChain(llm=llm, prompt=prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Run the chain only specifying the input variable.</span></span><br><span class="line"><span class="built_in">print</span>(chain.run(<span class="string">&quot;autoencoder&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>最重要的是，顾名思义，我们可以将它们链接在一起以创建更大的作品。</p>
+<p>例如，我可以从一个链中获取结果并将其传递到另一个链中。 在此片段中，Rabbitmetrics 从第一个链中获取补全内容，并将其传递到第二个链中，以便向 5 岁的孩子解释。</p>
+<p>然后，你可以将这些链组合成一个更大的链并运行它。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Define a second prompt </span></span><br><span class="line"></span><br><span class="line">second_prompt = PromptTemplate(</span><br><span class="line">    input_variables=[<span class="string">&quot;ml_concept&quot;</span>],</span><br><span class="line">    template=<span class="string">&quot;Turn the concept description of &#123;ml_concept&#125; and explain it to me like I&#x27;m five in 500 words&quot;</span>,</span><br><span class="line">)</span><br><span class="line">chain_two = LLMChain(llm=llm, prompt=second_prompt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define a sequential chain using the two chains above: the second chain takes the output of the first chain as input</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain.chains <span class="keyword">import</span> SimpleSequentialChain</span><br><span class="line">overall_chain = SimpleSequentialChain(chains=[chain, chain_two], verbose=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Run the chain specifying only the input variable for the first chain.</span></span><br><span class="line">explanation = overall_chain.run(<span class="string">&quot;autoencoder&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(explanation)</span><br></pre></td></tr></table></figure>
+
+<p>通过链，你可以创建大量的功能，这就是 LangChain 如此多功能的原因。 但它真正的亮点在于将其与前面讨论的向量存储结合使用。 我们来介绍一下这个组件。</p>
+<h3 id="Embeddings（嵌入）和-Vector-Stores（向量存储）"><a href="#Embeddings（嵌入）和-Vector-Stores（向量存储）" class="headerlink" title="Embeddings（嵌入）和 Vector Stores（向量存储）"></a>Embeddings（嵌入）和 Vector Stores（向量存储）</h3><p>这就是我们整合 LangChain 的自定义数据方面的地方。 如前所述，嵌入(embeddings) 和向量存储背后的想法是将大数据分成块并在相关时存储要查询的数据。</p>
+<p>LangChain 有一个文本分割器函数(text splitter function) 可以做到这一点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import utility for splitting up texts and split up the explanation given above into document chunks</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> RecursiveCharacterTextSplitter</span><br><span class="line"></span><br><span class="line">text_splitter = RecursiveCharacterTextSplitter(</span><br><span class="line">    chunk_size = <span class="number">100</span>,</span><br><span class="line">    chunk_overlap  = <span class="number">0</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">texts = text_splitter.create_documents([explanation])</span><br></pre></td></tr></table></figure>
+
+<p>分割文本需要两个参数：块有多大 (chunk_size) 以及每个块重叠的程度 (chunk_overlap)。 每个块之间的重叠对于帮助识别相关的相邻块非常重要。</p>
+<p>每个块都可以这样检索：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">texts[<span class="number">0</span>].page_content</span><br></pre></td></tr></table></figure>
+
+<p>获得这些块后，我们需要将它们转化为嵌入(embeddings)。这允许向量存储在查询时查找并返回每个块。我们将使用 OpenAI 的 嵌入模型(embedding model) 来完成此操作。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import and instantiate OpenAI embeddings</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain.embeddings <span class="keyword">import</span> OpenAIEmbeddings</span><br><span class="line"></span><br><span class="line">embeddings = OpenAIEmbeddings(model_name=<span class="string">&quot;ada&quot;</span>)</span><br><span class="line">     </span><br><span class="line"></span><br><span class="line"><span class="comment"># Turn the first text chunk into a vector with the embedding</span></span><br><span class="line"></span><br><span class="line">query_result = embeddings.embed_query(texts[<span class="number">0</span>].page_content)</span><br><span class="line"><span class="built_in">print</span>(query_result)</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们需要有一个地方来存储这些 矢量化嵌入(vectorized embeddings)。如前所述，我们将为此使用 Pinecone。使用之前环境文件中的 API key，我们可以初始化 Pinecone 来存储我们的嵌入。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import and initialize Pinecone client</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> pinecone</span><br><span class="line"><span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> Pinecone</span><br><span class="line"></span><br><span class="line">pinecone.init(</span><br><span class="line">    api_key=os.getenv(<span class="string">&#x27;PINECONE_API_KEY&#x27;</span>),  </span><br><span class="line">    environment=os.getenv(<span class="string">&#x27;PINECONE_ENV&#x27;</span>)  </span><br><span class="line">)</span><br><span class="line">     </span><br><span class="line"></span><br><span class="line"><span class="comment"># Upload vectors to Pinecone</span></span><br><span class="line"></span><br><span class="line">index_name = <span class="string">&quot;langchain-quickstart&quot;</span></span><br><span class="line">search = Pinecone.from_documents(texts, embeddings, index_name=index_name)</span><br><span class="line">     </span><br><span class="line"></span><br><span class="line"><span class="comment"># Do a simple vector similarity search</span></span><br><span class="line"></span><br><span class="line">query = <span class="string">&quot;What is magical about an autoencoder?&quot;</span></span><br><span class="line">result = search.similarity_search(query)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(result)</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们能够从 Pinecone 向量存储中查询相关信息了！剩下要做的就是把我们学到的知识结合起来，创建我们的特定用例。这就是我们的专业人工智能 <code>Agents</code> 。</p>
+<h3 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h3><p>Agents 本质上是一种自主的人工智能，它接收输入并按顺序完成这些任务，直至达到最终目标。这就需要我们的人工智能使用其他应用程序接口，从而完成发送电子邮件或做数学题等任务。结合我们的 LLM + 提示链(prompt chains)，我们可以串联起一个合适的人工智能应用程序。</p>
+<p>现在，要解释这部分内容会很费劲，因此这里有一个简单的例子，说明如何在 LangChain 中使用 Python Agents 来解决一个简单的数学问题。本例中的 Agents 通过连接我们的 LLM 来运行 Python 代码，并使用 NumPy 求根来解决问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import Python REPL tool and instantiate Python Agents</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> langchain.Agents.Agents_toolkits <span class="keyword">import</span> create_python_Agents</span><br><span class="line"><span class="keyword">from</span> langchain.tools.python.tool <span class="keyword">import</span> PythonREPLTool</span><br><span class="line"><span class="keyword">from</span> langchain.python <span class="keyword">import</span> PythonREPL</span><br><span class="line"><span class="keyword">from</span> langchain.llms.openai <span class="keyword">import</span> OpenAI</span><br><span class="line"></span><br><span class="line">Agents_executor = create_python_Agents(</span><br><span class="line">    llm=OpenAI(temperature=<span class="number">0</span>, max_tokens=<span class="number">1000</span>),</span><br><span class="line">    tool=PythonREPLTool(),</span><br><span class="line">    verbose=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line">     </span><br><span class="line"></span><br><span class="line"><span class="comment"># Execute the Python Agents</span></span><br><span class="line"></span><br><span class="line">Agents_executor.run(<span class="string">&quot;Find the roots (zeros) if the quadratic function 3 * x**2 + 2*x -1&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>定制知识聊天机器人本质上是一个 Agents，它可以将查询向量化存储的 提示(prompts) 和操作串联起来，获取结果，并将其与原始问题串联起来！</p>
+<p>如果你想了解更多关于人工智能 Agents 的信息， <a target="_blank" rel="noopener" href="https://lablab.ai/t/ai-Agents-tutorial-how-to-use-and-create-them">这个</a> 是一个很好的资源。</p>
+<h2 id="别的因素"><a href="#别的因素" class="headerlink" title="别的因素"></a>别的因素</h2><p>即使你刚刚对 LangChain 的功能有了基本的了解，我相信你此时也会有很多想法。</p>
+<p>但到目前为止，我们只研究了一个 OpenAI 模型，那就是基于文本的 GPT-3.5-turbo。OpenAI 有一系列模型可供 LangChain 使用，包括使用 Dall-E 生成图像。应用我们讨论过的相同概念，我们可以创建 <a target="_blank" rel="noopener" href="https://julianlankstead.com/ai-nft-art-generator">人工智能艺术生成器</a> 代理、网站生成器代理等。</p>
+<p>花点时间探索一下人工智能领域，我相信你会有越来越多的想法。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我希望你已经对所有这些新人工智能工具的幕后工作有了更多了解。作为一名程序员，了解 LangChain 的工作原理是一项宝贵的技能，它可以为你的人工智能开发带来无限可能。</p>
+<p>如果你喜欢这篇文章，并想了解更多有关人工智能创造者们正在构建的新工具的信息，你可以通过我的 <a target="_blank" rel="noopener" href="https://bytesizedai.beehiiv.com/subscribe">Byte-Sized AI Newsletter</a> 随时了解最新信息。我希望你能加入我们的社区。</p>
+<p>你也可以在 <a target="_blank" rel="noopener" href="https://twitter.com/Shuggggan">Twitter</a> 上关注我，我们也可以在那里保持联系。</p>
+<p>除此之外，请开始尝试使用 LangChain 并创建一些有趣的人工智能项目。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/clippings/" rel="tag"># clippings</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/20/Git/Git%E4%BB%8E%E5%8E%86%E5%8F%B2%E6%8F%90%E4%BA%A4%E4%B8%AD%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6/" rel="prev" title="Git从历史提交中删除文件">
+                  <i class="fa fa-angle-left"></i> Git从历史提交中删除文件
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/04/22/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E9%83%A8%E7%BD%B2Ollama%E5%B9%B6%E5%AE%9E%E7%8E%B0ROCm%E5%8A%A0%E9%80%9F/" rel="next" title="Docker部署Ollama并实现ROCm加速">
+                  Docker部署Ollama并实现ROCm加速 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

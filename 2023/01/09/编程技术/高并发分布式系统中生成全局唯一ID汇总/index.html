@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、概述在分布式系统中，特别是在分库分表场景下，生成全局唯一ID是一个关键的技术挑战。单纯的生成全局ID并不困难，但生成的ID需要满足分布式系统的特定要求：  无单点故障：ID生成服务必须具备高可用性 时间有序性：ID应包含时间信息或按时间排序，便于索引优化和冷热数据分离 分片可控性：能够控制ShardingId，使相关数据位于同一分片，提高查询和修改效率 长度适中：最好为64bit，便于使用lo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高并发分布式系统中生成全局唯一ID汇总">
+<meta property="og:url" content="http://chengming0916.github.io/2023/01/09/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80ID%E6%B1%87%E6%80%BB/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、概述在分布式系统中，特别是在分库分表场景下，生成全局唯一ID是一个关键的技术挑战。单纯的生成全局ID并不困难，但生成的ID需要满足分布式系统的特定要求：  无单点故障：ID生成服务必须具备高可用性 时间有序性：ID应包含时间信息或按时间排序，便于索引优化和冷热数据分离 分片可控性：能够控制ShardingId，使相关数据位于同一分片，提高查询和修改效率 长度适中：最好为64bit，便于使用lo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859095.jpg">
+<meta property="og:image" content="http://chengming0916.github.io/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859177.jpg">
+<meta property="og:image" content="http://chengming0916.github.io/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859236.png">
+<meta property="og:image" content="http://chengming0916.github.io/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859283.png">
+<meta property="og:image" content="http://chengming0916.github.io/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859356.jpg">
+<meta property="article:published_time" content="2023-01-09T06:33:08.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.532Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="分布式系统">
+<meta property="article:tag" content="全局ID">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="dotnet">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859095.jpg">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2023/01/09/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80ID%E6%B1%87%E6%80%BB/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2023/01/09/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80ID%E6%B1%87%E6%80%BB/","path":"2023/01/09/编程技术/高并发分布式系统中生成全局唯一ID汇总/","title":"高并发分布式系统中生成全局唯一ID汇总"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>高并发分布式系统中生成全局唯一ID汇总 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Snowflake%E7%AE%97%E6%B3%95%EF%BC%88Twitter%E6%96%B9%E6%A1%88%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、Snowflake算法（Twitter方案）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E8%83%8C%E6%99%AF"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E7%AE%97%E6%B3%95%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 算法结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 核心原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-Java%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 Java实现示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E4%BC%98%E7%BC%BA%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 优缺点分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Flickr%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">三、Flickr数据库方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%96%B9%E6%A1%88%E6%A6%82%E8%BF%B0"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 方案概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 实现步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%93%E7%94%A8%E8%A1%A8"><span class="nav-number">3.2.1.</span> <span class="nav-text">创建专用表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E6%88%90ID%E6%93%8D%E4%BD%9C"><span class="nav-number">3.2.2.</span> <span class="nav-text">生成ID操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AB%98%E5%8F%AF%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.3.</span> <span class="nav-text">高可用配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E4%BC%98%E7%BC%BA%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 优缺点分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81UUID%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">四、UUID方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E7%94%9F%E6%88%90%E5%8E%9F%E7%90%86"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 生成原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%94%AF%E4%B8%80%E6%80%A7%E4%BF%9D%E8%AF%81"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 唯一性保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E4%BC%98%E7%BC%BA%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 优缺点分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%9F%BA%E4%BA%8ERedis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8FID%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">五、基于Redis的分布式ID生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-ID%E7%BB%93%E6%9E%84"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 ID结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E7%94%9F%E6%88%90%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 生成示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-Redis%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 Redis命令使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81MongoDB-ObjectId%E6%96%B9%E6%A1%88"><span class="nav-number">6.</span> <span class="nav-text">六、MongoDB ObjectId方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E8%AE%BE%E8%AE%A1%E8%80%83%E8%99%91"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 设计考虑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-ObjectId%E7%BB%93%E6%9E%84"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 ObjectId结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E5%94%AF%E4%B8%80%E6%80%A7%E4%BF%9D%E8%AF%81%E6%9C%BA%E5%88%B6"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 唯一性保证机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-%E7%94%9F%E6%88%90%E4%BD%8D%E7%BD%AE"><span class="nav-number">6.4.</span> <span class="nav-text">6.4 生成位置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="nav-number">7.</span> <span class="nav-text">七、方案对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E9%80%89%E6%8B%A9%E5%BB%BA%E8%AE%AE"><span class="nav-number">8.</span> <span class="nav-text">八、选择建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E8%80%83%E8%99%91%E5%9B%A0%E7%B4%A0"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 考虑因素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 最佳实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">九、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id-%E6%BB%B4%E7%AD%94%E7%9A%84%E9%9B%A8-%E5%8D%9A%E5%AE%A2%E5%9B%AD"><span class="nav-number"></span> <span class="nav-text">如何在高并发分布式系统中生成全局唯一Id - 滴答的雨 - 博客园</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excerpt"><span class="nav-number">1.</span> <span class="nav-text">Excerpt</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2023/01/09/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80ID%E6%B1%87%E6%80%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="高并发分布式系统中生成全局唯一ID汇总 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          高并发分布式系统中生成全局唯一ID汇总
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-01-09 14:33:08" itemprop="dateCreated datePublished" datetime="2023-01-09T14:33:08+08:00">2023-01-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>在分布式系统中，特别是在分库分表场景下，生成全局唯一ID是一个关键的技术挑战。单纯的生成全局ID并不困难，但生成的ID需要满足分布式系统的特定要求：</p>
+<ol>
+<li><strong>无单点故障</strong>：ID生成服务必须具备高可用性</li>
+<li><strong>时间有序性</strong>：ID应包含时间信息或按时间排序，便于索引优化和冷热数据分离</li>
+<li><strong>分片可控性</strong>：能够控制ShardingId，使相关数据位于同一分片，提高查询和修改效率</li>
+<li><strong>长度适中</strong>：最好为64bit，便于使用long类型操作，避免组件兼容性问题</li>
+</ol>
+<p>本文将详细介绍几种主流的全局唯一ID生成方案。</p>
+<h2 id="二、Snowflake算法（Twitter方案）"><a href="#二、Snowflake算法（Twitter方案）" class="headerlink" title="二、Snowflake算法（Twitter方案）"></a>二、Snowflake算法（Twitter方案）</h2><h3 id="2-1-背景"><a href="#2-1-背景" class="headerlink" title="2.1 背景"></a>2.1 背景</h3><p>Twitter在将存储系统从MySQL迁移到Cassandra时，由于Cassandra没有内置的顺序ID生成机制，开发了Snowflake全局唯一ID生成服务。</p>
+<h3 id="2-2-算法结构"><a href="#2-2-算法结构" class="headerlink" title="2.2 算法结构"></a>2.2 算法结构</h3><p>Snowflake生成的ID为64位，结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 | 41位时间戳 | 10位机器标识 | 12位序列号</span><br></pre></td></tr></table></figure>
+
+<p><strong>各字段说明</strong>：</p>
+<ul>
+<li><strong>符号位</strong>：1位，始终为0</li>
+<li><strong>时间戳</strong>：41位，精确到毫秒，可使用69年（从自定义起始时间开始）</li>
+<li><strong>机器标识</strong>：10位，最多支持1024个节点</li>
+<li><strong>序列号</strong>：12位，每个节点每毫秒可生成4096个ID</li>
+</ul>
+<h3 id="2-3-核心原理"><a href="#2-3-核心原理" class="headerlink" title="2.3 核心原理"></a>2.3 核心原理</h3><p>![[Snowflake算法原理图.png]]</p>
+<h3 id="2-4-Java实现示例"><a href="#2-4-Java实现示例" class="headerlink" title="2.4 Java实现示例"></a>2.4 Java实现示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IdWorker</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">long</span> workerId;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">twepoch</span> <span class="operator">=</span> <span class="number">1288834974657L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> <span class="variable">sequence</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">workerIdBits</span> <span class="operator">=</span> <span class="number">4L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">maxWorkerId</span> <span class="operator">=</span> -<span class="number">1L</span> ^ -<span class="number">1L</span> &lt;&lt; workerIdBits;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">sequenceBits</span> <span class="operator">=</span> <span class="number">10L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">workerIdShift</span> <span class="operator">=</span> sequenceBits;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">timestampLeftShift</span> <span class="operator">=</span> sequenceBits + workerIdBits;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">sequenceMask</span> <span class="operator">=</span> -<span class="number">1L</span> ^ -<span class="number">1L</span> &lt;&lt; sequenceBits;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> <span class="variable">lastTimestamp</span> <span class="operator">=</span> -<span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IdWorker</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> workerId)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="keyword">if</span> (workerId &gt; <span class="built_in">this</span>.maxWorkerId || workerId &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(String.format(</span><br><span class="line">                <span class="string">&quot;worker Id can&#x27;t be greater than %d or less than 0&quot;</span>,</span><br><span class="line">                <span class="built_in">this</span>.maxWorkerId));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">this</span>.workerId = workerId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="type">long</span> <span class="title function_">nextId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">timestamp</span> <span class="operator">=</span> <span class="built_in">this</span>.timeGen();</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.lastTimestamp == timestamp) &#123;</span><br><span class="line">            <span class="built_in">this</span>.sequence = (<span class="built_in">this</span>.sequence + <span class="number">1</span>) &amp; <span class="built_in">this</span>.sequenceMask;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">this</span>.sequence == <span class="number">0</span>) &#123;</span><br><span class="line">                timestamp = <span class="built_in">this</span>.tilNextMillis(<span class="built_in">this</span>.lastTimestamp);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.sequence = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (timestamp &lt; <span class="built_in">this</span>.lastTimestamp) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Exception</span>(</span><br><span class="line">                    String.format(</span><br><span class="line">                        <span class="string">&quot;Clock moved backwards. Refusing to generate id for %d milliseconds&quot;</span>,</span><br><span class="line">                        <span class="built_in">this</span>.lastTimestamp - timestamp));</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">this</span>.lastTimestamp = timestamp;</span><br><span class="line">        <span class="type">long</span> <span class="variable">nextId</span> <span class="operator">=</span> ((timestamp - twepoch) &lt;&lt; timestampLeftShift)</span><br><span class="line">            | (<span class="built_in">this</span>.workerId &lt;&lt; <span class="built_in">this</span>.workerIdShift) | (<span class="built_in">this</span>.sequence);</span><br><span class="line">        <span class="keyword">return</span> nextId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> <span class="title function_">tilNextMillis</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> lastTimestamp)</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">timestamp</span> <span class="operator">=</span> <span class="built_in">this</span>.timeGen();</span><br><span class="line">        <span class="keyword">while</span> (timestamp &lt;= lastTimestamp) &#123;</span><br><span class="line">            timestamp = <span class="built_in">this</span>.timeGen();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> timestamp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> <span class="title function_">timeGen</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> System.currentTimeMillis();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-优缺点分析"><a href="#2-5-优缺点分析" class="headerlink" title="2.5 优缺点分析"></a>2.5 优缺点分析</h3><p><strong>优点</strong>：</p>
+<ul>
+<li>高性能，低延迟</li>
+<li>独立应用，不依赖外部服务</li>
+<li>ID按时间有序</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>需要独立开发和部署</li>
+<li>时钟回拨问题需要处理</li>
+<li>机器标识需要管理</li>
+</ul>
+<h2 id="三、Flickr数据库方案"><a href="#三、Flickr数据库方案" class="headerlink" title="三、Flickr数据库方案"></a>三、Flickr数据库方案</h2><h3 id="3-1-方案概述"><a href="#3-1-方案概述" class="headerlink" title="3.1 方案概述"></a>3.1 方案概述</h3><p>Flickr利用MySQL的自增ID特性，通过<code>auto_increment</code>、<code>replace into</code>和MyISAM引擎实现全局ID生成。</p>
+<h3 id="3-2-实现步骤"><a href="#3-2-实现步骤" class="headerlink" title="3.2 实现步骤"></a>3.2 实现步骤</h3><h4 id="创建专用表"><a href="#创建专用表" class="headerlink" title="创建专用表"></a>创建专用表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> Tickets64 (</span><br><span class="line">    id <span class="type">bigint</span>(<span class="number">20</span>) unsigned <span class="keyword">NOT NULL</span> auto_increment,</span><br><span class="line">    stub <span class="type">char</span>(<span class="number">1</span>) <span class="keyword">NOT NULL</span> <span class="keyword">default</span> <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">    <span class="keyword">UNIQUE</span> KEY stub (stub)</span><br><span class="line">) ENGINE<span class="operator">=</span>MyISAM</span><br></pre></td></tr></table></figure>
+
+<h4 id="生成ID操作"><a href="#生成ID操作" class="headerlink" title="生成ID操作"></a>生成ID操作</h4><p>在事务会话中执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">REPLACE <span class="keyword">INTO</span> Tickets64 (stub) <span class="keyword">VALUES</span> (<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="keyword">SELECT</span> LAST_INSERT_ID();</span><br></pre></td></tr></table></figure>
+
+<h4 id="高可用配置"><a href="#高可用配置" class="headerlink" title="高可用配置"></a>高可用配置</h4><p>通过配置两台MySQL服务器，设置不同的起始值和步长来生成奇偶数ID：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># TicketServer1配置</span></span><br><span class="line"><span class="attr">auto-increment-increment</span> = <span class="number">2</span></span><br><span class="line"><span class="attr">auto-increment-offset</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># TicketServer2配置</span></span><br><span class="line"><span class="attr">auto-increment-increment</span> = <span class="number">2</span></span><br><span class="line"><span class="attr">auto-increment-offset</span> = <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>客户端通过轮询方式获取ID。</p>
+<h3 id="3-3-优缺点分析"><a href="#3-3-优缺点分析" class="headerlink" title="3.3 优缺点分析"></a>3.3 优缺点分析</h3><p><strong>优点</strong>：</p>
+<ul>
+<li>利用数据库自增ID机制，可靠性高</li>
+<li>生成的ID有序</li>
+<li>实现相对简单</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>需要独立的MySQL实例，资源消耗大</li>
+<li>性能受数据库限制</li>
+<li>存在单点故障风险（需额外配置高可用）</li>
+</ul>
+<h2 id="四、UUID方案"><a href="#四、UUID方案" class="headerlink" title="四、UUID方案"></a>四、UUID方案</h2><h3 id="4-1-基本概念"><a href="#4-1-基本概念" class="headerlink" title="4.1 基本概念"></a>4.1 基本概念</h3><p>UUID（Universally Unique Identifier）生成的是32位16进制格式的字符串，转换为byte数组为16个字节，即128bit。</p>
+<h3 id="4-2-生成原理"><a href="#4-2-生成原理" class="headerlink" title="4.2 生成原理"></a>4.2 生成原理</h3><p>UUID算法的核心思想是结合机器的网卡地址、当地时间和一个随机数来生成唯一标识符。</p>
+<h3 id="4-3-唯一性保证"><a href="#4-3-唯一性保证" class="headerlink" title="4.3 唯一性保证"></a>4.3 唯一性保证</h3><p>理论上，如果一台机器每秒产生1000万个GUID，可以保证（概率意义上）3240年不重复。</p>
+<h3 id="4-4-优缺点分析"><a href="#4-4-优缺点分析" class="headerlink" title="4.4 优缺点分析"></a>4.4 优缺点分析</h3><p><strong>优点</strong>：</p>
+<ul>
+<li>本地生成，无需远程调用，延迟低</li>
+<li>扩展性好，基本无性能上限</li>
+<li>全球唯一性保证</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>无法保证趋势递增</li>
+<li>长度过长（128bit），作为主键时索引效率低</li>
+<li>常见优化方案存在局限性：<ul>
+<li>转化为两个uint64整数存储</li>
+<li>折半存储（可能影响唯一性）</li>
+</ul>
+</li>
+</ul>
+<h2 id="五、基于Redis的分布式ID生成器"><a href="#五、基于Redis的分布式ID生成器" class="headerlink" title="五、基于Redis的分布式ID生成器"></a>五、基于Redis的分布式ID生成器</h2><h3 id="5-1-实现原理"><a href="#5-1-实现原理" class="headerlink" title="5.1 实现原理"></a>5.1 实现原理</h3><p>利用Redis的Lua脚本执行功能，在每个节点上通过Lua脚本生成唯一ID。</p>
+<h3 id="5-2-ID结构"><a href="#5-2-ID结构" class="headerlink" title="5.2 ID结构"></a>5.2 ID结构</h3><p>生成的ID为64位，结构如下：</p>
+<ul>
+<li><strong>41位时间戳</strong>：精确到毫秒，可使用41年</li>
+<li><strong>12位逻辑分片ID</strong>：最大分片ID为4095</li>
+<li><strong>10位自增长ID</strong>：每个节点每毫秒最多生成1024个ID</li>
+</ul>
+<h3 id="5-3-生成示例"><a href="#5-3-生成示例" class="headerlink" title="5.3 生成示例"></a>5.3 生成示例</h3><p>假设：</p>
+<ul>
+<li>GTM时间：Fri Mar 13 10:00:00 CST 2015</li>
+<li>毫秒数：1426212000000</li>
+<li>分片ID：53</li>
+<li>自增长序列：4</li>
+</ul>
+<p>生成ID计算：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">5981966696448054276 = 1426212000000 &lt;&lt; 22 + 53 &lt;&lt; 10 + 4</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4-Redis命令使用"><a href="#5-4-Redis命令使用" class="headerlink" title="5.4 Redis命令使用"></a>5.4 Redis命令使用</h3><p>Redis提供TIME命令获取服务器上的秒数和微秒数。Lua脚本返回四元组：<code>(second, microSecond, partition, seq)</code></p>
+<p>客户端处理逻辑：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="variable">id</span> <span class="operator">=</span> ((second * <span class="number">1000</span> + microSecond / <span class="number">1000</span>) &lt;&lt; (<span class="number">12</span> + <span class="number">10</span>)) </span><br><span class="line">          + (shardId &lt;&lt; <span class="number">10</span>) + seq;</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、MongoDB-ObjectId方案"><a href="#六、MongoDB-ObjectId方案" class="headerlink" title="六、MongoDB ObjectId方案"></a>六、MongoDB ObjectId方案</h2><h3 id="6-1-设计考虑"><a href="#6-1-设计考虑" class="headerlink" title="6.1 设计考虑"></a>6.1 设计考虑</h3><p>MongoDB的<code>_id</code>字段需要满足分布式环境下的全局唯一性要求，因此不能使用自增主键，而是采用ObjectId对象。</p>
+<h3 id="6-2-ObjectId结构"><a href="#6-2-ObjectId结构" class="headerlink" title="6.2 ObjectId结构"></a>6.2 ObjectId结构</h3><p>ObjectId使用12字节存储空间，结构如下：</p>
+<table>
+<thead>
+<tr>
+<th>字节位置</th>
+<th>0-3</th>
+<th>4-6</th>
+<th>7-8</th>
+<th>9-11</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内容</td>
+<td>时间戳</td>
+<td>机器ID</td>
+<td>进程ID</td>
+<td>计数器</td>
+</tr>
+</tbody></table>
+<p><strong>各字段说明</strong>：</p>
+<ul>
+<li><strong>时间戳（4字节）</strong>：从标准纪元开始的秒数</li>
+<li><strong>机器ID（3字节）</strong>：服务器主机标识，通常是主机名的散列值</li>
+<li><strong>进程ID（2字节）</strong>：mongod进程标识符</li>
+<li><strong>计数器（3字节）</strong>：自动增加的计数器，每个进程独立</li>
+</ul>
+<h3 id="6-3-唯一性保证机制"><a href="#6-3-唯一性保证机制" class="headerlink" title="6.3 唯一性保证机制"></a>6.3 唯一性保证机制</h3><ol>
+<li><strong>时间戳</strong>：保证秒级唯一性</li>
+<li><strong>机器ID</strong>：考虑分布式环境，避免时钟同步问题</li>
+<li><strong>进程ID</strong>：保证同一服务器上多个mongod实例的唯一性</li>
+<li><strong>计数器</strong>：保证同一秒内的唯一性（最多16777216个）</li>
+</ol>
+<h3 id="6-4-生成位置"><a href="#6-4-生成位置" class="headerlink" title="6.4 生成位置"></a>6.4 生成位置</h3><p><code>_id</code>可以在服务器端生成，也可以在客户端生成。客户端生成可以降低服务器端压力。</p>
+<h2 id="七、方案对比"><a href="#七、方案对比" class="headerlink" title="七、方案对比"></a>七、方案对比</h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Snowflake</strong></td>
+<td>高性能、有序、独立</td>
+<td>需独立部署、时钟问题</td>
+<td>大规模分布式系统</td>
+</tr>
+<tr>
+<td><strong>Flickr数据库</strong></td>
+<td>简单、可靠、有序</td>
+<td>性能受限、资源消耗大</td>
+<td>中小规模系统</td>
+</tr>
+<tr>
+<td><strong>UUID</strong></td>
+<td>全球唯一、无中心化</td>
+<td>无序、存储效率低</td>
+<td>需要全局唯一标识</td>
+</tr>
+<tr>
+<td><strong>Redis方案</strong></td>
+<td>性能好、可扩展</td>
+<td>依赖Redis、配置复杂</td>
+<td>Redis环境下的系统</td>
+</tr>
+<tr>
+<td><strong>MongoDB ObjectId</strong></td>
+<td>内置支持、分布式友好</td>
+<td>MongoDB专用</td>
+<td>MongoDB数据库系统</td>
+</tr>
+</tbody></table>
+<h2 id="八、选择建议"><a href="#八、选择建议" class="headerlink" title="八、选择建议"></a>八、选择建议</h2><h3 id="8-1-考虑因素"><a href="#8-1-考虑因素" class="headerlink" title="8.1 考虑因素"></a>8.1 考虑因素</h3><ol>
+<li><strong>系统规模</strong>：大规模系统推荐Snowflake，中小规模可考虑数据库方案</li>
+<li><strong>性能要求</strong>：高并发场景选择Snowflake或Redis方案</li>
+<li><strong>有序性需求</strong>：需要有序ID时选择Snowflake或数据库方案</li>
+<li><strong>技术栈</strong>：现有技术栈影响方案选择（如已使用MongoDB）</li>
+</ol>
+<h3 id="8-2-最佳实践"><a href="#8-2-最佳实践" class="headerlink" title="8.2 最佳实践"></a>8.2 最佳实践</h3><ol>
+<li><strong>Snowflake</strong>：适合需要高性能、有序ID的大规模分布式系统</li>
+<li><strong>数据库方案</strong>：适合对数据库依赖较强的系统，实现简单</li>
+<li><strong>混合方案</strong>：可根据业务场景组合使用不同方案</li>
+</ol>
+<h2 id="九、总结"><a href="#九、总结" class="headerlink" title="九、总结"></a>九、总结</h2><p>全局唯一ID生成是分布式系统中的基础且重要的技术。不同的方案各有优劣，选择时需要综合考虑系统规模、性能要求、有序性需求和技术栈等因素。</p>
+<p>在实际应用中，建议：</p>
+<ol>
+<li>明确业务需求，选择最适合的方案</li>
+<li>考虑系统的扩展性和维护成本</li>
+<li>做好异常处理，特别是时钟回拨等问题</li>
+<li>定期评估和优化ID生成策略</li>
+</ol>
+<p>随着技术发展，新的ID生成方案不断涌现，但核心原则不变：在保证唯一性的前提下，追求更高的性能和更好的扩展性。</p>
+<hr>
+<p><strong>参考资源</strong>：</p>
+<ul>
+<li>Twitter Snowflake官方文档</li>
+<li>Flickr技术博客</li>
+<li>MongoDB官方文档</li>
+<li>Redis官方文档</li>
+</ul>
+<h1 id="如何在高并发分布式系统中生成全局唯一Id-滴答的雨-博客园"><a href="#如何在高并发分布式系统中生成全局唯一Id-滴答的雨-博客园" class="headerlink" title="如何在高并发分布式系统中生成全局唯一Id - 滴答的雨 - 博客园"></a>如何在高并发分布式系统中生成全局唯一Id - 滴答的雨 - 博客园</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><p>如何在高并发分布式系统中生成全局唯一Id。<br>1、使用数据库自增Id<br>2、单独开一个数据库，获取全局唯一的自增序列号或各表的MaxId<br>3、Sequence特性<br>4、通过数据库集群编号+集群内的自增类型两个字段共同组成唯一主键<br>5、通过设置每个集群中自增 ID 起始点<br>6、GU</p>
+</blockquote>
+<hr>
+<p>  最近公司用到，并且在找最合适的方案，希望大家多参与讨论和提出新方案。我和我的小伙伴们也讨论了这个主题，我受益匪浅啊……</p>
+<p>博文示例：</p>
+<p>1.         <a target="_blank" rel="noopener" href="https://files.cnblogs.com/heyuquan/GUID%E7%94%9F%E6%88%90Int64%E5%80%BC%E5%90%8E%E6%98%AF%E5%90%A6%E8%BF%98%E5%85%B7%E6%9C%89%E5%94%AF%E4%B8%80%E6%80%A7%E6%B5%8B%E8%AF%95.rar">GUID生成Int64值后是否还具有唯一性测试</a></p>
+<p>2.         <a target="_blank" rel="noopener" href="https://files.cnblogs.com/heyuquan/Random%E7%94%9F%E6%88%90%E9%AB%98%E5%94%AF%E4%B8%80%E6%80%A7%E9%9A%8F%E6%9C%BA%E7%A0%81.rar">Random生成高唯一性随机码</a></p>
+<p>今天分享的主题是：如何在高并发分布式系统中生成全局唯一Id。</p>
+<p>但这篇博文实际上是“半分享半讨论”的博文：</p>
+<p>1)         半分享是我将说下我所了解到的关于今天主题所涉及的几种方案。</p>
+<p>2)         半讨论是我希望大家对各个方案都说说自己的见解，更加希望大家能提出更好的方案。（我还另外提问在此：<a target="_blank" rel="noopener" href="http://q.cnblogs.com/q/53552/">http://q.cnblogs.com/q/53552/</a>）</p>
+<p>我了解的方案如下……………………………………………………………………</p>
+<p>1、  使用数据库自增Id</p>
+<p>优势：编码简单，无需考虑记录唯一标识的问题。</p>
+<p>缺陷：</p>
+<p>1)         在大表做水平分表时，就不能使用自增Id，因为Insert的记录插入到哪个分表依分表规则判定决定，若是自增Id，各个分表中Id各自增长就会重复</p>
+<p>2)         在业务上操作父、子表（即关联表）插入时，需要在插入数据库<strong>之前</strong>获取max(id)用于标识父表和子表关系，若存在并发获取max(id)的情况，max(id)会同时被别的线程获取到。</p>
+<p>3)         DB数据记录都是可以根据ID号进行推测出来，对于一些数据敏感的场景，不建议采用</p>
+<p><strong>结论：适合小应用，无需分表，低并发。</strong></p>
+<p>2、  单独开一个数据库，获取全局唯一的自增序列号或各表的MaxId</p>
+<p>使用MaxId表存储各表的MaxId值</p>
+<p>专门一个数据库，记录各个表的MaxId值，建一个存储过程来取Id，逻辑大致为：开启事物，对于在表中不存在记录，直接返回一个默认值为1的键值，同时插入该条记录到table_key表中。而对于已存在的记录，key值直接在原来的key基础上加1更新到MaxId表中并返回key。（给table_key中为每个表初始化一条key为1的记录，这样就不用每次if来判断了—<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/hui-hui/">@辉_辉</a> 提议）</p>
+<p>使用此方案的问题是：每次的查询MaxId是一个性能损耗；</p>
+<p>详细可参考：<a target="_blank" rel="noopener" href="http://www.cnblogs.com/repository/archive/2011/01/17/1937265.html">《使用MaxId表存储各表的MaxId值，以获取全局唯一Id》</a></p>
+<p>                   我截取此文中的sql语法如下：</p>
+<table><tbody><tr><td><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p><p>13</p><p>14</p><p>15</p><p>16</p><p>17</p><p>18</p><p>19</p><p>20</p><p>21</p><p>22</p><p>23</p><p>24</p><p>25</p><p>26</p><p>27</p><p>28</p><p>29</p><p>30</p><p>31</p><p>32</p><p>33</p><p>34</p><p>35</p><p>36</p><p>37</p><p>38</p><p>39</p><p>40</p><p>41</p><p>42</p></td><td><div><p><code>第一步：创建表</code></p><p><code>create</code> <code>table</code> <code>table_key</code></p><p><code>(</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>table_name&nbsp;&nbsp; </code><code>varchar</code><code>(50) </code><code>not</code> <code>null</code> <code>primary</code> <code>key</code><code>,</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>key_value&nbsp;&nbsp;&nbsp; </code><code>int</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>not</code> <code>null</code></p><p><code>)</code></p><p><code>第二步：创建存储过程来取自增ID</code></p><p><code>create</code> <code>procedure</code> <code>up_get_table_key</code></p><p><code>(</code></p><p><code>&nbsp;&nbsp;&nbsp;</code><code>@table_name&nbsp;&nbsp;&nbsp;&nbsp; </code><code>varchar</code><code>(50),</code></p><p><code>&nbsp;&nbsp;&nbsp;</code><code>@key_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </code><code>int</code> <code>output</code></p><p><code>)</code></p><p><code>as</code></p><p><code>begin</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>begin</code> <code>tran</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>declare</code> <code>@</code><code>key</code>&nbsp; <code>int</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>set</code> <code>@</code><code>key</code><code>=1</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>if </code><code>not</code> <code>exists(</code><code>select</code> <code>table_name </code><code>from</code> <code>table_key </code><code>where</code> <code>table_name=@table_name)</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>begin</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>insert</code> <code>into</code> <code>table_key </code><code>values</code><code>(@table_name,@</code><code>key</code><code>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>end</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>else</code>&nbsp;&nbsp;&nbsp;</p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>begin</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>select</code> <code>@</code><code>key</code><code>=key_value </code><code>from</code> <code>table_key </code><code>with</code> <code>(nolock) </code><code>where</code> <code>table_name=@table_name</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>set</code> <code>@</code><code>key</code><code>=@</code><code>key</code><code>+1</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>update</code> <code>table_key </code><code>set</code> <code>key_value=@</code><code>key</code> <code>where</code> <code>table_name=@table_name</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>end</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>set</code> <code>@key_value=@</code><code>key</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>commit</code> <code>tran</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>if @@error&gt;0</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>rollback</code> <code>tran</code></p><p><code>end</code></p></div></td></tr></tbody></table>
+
+<p>2.         （<a target="_blank" rel="noopener" href="http://home.cnblogs.com/cwc-lehuo/">@乐活的CodeMonkey</a>）提醒提高获取ID时存储过程的隔离级别，避免读取到未提交事务导致并发ID重复的问题。（<a target="_blank" rel="noopener" href="https://www.cnblogs.com/littlewrong/p/8952830.html">MSSQL事务隔离级别详解</a>）</p>
+<table><tbody><tr><td><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p></td><td><div><p><code>eg：</code></p><p><code>SET TRANSACTION ISOLATION LEVEL READ COMMITTED</code></p><p><code>GO</code></p><p><code>BEGIN TRANSACTION;</code></p><p><code>……</code></p><p><code>GO</code></p><p><code>COMMIT TRANSACTION;</code></p></div></td></tr></tbody></table>
+
+<p>3.         （<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/bagegejin/">@土豆烤肉</a>）存储过程中不使用事物，一旦使用到事物性能就急剧下滑。直接使用UPDATE获取到的更新锁，即SQL SERVER会保证UPDATE的顺序执行。（已在用户过千万的并发系统中使用）</p>
+<table><tbody><tr><td><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p><p>13</p><p>14</p><p>15</p><p>16</p></td><td><div><p><code>create</code> <code>procedure</code> <code>[dbo].[up_get_table_key]</code></p><p><code>(</code></p><p><code>&nbsp;&nbsp;&nbsp;</code><code>@table_name&nbsp;&nbsp;&nbsp;&nbsp; </code><code>varchar</code><code>(50),</code></p><p><code>&nbsp;&nbsp;&nbsp;</code><code>@key_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </code><code>int</code> <code>output</code></p><p><code>)</code></p><p><code>as</code></p><p><code>begin</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>SET</code> <code>NOCOUNT </code><code>ON</code><code>;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>DECLARE</code> <code>@maxId </code><code>INT</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>UPDATE</code> <code>table_key</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>SET</code> <code>@maxId = key_value,key_value = key_value + 1</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>WHERE</code> <code>table_name=@table_name</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>SELECT</code> <code>@maxId</code></p><p><code>end</code></p></div></td></tr></tbody></table>
+
+<p><strong>结论：适用中型应用，此方案解决了分表，关联表插入记录的问题。但是无法满足高并发性能要求。存在单点问题</strong></p>
+<p>        <strong>改进方案：时间信息 + 缓存总的maxid  （@wee616 提议）</strong></p>
+<p>              从redis中用lpop指令取指定key值的数据。（lpop：移除并返回列表的头元素）<br>              如果将指定key值的数据取完了，会触发初始化。<br>              初次初始化：<br>                  1）用for update锁表，存储最小值1和最大值50到数据库中。<br>                  2）将这50个数字放入redis中。<br>              下次初始化：<br>                  1）用for update锁表，存储最小值51和最大值100到数据库中。<br>                  2）将这50个数字放入redis中。</p>
+<p>               数据库每天有脚本定时清理这个表，每天都将最小值归0，避免最大值过大。</p>
+<p><strong>结论：适合大型应用，生成<strong><strong>Id</strong></strong>顺序性，可读性比较好。</strong></p>
+<p>3、  Sequence特性</p>
+<p>这个特性在SQL Server 2012、Oracle中可用。这个特性是数据库级别的，允许在多个表之间共享序列号。它可以解决分表在同一个数据库的情况，但倘若分表放在不同数据库，那将共享不到此序列号。（eg：Sequence使用场景：你需要在多个表之间公用一个流水号。以往的做法是额外建立一个表，然后存储流水号）</p>
+<p>相关Sequence特性资料：</p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/CareySon/archive/2012/03/12/2391581.html">SQL Server2012中的SequenceNumber尝试</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/zhangyoushugz/archive/2012/11/09/2762720.html">SQL Server 2012 开发新功能——序列对象（Sequence）</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/langtianya/archive/2013/05/08/3068020.html">identity和sequence的区别</a></p>
+<p><a target="_blank" rel="noopener" href="http://raresql.com/2012/05/01/difference-between-identity-and-sequence/">Difference between Identity and Sequence in SQL Server 2012</a></p>
+<p><strong>结论：适用中型应用，此方案不能完全解决分表问题。</strong></p>
+<p>4、  通过数据库集群编号+集群内的自增类型两个字段共同组成唯一主键</p>
+<p>优点：实现简单，维护也比较简单。</p>
+<p>缺点：关联表操作相对比较复杂，需要两个字段。并且业务逻辑必须是一开始就设计为处理复合主键的逻辑，倘若是到了后期，由单主键转为复合主键那改动成本就太大了。</p>
+<p><strong>结论：适合大型应用，但需要业务逻辑配合处理复合主键。</strong></p>
+<p>5、  通过设置每个集群中自增 ID 起始点（auto_increment_offset），将各个集群的ID进行绝对的分段来实现全局唯一。当遇到某个集群数据增长过快后，通过命令调整下一个 ID 起始位置跳过可能存在的冲突。</p>
+<p>优点：实现简单，且比较容易根据 ID 大小直接判断出数据处在哪个集群，对应用透明。缺点：维护相对较复杂，需要高度关注各个集群 ID 增长状况。</p>
+<p><strong>结论：适合大型应用，但需要高度关注各个集群 ID</strong> <strong>增长状况。</strong></p>
+<p>6、  <a target="_blank" rel="noopener" href="http://zh.wikipedia.org/zh/%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80%E6%A0%87%E8%AF%86%E7%AC%A6">GUID（Globally Unique Identifier，全局唯一标识符）</a></p>
+<p>GUID通常表示成32个16进制数字（0－9，A－F）组成的字符串，如：{21EC2020-3AEA-1069-A2DD-08002B30309D}，它实质上是一个128位长的二进制整数。</p>
+<p>GUID制定的算法中使用到用户的网卡MAC地址，以保证在计算机集群中生成唯一GUID；在相同计算机上随机生成两个相同GUID的可能性是非常小的，但并不为0。所以，用于生成GUID的算法通常都加入了非随机的参数（如时间），以保证这种重复的情况不会发生。</p>
+<p>优点：GUID是最简单的方案，跨平台，跨语言，跨业务逻辑，全局唯一的Id，数据间同步、迁移都能简单实现。</p>
+<p>缺点：</p>
+<p>1)         存储占了32位，且无可读性；</p>
+<p>2)         插入时因为GUID是无需的，在聚集索引的排序规则下可能移动大量的记录。</p>
+<p>有两位园友主推GUID，无须顺序GUID方案原因如下：</p>
+<p><a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/Chinese-xu/">@徐少侠</a>           GUID无序在并发下效率高，并且一个数据页内添加新行，是在B树内增加，本质没有什么数据被移动，<strong>唯一可能的，是页填充因子满了</strong>，需要拆页。而GUID方案导致的拆页比<strong>顺序</strong>ID要低太多了</p>
+<p><a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/wusee/">@无色</a>                我们要明白id是什么，是身份标识，标识身份是id最大的业务逻辑，不要引入什么时间，什么用户业务逻辑，<strong>那是另外一个字段干的事</strong>，使用base64(guid,uuid)，是通盘考虑，完全可以更好的兼容nosql,key-value存储。</p>
+<p><strong>结论：适合大型应用；生成的Id<strong><strong>不够友好；占据了32</strong></strong>位；</strong></p>
+<p><strong>改进：</strong></p>
+<p>1)         （<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/dudu/">@dudu</a>告知）在SQL Server 2005中新增了NEWSEQUENTIALID函数。</p>
+<p>详细请看：<a target="_blank" rel="noopener" href="http://blog.csdn.net/xushichang/article/details/4390957">《理解newid()和newsequentialid()》</a></p>
+<p>在指定计算机上创建大于先前通过该函数生成的任何 GUID 的 GUID。 newsequentialid 产生的新的值是有规律的，则索引B+树的变化是有规律的，就不会导致索引列插入时移动大量记录的问题。</p>
+<p>但一旦服务器重新启动，其再次生成的GUID可能反而变小（但仍然保持唯一）。这在很大程度上提高了索引的性能，但并不能保证所生成的GUID一直增大。<strong>SQL<strong><strong>的这个函数产生的GUID</strong></strong>很简单就可以预测，因此不适合用于安全目的。</strong></p>
+<p>a)         只能做为数据库列的DEFAULT VALUE，不能执行类似SELECT NEWSEQUENTIALID()的语句.</p>
+<p>b)         如何获得生成的GUID.</p>
+<p>如果生成的GUID所在字段做为外键要被其他表使用，我们就需要得到这个生成的值。通常，PK是一个IDENTITY字段，我们可以在INSERT之后执行 SELECT SCOPE_IDENTITY()来获得新生成的ID，但是由于NEWSEQUENTIALID()不是一个INDETITY类型，这个办法是做不到了，而他本身又只能在默认值中使用，不可以事先SELECT好再插入，那么我们如何得到呢？有以下两种方法：</p>
+<table><tbody><tr><td><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p></td><td><div><p><code>DECLARE</code> <code>@outputTable </code><code>TABLE</code><code>(ID uniqueidentifier)</code></p><p><code>INSERT</code> <code>INTO</code> <code>TABLE1(col1, col2)</code></p><p><code>OUTPUT</code> <code>INSERTED.ID </code><code>INTO</code> <code>@outputTable</code></p><p><code>VALUES</code><code>(</code><code>'value1'</code><code>, </code><code>'value2'</code><code>)</code></p><p><code>SELECT</code> <code>ID </code><code>FROM</code> <code>@outputTable</code></p><p><code>INSERT</code> <code>INTO</code> <code>TABLE1(col1, col2)</code></p><p><code>VALUES</code><code>(</code><code>'value1'</code><code>, </code><code>'value2'</code><code>)</code></p><p><code>SELECT</code> <code>ROWGUIDCOL </code><code>FROM</code> <code>TABLE1</code></p></div></td></tr></tbody></table>
+
+<p><strong>结论：适合大型应用，解决了GUID<strong><strong>无序特性导致索引列插入移动大量记录的问题。但是在关联表插入时需要返回数据库中生成的GUID</strong></strong>；生成的Id<strong><strong>不够友好；占据了32</strong></strong>位。</strong></p>
+<p>2)         “COMB”（combined guid&#x2F;timestamp，意思是：组合GUID&#x2F;时间截）</p>
+<p>（感谢：<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/ethan-luo/">@ ethan-luo</a> ，<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/luchaoshuai/">@lcs-帅</a> ）</p>
+<p>COMB数据类型的基本设计思路是这样的：既然GUID数据因毫无规律可言造成索引效率低下，影响了系统的性能，那么能不能通过组合的方式，保留GUID的10个字节，用另6个字节表示GUID生成的时间（DateTime），这样我们将时间信息与GUID组合起来，在保留GUID的唯一性的同时增加了有序性，以此来提高索引效率。</p>
+<p>在NHibernate中，COMB型主键的生成代码如下所示：</p>
+<table><tbody><tr><td><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p><p>13</p><p>14</p><p>15</p><p>16</p><p>17</p><p>18</p><p>19</p><p>20</p><p>21</p><p>22</p><p>23</p><p>24</p><p>25</p><p>26</p><p>27</p><p>28</p><p>29</p><p>30</p><p>31</p><p>32</p><p>33</p></td><td><div><p><code>/// &lt;summary&gt; /// Generate a new &lt;see cref="Guid"/&gt; using the comb algorithm.</code></p><p><code>/// &lt;/summary&gt;</code></p><p><code>private</code> <code>Guid GenerateComb()</code></p><p><code>&#123;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>byte</code><code>[] guidArray = Guid.NewGuid().ToByteArray();</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>DateTime baseDate = </code><code>new</code> <code>DateTime(1900, 1, 1);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>DateTime now = DateTime.Now;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>TimeSpan days = </code><code>new</code> <code>TimeSpan(now.Ticks - baseDate.Ticks);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>TimeSpan msecs = now.TimeOfDay;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>byte</code><code>[] daysArray = BitConverter.GetBytes(days.Days);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>byte</code><code>[] msecsArray = BitConverter.GetBytes((</code><code>long</code><code>)</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>(msecs.TotalMilliseconds / 3.333333));</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>Array.Reverse(daysArray);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>Array.Reverse(msecsArray);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>Array.Copy(daysArray, daysArray.Length - 2, guidArray,</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>guidArray.Length - 6, 2);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>Array.Copy(msecsArray, msecsArray.Length - 4, guidArray,</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>guidArray.Length - 4, 4);</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>return</code> <code>new</code> <code>Guid(guidArray);</code></p><p><code>&#125;</code></p></div></td></tr></tbody></table>
+
+<p><strong>结论：适合大型应用。即保留<strong><strong>GUID</strong></strong>的唯一性的同时增加了<strong><strong>GUID</strong></strong>有序性，提高了索引效率；解决了关联表业务问题；生成的<strong><strong>Id</strong></strong>不够友好；占据了<strong><strong>32</strong></strong>位。</strong></p>
+<p>3)         长度问题，使用Base64或Ascii85编码解决。（要注意的是上述有序性方案在进行编码后也会变得无序）</p>
+<p>如：</p>
+<p>GUID：{3F2504E0-4F89-11D3-9A0C-0305E82C3301}</p>
+<p>当需要使用更少的字符表示GUID时，可能会使用Base64或Ascii85编码。Base64编码的GUID有22－24个字符，如：</p>
+<p>7QDBkvCA1+B9K&#x2F;U0vrQx1A</p>
+<p>7QDBkvCA1+B9K&#x2F;U0vrQx1A&#x3D;&#x3D;</p>
+<p>Ascii85编码后是20个字符，如：</p>
+<p>5:$Hj:Pf\4RLB9%kU\Lj</p>
+<p>                   代码如：</p>
+<p>         Guid guid &#x3D; Guid.NewGuid();</p>
+<p>         byte[] buffer &#x3D; guid.ToByteArray();</p>
+<p>         var shortGuid &#x3D; Convert.ToBase64String(buffer);</p>
+<p>                   <strong>结论：适合大型应用，缩短GUID<strong><strong>的长度。生成的Id</strong></strong>不够友好；</strong></p>
+<p>7、  GUID TO Int64</p>
+<p>对于GUID的可读性，有园友给出如下方案：（感谢：<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/335908/">@黑色的羽翼</a>）</p>
+<p>即将GUID转为了19位数字，数字反馈给客户可以一定程度上缓解友好性问题。EG:</p>
+<p>GUID: cfdab168-211d-41e6-8634-ef5ba6502a22    （不友好）</p>
+<p>Int64: 5717212979449746068                                      （友好性还行）</p>
+<p>不过我的小伙伴说ToInt64后就不唯一了。因此我专门写了个并发测试程序，后文将给出测试结果截图及代码简单说明。</p>
+<p>（唯一性、业务适合性是可以权衡的，这个唯一性肯定比不过GUID的，一般程序上都会安排错误处理机制，比如异常后执行一次重插的方案……）</p>
+<p><strong>结论：适合大型应用，生成相对友好的Id****（纯数字）</strong>。****</p>
+<p>8、  自己写编码规则</p>
+<p>优点：全局唯一Id，符合业务后续长远的发展（可能具体业务需要自己的编码规则等等）。</p>
+<p>缺陷：根据具体编码规则实现而不同；还要考虑倘若主键在业务上允许改变的，会带来外键同步的麻烦。</p>
+<p>我这边写两个编码规则方案：<strong>（可能不唯一，只是个人方案，也请大家提出自己的编码规则）</strong></p>
+<p>1)         12位年月日时分秒+5位随机码+3位服务器编码  （这样就完全单机完成生成全局唯一编码）-–共20位</p>
+<p>缺陷：因为附带随机码，所以编码缺少一定的顺序感。（生成高唯一性随机码的方案稍后给给出程序）</p>
+<p>2)         12位年月日时分秒+5位流水码+3位服务器编码 （这样流水码就需要结合数据库和缓存）-–共20位   （将影响顺序权重大的“流水码”放前面，影响顺序权重小的服务器编码放后）</p>
+<p>缺陷：因为使用到流水码，流水码的生成必然会遇到和MaxId、序列表、Sequence方案中类似的问题</p>
+<p>（为什么没有毫秒？毫秒也不具备业务可读性，我改用5位随机码、流水码代替，推测1秒内应该不会下99999[五位]条语法）</p>
+<p><strong>结论：适合大型应用，从业务上来说，有一个规则的编码能体现产品的专业成度。</strong></p>
+<p>GUID生成Int64值后是否还具有唯一性测试</p>
+<p>测试环境</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/106337/201308/16080801-db45c9adad8744288978a44f04b4d5de.jpg"><img src="/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859095.jpg" alt="clip_image002" title="clip_image002"></a></p>
+<p>主要测试思路：</p>
+<p>1.         根据内核数使用多线程并发生成Guid后再转为Int64位值，放入集合A、B、…N，多少个线程就有多少个集合。</p>
+<p>2.         再使用Dictionary字典高效查key的特性，将步骤1中生成的多个集合全部加到Dictionary中，看是否有重复值。</p>
+<p>示例注解：测了 Dictionary&lt;long,bool&gt; 最大容量就在5999470左右，所以每次并发生成的唯一值总数控制在此范围内，让测试达到最有效话。</p>
+<p>主要代码：</p>
+<table><tbody><tr><td><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p><p>11</p><p>12</p><p>13</p><p>14</p></td><td><div><p><code>for</code> <code>(</code><code>int</code> <code>i = 0; i &lt;= Environment.ProcessorCount - 1; i++)</code></p><p><code>&#123;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;</code><code>ThreadPool.QueueUserWorkItem(</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>(list) =&gt;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>&#123;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>List&lt;</code><code>long</code><code>&gt; tempList = list </code><code>as</code> <code>List&lt;</code><code>long</code><code>&gt;;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>for</code> <code>(</code><code>int</code> <code>j = 1; j &lt; listLength; j++)</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>&#123;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>byte</code><code>[] buffer = Guid.NewGuid().ToByteArray();</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>tempList.Add(BitConverter.ToInt64(buffer, 0));</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>&#125;</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>barrier.SignalAndWait();</code></p><p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code>&#125;, totalList[i]);</code></p><p><code>&#125;</code></p></div></td></tr></tbody></table>
+
+<p>测试数据截图：                                                                           </p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/106337/201308/16080802-006355ae6f674d1ca59046fd3982e8bd.jpg"><img src="/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859177.jpg" alt="clip_image004" title="clip_image004"></a></p>
+<p>数据一（循环1000次，测试数：1000*5999470）</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/106337/201308/16080803-62f60136ed0b4b8abc553ce5faee65df.png"><img src="/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859236.png" alt="image" title="image"></a></p>
+<p>数据二（循环5000次,测试数：5000*5999470）--跑了一个晚上……</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/106337/201308/16080803-c7df5f0ba75148a389b2c89b0d16b78f.png"><img src="/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859283.png" alt="image" title="image"></a></p>
+<p>**感谢<a target="_blank" rel="noopener" href="http://home.cnblogs.com/u/justany/">@Justany_WhiteSnow</a>****的专业回答：(**<strong>大家分析下，我数学比较差，稍后再说自己的理解)</strong></p>
+<p>GUID桶数量：(2 ^ 4) ^ 32 &#x3D; 2 ^ 128</p>
+<p>Int64桶数量： 2 ^ 64</p>
+<p>倘若每个桶的机会是均等的，则每个桶的GUID数量为：</p>
+<p>(2 ^ 128) &#x2F; (2 ^ 64) &#x3D; 2 ^ 64 &#x3D; 18446744073709551616</p>
+<p>也就是说，其实重复的机会是有的，只是概率问题。</p>
+<p>楼主测试数是29997350000，发生重复的概率是：</p>
+<p>1 - ((1 - (1 &#x2F; (2 ^ 64))) ^ 29997350000) ≈ 1 - ((1 - 1 &#x2F; （2 ^ 64)) ^ (2 ^ 32)) &lt; 1 - 1 + 1 &#x2F; (2 ^ 32) &#x3D; 1 &#x2F; (2 ^ 32) ≈ 2.3283064e-10</p>
+<p>（唯一性、业务适合性是可以权衡的，这个唯一性肯定比不过GUID的，一般程序上都会安排错误处理机制，比如异常后执行一次重插的方案……）</p>
+<p>（唯一性、业务适合性是可以权衡的，这个唯一性肯定比不过GUID的，一般程序上都会安排错误处理机制，比如异常后执行一次重插的方案……）</p>
+<p><strong>结论：GUID<strong><strong>转为Int64</strong></strong>值后，也具有高唯一性，可以使用与项目中。</strong></p>
+<p>Random生成高唯一性随机码</p>
+<p>我使用了五种Random生成方案，要Random生成唯一主要因素就是种子参数要唯一。</p>
+<p>不过该测试是在单线程下的，多线程应使用不同的Random实例，所以对结果影响不会太大。</p>
+<p>1.         使用Environment.TickCount做为Random参数（即Random的默认参数），重复性最大。</p>
+<p>2.         使用DateTime.Now.Ticks做为Random参数，存在重复。</p>
+<p>3.         使用unchecked((int)DateTime.Now.Ticks)做为Random参数，存在重复。</p>
+<p>4.         使用Guid.NewGuid().GetHashCode()做为random参数，测试不存在重复（或存在性极小）。</p>
+<p>5.         使用RNGCryptoServiceProvider做为random参数，测试不存在重复（或存在性极小）。</p>
+<p>即：</p>
+<p>        static int GetRandomSeed()</p>
+<p>        {</p>
+<p>            byte[] bytes &#x3D; new byte[4];</p>
+<p>            System.Security.Cryptography.RNGCryptoServiceProvider rng</p>
+<p>= new System.Security.Cryptography.RNGCryptoServiceProvider();</p>
+<p>            rng.GetBytes(bytes);</p>
+<p>            return BitConverter.ToInt32(bytes, 0);</p>
+<p>        }</p>
+<p>测试结果：</p>
+<p><a target="_blank" rel="noopener" href="https://images0.cnblogs.com/blog/106337/201308/16080804-248877da032045a38e1e192eb4256057.jpg"><img src="/%E5%A6%82%E4%BD%95%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80Id/IMG-20260417102859356.jpg" alt="clip_image007" title="clip_image007"></a></p>
+<p>*<em>结论：随机码使用RNGCryptoServiceProvider</em>***或Guid.NewGuid().GetHashCode()**<strong>生成的唯一性较高。</strong></p>
+<p>一些精彩评论（部分更新到原博文对应的地方）</p>
+<p>一、</p>
+<p>数据库文件体积只是一个参考值，可水平扩展系统性能（如nosql，缓存系统）并不和文件体积有高指数的线性相关。</p>
+<p>如taobao&#x2F;qq的系统比拼byte系统慢，关键在于索引的命中率，缓存，系统的水平扩展。</p>
+<p>如果数据库很少，你搞这么多byte能提高性能？</p>
+<p>如果数据库很大，你搞这么多byte不兼容索引不兼容缓存，不是害自已吗？</p>
+<p>如果数据库要求伸缩性，你搞这么多byte，需要不断改程序，不是自找苦吗？</p>
+<p>如果数据库要求移植性，你搞这么多byte，移植起来不如重新设计，这是不是很多公司不断加班的原因？</p>
+<p>不依赖于数据存储系统是分层设计思想的精华，实现战略性能最大化，而不是追求战术单机性能最大化。</p>
+<p>不要迷信数据库性能，不要迷信三范式，不要使用外键，不要使用byte，不要使用自增id，不要使用存储过程，不要使用内部函数，不要使用非标准sql，存储系统只做存储系统的事。当出现系统性能时，如此设计的数据库可以更好的实现迁移数据库（如mysql-&gt;oracle)，实现nosql改造（(mongodb&#x2F;hadoop），实现key-value缓存(redis,memcache)。</p>
+<p>二、</p>
+<p>很多程序员有对性能认识有误区，如使用存储过程代替正常程序，其实使用存储过程只是追求单服务器的高性能，当需要服务器水平扩展时，存储过程中的业务逻辑就是你的噩运。（web服务器可以简单伸缩，但是数据库伸缩比较复杂）</p>
+<p>三、</p>
+<p>除数字日期，能用字符串存储的字段尽量使用字符串存储，不要为节省那不值钱的1个g的硬盘而使用类似字节之类的字段，进而大幅牺牲系统可伸缩性和可扩展性。</p>
+<p>不要为了追求所谓的性能，引入byte，使用byte注定是短命和难于移植，想想为什么html,email一直流行，因为它们使用的是字符串表示法，只要有人类永远都能解析，如email把二进制转成base64存储。除了实时系统，视频外，建议使用字符串来存储数据，系统性能的关键在于分布式，在于水平扩展。</p>
+<p>本次博文到此结束，希望大家对本次主题“如何在高并发分布式系统中生成全局唯一Id”多提出自己宝贵的意见。另外<strong>看着感觉舒服，还请多帮推荐…推荐……</strong></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag"># 分布式系统</a>
+              <a href="/tags/%E5%85%A8%E5%B1%80ID/" rel="tag"># 全局ID</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/dotnet/" rel="tag"># dotnet</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/12/15/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/Gitea%E5%86%85%E7%BD%AECICD%E4%BD%93%E9%AA%8C/" rel="prev" title="Gitea内置CI&#x2F;CD体验">
+                  <i class="fa fa-angle-left"></i> Gitea内置CI/CD体验
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/27/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/OpenIddict%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/" rel="next" title="OpenIddict使用教程">
+                  OpenIddict使用教程 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

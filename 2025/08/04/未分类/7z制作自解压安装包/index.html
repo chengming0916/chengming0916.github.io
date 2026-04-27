@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、核心概念7z和WinRAR等压缩工具支持制作自解压文件，这类文件无需目标机器安装解压工具，通过运行压缩包自身即可解压其中的文件。本文将详细介绍如何利用7z的自解压功能制作应用程序安装包。 应用程序安装的复杂度差异很大：简单的安装只需将几个文件打包压缩，解压到目标机器即可；复杂的安装（如Visual Studio、Office）则需要对Windows系统进行大量修改，包括安装补丁、辅助工具、程序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="7z制作自解压安装包">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、核心概念7z和WinRAR等压缩工具支持制作自解压文件，这类文件无需目标机器安装解压工具，通过运行压缩包自身即可解压其中的文件。本文将详细介绍如何利用7z的自解压功能制作应用程序安装包。 应用程序安装的复杂度差异很大：简单的安装只需将几个文件打包压缩，解压到目标机器即可；复杂的安装（如Visual Studio、Office）则需要对Windows系统进行大量修改，包括安装补丁、辅助工具、程序">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144637986.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638099.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638324.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638420.png">
+<meta property="og:image" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638476.png">
+<meta property="article:published_time" content="2025-08-04T00:10:44.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.479Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="7z">
+<meta property="article:tag" content="自解压">
+<meta property="article:tag" content="安装包">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144637986.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/","path":"2025/08/04/未分类/7z制作自解压安装包/","title":"7z制作自解压安装包"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>7z制作自解压安装包 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、核心概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81UI%E7%95%8C%E9%9D%A2%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">二、UI界面制作自解压文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E6%96%87%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">三、命令行制作自解压文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%AE%80%E6%98%93%E5%AE%89%E8%A3%85%E5%8C%85%E5%88%B6%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">四、简易安装包制作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%87%86%E5%A4%87%E6%9D%90%E6%96%99"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 准备材料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%88%B6%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 制作步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A41%EF%BC%9A%E6%89%93%E5%8C%85%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%96%87%E4%BB%B6"><span class="nav-number">4.2.1.</span> <span class="nav-text">步骤1：打包应用程序文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A42%EF%BC%9A%E5%88%9B%E5%BB%BA%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">4.2.2.</span> <span class="nav-text">步骤2：创建配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A43%EF%BC%9A%E7%94%9F%E6%88%90%E8%87%AA%E8%A7%A3%E5%8E%8B%E7%A8%8B%E5%BA%8F"><span class="nav-number">4.2.3.</span> <span class="nav-text">步骤3：生成自解压程序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%BC%98%E5%8A%BF"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 优势</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%A4%8D%E6%9D%82%E5%AE%89%E8%A3%85%E5%8C%85%E5%88%B6%E4%BD%9C%EF%BC%88%E7%BB%93%E5%90%88MSI%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、复杂安装包制作（结合MSI）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BB%93%E5%90%887z%E5%92%8CMSI%EF%BC%9F"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 为什么需要结合7z和MSI？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%88%B6%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 制作步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A41%EF%BC%9A%E5%87%86%E5%A4%87%E6%9D%90%E6%96%99"><span class="nav-number">5.2.1.</span> <span class="nav-text">步骤1：准备材料</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A42%EF%BC%9A%E6%89%93%E5%8C%85MSI%E6%96%87%E4%BB%B6"><span class="nav-number">5.2.2.</span> <span class="nav-text">步骤2：打包MSI文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A43%EF%BC%9A%E5%88%9B%E5%BB%BA%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">5.2.3.</span> <span class="nav-text">步骤3：创建配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A44%EF%BC%9A%E7%94%9F%E6%88%90%E8%87%AA%E8%A7%A3%E5%8E%8B%E7%A8%8B%E5%BA%8F"><span class="nav-number">5.2.4.</span> <span class="nav-text">步骤4：生成自解压程序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 运行效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE%EF%BC%9A%E4%BC%A0%E9%80%92%E5%AE%89%E8%A3%85%E5%8F%82%E6%95%B0"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 高级配置：传递安装参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-%E4%BC%98%E5%8A%BF%E6%80%BB%E7%BB%93"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 优势总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9B%BE%E6%A0%87%E5%92%8C%E7%95%8C%E9%9D%A2"><span class="nav-number">6.</span> <span class="nav-text">六、自定义图标和界面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3"><span class="nav-number">7.</span> <span class="nav-text">七、配置文件参数详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%9F%BA%E6%9C%AC%E5%8F%82%E6%95%B0"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 基本参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E9%AB%98%E7%BA%A7%E5%8F%82%E6%95%B0"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 高级参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">8.</span> <span class="nav-text">八、常见问题与解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-7zs-sfx%E6%96%87%E4%BB%B6%E6%89%BE%E4%B8%8D%E5%88%B0"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 7zs.sfx文件找不到</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 中文乱码问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E6%9D%83%E9%99%90%E4%B8%8D%E8%B6%B3%E9%97%AE%E9%A2%98"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 权限不足问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="nav-number">9.</span> <span class="nav-text">九、最佳实践建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-%E6%96%87%E4%BB%B6%E7%BB%84%E7%BB%87"><span class="nav-number">9.1.</span> <span class="nav-text">9.1 文件组织</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86"><span class="nav-number">9.2.</span> <span class="nav-text">9.2 版本管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-3-%E6%B5%8B%E8%AF%95%E6%B5%81%E7%A8%8B"><span class="nav-number">9.3.</span> <span class="nav-text">9.3 测试流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">10.</span> <span class="nav-text">十、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="7z制作自解压安装包 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          7z制作自解压安装包
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-08-04 08:10:44" itemprop="dateCreated datePublished" datetime="2025-08-04T08:10:44+08:00">2025-08-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、核心概念"><a href="#一、核心概念" class="headerlink" title="一、核心概念"></a>一、核心概念</h2><p>7z和WinRAR等压缩工具支持制作自解压文件，这类文件无需目标机器安装解压工具，通过运行压缩包自身即可解压其中的文件。本文将详细介绍如何利用7z的自解压功能制作应用程序安装包。</p>
+<p>应用程序安装的复杂度差异很大：简单的安装只需将几个文件打包压缩，解压到目标机器即可；复杂的安装（如Visual Studio、Office）则需要对Windows系统进行大量修改，包括安装补丁、辅助工具、程序组件，并支持卸载和修复功能。</p>
+<p>7z自解压功能能够轻松应对简单安装场景，结合MSI安装包也能处理复杂的安装需求。</p>
+<h2 id="二、UI界面制作自解压文件"><a href="#二、UI界面制作自解压文件" class="headerlink" title="二、UI界面制作自解压文件"></a>二、UI界面制作自解压文件</h2><p>通过7z图形界面可以轻松制作自解压文件，操作步骤如下：</p>
+<ol>
+<li>打开7-Zip文件管理器</li>
+<li>选择要压缩的文件或文件夹</li>
+<li>点击”添加”按钮</li>
+<li>在压缩设置对话框中，勾选”创建自释放程序”选项</li>
+<li>点击”确定”生成自解压文件</li>
+</ol>
+<p><img src="/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144637986.png"></p>
+<p>选择”创建自释放程序”后，文件后缀名会自动变为<code>.exe</code>。运行生成的<code>test.exe</code>文件，系统会提示选择解压缩目录。</p>
+<h2 id="三、命令行制作自解压文件"><a href="#三、命令行制作自解压文件" class="headerlink" title="三、命令行制作自解压文件"></a>三、命令行制作自解压文件</h2><p>通过命令行方式生成自解压文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7z.exe a test.exe -sfx testdir</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、简易安装包制作"><a href="#四、简易安装包制作" class="headerlink" title="四、简易安装包制作"></a>四、简易安装包制作</h2><p>简易安装包指在运行安装程序时，将安装包中的可执行文件解压到指定目录，然后运行已解压的应用程序。</p>
+<h3 id="4-1-准备材料"><a href="#4-1-准备材料" class="headerlink" title="4.1 准备材料"></a>4.1 准备材料</h3><ol>
+<li><strong>应用程序文件</strong>：创建简单的演示程序<code>TestApp.exe</code>及其配置文件<code>TestApp.exe.config</code></li>
+<li><strong>7z自解压模块</strong>：下载<code>7zs.sfx</code>文件<ul>
+<li>7-Zip 9.20版本：<code>7zs.sfx</code>文件位于7-Zip extra包中</li>
+<li>后续版本：<code>7zs2.sfx</code>文件位于LZMA包中</li>
+</ul>
+</li>
+</ol>
+<h3 id="4-2-制作步骤"><a href="#4-2-制作步骤" class="headerlink" title="4.2 制作步骤"></a>4.2 制作步骤</h3><h4 id="步骤1：打包应用程序文件"><a href="#步骤1：打包应用程序文件" class="headerlink" title="步骤1：打包应用程序文件"></a>步骤1：打包应用程序文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7z a demo.7z TestApp.exe TestApp.exe.config</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤2：创建配置文件"><a href="#步骤2：创建配置文件" class="headerlink" title="步骤2：创建配置文件"></a>步骤2：创建配置文件</h4><p>创建<code>config.txt</code>文件，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">;!@Install@!UTF-8!</span><br><span class="line">Title=&quot;Demo app&quot;</span><br><span class="line">ExecuteFile=&quot;TestApp.exe&quot;</span><br><span class="line">;!@InstallEnd@!</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤3：生成自解压程序"><a href="#步骤3：生成自解压程序" class="headerlink" title="步骤3：生成自解压程序"></a>步骤3：生成自解压程序</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy /b 7zS.sfx + config.txt + demo.7z demoapp.exe</span><br></pre></td></tr></table></figure>
+
+<p>运行<code>demoapp.exe</code>，<code>TestApp.exe</code>将直接启动。</p>
+<h3 id="4-3-优势"><a href="#4-3-优势" class="headerlink" title="4.3 优势"></a>4.3 优势</h3><p>当程序包含多个文件时，使用这种方式用户无需执行复杂的安装过程，也看不到杂乱的文件，使用体验更佳。</p>
+<h2 id="五、复杂安装包制作（结合MSI）"><a href="#五、复杂安装包制作（结合MSI）" class="headerlink" title="五、复杂安装包制作（结合MSI）"></a>五、复杂安装包制作（结合MSI）</h2><p>7z自身无法完成复杂安装包制作，但可以结合MSI安装包实现。MSI是Windows平台默认的安装程序格式，能够处理各种复杂的安装需求。</p>
+<h3 id="5-1-为什么需要结合7z和MSI？"><a href="#5-1-为什么需要结合7z和MSI？" class="headerlink" title="5.1 为什么需要结合7z和MSI？"></a>5.1 为什么需要结合7z和MSI？</h3><p>虽然直接运行MSI安装包可以完成安装任务，但存在以下问题：</p>
+<ol>
+<li><strong>运行体验不佳</strong>：MSI安装界面不够友好</li>
+<li><strong>日志保存不便</strong>：需要命令行运行<code>msiexec.exe /i xxx.msi /log abc.log</code></li>
+<li><strong>管理员权限问题</strong>：无法直接以管理员身份启动MSI</li>
+<li><strong>用户友好性差</strong>：MSI对普通用户来说不够直观</li>
+</ol>
+<p>7z自解压包装可以解决这些问题。</p>
+<h3 id="5-2-制作步骤"><a href="#5-2-制作步骤" class="headerlink" title="5.2 制作步骤"></a>5.2 制作步骤</h3><h4 id="步骤1：准备材料"><a href="#步骤1：准备材料" class="headerlink" title="步骤1：准备材料"></a>步骤1：准备材料</h4><ol>
+<li>应用程序的MSI安装包（如<code>myapp.msi</code>）</li>
+<li><code>7zs.sfx</code>文件</li>
+</ol>
+<h4 id="步骤2：打包MSI文件"><a href="#步骤2：打包MSI文件" class="headerlink" title="步骤2：打包MSI文件"></a>步骤2：打包MSI文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7z a testmsi.7z myapp.msi</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤3：创建配置文件"><a href="#步骤3：创建配置文件" class="headerlink" title="步骤3：创建配置文件"></a>步骤3：创建配置文件</h4><p>创建<code>config.txt</code>文件，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">;!@Install@!UTF-8!</span><br><span class="line">Title=&quot;Demo msi&quot;</span><br><span class="line">BeginPrompt=&quot;Do you want to install the xxx?&quot;</span><br><span class="line">ExecuteFile=&quot;myapp.msi&quot;</span><br><span class="line">;!@InstallEnd@!</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤4：生成自解压程序"><a href="#步骤4：生成自解压程序" class="headerlink" title="步骤4：生成自解压程序"></a>步骤4：生成自解压程序</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy /b 7zS.sfx + config.txt + testmsi.7z demoapp2.exe</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-运行效果"><a href="#5-3-运行效果" class="headerlink" title="5.3 运行效果"></a>5.3 运行效果</h3><p>运行<code>demoapp2.exe</code>：</p>
+<ol>
+<li>首先显示确认对话框询问是否安装<br><img src="/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638099.png"></li>
+<li>点击”Yes”继续</li>
+<li>进入MSI安装流程<br><img src="/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638324.png" alt="IMG-20260415170511551"></li>
+</ol>
+<h3 id="5-4-高级配置：传递安装参数"><a href="#5-4-高级配置：传递安装参数" class="headerlink" title="5.4 高级配置：传递安装参数"></a>5.4 高级配置：传递安装参数</h3><p>通过配置文件可以方便地传递安装参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">;!@Install@!UTF-8!</span><br><span class="line">Title=&quot;Demo msi&quot;</span><br><span class="line">BeginPrompt=&quot;Do you want to install the xxx?&quot;</span><br><span class="line">ExecuteFile=&quot;msiexec.exe&quot;</span><br><span class="line">ExecuteParameters=&quot;/i myapp.msi /log c:\\abc.log&quot;</span><br><span class="line">;!@InstallEnd@!</span><br></pre></td></tr></table></figure>
+
+<p>这样配置后，安装日志将自动保存到<code>C:\abc.log</code>。</p>
+<h3 id="5-5-优势总结"><a href="#5-5-优势总结" class="headerlink" title="5.5 优势总结"></a>5.5 优势总结</h3><ol>
+<li><strong>管理员权限</strong>：包装成EXE后可以方便地以管理员权限运行</li>
+<li><strong>参数传递</strong>：通过配置文件自动传递安装参数，无需用户手动输入</li>
+<li><strong>用户友好</strong>：EXE格式对普通用户更友好、更常见</li>
+<li><strong>日志管理</strong>：可以自动保存安装日志</li>
+</ol>
+<h2 id="六、自定义图标和界面"><a href="#六、自定义图标和界面" class="headerlink" title="六、自定义图标和界面"></a>六、自定义图标和界面</h2><p>默认的7z自解压程序界面较为简单：<br><img src="/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638420.png" alt="IMG-20260415170530530"></p>
+<p>可以使用ResourceHacker工具自定义图标，使安装包看起来更专业：</p>
+<ol>
+<li>下载并安装ResourceHacker</li>
+<li>打开生成的EXE文件</li>
+<li>替换图标资源</li>
+<li>保存修改</li>
+</ol>
+<p>自定义图标后的界面：<br><img src="/2025/08/04/%E6%9C%AA%E5%88%86%E7%B1%BB/7z%E5%88%B6%E4%BD%9C%E8%87%AA%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85/IMG-20260417144638476.png" alt="IMG-20260415170543257"></p>
+<h2 id="七、配置文件参数详解"><a href="#七、配置文件参数详解" class="headerlink" title="七、配置文件参数详解"></a>七、配置文件参数详解</h2><h3 id="7-1-基本参数"><a href="#7-1-基本参数" class="headerlink" title="7.1 基本参数"></a>7.1 基本参数</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Title</td>
+<td>安装窗口标题</td>
+<td><code>Title=&quot;我的应用程序&quot;</code></td>
+</tr>
+<tr>
+<td>BeginPrompt</td>
+<td>开始安装前的提示信息</td>
+<td><code>BeginPrompt=&quot;确定要安装吗？&quot;</code></td>
+</tr>
+<tr>
+<td>ExecuteFile</td>
+<td>要执行的文件</td>
+<td><code>ExecuteFile=&quot;setup.exe&quot;</code></td>
+</tr>
+<tr>
+<td>ExecuteParameters</td>
+<td>执行参数</td>
+<td><code>ExecuteParameters=&quot;/silent&quot;</code></td>
+</tr>
+</tbody></table>
+<h3 id="7-2-高级参数"><a href="#7-2-高级参数" class="headerlink" title="7.2 高级参数"></a>7.2 高级参数</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>InstallPath</td>
+<td>默认安装路径</td>
+</tr>
+<tr>
+<td>RunProgram</td>
+<td>安装后运行的程序</td>
+</tr>
+<tr>
+<td>Shortcut</td>
+<td>创建快捷方式</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>安装后删除的文件</td>
+</tr>
+</tbody></table>
+<h2 id="八、常见问题与解决方案"><a href="#八、常见问题与解决方案" class="headerlink" title="八、常见问题与解决方案"></a>八、常见问题与解决方案</h2><h3 id="8-1-7zs-sfx文件找不到"><a href="#8-1-7zs-sfx文件找不到" class="headerlink" title="8.1 7zs.sfx文件找不到"></a>8.1 7zs.sfx文件找不到</h3><p><strong>问题</strong>：制作自解压包时提示找不到7zs.sfx文件</p>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li>从7-Zip官网下载LZMA SDK</li>
+<li>解压后找到<code>7zs2.sfx</code>文件（新版本）</li>
+<li>重命名为<code>7zs.sfx</code>使用</li>
+</ol>
+<h3 id="8-2-中文乱码问题"><a href="#8-2-中文乱码问题" class="headerlink" title="8.2 中文乱码问题"></a>8.2 中文乱码问题</h3><p><strong>问题</strong>：配置文件中使用中文出现乱码</p>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li>确保配置文件使用UTF-8编码</li>
+<li>在文件开头添加UTF-8声明：<code>;!@Install@!UTF-8!</code></li>
+<li>使用支持UTF-8的文本编辑器（如Notepad++）</li>
+</ol>
+<h3 id="8-3-权限不足问题"><a href="#8-3-权限不足问题" class="headerlink" title="8.3 权限不足问题"></a>8.3 权限不足问题</h3><p><strong>问题</strong>：安装需要管理员权限的程序失败</p>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li>右键以管理员身份运行</li>
+<li>或创建manifest文件要求提升权限</li>
+</ol>
+<h2 id="九、最佳实践建议"><a href="#九、最佳实践建议" class="headerlink" title="九、最佳实践建议"></a>九、最佳实践建议</h2><h3 id="9-1-文件组织"><a href="#9-1-文件组织" class="headerlink" title="9.1 文件组织"></a>9.1 文件组织</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">安装包根目录/</span><br><span class="line">├── 7zs.sfx          # 自解压模块</span><br><span class="line">├── config.txt       # 配置文件</span><br><span class="line">├── app.7z           # 压缩的程序文件</span><br><span class="line">├── setup.exe        # 最终生成的安装包</span><br><span class="line">└── resources/       # 资源文件</span><br><span class="line">    ├── icon.ico     # 程序图标</span><br><span class="line">    └── banner.bmp   # 安装界面图片</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-版本管理"><a href="#9-2-版本管理" class="headerlink" title="9.2 版本管理"></a>9.2 版本管理</h3><ol>
+<li>为每个版本创建独立的目录</li>
+<li>在配置文件中包含版本信息</li>
+<li>使用时间戳或版本号命名安装包</li>
+</ol>
+<h3 id="9-3-测试流程"><a href="#9-3-测试流程" class="headerlink" title="9.3 测试流程"></a>9.3 测试流程</h3><ol>
+<li>在虚拟机中测试安装</li>
+<li>测试不同Windows版本兼容性</li>
+<li>验证卸载功能</li>
+<li>检查文件权限设置</li>
+</ol>
+<h2 id="十、总结"><a href="#十、总结" class="headerlink" title="十、总结"></a>十、总结</h2><p>使用7z创建安装包具有以下优势：</p>
+<ol>
+<li><strong>灵活性强</strong>：既能实现简单小巧的安装场景，又能解决复杂安装过程中的问题</li>
+<li><strong>体积小巧</strong>：生成的安装包体积较小</li>
+<li><strong>配置灵活</strong>：通过配置文件可以控制安装过程的各个方面</li>
+<li><strong>兼容性好</strong>：支持各种Windows版本</li>
+<li><strong>成本低廉</strong>：完全免费，无需购买昂贵的安装包制作工具</li>
+</ol>
+<p>无论是简单的文件分发还是复杂的应用程序安装，7z自解压功能都能提供有效的解决方案。通过合理的配置和优化，可以制作出专业、易用的安装程序。</p>
+<hr>
+<p><strong>相关工具下载</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.7-zip.org/">7-Zip官方网站</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.angusj.com/resourcehacker/">Resource Hacker下载</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.7-zip.org/sdk.html">LZMA SDK下载</a></li>
+</ul>
+<p><strong>参考文档</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://sevenzip.osdn.jp/chm/cmdline/index.htm">7-Zip命令行手册</a></li>
+<li><a target="_blank" rel="noopener" href="https://sevenzip.osdn.jp/chm/cmdline/switches/sfx.htm">自解压模块配置说明</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/7z/" rel="tag"># 7z</a>
+              <a href="/tags/%E8%87%AA%E8%A7%A3%E5%8E%8B/" rel="tag"># 自解压</a>
+              <a href="/tags/%E5%AE%89%E8%A3%85%E5%8C%85/" rel="tag"># 安装包</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/01/%E6%9C%AA%E5%88%86%E7%B1%BB/%E6%97%A0%E4%BA%BA%E6%9C%BA%E8%88%AA%E6%8B%8D%E6%95%B0%E6%8D%AE%E9%9B%86%E6%95%B4%E7%90%86/" rel="prev" title="无人机航拍数据集整理">
+                  <i class="fa fa-angle-left"></i> 无人机航拍数据集整理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/08/04/Linux/%E7%BC%96%E8%AF%91Qt%204.8.7%E6%BA%90%E7%A0%81/" rel="next" title="编译Qt 4.8.7源码">
+                  编译Qt 4.8.7源码 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

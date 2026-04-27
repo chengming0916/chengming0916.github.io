@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="概述本文详细介绍如何在qBittorrent中通过安装插件和集成Jackett实现更强大的BT资源搜索功能。Jackett是一个支持BT&#x2F;磁力资源聚合搜索的神器，聚合了400多个Public Trackers、Semi-Private Trackers、Private Trackers，可以称得上市面上最为全面的磁力资源聚合器。 一、qBittorrent原生搜索插件配置1.1 环境准备">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qBittorrent搜索插件Jackett配置">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/11/%E6%9C%AA%E5%88%86%E7%B1%BB/qBittorrent%E6%90%9C%E7%B4%A2%E6%8F%92%E4%BB%B6Jackett%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="概述本文详细介绍如何在qBittorrent中通过安装插件和集成Jackett实现更强大的BT资源搜索功能。Jackett是一个支持BT&#x2F;磁力资源聚合搜索的神器，聚合了400多个Public Trackers、Semi-Private Trackers、Private Trackers，可以称得上市面上最为全面的磁力资源聚合器。 一、qBittorrent原生搜索插件配置1.1 环境准备">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/78b3af5e4a8541f429767ad2d619430f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d35f52a49d03c40d2e8c645c47a1b7bb.png">
+<meta property="article:published_time" content="2025-08-11T12:40:22.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.494Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="qBittorrent">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/78b3af5e4a8541f429767ad2d619430f.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/11/%E6%9C%AA%E5%88%86%E7%B1%BB/qBittorrent%E6%90%9C%E7%B4%A2%E6%8F%92%E4%BB%B6Jackett%E9%85%8D%E7%BD%AE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/08/11/%E6%9C%AA%E5%88%86%E7%B1%BB/qBittorrent%E6%90%9C%E7%B4%A2%E6%8F%92%E4%BB%B6Jackett%E9%85%8D%E7%BD%AE/","path":"2025/08/11/未分类/qBittorrent搜索插件Jackett配置/","title":"qBittorrent搜索插件Jackett配置"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>qBittorrent搜索插件Jackett配置 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81qBittorrent%E5%8E%9F%E7%94%9F%E6%90%9C%E7%B4%A2%E6%8F%92%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">一、qBittorrent原生搜索插件配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%AE%89%E8%A3%85%E6%90%9C%E7%B4%A2%E6%8F%92%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 安装搜索插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E6%8F%92%E4%BB%B6%E8%B5%84%E6%BA%90"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 插件资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-%E4%BB%A3%E7%90%86%E9%85%8D%E7%BD%AE"><span class="nav-number">2.4.</span> <span class="nav-text">1.4 代理配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Jackett%E4%B8%80%E7%AB%99%E5%BC%8F%E8%B5%84%E6%BA%90%E6%90%9C%E7%B4%A2%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.</span> <span class="nav-text">二、Jackett一站式资源搜索服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Jackett%E7%AE%80%E4%BB%8B"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 Jackett简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Docker%E9%83%A8%E7%BD%B2Jackett"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 Docker部署Jackett</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#docker-compose%E9%85%8D%E7%BD%AE%E8%84%9A%E6%9C%AC"><span class="nav-number">3.2.1.</span> <span class="nav-text">docker-compose配置脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E4%B8%8E%E8%AE%BF%E9%97%AE"><span class="nav-number">3.2.2.</span> <span class="nav-text">启动与访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Jackett%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 Jackett基础配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E8%AE%BE%E7%BD%AE%E5%8F%82%E6%95%B0%EF%BC%9A"><span class="nav-number">3.3.1.</span> <span class="nav-text">主要设置参数：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E6%B7%BB%E5%8A%A0%E7%A3%81%E5%8A%9B%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E"><span class="nav-number">3.4.</span> <span class="nav-text">2.4 添加磁力搜索引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E6%93%8E%E7%B1%BB%E5%9E%8B%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="nav-number">3.4.1.</span> <span class="nav-text">引擎类型说明：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="nav-number">3.4.2.</span> <span class="nav-text">添加步骤：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E5%BC%95%E6%93%8E%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-number">3.4.3.</span> <span class="nav-text">推荐引擎示例：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E6%B5%8B%E8%AF%95%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="nav-number">3.5.</span> <span class="nav-text">2.5 测试与验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81qBittorrent%E9%9B%86%E6%88%90Jackett"><span class="nav-number">4.</span> <span class="nav-text">三、qBittorrent集成Jackett</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E8%8E%B7%E5%8F%96Jackett-API-Key"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 获取Jackett API Key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BF%AE%E6%94%B9qBittorrent%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 修改qBittorrent配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%90%AF%E7%94%A8%E4%B8%8E%E6%B5%8B%E8%AF%95"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 启用与测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%90%9C%E7%B4%A2%E6%95%88%E6%9E%9C%E5%AF%B9%E6%AF%94"><span class="nav-number">5.</span> <span class="nav-text">四、搜索效果对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%8E%9F%E7%94%9F%E6%8F%92%E4%BB%B6%E6%90%9C%E7%B4%A2%E6%95%88%E6%9E%9C"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 原生插件搜索效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-Jackett%E9%9B%86%E6%88%90%E5%90%8E%E6%90%9C%E7%B4%A2%E6%95%88%E6%9E%9C"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 Jackett集成后搜索效果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%BC%98%E5%8A%BF%E4%B8%8E%E7%89%B9%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">五、优势与特点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-Jackett%E4%BC%98%E5%8A%BF"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 Jackett优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%BB%84%E5%90%88%E4%BC%98%E5%8A%BF"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 组合优势</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">7.</span> <span class="nav-text">六、注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%AE%89%E5%85%A8%E8%80%83%E8%99%91"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 安全考虑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 性能优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E7%BB%B4%E6%8A%A4%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.3.</span> <span class="nav-text">6.3 维护建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="nav-number">8.</span> <span class="nav-text">七、常见问题解决</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85%E5%A4%B1%E8%B4%A5"><span class="nav-number">8.1.</span> <span class="nav-text">7.1 插件安装失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E6%90%9C%E7%B4%A2%E6%97%A0%E7%BB%93%E6%9E%9C"><span class="nav-number">8.2.</span> <span class="nav-text">7.2 搜索无结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E8%BF%9E%E6%8E%A5%E8%B6%85%E6%97%B6"><span class="nav-number">8.3.</span> <span class="nav-text">7.3 连接超时</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">八、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/11/%E6%9C%AA%E5%88%86%E7%B1%BB/qBittorrent%E6%90%9C%E7%B4%A2%E6%8F%92%E4%BB%B6Jackett%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="qBittorrent搜索插件Jackett配置 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          qBittorrent搜索插件Jackett配置
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-08-11 20:40:22" itemprop="dateCreated datePublished" datetime="2025-08-11T20:40:22+08:00">2025-08-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本文详细介绍如何在qBittorrent中通过安装插件和集成Jackett实现更强大的BT资源搜索功能。Jackett是一个支持BT&#x2F;磁力资源聚合搜索的神器，聚合了400多个Public Trackers、Semi-Private Trackers、Private Trackers，可以称得上市面上最为全面的磁力资源聚合器。</p>
+<h2 id="一、qBittorrent原生搜索插件配置"><a href="#一、qBittorrent原生搜索插件配置" class="headerlink" title="一、qBittorrent原生搜索插件配置"></a>一、qBittorrent原生搜索插件配置</h2><h3 id="1-1-环境准备"><a href="#1-1-环境准备" class="headerlink" title="1.1 环境准备"></a>1.1 环境准备</h3><p>qBittorrent的插件是通过Python实现的，因此需要先安装Python3环境。如果使用<code>linuxserver/qbittorrent</code>镜像，系统已经集成了Python3，无需额外安装。</p>
+<h3 id="1-2-安装搜索插件"><a href="#1-2-安装搜索插件" class="headerlink" title="1.2 安装搜索插件"></a>1.2 安装搜索插件</h3><ol>
+<li>进入qBittorrent主界面 → 搜索 → 搜索插件 → 安装新插件</li>
+<li>访问<a target="_blank" rel="noopener" href="http://plugins.qbittorrent.org/">qBittorrent插件官网</a>，选择喜爱的磁力搜索引擎</li>
+<li>拷贝对应插件后面的插件下载链接地址，填入插件链接，点击OK即可添加</li>
+</ol>
+<h3 id="1-3-插件资源"><a href="#1-3-插件资源" class="headerlink" title="1.3 插件资源"></a>1.3 插件资源</h3><p>如果因网络问题无法访问官网，可以使用以下插件包：</p>
+<table>
+<thead>
+<tr>
+<th>插件包类型</th>
+<th>插件数量</th>
+<th>下载地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>官方版</td>
+<td>10个插件</td>
+<td><a target="_blank" rel="noopener" href="http://dllcnx.com:18889/assets/qb-search-lite-imnks.com.zip">下载链接</a></td>
+</tr>
+<tr>
+<td>非官方版</td>
+<td>51个插件</td>
+<td><a target="_blank" rel="noopener" href="http://dllcnx.com:18889/assets/qb-search-full-imnks.com.zip">下载链接</a></td>
+</tr>
+</tbody></table>
+<p><strong>替代安装方法</strong>：直接将插件脚本放入qBittorrent安装目录下的<code>nova3/engines</code>文件夹中，重启qb服务即可。</p>
+<h3 id="1-4-代理配置"><a href="#1-4-代理配置" class="headerlink" title="1.4 代理配置"></a>1.4 代理配置</h3><p>由于很多搜索引擎被墙，建议在qBittorrent中配置代理：</p>
+<ul>
+<li>菜单 → 工具 → 选项 → 连接 → 代理服务</li>
+<li>或使用系统全局代理</li>
+</ul>
+<h2 id="二、Jackett一站式资源搜索服务"><a href="#二、Jackett一站式资源搜索服务" class="headerlink" title="二、Jackett一站式资源搜索服务"></a>二、Jackett一站式资源搜索服务</h2><h3 id="2-1-Jackett简介"><a href="#2-1-Jackett简介" class="headerlink" title="2.1 Jackett简介"></a>2.1 Jackett简介</h3><p>Jackett是一个跨平台的资源聚合搜索工具，支持Windows、macOS、Linux系统。它聚合了400多个Tracker，是目前最全面的磁力资源聚合器。</p>
+<h3 id="2-2-Docker部署Jackett"><a href="#2-2-Docker部署Jackett" class="headerlink" title="2.2 Docker部署Jackett"></a>2.2 Docker部署Jackett</h3><h4 id="docker-compose配置脚本"><a href="#docker-compose配置脚本" class="headerlink" title="docker-compose配置脚本"></a>docker-compose配置脚本</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;2.1&quot;</span></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">dllcnx:</span></span><br><span class="line">    <span class="attr">external:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">jackett:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">lscr.io/linuxserver/jackett:latest</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">jackett</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">PUID=1000</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">PGID=1000</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">TZ=Etc/UTC</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">AUTO_UPDATE=true</span> <span class="comment">#optional</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/docker/jackett/config:/config</span>   <span class="comment">#配置路径</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/docker/jackett/downloads:/downloads</span>   <span class="comment">#下载路径</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">9117</span><span class="string">:9117</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">unless-stopped</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="启动与访问"><a href="#启动与访问" class="headerlink" title="启动与访问"></a>启动与访问</h4><ol>
+<li>启动容器：<code>docker-compose up -d</code></li>
+<li>访问地址：<code>http://IP:9117</code></li>
+</ol>
+<h3 id="2-3-Jackett基础配置"><a href="#2-3-Jackett基础配置" class="headerlink" title="2.3 Jackett基础配置"></a>2.3 Jackett基础配置</h3><h4 id="主要设置参数："><a href="#主要设置参数：" class="headerlink" title="主要设置参数："></a>主要设置参数：</h4><ul>
+<li><strong>Admin password</strong>：如果安装Jackett的机器有公网地址，请设置管理员密码</li>
+<li><strong>Proxy type、Proxy URL、Proxy port</strong>：在此处设置代理服务器信息，则qBittorrent中无需再设置</li>
+</ul>
+<h3 id="2-4-添加磁力搜索引擎"><a href="#2-4-添加磁力搜索引擎" class="headerlink" title="2.4 添加磁力搜索引擎"></a>2.4 添加磁力搜索引擎</h3><h4 id="引擎类型说明："><a href="#引擎类型说明：" class="headerlink" title="引擎类型说明："></a>引擎类型说明：</h4><ul>
+<li><strong>Public</strong>：公开Tracker，无需账号</li>
+<li><strong>Semi-Private</strong>：半私有Tracker</li>
+<li><strong>Private</strong>：私有Tracker，需要邀请码或注册</li>
+</ul>
+<h4 id="添加步骤："><a href="#添加步骤：" class="headerlink" title="添加步骤："></a>添加步骤：</h4><ol>
+<li>点击”Add indexer”添加磁力搜索引擎</li>
+<li>配置参数：<ul>
+<li><strong>categories</strong>：资源类型</li>
+<li><strong>type</strong>：引擎是否公开</li>
+<li><strong>Language</strong>：搜索资源引擎语言</li>
+</ul>
+</li>
+<li>点击”+”即可添加</li>
+</ol>
+<h4 id="推荐引擎示例："><a href="#推荐引擎示例：" class="headerlink" title="推荐引擎示例："></a>推荐引擎示例：</h4><ul>
+<li><strong>1337x</strong>：热门资源站</li>
+<li><strong>0Magnet</strong>：磁力链接搜索</li>
+</ul>
+<h3 id="2-5-测试与验证"><a href="#2-5-测试与验证" class="headerlink" title="2.5 测试与验证"></a>2.5 测试与验证</h3><ol>
+<li>添加完成后，点击”Test All”测试所有搜索引擎</li>
+<li>点击”Manual Search”进行搜索测试</li>
+</ol>
+<h2 id="三、qBittorrent集成Jackett"><a href="#三、qBittorrent集成Jackett" class="headerlink" title="三、qBittorrent集成Jackett"></a>三、qBittorrent集成Jackett</h2><h3 id="3-1-获取Jackett-API-Key"><a href="#3-1-获取Jackett-API-Key" class="headerlink" title="3.1 获取Jackett API Key"></a>3.1 获取Jackett API Key</h3><ol>
+<li>访问Jackett Web界面</li>
+<li>在右上角找到并复制API Key</li>
+</ol>
+<h3 id="3-2-修改qBittorrent配置"><a href="#3-2-修改qBittorrent配置" class="headerlink" title="3.2 修改qBittorrent配置"></a>3.2 修改qBittorrent配置</h3><ol>
+<li>找到qBittorrent配置文件：<code>nova3/engines/jackett.json</code></li>
+<li>修改配置文件内容：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;api_key&quot;</span><span class="punctuation">:</span> <span class="string">&quot;你的API Key&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;tracker_first&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;url&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://IP:9117&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="3-3-启用与测试"><a href="#3-3-启用与测试" class="headerlink" title="3.3 启用与测试"></a>3.3 启用与测试</h3><ol>
+<li>在qBittorrent中确认Jackett插件已启用</li>
+<li>进行搜索测试验证集成效果</li>
+</ol>
+<h2 id="四、搜索效果对比"><a href="#四、搜索效果对比" class="headerlink" title="四、搜索效果对比"></a>四、搜索效果对比</h2><h3 id="4-1-原生插件搜索效果"><a href="#4-1-原生插件搜索效果" class="headerlink" title="4.1 原生插件搜索效果"></a>4.1 原生插件搜索效果</h3><p><img src="https://i-blog.csdnimg.cn/blog_migrate/78b3af5e4a8541f429767ad2d619430f.png" alt="原生插件搜索效果"></p>
+<h3 id="4-2-Jackett集成后搜索效果"><a href="#4-2-Jackett集成后搜索效果" class="headerlink" title="4.2 Jackett集成后搜索效果"></a>4.2 Jackett集成后搜索效果</h3><p><img src="https://i-blog.csdnimg.cn/blog_migrate/d35f52a49d03c40d2e8c645c47a1b7bb.png" alt="Jackett集成搜索效果"></p>
+<h2 id="五、优势与特点"><a href="#五、优势与特点" class="headerlink" title="五、优势与特点"></a>五、优势与特点</h2><h3 id="5-1-Jackett优势"><a href="#5-1-Jackett优势" class="headerlink" title="5.1 Jackett优势"></a>5.1 Jackett优势</h3><ol>
+<li><strong>资源全面</strong>：聚合400+个Tracker，覆盖广泛</li>
+<li><strong>跨平台支持</strong>：Windows、macOS、Linux全平台</li>
+<li><strong>中文资源支持</strong>：相比原生插件，支持更多中文资源站</li>
+<li><strong>配置灵活</strong>：支持代理、API集成等多种配置方式</li>
+</ol>
+<h3 id="5-2-组合优势"><a href="#5-2-组合优势" class="headerlink" title="5.2 组合优势"></a>5.2 组合优势</h3><ul>
+<li><strong>qBittorrent + Jackett</strong>：构建完整的一站式资源搜索下载服务</li>
+<li><strong>跨平台兼容</strong>：两者都支持多平台，组合使用无平台限制</li>
+<li><strong>功能互补</strong>：Jackett提供强大搜索，qBittorrent提供稳定下载</li>
+</ul>
+<h2 id="六、注意事项"><a href="#六、注意事项" class="headerlink" title="六、注意事项"></a>六、注意事项</h2><h3 id="6-1-安全考虑"><a href="#6-1-安全考虑" class="headerlink" title="6.1 安全考虑"></a>6.1 安全考虑</h3><ol>
+<li><strong>公网访问</strong>：如果Jackett部署在公网，务必设置管理员密码</li>
+<li><strong>Private Tracker</strong>：谨慎添加Private Tracker，确保遵守相关规则</li>
+<li><strong>代理配置</strong>：合理使用代理，避免IP被封</li>
+</ol>
+<h3 id="6-2-性能优化"><a href="#6-2-性能优化" class="headerlink" title="6.2 性能优化"></a>6.2 性能优化</h3><ol>
+<li><strong>引擎选择</strong>：根据需求选择合适的Tracker，避免添加过多无用引擎</li>
+<li><strong>定期测试</strong>：定期测试各搜索引擎的可用性</li>
+<li><strong>缓存清理</strong>：定期清理不必要的缓存数据</li>
+</ol>
+<h3 id="6-3-维护建议"><a href="#6-3-维护建议" class="headerlink" title="6.3 维护建议"></a>6.3 维护建议</h3><ol>
+<li><strong>定期更新</strong>：保持Jackett和qBittorrent为最新版本</li>
+<li><strong>备份配置</strong>：定期备份配置文件</li>
+<li><strong>监控日志</strong>：关注系统日志，及时发现并解决问题</li>
+</ol>
+<h2 id="七、常见问题解决"><a href="#七、常见问题解决" class="headerlink" title="七、常见问题解决"></a>七、常见问题解决</h2><h3 id="7-1-插件安装失败"><a href="#7-1-插件安装失败" class="headerlink" title="7.1 插件安装失败"></a>7.1 插件安装失败</h3><ul>
+<li><strong>问题</strong>：无法从官网下载插件</li>
+<li><strong>解决</strong>：使用提供的插件包进行本地安装</li>
+</ul>
+<h3 id="7-2-搜索无结果"><a href="#7-2-搜索无结果" class="headerlink" title="7.2 搜索无结果"></a>7.2 搜索无结果</h3><ul>
+<li><strong>问题</strong>：搜索时显示无结果</li>
+<li><strong>解决</strong>：<ol>
+<li>检查网络连接和代理配置</li>
+<li>测试单个搜索引擎是否正常工作</li>
+<li>检查API Key配置是否正确</li>
+</ol>
+</li>
+</ul>
+<h3 id="7-3-连接超时"><a href="#7-3-连接超时" class="headerlink" title="7.3 连接超时"></a>7.3 连接超时</h3><ul>
+<li><strong>问题</strong>：连接Jackett时超时</li>
+<li><strong>解决</strong>：<ol>
+<li>检查Jackett服务是否正常运行</li>
+<li>确认防火墙设置</li>
+<li>检查网络连通性</li>
+</ol>
+</li>
+</ul>
+<h2 id="八、总结"><a href="#八、总结" class="headerlink" title="八、总结"></a>八、总结</h2><p>通过本文的配置指南，您可以成功搭建qBittorrent + Jackett的一站式资源搜索下载服务。这种组合方案具有以下特点：</p>
+<ol>
+<li><strong>功能强大</strong>：结合了qBittorrent的优秀下载能力和Jackett的全面搜索能力</li>
+<li><strong>配置灵活</strong>：支持多种部署方式和配置选项</li>
+<li><strong>资源丰富</strong>：覆盖国内外大量资源站点</li>
+<li><strong>跨平台</strong>：支持主流操作系统</li>
+</ol>
+<p>建议根据实际需求选择合适的配置方案，并定期维护更新，以获得最佳的使用体验。对于家庭NAS用户或需要大量下载资源的用户，这套方案将大大提高工作效率和资源获取能力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/qBittorrent/" rel="tag"># qBittorrent</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/07/Git/Git%E9%85%8D%E7%BD%AE%E6%8E%A5%E5%8F%97%E7%89%B9%E5%AE%9A%E8%87%AA%E7%AD%BE%E5%90%8DHTTPS%E8%AF%81%E4%B9%A6/" rel="prev" title="Git配置接受特定自签名HTTPS证书">
+                  <i class="fa fa-angle-left"></i> Git配置接受特定自签名HTTPS证书
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/08/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/kubectl%E7%AE%A1%E7%90%86%E5%A4%9A%E9%9B%86%E7%BE%A4/" rel="next" title="kubectl管理多集群">
+                  kubectl管理多集群 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

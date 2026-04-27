@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="概述OpenSSL 是一个开源的 SSL&#x2F;TLS 工具包，用于生成和管理数字证书。本笔记涵盖自签名证书、多级证书链、PKCS#12 格式的完整操作流程。  一、基础概念1.1 证书机构类型   类型 说明    CA Certificate Authority，证书授权机构，负责发放和管理数字证书   RootCA 根证书，权威机构持有的证书，安装根证书意味着信任该 CA   SubCA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenSSL生成自签名证书">
+<meta property="og:url" content="http://chengming0916.github.io/2025/03/20/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="概述OpenSSL 是一个开源的 SSL&#x2F;TLS 工具包，用于生成和管理数字证书。本笔记涵盖自签名证书、多级证书链、PKCS#12 格式的完整操作流程。  一、基础概念1.1 证书机构类型   类型 说明    CA Certificate Authority，证书授权机构，负责发放和管理数字证书   RootCA 根证书，权威机构持有的证书，安装根证书意味着信任该 CA   SubCA">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-03-20T02:53:47.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.633Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="OpenSSL">
+<meta property="article:tag" content="证书">
+<meta property="article:tag" content="Https">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/03/20/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/03/20/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/","path":"2025/03/20/Linux/OpenSSL生成自签名证书/","title":"OpenSSL生成自签名证书"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>OpenSSL生成自签名证书 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">一、基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E8%AF%81%E4%B9%A6%E6%9C%BA%E6%9E%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 证书机构类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-CSR"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 CSR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E5%B8%B8%E7%94%A8%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 常用文件格式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%AF%81%E4%B9%A6%E9%93%BE%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">二、证书链结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%94%9F%E6%88%90%E6%A0%B9%E8%AF%81%E4%B9%A6"><span class="nav-number">4.</span> <span class="nav-text">三、生成根证书</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E7%94%9F%E6%88%90%E6%A0%B9%E7%A7%81%E9%92%A5"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 生成根私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E6%A0%B9%E8%AF%81%E4%B9%A6"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 生成自签名根证书</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%94%9F%E6%88%90%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6"><span class="nav-number">5.</span> <span class="nav-text">四、生成中间证书</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E7%94%9F%E6%88%90%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6%E7%A7%81%E9%92%A5"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 生成中间证书私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E7%94%9F%E6%88%90%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6%E8%AF%B7%E6%B1%82"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 生成中间证书请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%BD%BF%E7%94%A8%E6%A0%B9%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%8F%91%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 使用根证书签发中间证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E9%AA%8C%E8%AF%81%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6"><span class="nav-number">5.4.</span> <span class="nav-text">4.4 验证中间证书</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%94%9F%E6%88%90%E7%BB%88%E7%AB%AF%E8%AF%81%E4%B9%A6%EF%BC%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%81%E4%B9%A6%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">五、生成终端证书（服务器证书）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E7%94%9F%E6%88%90%E7%A7%81%E9%92%A5"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 生成私钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 生成证书签名请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 生成证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E5%AF%BC%E5%87%BA-PFX-%E6%A0%BC%E5%BC%8F"><span class="nav-number">6.4.</span> <span class="nav-text">5.4 导出 PFX 格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-%E9%AA%8C%E8%AF%81%E7%BB%88%E7%AB%AF%E8%AF%81%E4%B9%A6"><span class="nav-number">6.5.</span> <span class="nav-text">5.5 验证终端证书</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%9F%A5%E7%9C%8B%E8%AF%81%E4%B9%A6%E4%BF%A1%E6%81%AF"><span class="nav-number">7.</span> <span class="nav-text">六、查看证书信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E8%AF%81%E4%B9%A6%E6%9C%89%E6%95%88%E6%80%A7%E9%AA%8C%E8%AF%81"><span class="nav-number">8.</span> <span class="nav-text">七、证书有效性验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%90%8A%E9%94%80%E8%AF%81%E4%B9%A6"><span class="nav-number">9.</span> <span class="nav-text">八、吊销证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E9%99%84%E4%BB%B6"><span class="nav-number">10.</span> <span class="nav-text">九、附件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-CSR-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">10.1.</span> <span class="nav-text">9.1 CSR 参数说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-X-509-%E6%89%A9%E5%B1%95%E9%85%8D%E7%BD%AE-v3-ext"><span class="nav-number">10.2.</span> <span class="nav-text">9.2 X.509 扩展配置 v3.ext</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81PKCS-12-%E6%93%8D%E4%BD%9C"><span class="nav-number">11.</span> <span class="nav-text">十、PKCS#12 操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-1-%E7%94%9F%E6%88%90-PKCS-12-%E8%AF%81%E4%B9%A6"><span class="nav-number">11.1.</span> <span class="nav-text">10.1 生成 PKCS#12 证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-2-%E4%BB%8E-PKCS-12-%E6%8F%90%E5%8F%96%E5%86%85%E5%AE%B9"><span class="nav-number">11.2.</span> <span class="nav-text">10.2 从 PKCS#12 提取内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-3-%E9%AA%8C%E8%AF%81-PKCS-12-%E6%96%87%E4%BB%B6"><span class="nav-number">11.3.</span> <span class="nav-text">10.3 验证 PKCS#12 文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E4%B8%80%E9%94%AE%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="nav-number">12.</span> <span class="nav-text">十一、一键命令速查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6"><span class="nav-number">12.1.</span> <span class="nav-text">自签名证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%81%E6%9C%89-CA-%E7%AD%BE%E5%90%8D"><span class="nav-number">12.2.</span> <span class="nav-text">私有 CA 签名</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/20/Linux/OpenSSL%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="OpenSSL生成自签名证书 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenSSL生成自签名证书
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-20 10:53:47" itemprop="dateCreated datePublished" datetime="2025-03-20T10:53:47+08:00">2025-03-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>OpenSSL 是一个开源的 SSL&#x2F;TLS 工具包，用于生成和管理数字证书。本笔记涵盖自签名证书、多级证书链、PKCS#12 格式的完整操作流程。</p>
+<hr>
+<h2 id="一、基础概念"><a href="#一、基础概念" class="headerlink" title="一、基础概念"></a>一、基础概念</h2><h3 id="1-1-证书机构类型"><a href="#1-1-证书机构类型" class="headerlink" title="1.1 证书机构类型"></a>1.1 证书机构类型</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CA</td>
+<td>Certificate Authority，证书授权机构，负责发放和管理数字证书</td>
+</tr>
+<tr>
+<td>RootCA</td>
+<td>根证书，权威机构持有的证书，安装根证书意味着信任该 CA</td>
+</tr>
+<tr>
+<td>SubCA</td>
+<td>中间证书机构，由根证书签发，可继续签发下级证书</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-CSR"><a href="#1-2-CSR" class="headerlink" title="1.2 CSR"></a>1.2 CSR</h3><p>CSR（Certificate Signing Request）是证书签名请求文件，生成私钥时同时生成。</p>
+<h3 id="1-3-常用文件格式"><a href="#1-3-常用文件格式" class="headerlink" title="1.3 常用文件格式"></a>1.3 常用文件格式</h3><table>
+<thead>
+<tr>
+<th>格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.crt &#x2F; .cer</td>
+<td>证书文件</td>
+</tr>
+<tr>
+<td>.key</td>
+<td>私钥文件</td>
+</tr>
+<tr>
+<td>.csr</td>
+<td>证书签名请求文件</td>
+</tr>
+<tr>
+<td>.pem</td>
+<td>Base64 编码证书，可包含证书或密钥</td>
+</tr>
+<tr>
+<td>.der</td>
+<td>二进制证书文件，常见于 Windows</td>
+</tr>
+<tr>
+<td>.p12 &#x2F; .pfx</td>
+<td>PKCS#12 格式，包含私钥和证书链</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>[!NOTE]<br>CA 机构的证书可以给其他域名证书签名，但域名证书不可以。</p>
+</blockquote>
+<hr>
+<h2 id="二、证书链结构"><a href="#二、证书链结构" class="headerlink" title="二、证书链结构"></a>二、证书链结构</h2><p>典型三级结构：根证书 → 中间证书 → 服务器证书</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">服务器证书（最底端）</span><br><span class="line">    ├── 域名、公钥、签名值</span><br><span class="line">    ↑</span><br><span class="line">中间证书</span><br><span class="line">    ├── 可由多张组合</span><br><span class="line">    ↑</span><br><span class="line">根证书（最顶端）</span><br><span class="line">    └── 浏览器内置信任</span><br></pre></td></tr></table></figure>
+
+<p>验证过程：从服务器证书向上逐级验证签名直到根证书。</p>
+<hr>
+<h2 id="三、生成根证书"><a href="#三、生成根证书" class="headerlink" title="三、生成根证书"></a>三、生成根证书</h2><h3 id="3-1-生成根私钥"><a href="#3-1-生成根私钥" class="headerlink" title="3.1 生成根私钥"></a>3.1 生成根私钥</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成带密码的私钥（需要输入两次密码）</span></span><br><span class="line">openssl genrsa -des3 -out root-ca.priv.key 4096</span><br><span class="line"></span><br><span class="line"><span class="comment"># 去除私钥密码（需输入上一步密码）</span></span><br><span class="line">openssl rsa -<span class="keyword">in</span> root-ca.priv.key -out root-ca.key</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-生成自签名根证书"><a href="#3-2-生成自签名根证书" class="headerlink" title="3.2 生成自签名根证书"></a>3.2 生成自签名根证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -x509：使用 X.509 证书结构</span></span><br><span class="line"><span class="comment"># -days：证书有效期（按天计算）</span></span><br><span class="line">openssl req -new -x509 -key root-ca.key -out root-ca.crt -days 3650 \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Tianjin/L=Tianjin/O=Example/OU=DEV/CN=Example Root&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、生成中间证书"><a href="#四、生成中间证书" class="headerlink" title="四、生成中间证书"></a>四、生成中间证书</h2><blockquote>
+<p>[!TIP]<br>非复杂场景可跳过此步骤，使用根证书直接签发用户证书。</p>
+</blockquote>
+<h3 id="4-1-生成中间证书私钥"><a href="#4-1-生成中间证书私钥" class="headerlink" title="4.1 生成中间证书私钥"></a>4.1 生成中间证书私钥</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式1：参考根证书私钥</span></span><br><span class="line">openssl genrsa -des3 -out mid-ca.priv.key 4096</span><br><span class="line">openssl rsa -<span class="keyword">in</span> mid-ca.priv.key -out mid-ca.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式2：直接生成</span></span><br><span class="line">openssl genpkey -algorithm RSA -out mid-ca.key -pkeyopt rsa_keygen_bits:4096</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-生成中间证书请求"><a href="#4-2-生成中间证书请求" class="headerlink" title="4.2 生成中间证书请求"></a>4.2 生成中间证书请求</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key mid-ca.key -out mid-ca.csr \</span><br><span class="line">    -subj <span class="string">&quot;/C=CN/ST=Tianjin/L=Tianjin/O=Example/OU=DEV/CN=Example Mid&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-使用根证书签发中间证书"><a href="#4-3-使用根证书签发中间证书" class="headerlink" title="4.3 使用根证书签发中间证书"></a>4.3 使用根证书签发中间证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req \</span><br><span class="line">    -extfile &lt;(<span class="built_in">printf</span> <span class="string">&quot;subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always,issuer:always&quot;</span>) \</span><br><span class="line">    -days 3650 -<span class="keyword">in</span> mid-ca.csr \</span><br><span class="line">    -CA root-ca.crt -CAkey root-ca.key \</span><br><span class="line">    -CAcreateserial -out mid-ca.crt</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-验证中间证书"><a href="#4-4-验证中间证书" class="headerlink" title="4.4 验证中间证书"></a>4.4 验证中间证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl verify -CAfile root-ca.crt mid-ca.crt</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、生成终端证书（服务器证书）"><a href="#五、生成终端证书（服务器证书）" class="headerlink" title="五、生成终端证书（服务器证书）"></a>五、生成终端证书（服务器证书）</h2><p>假设服务器域名为 <code>example.io</code></p>
+<h3 id="5-1-生成私钥"><a href="#5-1-生成私钥" class="headerlink" title="5.1 生成私钥"></a>5.1 生成私钥</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式1</span></span><br><span class="line">openssl genrsa -des3 -out example.io.priv.key 4096</span><br><span class="line">openssl rsa -<span class="keyword">in</span> example.io.priv.key -out example.io.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式2</span></span><br><span class="line">openssl genpkey -algorithm RSA -out example.io.key -pkeyopt rsa_keygen_bits:4096</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-生成证书签名请求"><a href="#5-2-生成证书签名请求" class="headerlink" title="5.2 生成证书签名请求"></a>5.2 生成证书签名请求</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key example.io.key -out example.io.csr \</span><br><span class="line">    -subj <span class="string">&quot;/CN=example.io&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-生成证书"><a href="#5-3-生成证书" class="headerlink" title="5.3 生成证书"></a>5.3 生成证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用根证书签发</span></span><br><span class="line">openssl x509 -req -days 3650 \</span><br><span class="line">    -extfile v3.ext \</span><br><span class="line">    -CA root-ca.crt -CAkey root-ca.key -CAcreateserial \</span><br><span class="line">    -<span class="keyword">in</span> example.io.csr -out example.io.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用中间证书签发</span></span><br><span class="line">openssl x509 -req -days 3650 \</span><br><span class="line">    -extfile v3.ext \</span><br><span class="line">    -CA mid-ca.crt -CAkey mid-ca.key -CAcreateserial \</span><br><span class="line">    -<span class="keyword">in</span> example.io.csr -out example.io.crt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>[!CAUTION]<br>v3.ext 中 <code>basicConstraints=CA:FALSE</code> 为必选项，否则生成证书无法使用。</p>
+</blockquote>
+<h3 id="5-4-导出-PFX-格式"><a href="#5-4-导出-PFX-格式" class="headerlink" title="5.4 导出 PFX 格式"></a>5.4 导出 PFX 格式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl pkcs12 -<span class="built_in">export</span> -out example.io.pfx -inkey example.io.key -<span class="keyword">in</span> example.io.crt</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-5-验证终端证书"><a href="#5-5-验证终端证书" class="headerlink" title="5.5 验证终端证书"></a>5.5 验证终端证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl verify -CAfile root-ca.crt example.io.crt</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、查看证书信息"><a href="#六、查看证书信息" class="headerlink" title="六、查看证书信息"></a>六、查看证书信息</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看私钥内容</span></span><br><span class="line">openssl rsa -noout -text -<span class="keyword">in</span> cakey.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看证书内容</span></span><br><span class="line">openssl x509 -noout -text -<span class="keyword">in</span> cacert.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># PEM 转为 DER</span></span><br><span class="line">openssl x509 -<span class="keyword">in</span> cacert.crt -outform der -out cacert.der</span><br><span class="line"></span><br><span class="line"><span class="comment"># DER 转为 PEM</span></span><br><span class="line">openssl x509 -<span class="keyword">in</span> cert.crt -inform der -outform pem -out cacert.pem</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、证书有效性验证"><a href="#七、证书有效性验证" class="headerlink" title="七、证书有效性验证"></a>七、证书有效性验证</h2><p>启动测试服务器（需先导入根证书到浏览器信任库）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl s_server -cert example.io.crt -key example.io.key -debug -HTTP -accept 443</span><br></pre></td></tr></table></figure>
+
+<p>然后访问 <code>https://服务器IP</code> 查看证书是否有效。</p>
+<hr>
+<h2 id="八、吊销证书"><a href="#八、吊销证书" class="headerlink" title="八、吊销证书"></a>八、吊销证书</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 吊销证书</span></span><br><span class="line">openssl ca -revoke cert.pem</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成吊销列表</span></span><br><span class="line">openssl ca -gencrl -out testca.crl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看吊销列表</span></span><br><span class="line">openssl crl -<span class="keyword">in</span> testca.crl -text -noout</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="九、附件"><a href="#九、附件" class="headerlink" title="九、附件"></a>九、附件</h2><h3 id="9-1-CSR-参数说明"><a href="#9-1-CSR-参数说明" class="headerlink" title="9.1 CSR 参数说明"></a>9.1 CSR 参数说明</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x2F;C</td>
+<td>国家代码</td>
+<td>CN</td>
+</tr>
+<tr>
+<td>&#x2F;ST</td>
+<td>州或省</td>
+<td>Tianjin</td>
+</tr>
+<tr>
+<td>&#x2F;L</td>
+<td>城市</td>
+<td>Tianjin</td>
+</tr>
+<tr>
+<td>&#x2F;O</td>
+<td>组织名称</td>
+<td>Example</td>
+</tr>
+<tr>
+<td>&#x2F;OU</td>
+<td>部门名称</td>
+<td>DEV</td>
+</tr>
+<tr>
+<td>&#x2F;CN</td>
+<td>通用名称（域名）</td>
+<td>example.com</td>
+</tr>
+</tbody></table>
+<h3 id="9-2-X-509-扩展配置-v3-ext"><a href="#9-2-X-509-扩展配置-v3-ext" class="headerlink" title="9.2 X.509 扩展配置 v3.ext"></a>9.2 X.509 扩展配置 v3.ext</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">authorityKeyIdentifier</span>=keyid,issuer</span><br><span class="line"><span class="attr">subjectKeyIdentifier</span>=hash</span><br><span class="line"><span class="attr">basicConstraints</span>=CA:<span class="literal">FALSE</span></span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment</span><br><span class="line"></span><br><span class="line"><span class="attr">subjectAltName</span> = @alt_names</span><br><span class="line"></span><br><span class="line"><span class="section">[alt_names]</span></span><br><span class="line"><span class="attr">DNS.1</span>=example.io</span><br><span class="line"><span class="attr">DNS.2</span>=*.example.io</span><br><span class="line"><span class="attr">IP.3</span>=<span class="number">192.168</span>.<span class="number">0.2</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>扩展用途说明</strong>：</p>
+<ul>
+<li><code>serverAuth</code>：保证远程计算机的身份</li>
+<li><code>clientAuth</code>：向远程计算机证明身份</li>
+<li><code>codeSigning</code>：确保软件来自发布者</li>
+<li><code>emailProtection</code>：保护电子邮件</li>
+</ul>
+<hr>
+<h2 id="十、PKCS-12-操作"><a href="#十、PKCS-12-操作" class="headerlink" title="十、PKCS#12 操作"></a>十、PKCS#12 操作</h2><h3 id="10-1-生成-PKCS-12-证书"><a href="#10-1-生成-PKCS-12-证书" class="headerlink" title="10.1 生成 PKCS#12 证书"></a>10.1 生成 PKCS#12 证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 包含证书和私钥</span></span><br><span class="line">openssl pkcs12 -<span class="built_in">export</span> -inkey server.key -<span class="keyword">in</span> server.crt -out server.p12</span><br><span class="line"></span><br><span class="line"><span class="comment"># 包含证书、私钥和 CA 证书链</span></span><br><span class="line">openssl pkcs12 -<span class="built_in">export</span> -inkey server.key -<span class="keyword">in</span> server.crt -chain -CAfile ca.crt -out server.p12</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-2-从-PKCS-12-提取内容"><a href="#10-2-从-PKCS-12-提取内容" class="headerlink" title="10.2 从 PKCS#12 提取内容"></a>10.2 从 PKCS#12 提取内容</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 提取私钥</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> server.p12 -nocerts -out server.key -nodes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取证书</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> server.p12 -nokeys -clcerts -out server.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取 CA 证书</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> server.p12 -nokeys -cacerts -out ca.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取所有内容</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> server.p12 -nodes -out all-in-one.pem</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-3-验证-PKCS-12-文件"><a href="#10-3-验证-PKCS-12-文件" class="headerlink" title="10.3 验证 PKCS#12 文件"></a>10.3 验证 PKCS#12 文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl pkcs12 -info -<span class="keyword">in</span> server.p12</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十一、一键命令速查"><a href="#十一、一键命令速查" class="headerlink" title="十一、一键命令速查"></a>十一、一键命令速查</h2><h3 id="自签名证书"><a href="#自签名证书" class="headerlink" title="自签名证书"></a>自签名证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out server.key 2048</span><br><span class="line">openssl req -subj <span class="string">&quot;/C=CN/ST=Tianjin/O=Mocha/CN=example.io&quot;</span> -new -key server.key -out server.csr</span><br><span class="line">openssl x509 -req -days 3650 -<span class="keyword">in</span> server.csr -signkey server.key -out server.crt</span><br></pre></td></tr></table></figure>
+
+<h3 id="私有-CA-签名"><a href="#私有-CA-签名" class="headerlink" title="私有 CA 签名"></a>私有 CA 签名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out ca.key 2048</span><br><span class="line">openssl req -subj <span class="string">&quot;/C=CN/ST=Tianjin/O=Mocha/CN=Server CA&quot;</span> -new -x509 -days 3650 -key ca.key -out ca.crt</span><br><span class="line">openssl genrsa -out server.key 2048</span><br><span class="line">openssl req -subj <span class="string">&quot;/C=CN/ST=Tianjin/O=Mocha/CN=example.io&quot;</span> -new -key server.key -out server.csr</span><br><span class="line">openssl x509 -req -days 3650 -<span class="keyword">in</span> server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/OpenSSL/" rel="tag"># OpenSSL</a>
+              <a href="/tags/%E8%AF%81%E4%B9%A6/" rel="tag"># 证书</a>
+              <a href="/tags/Https/" rel="tag"># Https</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/03/19/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/Python%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E5%86%99%E6%96%87%E7%AB%A0%E5%8F%91%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/" rel="prev" title="Python实现自动写文章发微信公众号">
+                  <i class="fa fa-angle-left"></i> Python实现自动写文章发微信公众号
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/03/20/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E7%BC%96%E8%AF%91%E5%A4%9A%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F/" rel="next" title="Docker编译多系统架构镜像">
+                  Docker编译多系统架构镜像 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

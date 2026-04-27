@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在企业内网环境中，部署Gitea私有代码仓库并配置自签名证书（或私有CA证书）及内网域名后，开发人员常遇到Git操作（如git fetch、git pull）抛出SSL证书验证错误：SSL certificate problem: unable to get local issuer certificate（OpenSSL验证错误码20）。本文围绕Git配置自签名证书的核心场景，从问题根源剖析、前">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git配置自签名证书">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/04/Git/Git%E9%85%8D%E7%BD%AE%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在企业内网环境中，部署Gitea私有代码仓库并配置自签名证书（或私有CA证书）及内网域名后，开发人员常遇到Git操作（如git fetch、git pull）抛出SSL证书验证错误：SSL certificate problem: unable to get local issuer certificate（OpenSSL验证错误码20）。本文围绕Git配置自签名证书的核心场景，从问题根源剖析、前">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-04T02:36:19.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.618Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="自签名证书">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/04/Git/Git%E9%85%8D%E7%BD%AE%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/04/Git/Git%E9%85%8D%E7%BD%AE%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/","path":"2026/03/04/Git/Git配置自签名证书/","title":"Git配置自签名证书"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Git配置自签名证书 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF%E4%B8%8E%E6%A0%B8%E5%BF%83%E6%88%90%E5%9B%A0"><span class="nav-number">1.</span> <span class="nav-text">一、问题背景与核心成因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%89%8D%E7%BD%AE%E6%8E%92%E6%9F%A5%EF%BC%9A%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D%E9%97%AE%E9%A2%98%E6%A0%B9%E6%BA%90"><span class="nav-number">2.</span> <span class="nav-text">二、前置排查：快速定位问题根源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%9F%A5%E7%9C%8BGit-SSL%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">1. 查看Git SSL相关配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BC%80%E5%90%AFGit%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F%EF%BC%8C%E6%9F%A5%E7%9C%8B%E8%AF%81%E4%B9%A6%E9%AA%8C%E8%AF%81%E8%AF%A6%E6%83%85"><span class="nav-number">2.2.</span> <span class="nav-text">2. 开启Git调试模式，查看证书验证详情</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%92%88%E5%AF%B9%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%88%E6%8C%89%E4%BC%98%E5%85%88%E7%BA%A7%E6%8E%92%E5%BA%8F%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、针对性解决方案（按优先级排序）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%881%EF%BC%9A%E4%B8%BA%E6%8C%87%E5%AE%9A%E7%BD%91%E5%9D%80%E9%85%8D%E7%BD%AE%E6%A0%B9CA%E8%AF%81%E4%B9%A6%EF%BC%88%E6%8E%A8%E8%8D%90%E6%96%B9%E6%A1%88%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">方案1：为指定网址配置根CA证书（推荐方案）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="nav-number">3.1.1.</span> <span class="nav-text">操作步骤：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%882%EF%BC%9A%E8%A1%A5%E9%BD%90%E8%AF%81%E4%B9%A6%E9%93%BE%EF%BC%8C%E9%85%8D%E7%BD%AE%E5%AE%8C%E6%95%B4%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">方案2：补齐证书链，配置完整证书文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4%EF%BC%9A-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">操作步骤：</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Windows%E7%B3%BB%E7%BB%9F%EF%BC%88Git-Bash%E7%8E%AF%E5%A2%83%EF%BC%89%E5%90%88%E5%B9%B6%E5%91%BD%E4%BB%A4"><span class="nav-number"></span> <span class="nav-text">Windows系统（Git Bash环境）合并命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%883%EF%BC%9A%E5%B0%86%E6%A0%B9CA%E8%AF%81%E4%B9%A6%E5%AF%BC%E5%85%A5%E7%B3%BB%E7%BB%9F%E4%BF%A1%E4%BB%BB%E5%BA%93%EF%BC%88%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%89"><span class="nav-number">0.1.</span> <span class="nav-text">方案3：将根CA证书导入系统信任库（彻底解决方案）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E7%B3%BB%E7%BB%9F%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="nav-number">0.1.1.</span> <span class="nav-text">不同系统操作方法：</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E7%B3%BB%E7%BB%9F%E8%AF%81%E4%B9%A6%E7%BC%93%E5%AD%98%EF%BC%8C%E4%BD%BF%E9%85%8D%E7%BD%AE%E7%94%9F%E6%95%88"><span class="nav-number"></span> <span class="nav-text">更新系统证书缓存，使配置生效</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%884%EF%BC%9A%E4%B8%B4%E6%97%B6%E7%A6%81%E7%94%A8%E6%8C%87%E5%AE%9A%E7%BD%91%E5%9D%80%E7%9A%84SSL%E9%AA%8C%E8%AF%81%EF%BC%88%E5%BA%94%E6%80%A5%E6%96%B9%E6%A1%88%EF%BC%89"><span class="nav-number">0.1.</span> <span class="nav-text">方案4：临时禁用指定网址的SSL验证（应急方案）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%AA%8C%E8%AF%81%E4%BF%AE%E5%A4%8D%E6%95%88%E6%9E%9C"><span class="nav-number">1.</span> <span class="nav-text">四、验证修复效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">2.</span> <span class="nav-text">五、常见问题与注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/04/Git/Git%E9%85%8D%E7%BD%AE%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Git配置自签名证书 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Git配置自签名证书
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-04 10:36:19" itemprop="dateCreated datePublished" datetime="2026-03-04T10:36:19+08:00">2026-03-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在企业内网环境中，部署Gitea私有代码仓库并配置自签名证书（或私有CA证书）及内网域名后，开发人员常遇到Git操作（如git fetch、git pull）抛出SSL证书验证错误：<code>SSL certificate problem: unable to get local issuer certificate</code>（OpenSSL验证错误码20）。本文围绕Git配置自签名证书的核心场景，从问题根源剖析、前置排查方法、针对性解决方案三个维度，提供严谨可行的落地思路，兼顾安全性与实操性，助力企业解决自签名证书验证异常问题。</p>
+<h2 id="一、问题背景与核心成因"><a href="#一、问题背景与核心成因" class="headerlink" title="一、问题背景与核心成因"></a>一、问题背景与核心成因</h2><p>内网环境中，为保障Gitea仓库访问的安全性，通常会配置私有CA签发的SSL证书（或自签名证书），以实现HTTPS协议的加密传输。Git底层依赖OpenSSL库执行证书验证流程，当OpenSSL无法从证书链中检索到本地信任的根证书（CA）时，将触发该验证错误。具体成因可归纳为以下三类：</p>
+<ul>
+<li><p>配置对象错误，误将服务器证书（server.crt）作为验证依据，未配置签发该服务器证书的根CA证书，导致OpenSSL无法验证证书来源的合法性；</p>
+</li>
+<li><p>证书链不完整，缺少中间CA证书或根CA证书，导致证书验证链条断裂，无法完成全链路信任校验；</p>
+</li>
+<li><p>Git配置存在优先级冲突，或证书路径、格式不符合规范，导致Git无法正确加载并应用指定证书。</p>
+</li>
+</ul>
+<p>需明确的是，OpenSSL验证错误码20（OpenSSL verify result: 20）是该问题的核心标识，其直接指向「无法获取本地颁发机构证书」，与证书过期、域名不匹配等其他SSL错误存在本质区别，需精准区分排查。</p>
+<h2 id="二、前置排查：快速定位问题根源"><a href="#二、前置排查：快速定位问题根源" class="headerlink" title="二、前置排查：快速定位问题根源"></a>二、前置排查：快速定位问题根源</h2><p>在开展问题修复前，建议先通过以下命令完成前置排查，明确问题核心诱因，避免盲目操作。所有命令可在Git Bash（Windows系统）或终端（Linux&#x2F;macOS系统）中执行。</p>
+<h3 id="1-查看Git-SSL相关配置"><a href="#1-查看Git-SSL相关配置" class="headerlink" title="1. 查看Git SSL相关配置"></a>1. 查看Git SSL相关配置</h3><p>首先核查Git是否已配置证书路径，同时确认是否存在配置冲突（如全局证书配置与指定网址证书配置冲突），执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看全局所有SSL相关配置</span></span><br><span class="line">git config --global --get-regexp ssl</span><br><span class="line"><span class="comment"># 查看全局所有HTTP相关配置（重点关注sslCAInfo、sslVerify等关键参数）</span></span><br><span class="line">git config --global --get-regexp http</span><br></pre></td></tr></table></figure>
+
+<p>若输出结果中包含<code>http.https://你的内网Gitea域名.sslCAInfo</code>，说明已为目标域名配置专属证书；若存在<code>http.sslCAInfo</code>（全局证书配置），需注意配置优先级——指定网址的证书配置优先级高于全局证书配置，避免因优先级冲突导致配置失效。</p>
+<h3 id="2-开启Git调试模式，查看证书验证详情"><a href="#2-开启Git调试模式，查看证书验证详情" class="headerlink" title="2. 开启Git调试模式，查看证书验证详情"></a>2. 开启Git调试模式，查看证书验证详情</h3><p>通过开启Git调试模式执行相关操作，可获取OpenSSL证书验证的完整日志，明确错误根源（如证书路径错误、证书链缺失等），执行命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 替换为内网Gitea仓库实际地址，执行fetch操作并输出调试日志</span></span><br><span class="line">GIT_CURL_VERBOSE=1 git fetch https://gitea.your-internal-domain.com/your/repo.git</span><br></pre></td></tr></table></figure>
+
+<p>日志分析需重点关注以下核心信息：</p>
+<ul>
+<li><p><code>CAfile</code>：Git实际加载的证书路径，确认该路径与配置的证书路径是否一致；</p>
+</li>
+<li><p><code>SSL certificate verify result</code>：除错误码20外，关注是否存在补充提示（如「certificate chain too short」提示证书链不完整）；</p>
+</li>
+<li><p><code>SSL: no alternative certificate subject name matches target host name</code>：若出现该提示，说明证书绑定的域名与访问域名不匹配，需核查证书配置的域名信息。</p>
+</li>
+</ul>
+<h2 id="三、针对性解决方案（按优先级排序）"><a href="#三、针对性解决方案（按优先级排序）" class="headerlink" title="三、针对性解决方案（按优先级排序）"></a>三、针对性解决方案（按优先级排序）</h2><p>以下解决方案按「安全合规性」优先级排序，优先推荐不降低系统安全性的方案，规避全局禁用SSL验证带来的安全风险，确保内网代码传输的安全性。</p>
+<h3 id="方案1：为指定网址配置根CA证书（推荐方案）"><a href="#方案1：为指定网址配置根CA证书（推荐方案）" class="headerlink" title="方案1：为指定网址配置根CA证书（推荐方案）"></a>方案1：为指定网址配置根CA证书（推荐方案）</h3><p>该方案为最精准、最安全的解决方案，仅为内网Gitea域名配置专属根CA证书，不影响其他Git仓库（如GitHub、GitLab）的SSL验证流程，符合企业内网安全管理规范。</p>
+<h4 id="操作步骤："><a href="#操作步骤：" class="headerlink" title="操作步骤："></a>操作步骤：</h4><ol>
+<li><p><strong>确认根CA证书有效性</strong>：使用文本编辑器（如记事本、vim）打开证书文件，若文件仅包含1段<code>-----BEGIN CERTIFICATE-----</code>内容，大概率为服务器证书（server.crt），需获取签发该服务器证书的根CA证书（通常命名为internal-ca-root.crt、ca.crt等）；</p>
+</li>
+<li><p><strong>配置指定网址的证书路径</strong>：<br> &#96;# 核心命令（替换为内网Gitea实际域名及根CA证书绝对路径）</p>
+</li>
+</ol>
+<p>git config –global http.<a target="_blank" rel="noopener" href="https://gitea.your-internal-domain.com.sslcainfo/">https://gitea.your-internal-domain.com.sslCAInfo</a> “&#x2F;绝对路径&#x2F;到&#x2F;internal-ca-root.crt”&#96;</p>
+<pre><code>- `--global`：该参数表示配置对当前用户所有Git仓库生效；若仅需对单个仓库生效，进入目标仓库目录后，移除该参数执行命令即可；
+
+- 证书路径必须采用**绝对路径**，相对路径可能导致Git无法正常加载证书，支持.crt、.pem、.cer三种格式；
+
+- 若Gitea服务运行在非默认HTTPS端口（如8443），需在域名后添加端口信息，配置命令如下：
+           `git config --global http.https://gitea.your-internal-domain.com:8443.sslCAInfo &quot;/绝对路径/到/internal-ca-root.crt&quot;`
+</code></pre>
+<ol start="3">
+<li><strong>验证配置生效状态</strong>：<br> &#96;# 查看指定网址的证书配置是否正确</li>
+</ol>
+<p>git config –global –get http.<a target="_blank" rel="noopener" href="https://gitea.your-internal-domain.com.sslcainfo`若命令输出配置的根ca证书绝对路径,说明配置已生效./">https://gitea.your-internal-domain.com.sslCAInfo`若命令输出配置的根CA证书绝对路径，说明配置已生效。</a></p>
+<h3 id="方案2：补齐证书链，配置完整证书文件"><a href="#方案2：补齐证书链，配置完整证书文件" class="headerlink" title="方案2：补齐证书链，配置完整证书文件"></a>方案2：补齐证书链，配置完整证书文件</h3><p>若SSL证书为「服务器证书+中间CA证书+根CA证书」的组合形式，仅配置根CA证书可能导致验证失败（部分环境下OpenSSL需校验完整的证书链），此时需合并证书链后再进行配置。</p>
+<h4 id="操作步骤：-1"><a href="#操作步骤：-1" class="headerlink" title="操作步骤："></a>操作步骤：</h4><ol>
+<li><strong>合并证书链</strong>：按「服务器证书 → 中间CA证书 → 根CA证书」的顺序，将三类证书合并至单个文件（顺序不可颠倒），执行命令如下：<br>&#96;# Linux&#x2F;macOS系统合并命令（替换为实际证书文件名）<br>cat server.crt intermediate-ca.crt root-ca.crt &gt; full-chain.crt</li>
+</ol>
+<h1 id="Windows系统（Git-Bash环境）合并命令"><a href="#Windows系统（Git-Bash环境）合并命令" class="headerlink" title="Windows系统（Git Bash环境）合并命令"></a>Windows系统（Git Bash环境）合并命令</h1><p>cat server.crt intermediate-ca.crt root-ca.crt &gt; full-chain.crt<code>合并完成后，打开full-chain.crt文件，应包含3段</code>—–BEGIN CERTIFICATE—–<code>与</code>—–END CERTIFICATE—–&#96;内容，确保证书链完整。</p>
+<ol start="2">
+<li><strong>配置合并后的完整证书</strong>：<br><code>git config --global http.https://gitea.your-internal-domain.com.sslCAInfo &quot;/绝对路径/到/full-chain.crt&quot;</code></li>
+</ol>
+<h3 id="方案3：将根CA证书导入系统信任库（彻底解决方案）"><a href="#方案3：将根CA证书导入系统信任库（彻底解决方案）" class="headerlink" title="方案3：将根CA证书导入系统信任库（彻底解决方案）"></a>方案3：将根CA证书导入系统信任库（彻底解决方案）</h3><p>若需实现多应用共享证书信任（如浏览器、curl、wget等应用均需访问内网Gitea仓库），可将根CA证书导入系统信任库，实现证书信任的全局生效，从根本上解决验证问题。</p>
+<h4 id="不同系统操作方法："><a href="#不同系统操作方法：" class="headerlink" title="不同系统操作方法："></a>不同系统操作方法：</h4><ul>
+<li><strong>Linux系统（Ubuntu&#x2F;Debian系列）</strong>：<br>  &#96;# 将根CA证书复制至系统信任证书目录</li>
+</ul>
+<p>sudo cp &#x2F;绝对路径&#x2F;到&#x2F;internal-ca-root.crt &#x2F;usr&#x2F;local&#x2F;share&#x2F;ca-certificates&#x2F;</p>
+<h1 id="更新系统证书缓存，使配置生效"><a href="#更新系统证书缓存，使配置生效" class="headerlink" title="更新系统证书缓存，使配置生效"></a>更新系统证书缓存，使配置生效</h1><p>sudo update-ca-certificates&#96;</p>
+<ul>
+<li><p><strong>Windows系统</strong>：</p>
+<ol>
+<li><p>右键点击根CA证书文件，选择「安装证书」选项；</p>
+</li>
+<li><p>选择「本地计算机」，点击「下一步」（需具备管理员权限）；</p>
+</li>
+<li><p>选择「将所有证书放入下列存储」，点击「浏览」，选中「受信任的根证书颁发机构」；</p>
+</li>
+<li><p>点击「完成」，重启Git Bash或终端，确保配置生效。</p>
+</li>
+</ol>
+</li>
+<li><p><strong>macOS系统</strong>：<br><code># 导入根CA证书至系统钥匙串（需管理员权限） sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /绝对路径/到/internal-ca-root.crt</code></p>
+</li>
+</ul>
+<p>根CA证书导入系统信任库后，Git将自动调用系统信任的证书完成验证，无需额外配置sslCAInfo参数（若此前已配置，可保留或通过git config –unset命令删除）。</p>
+<h3 id="方案4：临时禁用指定网址的SSL验证（应急方案）"><a href="#方案4：临时禁用指定网址的SSL验证（应急方案）" class="headerlink" title="方案4：临时禁用指定网址的SSL验证（应急方案）"></a>方案4：临时禁用指定网址的SSL验证（应急方案）</h3><p>若根CA证书丢失、证书链无法补齐等特殊情况导致上述方案无法落地，可临时禁用目标内网Gitea域名的SSL验证。该方案仅对指定域名生效，相较于全局禁用SSL验证，安全性更高，仅建议作为应急处置手段。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 仅禁用内网Gitea域名的SSL证书验证</span></span><br><span class="line">git config --global http.https://gitea.your-internal-domain.com.sslVerify <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<p>⚠️ 注意：该方案会关闭目标域名的SSL证书验证功能，存在数据传输安全风险，问题解决后需及时通过git config –unset命令恢复证书验证配置，保障代码传输安全。</p>
+<h2 id="四、验证修复效果"><a href="#四、验证修复效果" class="headerlink" title="四、验证修复效果"></a>四、验证修复效果</h2><p>配置完成后，建议通过以下命令验证问题是否彻底解决，确保证书验证流程正常：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 用curl验证证书有效性（替换为内网Gitea域名及根CA证书路径）</span></span><br><span class="line">curl --cacert /绝对路径/到/internal-ca-root.crt -v https://gitea.your-internal-domain.com</span><br><span class="line"><span class="comment"># 2. 执行Git操作，验证访问是否正常</span></span><br><span class="line">git fetch</span><br></pre></td></tr></table></figure>
+
+<p>若curl命令输出「SSL certificate verify ok」，且git fetch操作无SSL验证错误，说明证书验证功能已恢复正常。</p>
+<h2 id="五、常见问题与注意事项"><a href="#五、常见问题与注意事项" class="headerlink" title="五、常见问题与注意事项"></a>五、常见问题与注意事项</h2><ul>
+<li><p><strong>证书路径错误</strong>：配置时务必使用绝对路径，Windows系统在Git Bash环境中需采用类Linux路径格式（如<code>/c/Users/用户名/证书路径</code>），不可使用Windows原生路径（如<code>C:\Users\用户名\证书路径</code>），避免路径解析失败；</p>
+</li>
+<li><p><strong>配置优先级冲突</strong>：Git证书配置优先级遵循「仓库本地配置（无–global参数）&gt; 用户全局配置（–global参数）&gt; 系统级配置」，若存在多维度配置冲突，可通过git config –unset命令删除无用配置，确保目标配置生效；</p>
+</li>
+<li><p><strong>证书格式错误</strong>：确保证书为PEM文本格式（包含<code>-----BEGIN CERTIFICATE-----</code>与<code>-----END CERTIFICATE-----</code>标识），避免使用DER二进制格式，否则将导致Git无法解析证书；</p>
+</li>
+<li><p><strong>Git版本兼容性</strong>：低版本Git可能存在证书配置兼容问题，建议将Git版本升级至2.30及以上（可通过<code>git --version</code>命令查看当前版本），提升配置兼容性与稳定性。</p>
+</li>
+</ul>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>Git SSL证书错误（unable to get local issuer certificate，错误码20）的核心诱因是「OpenSSL无法检索到本地信任的根CA证书」，问题解决的关键在于：<strong>确保配置对象为根CA证书（而非服务器证书），或补齐完整的证书验证链</strong>。</p>
+<p>解决方案推荐优先级：方案1（指定网址配置根CA证书）→ 方案2（补齐证书链）→ 方案3（导入系统信任库）→ 方案4（临时禁用验证）。其中，方案1与方案2兼顾安全性与精准性，是企业内网环境的最优落地方案；方案3适用于多应用共享证书信任的场景；方案4仅作为应急处置手段，不可长期使用。</p>
+<p>通过本文所述的排查方法与解决方案，可有效解决内网Gitea仓库的Git SSL证书验证问题，保障内网代码传输的安全性与稳定性，为企业私有代码仓库的正常运行提供支撑。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6/" rel="tag"># 自签名证书</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/03/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/%E5%9F%BA%E4%BA%8ERedis%E5%AE%9E%E7%8E%B0Device%20Twin%E5%AD%98%E5%82%A8/" rel="prev" title="基于Redis实现Device Twin存储">
+                  <i class="fa fa-angle-left"></i> 基于Redis实现Device Twin存储
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/04/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/FastAPI+Vue%E5%85%A8%E6%A0%88%E9%83%A8%E7%BD%B2%E5%AE%9E%E6%88%98/" rel="next" title="FastAPI+Vue全栈部署实战">
+                  FastAPI+Vue全栈部署实战 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

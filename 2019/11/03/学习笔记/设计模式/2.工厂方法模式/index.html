@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="工厂方法模式是GoF 23种经典创建型设计模式之一，核心价值在于解耦对象的创建与使用，通过抽象化设计满足“开闭原则”，让系统在不修改原有代码的前提下灵活扩展产品类型。本文将从模式核心结构入手，详解其工作原理，提供C#、Python、Golang、C++及纯C语言的落地实现，并分析优缺点与适用场景，帮助开发者快速掌握该模式的实际应用。 一、工厂方法模式的核心结构工厂方法模式通过分层设计，将产品创建逻">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工厂方法模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/03/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2.%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="工厂方法模式是GoF 23种经典创建型设计模式之一，核心价值在于解耦对象的创建与使用，通过抽象化设计满足“开闭原则”，让系统在不修改原有代码的前提下灵活扩展产品类型。本文将从模式核心结构入手，详解其工作原理，提供C#、Python、Golang、C++及纯C语言的落地实现，并分析优缺点与适用场景，帮助开发者快速掌握该模式的实际应用。 一、工厂方法模式的核心结构工厂方法模式通过分层设计，将产品创建逻">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.425Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="工厂方法">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/03/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2.%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/03/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2.%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/","path":"2019/11/03/学习笔记/设计模式/2.工厂方法模式/","title":"工厂方法模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>工厂方法模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、工厂方法模式的核心结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%A0%B8%E5%BF%83%E8%A7%92%E8%89%B2%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 核心角色定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心工作流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%9F%E4%B8%80%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87%E5%88%9B%E5%BB%BA%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现（统一场景：电子设备创建）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8A%BD%E8%B1%A1%E7%B1%BB-%E7%BB%A7%E6%89%BF%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（抽象类+继承）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88abc%E6%A8%A1%E5%9D%97-%E5%8A%A8%E6%80%81%E7%89%B9%E6%80%A7%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（abc模块+动态特性）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Golang-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8E%A5%E5%8F%A3-%E7%BB%93%E6%9E%84%E4%BD%93%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Golang 实现（接口+结构体）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BA%AF%E8%99%9A%E5%87%BD%E6%95%B0-%E7%BB%A7%E6%89%BF%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（纯虚函数+继承）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、工厂方法模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、工厂方法模式的使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/03/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/2.%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="工厂方法模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          工厂方法模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-03 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-03T00:00:00+08:00">2019-11-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>工厂方法模式是GoF 23种经典创建型设计模式之一，核心价值在于解耦对象的创建与使用，通过抽象化设计满足“开闭原则”，让系统在不修改原有代码的前提下灵活扩展产品类型。本文将从模式核心结构入手，详解其工作原理，提供C#、Python、Golang、C++及纯C语言的落地实现，并分析优缺点与适用场景，帮助开发者快速掌握该模式的实际应用。</p>
+<h2 id="一、工厂方法模式的核心结构"><a href="#一、工厂方法模式的核心结构" class="headerlink" title="一、工厂方法模式的核心结构"></a>一、工厂方法模式的核心结构</h2><p>工厂方法模式通过分层设计，将产品创建逻辑抽象化，核心包含4个角色，各角色职责清晰、分工明确，共同实现“创建与使用分离”的目标，具体结构如下：</p>
+<h3 id="1-1-核心角色定义"><a href="#1-1-核心角色定义" class="headerlink" title="1.1 核心角色定义"></a>1.1 核心角色定义</h3><ul>
+<li><p><strong>抽象产品（Abstract Product）</strong>：定义产品的统一规范，描述产品的核心行为与属性，是所有具体产品的父类（或接口）。例如“电子设备”抽象类，定义“开机”“关机”等通用方法。</p>
+</li>
+<li><p><strong>具体产品（Concrete Product）</strong>：实现抽象产品的接口，是工厂方法模式的最终创建目标，与具体工厂一一对应。例如“手机”“电脑”，均继承自“电子设备”，并实现各自的开机、关机逻辑。</p>
+</li>
+<li><p><strong>抽象工厂（Abstract Factory）</strong>：定义创建产品的抽象接口（仅声明创建方法，不实现具体逻辑），是所有具体工厂的父类（或接口），负责约束具体工厂的行为。</p>
+</li>
+<li><p><strong>具体工厂（Concrete Factory）</strong>：继承或实现抽象工厂，重写创建产品的方法，负责具体产品的实例化，是连接抽象产品与具体产品的桥梁。</p>
+</li>
+</ul>
+<h3 id="1-2-核心工作流程"><a href="#1-2-核心工作流程" class="headerlink" title="1.2 核心工作流程"></a>1.2 核心工作流程</h3><ol>
+<li>客户端无需直接创建产品，仅需依赖抽象工厂；2. 客户端根据需求选择具体工厂；3. 具体工厂调用自身的创建方法，生成对应的具体产品；4. 客户端通过抽象产品接口使用产品，无需关注产品的具体实现细节。</li>
+</ol>
+<p>这种流程设计的核心优势的是“扩展无侵入”——新增产品时，只需新增具体产品类和对应具体工厂类，无需修改抽象工厂、已有具体工厂及客户端代码，完美契合开闭原则。</p>
+<h2 id="二、多语言实现（统一场景：电子设备创建）"><a href="#二、多语言实现（统一场景：电子设备创建）" class="headerlink" title="二、多语言实现（统一场景：电子设备创建）"></a>二、多语言实现（统一场景：电子设备创建）</h2><p>以下以“电子设备创建”为统一场景（抽象产品：电子设备；具体产品：手机、电脑；抽象工厂：电子设备工厂；具体工厂：手机工厂、电脑工厂），分别实现工厂方法模式，覆盖5种主流语言，兼顾语法特性与模式核心。</p>
+<h3 id="2-1-C-实现（抽象类-继承）"><a href="#2-1-C-实现（抽象类-继承）" class="headerlink" title="2.1 C# 实现（抽象类+继承）"></a>2.1 C# 实现（抽象类+继承）</h3><p>C#作为强类型面向对象语言，通过抽象类+继承天然适配工厂方法模式，语法简洁且类型安全，适合企业级开发场景。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 抽象产品：电子设备</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">ElectronicDevice</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 抽象方法：开机</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">PowerOn</span>()</span>;</span><br><span class="line">    <span class="comment">// 抽象方法：关机</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">PowerOff</span>()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品1：手机</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MobilePhone</span> : <span class="title">ElectronicDevice</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PowerOn</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;手机开机，启动操作系统...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PowerOff</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;手机关机，保存数据...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品2：电脑</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Computer</span> : <span class="title">ElectronicDevice</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PowerOn</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;电脑开机，加载驱动程序...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">PowerOff</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;电脑关机，关闭后台进程...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 抽象工厂：电子设备工厂</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">ElectronicDeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 抽象创建方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> ElectronicDevice <span class="title">CreateDevice</span>()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂1：手机工厂</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MobilePhoneFactory</span> : <span class="title">ElectronicDeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> ElectronicDevice <span class="title">CreateDevice</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;手机工厂：创建手机实例&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MobilePhone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂2：电脑工厂</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ComputerFactory</span> : <span class="title">ElectronicDeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> ElectronicDevice <span class="title">CreateDevice</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;电脑工厂：创建电脑实例&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Computer();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Client</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 1. 创建手机工厂，获取手机产品</span></span><br><span class="line">        ElectronicDeviceFactory mobileFactory = <span class="keyword">new</span> MobilePhoneFactory();</span><br><span class="line">        ElectronicDevice mobile = mobileFactory.CreateDevice();</span><br><span class="line">        mobile.PowerOn();</span><br><span class="line">        mobile.PowerOff();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 创建电脑工厂，获取电脑产品</span></span><br><span class="line">        ElectronicDeviceFactory computerFactory = <span class="keyword">new</span> ComputerFactory();</span><br><span class="line">        ElectronicDevice computer = computerFactory.CreateDevice();</span><br><span class="line">        computer.PowerOn();</span><br><span class="line">        computer.PowerOff();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（abc模块-动态特性）"><a href="#2-2-Python-实现（abc模块-动态特性）" class="headerlink" title="2.2 Python 实现（abc模块+动态特性）"></a>2.2 Python 实现（abc模块+动态特性）</h3><p>Python无严格的抽象类语法，通过abc模块实现抽象接口，结合动态语言的灵活性，简化工厂与产品的定义，代码简洁易读。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 抽象产品：电子设备</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElectronicDevice</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：开机&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：关机&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 具体产品1：手机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MobilePhone</span>(<span class="title class_ inherited__">ElectronicDevice</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;手机开机，启动操作系统...&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;手机关机，保存数据...&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 具体产品2：电脑</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Computer</span>(<span class="title class_ inherited__">ElectronicDevice</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_on</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;电脑开机，加载驱动程序...&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">power_off</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;电脑关机，关闭后台进程...&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 抽象工厂：电子设备工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElectronicDeviceFactory</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_device</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象创建方法&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 具体工厂1：手机工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MobilePhoneFactory</span>(<span class="title class_ inherited__">ElectronicDeviceFactory</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_device</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;手机工厂：创建手机实例&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> MobilePhone()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 具体工厂2：电脑工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ComputerFactory</span>(<span class="title class_ inherited__">ElectronicDeviceFactory</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_device</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;电脑工厂：创建电脑实例&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> Computer()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 获取手机产品</span></span><br><span class="line">    mobile_factory = MobilePhoneFactory()</span><br><span class="line">    mobile = mobile_factory.create_device()</span><br><span class="line">    mobile.power_on()</span><br><span class="line">    mobile.power_off()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取电脑产品</span></span><br><span class="line">    computer_factory = ComputerFactory()</span><br><span class="line">    computer = computer_factory.create_device()</span><br><span class="line">    computer.power_on()</span><br><span class="line">    computer.power_off()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Golang-实现（接口-结构体）"><a href="#2-3-Golang-实现（接口-结构体）" class="headerlink" title="2.3 Golang 实现（接口+结构体）"></a>2.3 Golang 实现（接口+结构体）</h3><p>Golang无类继承特性，通过“接口+结构体”实现多态，核心是定义产品接口和工厂接口，结构体实现接口方法，贴合Go语言“面向接口编程”的设计理念。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 抽象产品：电子设备接口</span></span><br><span class="line"><span class="keyword">type</span> ElectronicDevice <span class="keyword">interface</span> &#123;</span><br><span class="line">    PowerOn()  <span class="comment">// 开机方法</span></span><br><span class="line">    PowerOff() <span class="comment">// 关机方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品1：手机</span></span><br><span class="line"><span class="keyword">type</span> MobilePhone <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *MobilePhone)</span></span> PowerOn() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;手机开机，启动操作系统...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *MobilePhone)</span></span> PowerOff() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;手机关机，保存数据...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品2：电脑</span></span><br><span class="line"><span class="keyword">type</span> Computer <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Computer)</span></span> PowerOn() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;电脑开机，加载驱动程序...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Computer)</span></span> PowerOff() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;电脑关机，关闭后台进程...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 抽象工厂：电子设备工厂接口</span></span><br><span class="line"><span class="keyword">type</span> ElectronicDeviceFactory <span class="keyword">interface</span> &#123;</span><br><span class="line">    CreateDevice() ElectronicDevice <span class="comment">// 创建产品方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂1：手机工厂</span></span><br><span class="line"><span class="keyword">type</span> MobilePhoneFactory <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *MobilePhoneFactory)</span></span> CreateDevice() ElectronicDevice &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;手机工厂：创建手机实例&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> &amp;MobilePhone&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂2：电脑工厂</span></span><br><span class="line"><span class="keyword">type</span> ComputerFactory <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ComputerFactory)</span></span> CreateDevice() ElectronicDevice &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;电脑工厂：创建电脑实例&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> &amp;Computer&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// 获取手机产品</span></span><br><span class="line">    <span class="keyword">var</span> mobileFactory ElectronicDeviceFactory = &amp;MobilePhoneFactory&#123;&#125;</span><br><span class="line">    mobile := mobileFactory.CreateDevice()</span><br><span class="line">    mobile.PowerOn()</span><br><span class="line">    mobile.PowerOff()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取电脑产品</span></span><br><span class="line">    <span class="keyword">var</span> computerFactory ElectronicDeviceFactory = &amp;ComputerFactory&#123;&#125;</span><br><span class="line">    computer := computerFactory.CreateDevice()</span><br><span class="line">    computer.PowerOn()</span><br><span class="line">    computer.PowerOff()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（纯虚函数-继承）"><a href="#2-4-C-实现（纯虚函数-继承）" class="headerlink" title="2.4 C++ 实现（纯虚函数+继承）"></a>2.4 C++ 实现（纯虚函数+继承）</h3><p>C++通过纯虚函数定义抽象接口（抽象产品、抽象工厂），结合继承实现具体产品与具体工厂，需注意虚析构函数的定义，避免内存泄漏，适合高性能、底层开发场景。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 抽象产品：电子设备</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElectronicDevice</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 纯虚函数：开机</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PowerOn</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 纯虚函数：关机</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PowerOff</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 虚析构函数，避免内存泄漏</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">ElectronicDevice</span>() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品1：手机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MobilePhone</span> : <span class="keyword">public</span> ElectronicDevice &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">PowerOn</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;手机开机，启动操作系统...&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">PowerOff</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;手机关机，保存数据...&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品2：电脑</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Computer</span> : <span class="keyword">public</span> ElectronicDevice &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">PowerOn</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;电脑开机，加载驱动程序...&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">PowerOff</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;电脑关机，关闭后台进程...&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 抽象工厂：电子设备工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElectronicDeviceFactory</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 纯虚创建方法</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ElectronicDevice* <span class="title">CreateDevice</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 虚析构函数</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">ElectronicDeviceFactory</span>() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂1：手机工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MobilePhoneFactory</span> : <span class="keyword">public</span> ElectronicDeviceFactory &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ElectronicDevice* <span class="title">CreateDevice</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;手机工厂：创建手机实例&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">MobilePhone</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂2：电脑工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ComputerFactory</span> : <span class="keyword">public</span> ElectronicDeviceFactory &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ElectronicDevice* <span class="title">CreateDevice</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;电脑工厂：创建电脑实例&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Computer</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取手机产品</span></span><br><span class="line">    ElectronicDeviceFactory* mobileFactory = <span class="keyword">new</span> <span class="built_in">MobilePhoneFactory</span>();</span><br><span class="line">    ElectronicDevice* mobile = mobileFactory-&gt;<span class="built_in">CreateDevice</span>();</span><br><span class="line">    mobile-&gt;<span class="built_in">PowerOn</span>();</span><br><span class="line">    mobile-&gt;<span class="built_in">PowerOff</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取电脑产品</span></span><br><span class="line">    ElectronicDeviceFactory* computerFactory = <span class="keyword">new</span> <span class="built_in">ComputerFactory</span>();</span><br><span class="line">    ElectronicDevice* computer = computerFactory-&gt;<span class="built_in">CreateDevice</span>();</span><br><span class="line">    computer-&gt;<span class="built_in">PowerOn</span>();</span><br><span class="line">    computer-&gt;<span class="built_in">PowerOff</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存，避免泄漏</span></span><br><span class="line">    <span class="keyword">delete</span> mobile;</span><br><span class="line">    <span class="keyword">delete</span> mobileFactory;</span><br><span class="line">    <span class="keyword">delete</span> computer;</span><br><span class="line">    <span class="keyword">delete</span> computerFactory;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针）"><a href="#2-5-纯C语言实现（结构体-函数指针）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针）"></a>2.5 纯C语言实现（结构体+函数指针）</h3><p>纯C语言无面向对象特性，通过“结构体嵌套+函数指针”模拟抽象接口与继承，核心是将产品行为、工厂创建逻辑封装为函数指针，实现类似多态的效果，适合底层嵌入式开发。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 抽象产品：电子设备（结构体+函数指针模拟抽象方法）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">ElectronicDevice</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*PowerOn)(<span class="keyword">struct</span> _ElectronicDevice*);  <span class="comment">// 开机函数指针</span></span><br><span class="line">    <span class="type">void</span> (*PowerOff)(<span class="keyword">struct</span> _ElectronicDevice*); <span class="comment">// 关机函数指针</span></span><br><span class="line">&#125; ElectronicDevice;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品1：手机</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">MobilePhone</span> &#123;</span></span><br><span class="line">    ElectronicDevice base; <span class="comment">// 嵌套基结构体，模拟继承</span></span><br><span class="line">&#125; MobilePhone;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手机的开机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">MobilePhone_PowerOn</span><span class="params">(ElectronicDevice* device)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;手机开机，启动操作系统...\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手机的关机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">MobilePhone_PowerOff</span><span class="params">(ElectronicDevice* device)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;手机关机，保存数据...\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 具体产品2：电脑</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">Computer</span> &#123;</span></span><br><span class="line">    ElectronicDevice base; <span class="comment">// 嵌套基结构体，模拟继承</span></span><br><span class="line">&#125; Computer;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 电脑的开机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Computer_PowerOn</span><span class="params">(ElectronicDevice* device)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;电脑开机，加载驱动程序...\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 电脑的关机实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Computer_PowerOff</span><span class="params">(ElectronicDevice* device)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;电脑关机，关闭后台进程...\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 抽象工厂：电子设备工厂（结构体+函数指针模拟创建方法）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">ElectronicDeviceFactory</span> &#123;</span></span><br><span class="line">    ElectronicDevice* (*CreateDevice)(<span class="keyword">struct</span> _ElectronicDeviceFactory*);</span><br><span class="line">&#125; ElectronicDeviceFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂1：手机工厂</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">MobilePhoneFactory</span> &#123;</span></span><br><span class="line">    ElectronicDeviceFactory base; <span class="comment">// 嵌套基结构体，模拟继承</span></span><br><span class="line">&#125; MobilePhoneFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手机工厂创建手机实例</span></span><br><span class="line">ElectronicDevice* <span class="title function_">MobilePhoneFactory_CreateDevice</span><span class="params">(ElectronicDeviceFactory* factory)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;手机工厂：创建手机实例\n&quot;</span>);</span><br><span class="line">    MobilePhone* mobile = (MobilePhone*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(MobilePhone));</span><br><span class="line">    <span class="comment">// 绑定函数指针（实现抽象方法）</span></span><br><span class="line">    mobile-&gt;base.PowerOn = MobilePhone_PowerOn;</span><br><span class="line">    mobile-&gt;base.PowerOff = MobilePhone_PowerOff;</span><br><span class="line">    <span class="keyword">return</span> (ElectronicDevice*)mobile;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 具体工厂2：电脑工厂</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">ComputerFactory</span> &#123;</span></span><br><span class="line">    ElectronicDeviceFactory base; <span class="comment">// 嵌套基结构体，模拟继承</span></span><br><span class="line">&#125; ComputerFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 电脑工厂创建电脑实例</span></span><br><span class="line">ElectronicDevice* <span class="title function_">ComputerFactory_CreateDevice</span><span class="params">(ElectronicDeviceFactory* factory)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;电脑工厂：创建电脑实例\n&quot;</span>);</span><br><span class="line">    Computer* computer = (Computer*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Computer));</span><br><span class="line">    <span class="comment">// 绑定函数指针（实现抽象方法）</span></span><br><span class="line">    computer-&gt;base.PowerOn = Computer_PowerOn;</span><br><span class="line">    computer-&gt;base.PowerOff = Computer_PowerOff;</span><br><span class="line">    <span class="keyword">return</span> (ElectronicDevice*)computer;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 获取手机产品</span></span><br><span class="line">    MobilePhoneFactory mobileFactory;</span><br><span class="line">    mobileFactory.base.CreateDevice = MobilePhoneFactory_CreateDevice;</span><br><span class="line">    ElectronicDevice* mobile = mobileFactory.base.CreateDevice((ElectronicDeviceFactory*)&amp;mobileFactory);</span><br><span class="line">    mobile-&gt;PowerOn(mobile);</span><br><span class="line">    mobile-&gt;PowerOff(mobile);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 获取电脑产品</span></span><br><span class="line">    ComputerFactory computerFactory;</span><br><span class="line">    computerFactory.base.CreateDevice = ComputerFactory_CreateDevice;</span><br><span class="line">    ElectronicDevice* computer = computerFactory.base.CreateDevice((ElectronicDeviceFactory*)&amp;computerFactory);</span><br><span class="line">    computer-&gt;PowerOn(computer);</span><br><span class="line">    computer-&gt;PowerOff(computer);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存</span></span><br><span class="line">    <span class="built_in">free</span>(mobile);</span><br><span class="line">    <span class="built_in">free</span>(computer);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、工厂方法模式的优缺点"><a href="#三、工厂方法模式的优缺点" class="headerlink" title="三、工厂方法模式的优缺点"></a>三、工厂方法模式的优缺点</h2><p>工厂方法模式是在简单工厂模式基础上的优化，解决了简单工厂“扩展需修改代码”的核心问题，但同时也带来了一定的复杂度，需结合场景合理选择。</p>
+<h3 id="3-1-优点"><a href="#3-1-优点" class="headerlink" title="3.1 优点"></a>3.1 优点</h3><ul>
+<li><p><strong>符合开闭原则</strong>：新增产品时，仅需新增具体产品类和对应具体工厂类，无需修改原有抽象工厂、已有工厂及客户端代码，降低扩展成本。</p>
+</li>
+<li><p><strong>解耦创建与使用</strong>：客户端仅依赖抽象工厂和抽象产品，无需了解产品的具体创建逻辑（如实例化细节、初始化步骤），降低代码耦合度。</p>
+</li>
+<li><p><strong>支持多态扩展</strong>：通过抽象接口实现多态，具体工厂可灵活返回不同的具体产品，客户端无需修改代码即可使用新的产品。</p>
+</li>
+<li><p><strong>责任单一</strong>：每个具体工厂仅负责创建一种具体产品，符合单一职责原则，便于代码维护和调试。</p>
+</li>
+</ul>
+<h3 id="3-2-缺点"><a href="#3-2-缺点" class="headerlink" title="3.2 缺点"></a>3.2 缺点</h3><ul>
+<li><p><strong>增加系统复杂度</strong>：每新增一个产品，需同时新增具体产品类和具体工厂类，导致系统类数量增多，增加代码量和维护成本。</p>
+</li>
+<li><p><strong>层级冗余</strong>：相比简单工厂模式，多了抽象工厂和具体工厂的分层，对于简单场景（产品类型极少、无需扩展），显得过于繁琐。</p>
+</li>
+<li><p><strong>理解成本提升</strong>：需理解抽象接口、多态等概念，对于新手而言，上手难度高于简单工厂模式。</p>
+</li>
+</ul>
+<h2 id="四、工厂方法模式的使用场景"><a href="#四、工厂方法模式的使用场景" class="headerlink" title="四、工厂方法模式的使用场景"></a>四、工厂方法模式的使用场景</h2><p>工厂方法模式适合“产品类型需灵活扩展、需隐藏创建细节”的场景，具体应用如下：</p>
+<ul>
+<li><p><strong>产品类型稳定且需扩展</strong>：如电商系统的支付方式（支付宝、微信支付、银行卡支付），新增支付方式时，仅需新增支付产品类和支付工厂类，无需修改原有支付逻辑。</p>
+</li>
+<li><p><strong>隐藏产品创建细节</strong>：如数据库连接池、日志管理器，客户端无需关心连接&#x2F;日志实例的创建、初始化、销毁细节，仅通过工厂获取实例即可。</p>
+</li>
+<li><p><strong>框架&#x2F;库设计</strong>：框架开发中，为了让用户能扩展自定义产品，通常会提供抽象工厂接口，用户通过实现具体工厂和产品，集成到框架中（如.NET的HandlerFactory、Spring的BeanFactory）。</p>
+</li>
+<li><p><strong>多环境适配</strong>：如不同环境（开发、测试、生产）的配置实例创建，通过不同的具体工厂，返回适配对应环境的配置产品，客户端无需修改代码即可切换环境。</p>
+</li>
+</ul>
+<p>注意：若产品类型极少（如仅1-2种）且无需扩展，建议使用简单工厂模式；若需支持多系列产品（如手机+电脑+平板，每种产品又有不同品牌），建议使用抽象工厂模式。</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>工厂方法模式的核心是“抽象化创建逻辑，通过多态实现扩展”，其本质是将对象创建的责任委托给具体工厂，实现“创建与使用分离”，核心价值在于满足开闭原则，提升系统的灵活性和可维护性。</p>
+<p>从多语言实现来看，尽管不同语言的语法差异显著，但核心思想完全一致：</p>
+<ul>
+<li><p>面向对象语言（C#、Python、Golang、C++）：通过接口&#x2F;抽象类定义规范，结合继承&#x2F;结构体实现具体逻辑，利用多态特性实现扩展，贴合模式原生设计。</p>
+</li>
+<li><p>纯C语言：通过结构体嵌套+函数指针模拟面向对象的继承和多态，核心是封装行为和创建逻辑，满足底层开发的需求。</p>
+</li>
+</ul>
+<p>在实际开发中，选择工厂方法模式的关键的是“判断产品是否需要扩展”：若产品固定不变，简单工厂模式更简洁；若产品需灵活扩展，工厂方法模式是更优选择。同时，需权衡系统复杂度与扩展性，避免过度设计——无需为了使用设计模式而强行引入分层，适合的场景才是最好的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/" rel="tag"># 工厂方法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/02/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/1.%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" rel="prev" title="单例模式">
+                  <i class="fa fa-angle-left"></i> 单例模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" rel="next" title="简单工厂模式">
+                  简单工厂模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

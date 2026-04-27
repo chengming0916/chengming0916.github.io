@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="OpenCV进行RTSP推流1 概述将 OpenCV 处理后的图像直接进行 RTSP 推流，支持多种实现方案。  2 测试命令2.1 推流本地文件1gst-launch-1.0 filesrc location&#x3D;D:\5.mp4 ! decodebin ! videoconvert ! x264enc ! rtspclientsink location&#x3D;rtsp:&#x2F;&#x2F;127.0.0.1:8554&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenCV进行RTSP推流">
+<meta property="og:url" content="http://chengming0916.github.io/2024/11/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/OpenCV%E8%BF%9B%E8%A1%8CRTSP%E6%8E%A8%E6%B5%81/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="OpenCV进行RTSP推流1 概述将 OpenCV 处理后的图像直接进行 RTSP 推流，支持多种实现方案。  2 测试命令2.1 推流本地文件1gst-launch-1.0 filesrc location&#x3D;D:\5.mp4 ! decodebin ! videoconvert ! x264enc ! rtspclientsink location&#x3D;rtsp:&#x2F;&#x2F;127.0.0.1:8554&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-11-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.525Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="OpenCV">
+<meta property="article:tag" content="RTSP">
+<meta property="article:tag" content="推流">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/11/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/OpenCV%E8%BF%9B%E8%A1%8CRTSP%E6%8E%A8%E6%B5%81/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/11/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/OpenCV%E8%BF%9B%E8%A1%8CRTSP%E6%8E%A8%E6%B5%81/","path":"2024/11/24/编程技术/OpenCV进行RTSP推流/","title":"OpenCV进行RTSP推流"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>OpenCV进行RTSP推流 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OpenCV%E8%BF%9B%E8%A1%8CRTSP%E6%8E%A8%E6%B5%81"><span class="nav-number">1.</span> <span class="nav-text">OpenCV进行RTSP推流</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">1 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4"><span class="nav-number">1.2.</span> <span class="nav-text">2 测试命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%8E%A8%E6%B5%81%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 推流本地文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%92%AD%E6%94%BE%E6%8E%A8%E6%B5%81%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 播放推流内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%96%B9%E6%A1%88%E4%B8%80%EF%BC%9AGStreamer%E6%8E%A8%E6%B5%81"><span class="nav-number">1.3.</span> <span class="nav-text">3 方案一：GStreamer推流</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 核心代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 流程说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%96%B9%E6%A1%88%E4%BA%8C%EF%BC%9AFFmpeg%E6%8E%A8%E6%B5%81"><span class="nav-number">1.4.</span> <span class="nav-text">4 方案二：FFmpeg推流</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 头文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E7%B1%BB%E5%AE%9A%E4%B9%89"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 类定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3 初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E7%BC%96%E7%A0%81%E4%B8%8E%E5%8F%91%E9%80%81"><span class="nav-number">1.4.4.</span> <span class="nav-text">4.4 编码与发送</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-%E6%B7%BB%E5%8A%A0%E5%B8%A7"><span class="nav-number">1.4.5.</span> <span class="nav-text">4.5 添加帧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-%E8%B5%84%E6%BA%90%E6%B8%85%E7%90%86"><span class="nav-number">1.4.6.</span> <span class="nav-text">4.6 资源清理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%96%B9%E6%A1%88%E4%B8%89%EF%BC%9AOpenCV-GStreamer%E5%90%8E%E7%AB%AF"><span class="nav-number">1.5.</span> <span class="nav-text">5 方案三：OpenCV GStreamer后端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%8E%A8%E6%B5%81%E4%BB%A3%E7%A0%81"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 推流代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 优缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="nav-number">1.6.</span> <span class="nav-text">6 测试代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E8%A7%86%E9%A2%91%E6%BA%90%E6%B5%8B%E8%AF%95"><span class="nav-number">1.6.1.</span> <span class="nav-text">6.1 视频源测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-GStreamer%E5%91%BD%E4%BB%A4"><span class="nav-number">1.6.2.</span> <span class="nav-text">6.2 GStreamer命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">7 总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/11/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/OpenCV%E8%BF%9B%E8%A1%8CRTSP%E6%8E%A8%E6%B5%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="OpenCV进行RTSP推流 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenCV进行RTSP推流
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-11-24 00:00:00" itemprop="dateCreated datePublished" datetime="2024-11-24T00:00:00+08:00">2024-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="OpenCV进行RTSP推流"><a href="#OpenCV进行RTSP推流" class="headerlink" title="OpenCV进行RTSP推流"></a>OpenCV进行RTSP推流</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h2><p>将 OpenCV 处理后的图像直接进行 RTSP 推流，支持多种实现方案。</p>
+<hr>
+<h2 id="2-测试命令"><a href="#2-测试命令" class="headerlink" title="2 测试命令"></a>2 测试命令</h2><h3 id="2-1-推流本地文件"><a href="#2-1-推流本地文件" class="headerlink" title="2.1 推流本地文件"></a>2.1 推流本地文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gst-launch-1.0 filesrc location=D:\5.mp4 ! decodebin ! videoconvert ! x264enc ! rtspclientsink location=rtsp://127.0.0.1:8554/live</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-播放推流内容"><a href="#2-2-播放推流内容" class="headerlink" title="2.2 播放推流内容"></a>2.2 播放推流内容</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gst-launch-1.0 rtspsrc location=rtsp://127.0.0.1:8554/live ! rtph264depay ! h264parse ! avdec_h264 ! autovideosink</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-方案一：GStreamer推流"><a href="#3-方案一：GStreamer推流" class="headerlink" title="3 方案一：GStreamer推流"></a>3 方案一：GStreamer推流</h2><h3 id="3-1-核心代码"><a href="#3-1-核心代码" class="headerlink" title="3.1 核心代码"></a>3.1 核心代码</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gst/gst.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gst/app/gstappsrc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/opencv.hpp&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RTSP_SERVER_URL <span class="string">&quot;rtsp://127.0.0.1:8554/live&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CAPTURE_WIDTH 640</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CAPTURE_HEIGHT 480</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CAPTURE_FPS 30</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FRAME_INTERVAL_MS (1000 / CAPTURE_FPS)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 初始化GStreamer</span></span><br><span class="line">    <span class="built_in">gst_init</span>(&amp;argc, &amp;argv);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;3e&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 创建管道</span></span><br><span class="line">    GstElement* pipeline = <span class="built_in">gst_pipeline_new</span>(<span class="string">&quot;rtsp-pipeline&quot;</span>);</span><br><span class="line">    GstElement* appsrc = <span class="built_in">gst_element_factory_make</span>(<span class="string">&quot;appsrc&quot;</span>, <span class="string">&quot;app-source&quot;</span>);</span><br><span class="line">    GstElement* videoconvert = <span class="built_in">gst_element_factory_make</span>(<span class="string">&quot;videoconvert&quot;</span>, <span class="string">&quot;convert&quot;</span>);</span><br><span class="line">    GstElement* x264enc = <span class="built_in">gst_element_factory_make</span>(<span class="string">&quot;x264enc&quot;</span>, <span class="string">&quot;encoder&quot;</span>);</span><br><span class="line">    GstElement* rtph264pay = <span class="built_in">gst_element_factory_make</span>(<span class="string">&quot;rtph264pay&quot;</span>, <span class="string">&quot;payloader&quot;</span>);</span><br><span class="line">    GstElement* rtspclientsink = <span class="built_in">gst_element_factory_make</span>(<span class="string">&quot;rtspclientsink&quot;</span>, <span class="string">&quot;sink&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 配置appsrc</span></span><br><span class="line">    <span class="built_in">g_object_set</span>(<span class="built_in">G_OBJECT</span>(appsrc), <span class="string">&quot;is-live&quot;</span>, TRUE, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">g_object_set</span>(<span class="built_in">G_OBJECT</span>(appsrc), <span class="string">&quot;format&quot;</span>, GST_FORMAT_TIME, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">g_object_set</span>(<span class="built_in">G_OBJECT</span>(appsrc), <span class="string">&quot;caps&quot;</span>, <span class="built_in">gst_caps_new_simple</span>(<span class="string">&quot;video/x-raw&quot;</span>,</span><br><span class="line">        <span class="string">&quot;format&quot;</span>, G_TYPE_STRING, <span class="string">&quot;BGR&quot;</span>,</span><br><span class="line">        <span class="string">&quot;width&quot;</span>, G_TYPE_INT, CAPTURE_WIDTH,</span><br><span class="line">        <span class="string">&quot;height&quot;</span>, G_TYPE_INT, CAPTURE_HEIGHT,</span><br><span class="line">        <span class="string">&quot;framerate&quot;</span>, GST_TYPE_FRACTION, CAPTURE_FPS, <span class="number">1</span>,</span><br><span class="line">        <span class="literal">NULL</span>), <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加元素到管道</span></span><br><span class="line">    <span class="built_in">gst_bin_add_many</span>(<span class="built_in">GST_BIN</span>(pipeline), appsrc, videoconvert, x264enc, rtph264pay, rtspclientsink, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 连接元素</span></span><br><span class="line">    <span class="built_in">gst_element_link_many</span>(appsrc, videoconvert, x264enc, rtph264pay, rtspclientsink, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 配置RTSP目标地址</span></span><br><span class="line">    <span class="built_in">g_object_set</span>(<span class="built_in">G_OBJECT</span>(rtspclientsink), <span class="string">&quot;location&quot;</span>, RTSP_SERVER_URL, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 启动管道</span></span><br><span class="line">    <span class="built_in">gst_element_set_state</span>(pipeline, GST_STATE_PLAYING);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打开摄像头</span></span><br><span class="line">    <span class="function">cv::VideoCapture <span class="title">cap</span><span class="params">(<span class="number">0</span>)</span></span>;</span><br><span class="line">    <span class="keyword">if</span> (!cap.<span class="built_in">isOpened</span>()) &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Error: Unable to open camera.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 推流循环</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        cv::Mat frame;</span><br><span class="line">        cap &gt;&gt; frame;</span><br><span class="line">        <span class="keyword">if</span> (frame.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            std::cerr &lt;&lt; <span class="string">&quot;Warning: Empty frame.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 打印时间戳（精确到毫秒）</span></span><br><span class="line">        std::chrono::system_clock::time_point now = std::chrono::system_clock::<span class="built_in">now</span>();</span><br><span class="line">        <span class="keyword">auto</span> t = std::chrono::system_clock::<span class="built_in">to_time_t</span>(now);</span><br><span class="line">        <span class="keyword">auto</span> tp = std::chrono::system_clock::<span class="built_in">from_time_t</span>(t);</span><br><span class="line">        <span class="keyword">auto</span> ms = std::chrono::<span class="built_in">duration_cast</span>&lt;std::chrono::milliseconds&gt;(now - tp).<span class="built_in">count</span>();</span><br><span class="line">        <span class="keyword">auto</span> <span class="type">in_time_t</span> = std::chrono::system_clock::<span class="built_in">to_time_t</span>(now);</span><br><span class="line">        std::cout &lt;&lt; std::<span class="built_in">put_time</span>(std::<span class="built_in">localtime</span>(&amp;<span class="type">in_time_t</span>), <span class="string">&quot;%Y-%m-%d %X&quot;</span>) &lt;&lt; <span class="string">&quot;.&quot;</span> &lt;&lt; ms &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建GStreamer缓冲区</span></span><br><span class="line">        GstBuffer* buffer = <span class="built_in">gst_buffer_new_allocate</span>(<span class="literal">NULL</span>, frame.<span class="built_in">total</span>() * frame.<span class="built_in">elemSize</span>(), <span class="literal">NULL</span>);</span><br><span class="line">        GstMapInfo map;</span><br><span class="line">        <span class="built_in">gst_buffer_map</span>(buffer, &amp;map, GST_MAP_WRITE);</span><br><span class="line">        <span class="built_in">memcpy</span>(map.data, frame.data, frame.<span class="built_in">total</span>() * frame.<span class="built_in">elemSize</span>());</span><br><span class="line">        <span class="built_in">gst_buffer_unmap</span>(buffer, &amp;map);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 推送缓冲区</span></span><br><span class="line">        GstFlowReturn ret;</span><br><span class="line">        <span class="built_in">g_signal_emit_by_name</span>(appsrc, <span class="string">&quot;push-buffer&quot;</span>, buffer, &amp;ret);</span><br><span class="line">        <span class="built_in">gst_buffer_unref</span>(buffer);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 控制帧率</span></span><br><span class="line">        <span class="built_in">g_usleep</span>(FRAME_INTERVAL_MS * <span class="number">1000</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清理资源</span></span><br><span class="line">    <span class="built_in">gst_element_set_state</span>(pipeline, GST_STATE_NULL);</span><br><span class="line">    <span class="built_in">gst_object_unref</span>(pipeline);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-流程说明"><a href="#3-2-流程说明" class="headerlink" title="3.2 流程说明"></a>3.2 流程说明</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>初始化 GStreamer</td>
+</tr>
+<tr>
+<td>2</td>
+<td>创建管道和元素（appsrc → videoconvert → x264enc → rtph264pay → rtspclientsink）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>配置 appsrc 参数（分辨率、帧率、格式）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>启动管道</td>
+</tr>
+<tr>
+<td>5</td>
+<td>循环读取摄像头帧并推送</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-方案二：FFmpeg推流"><a href="#4-方案二：FFmpeg推流" class="headerlink" title="4 方案二：FFmpeg推流"></a>4 方案二：FFmpeg推流</h2><h3 id="4-1-头文件"><a href="#4-1-头文件" class="headerlink" title="4.1 头文件"></a>4.1 头文件</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;rtspencoder.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QCoreApplication&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QDebug&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-类定义"><a href="#4-2-类定义" class="headerlink" title="4.2 类定义"></a>4.2 类定义</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">RTSPEncoder::<span class="built_in">RTSPEncoder</span>(<span class="type">const</span> <span class="type">char</span>* rtspUrl, <span class="type">int</span> outputWidth, <span class="type">int</span> outputHeight, QObject* parent)</span><br><span class="line">    : <span class="built_in">QThread</span>(parent), <span class="built_in">m_rtspUrl</span>(rtspUrl), <span class="built_in">m_outputWidth</span>(outputWidth), <span class="built_in">m_outputHeight</span>(outputHeight)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RTSPEncoder::~<span class="built_in">RTSPEncoder</span>()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">cleanup</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-初始化"><a href="#4-3-初始化" class="headerlink" title="4.3 初始化"></a>4.3 初始化</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">RTSPEncoder::initialize</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">avformat_network_init</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化输出上下文</span></span><br><span class="line">    m_outFormatCtx = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="built_in">avformat_alloc_output_context2</span>(&amp;m_outFormatCtx, <span class="literal">nullptr</span>, <span class="string">&quot;rtsp&quot;</span>, m_rtspUrl.<span class="built_in">c_str</span>());</span><br><span class="line">    <span class="keyword">if</span> (!m_outFormatCtx) </span><br><span class="line">    &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Error: Failed to allocate output context\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查找H264编码器</span></span><br><span class="line">    m_codec = (AVCodec*)<span class="built_in">avcodec_find_encoder</span>(AV_CODEC_ID_H264);</span><br><span class="line">    <span class="keyword">if</span> (!m_codec) &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Error: Failed to find H264 encoder\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加视频流</span></span><br><span class="line">    m_outStream = <span class="built_in">avformat_new_stream</span>(m_outFormatCtx, m_codec);</span><br><span class="line">    <span class="keyword">if</span> (!m_outStream) &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Error: Failed to create new stream\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化编码器上下文</span></span><br><span class="line">    m_codecCtx = <span class="built_in">avcodec_alloc_context3</span>(m_codec);</span><br><span class="line">    <span class="keyword">if</span> (!m_codecCtx) &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Error: Failed to allocate codec context\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    m_codecCtx-&gt;codec_id = AV_CODEC_ID_H264;</span><br><span class="line">    m_codecCtx-&gt;codec_type = AVMEDIA_TYPE_VIDEO;</span><br><span class="line">    m_codecCtx-&gt;pix_fmt = AV_PIX_FMT_YUV420P;</span><br><span class="line">    m_codecCtx-&gt;width = m_outputWidth;</span><br><span class="line">    m_codecCtx-&gt;height = m_outputHeight;</span><br><span class="line">    m_codecCtx-&gt;time_base = &#123; <span class="number">1</span>, <span class="number">25</span> &#125;;  <span class="comment">// 25fps</span></span><br><span class="line">    m_codecCtx-&gt;bit_rate = <span class="number">700000</span>;</span><br><span class="line">    m_codecCtx-&gt;gop_size = <span class="number">10</span>;</span><br><span class="line">    m_codecCtx-&gt;max_b_frames = <span class="number">0</span>;</span><br><span class="line">    m_codecCtx-&gt;flags = AV_CODEC_FLAG_GLOBAL_HEADER | AV_CODEC_FLAG_LOW_DELAY;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 配置编码器选项</span></span><br><span class="line">    AVDictionary* codecOptions = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="built_in">av_dict_set</span>(&amp;codecOptions, <span class="string">&quot;preset&quot;</span>, <span class="string">&quot;ultrafast&quot;</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">av_dict_set</span>(&amp;codecOptions, <span class="string">&quot;tune&quot;</span>, <span class="string">&quot;zerolatency&quot;</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打开编码器</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">avcodec_open2</span>(m_codecCtx, m_codec, &amp;codecOptions) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Error: Failed to open encoder\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 复制编码器参数到输出流</span></span><br><span class="line">    <span class="built_in">avcodec_parameters_from_context</span>(m_outStream-&gt;codecpar, m_codecCtx);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 写入流头部</span></span><br><span class="line">    <span class="built_in">avformat_write_header</span>(m_outFormatCtx, <span class="literal">nullptr</span>);</span><br><span class="line"></span><br><span class="line">    m_frame.<span class="built_in">create</span>(m_outputHeight, m_outputWidth, CV_8UC3);</span><br><span class="line">    m_frame.<span class="built_in">setTo</span>(<span class="number">0</span>);</span><br><span class="line">    m_frameCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    m_avFrame = <span class="built_in">av_frame_alloc</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-编码与发送"><a href="#4-4-编码与发送" class="headerlink" title="4.4 编码与发送"></a>4.4 编码与发送</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">RTSPEncoder::encodeFrameAndSend</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 阻塞等待新帧</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">std::unique_lock&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">while</span> (!m_isReady) &#123;</span><br><span class="line">                m_cv.<span class="built_in">wait</span>(lock);</span><br><span class="line">            &#125;</span><br><span class="line">            m_isReady = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 转换颜色空间 BGR → I420</span></span><br><span class="line">            cv::<span class="built_in">cvtColor</span>(m_frame, m_im420, cv::COLOR_RGB2YUV_I420);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 配置AVFrame</span></span><br><span class="line">            m_avFrame-&gt;data[<span class="number">0</span>] = m_im<span class="number">420.</span>data;</span><br><span class="line">            m_avFrame-&gt;data[<span class="number">1</span>] = m_avFrame-&gt;data[<span class="number">0</span>] + m_codecCtx-&gt;width * m_codecCtx-&gt;height;</span><br><span class="line">            m_avFrame-&gt;data[<span class="number">2</span>] = m_avFrame-&gt;data[<span class="number">1</span>] + m_codecCtx-&gt;width * m_codecCtx-&gt;height / <span class="number">4</span>;</span><br><span class="line">            m_avFrame-&gt;linesize[<span class="number">0</span>] = m_codecCtx-&gt;width;</span><br><span class="line">            m_avFrame-&gt;linesize[<span class="number">1</span>] = m_codecCtx-&gt;width / <span class="number">2</span>;</span><br><span class="line">            m_avFrame-&gt;linesize[<span class="number">2</span>] = m_codecCtx-&gt;width / <span class="number">2</span>;</span><br><span class="line">            m_avFrame-&gt;width = m_codecCtx-&gt;width;</span><br><span class="line">            m_avFrame-&gt;height = m_codecCtx-&gt;height;</span><br><span class="line">            m_avFrame-&gt;format = AV_PIX_FMT_YUV420P;</span><br><span class="line">            m_avFrame-&gt;pts = m_frameCount++;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 发送帧到编码器</span></span><br><span class="line">            <span class="keyword">auto</span> ret = <span class="built_in">avcodec_send_frame</span>(m_codecCtx, m_avFrame);</span><br><span class="line">            <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                std::cerr &lt;&lt; <span class="string">&quot;Error: Failed to send frame for encoding\n&quot;</span>;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 接收编码后的数据包</span></span><br><span class="line">            AVPacket pkt;</span><br><span class="line">            <span class="built_in">av_init_packet</span>(&amp;pkt);</span><br><span class="line">            <span class="keyword">while</span> (ret &gt;= <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ret = <span class="built_in">avcodec_receive_packet</span>(m_codecCtx, &amp;pkt);</span><br><span class="line">                <span class="keyword">if</span> (ret == <span class="built_in">AVERROR</span>(EAGAIN) || ret == AVERROR_EOF)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    std::cout &lt;&lt; <span class="string">&quot;Error: Failed to receive encoded packet\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                pkt.stream_index = m_outStream-&gt;index;</span><br><span class="line">                <span class="built_in">av_packet_rescale_ts</span>(&amp;pkt, m_codecCtx-&gt;time_base, m_outStream-&gt;time_base);</span><br><span class="line">                ret = <span class="built_in">av_interleaved_write_frame</span>(m_outFormatCtx, &amp;pkt);</span><br><span class="line">                <span class="built_in">av_packet_unref</span>(&amp;pkt);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    std::cout &lt;&lt; <span class="string">&quot;Error: Failed to write packet to output stream\n&quot;</span>;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-5-添加帧"><a href="#4-5-添加帧" class="headerlink" title="4.5 添加帧"></a>4.5 添加帧</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">RTSPEncoder::AddFrame</span><span class="params">(cv::Mat&amp; imGBR, <span class="type">int</span> nFrame)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (imGBR.cols != m_outputWidth || imGBR.rows != m_outputHeight)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 阻塞等待编码</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line">        <span class="built_in">memcpy</span>(m_frame.data, imGBR.data, imGBR.cols * imGBR.rows * <span class="number">3</span>);</span><br><span class="line">        m_frameCount = nFrame;</span><br><span class="line">        m_isReady = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    m_cv.<span class="built_in">notify_one</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-6-资源清理"><a href="#4-6-资源清理" class="headerlink" title="4.6 资源清理"></a>4.6 资源清理</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">RTSPEncoder::cleanup</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 写入尾部</span></span><br><span class="line">    <span class="built_in">av_write_trailer</span>(m_outFormatCtx);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放资源</span></span><br><span class="line">    <span class="keyword">if</span>(m_codecCtx)</span><br><span class="line">        <span class="built_in">avcodec_free_context</span>(&amp;m_codecCtx);</span><br><span class="line">    <span class="keyword">if</span>(m_avFrame)</span><br><span class="line">        <span class="built_in">av_frame_free</span>(&amp;m_avFrame);</span><br><span class="line">    <span class="keyword">if</span>(m_outFormatCtx)</span><br><span class="line">        <span class="built_in">avformat_free_context</span>(m_outFormatCtx);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-方案三：OpenCV-GStreamer后端"><a href="#5-方案三：OpenCV-GStreamer后端" class="headerlink" title="5 方案三：OpenCV GStreamer后端"></a>5 方案三：OpenCV GStreamer后端</h2><h3 id="5-1-推流代码"><a href="#5-1-推流代码" class="headerlink" title="5.1 推流代码"></a>5.1 推流代码</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> codec = cv::VideoWriter::<span class="built_in">fourcc</span>(<span class="string">&#x27;H&#x27;</span>, <span class="string">&#x27;E&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;C&#x27;</span>);</span><br><span class="line">    m_writer.<span class="built_in">open</span>(push_str, codec, fps, cv::<span class="built_in">Size</span>(width, height));</span><br><span class="line"></span><br><span class="line">    cv::Mat tmp;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">std::unique_lock&lt;std::mutex&gt; <span class="title">lk</span><span class="params">(proc2push_mtx)</span></span>;</span><br><span class="line">            proc2push_cv.<span class="built_in">wait</span>(lk);</span><br><span class="line">            tmp = img_push.<span class="built_in">clone</span>();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!m_writer.<span class="built_in">isOpened</span>())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="type">int</span> codec = cv::VideoWriter::<span class="built_in">fourcc</span>(<span class="string">&#x27;H&#x27;</span>, <span class="string">&#x27;E&#x27;</span>, <span class="string">&#x27;V&#x27;</span>, <span class="string">&#x27;C&#x27;</span>);</span><br><span class="line">            m_writer.<span class="built_in">open</span>(push_str, codec, fps, cv::<span class="built_in">Size</span>(width, height));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        m_writer.<span class="built_in">write</span>(tmp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-优缺点"><a href="#5-2-优缺点" class="headerlink" title="5.2 优缺点"></a>5.2 优缺点</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GStreamer</td>
+<td>灵活性高，延迟低</td>
+<td>代码复杂</td>
+</tr>
+<tr>
+<td>FFmpeg</td>
+<td>功能强大，兼容性好</td>
+<td>学习成本高</td>
+</tr>
+<tr>
+<td>OpenCV GStreamer</td>
+<td>实现简单</td>
+<td>延迟较高</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="6-测试代码"><a href="#6-测试代码" class="headerlink" title="6 测试代码"></a>6 测试代码</h2><h3 id="6-1-视频源测试"><a href="#6-1-视频源测试" class="headerlink" title="6.1 视频源测试"></a>6.1 视频源测试</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main1</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="comment">// USB摄像头（GStreamer格式）</span></span><br><span class="line">    std::string pipeline = <span class="string">&quot;v4l2src device=/dev/video0 ! image/jpeg,width=1920,height=1080,framerate=30/1 ! nvv4l2decoder mjpeg=1 ! nvvidconv ! appsink&quot;</span>;</span><br><span class="line">    <span class="function">cv::VideoCapture <span class="title">capture</span><span class="params">(pipeline, cv::CAP_GSTREAMER)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!capture.<span class="built_in">isOpened</span>()) </span><br><span class="line">    &#123;  </span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Read video Failed !&quot;</span> &lt;&lt; std::endl;  </span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    cv::Mat frame;  </span><br><span class="line">    cv::<span class="built_in">namedWindow</span>(<span class="string">&quot;video test&quot;</span>);  </span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> frame_num = capture.<span class="built_in">get</span>(cv::CAP_PROP_FRAME_COUNT);  </span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;total frame number is: &quot;</span> &lt;&lt; frame_num &lt;&lt; std::endl;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;  </span><br><span class="line">        capture &gt;&gt; frame;  </span><br><span class="line">        <span class="built_in">imshow</span>(<span class="string">&quot;video test&quot;</span>, frame);  </span><br><span class="line">        <span class="keyword">if</span> (cv::<span class="built_in">waitKey</span>(<span class="number">30</span>) == <span class="string">&#x27;q&#x27;</span>)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">break</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    cv::<span class="built_in">destroyWindow</span>(<span class="string">&quot;video test&quot;</span>);  </span><br><span class="line">    capture.<span class="built_in">release</span>();  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-GStreamer命令"><a href="#6-2-GStreamer命令" class="headerlink" title="6.2 GStreamer命令"></a>6.2 GStreamer命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 文件推流</span></span><br><span class="line">gst-launch-1.0 -v filesrc location=D:/1.mp4 ! decodebin ! x264enc ! rtph264pay ! udpsink host=127.0.0.1 port=8554</span><br><span class="line"></span><br><span class="line"><span class="comment"># RTSP播放</span></span><br><span class="line">gst-launch-1.0 -v rtspsrc location=rtsp://127.0.0.1:10054/live/Fs4FsmKSR ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! autovideosink</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试源</span></span><br><span class="line">gst-launch-1.0 -v videotestsrc ! video/x-raw, format=BGRx ! autovideosink</span><br><span class="line"></span><br><span class="line"><span class="comment"># AppSource推流</span></span><br><span class="line">gst-launch-1.0 -v appsrc name=mysource is-live=<span class="literal">true</span> block=<span class="literal">true</span> format=GST_FORMAT_TIME \</span><br><span class="line">    ! videoconvert \</span><br><span class="line">    ! video/x-raw,format=NV12 \</span><br><span class="line">    ! nvv4l2h264enc \</span><br><span class="line">    ! video/x-h264,stream-format=byte-stream \</span><br><span class="line">    ! h264parse \</span><br><span class="line">    ! rtspclientsink location=rtsp://localhost:8554/mystream</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-总结"><a href="#7-总结" class="headerlink" title="7 总结"></a>7 总结</h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GStreamer</td>
+<td>低延迟、高性能推流</td>
+</tr>
+<tr>
+<td>FFmpeg</td>
+<td>复杂编码需求、跨平台</td>
+</tr>
+<tr>
+<td>OpenCV GStreamer</td>
+<td>简单场景、快速实现</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/OpenCV/" rel="tag"># OpenCV</a>
+              <a href="/tags/RTSP/" rel="tag"># RTSP</a>
+              <a href="/tags/%E6%8E%A8%E6%B5%81/" rel="tag"># 推流</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/11/19/Linux/SOCKS5%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/" rel="prev" title="SOCKS5代理服务搭建与配置">
+                  <i class="fa fa-angle-left"></i> SOCKS5代理服务搭建与配置
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/11/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E5%BA%93TDengine3.x%E9%83%A8%E7%BD%B2/" rel="next" title="时序数据库TDengine3.x部署">
+                  时序数据库TDengine3.x部署 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、 概述与核心概念1.1 什么是 CoreDNS？CoreDNS 是一个用 Go 语言编写的、高度可扩展和插件化的 DNS 服务器。它来自云原生计算基金会（CNCF），是 Kubernetes 的默认 DNS 服务器，其设计目标是易于使用且功能强大。 核心特点：  插件化架构：几乎所有功能都通过插件实现，可以灵活组合，适用于传统 DNS、服务发现、负载均衡等多种场景。 高性能与可靠性：基于 Go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CoreDNS构建高性能DNS服务器">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/07/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/CoreDNS%E6%9E%84%E5%BB%BA%E9%AB%98%E6%80%A7%E8%83%BDDNS%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、 概述与核心概念1.1 什么是 CoreDNS？CoreDNS 是一个用 Go 语言编写的、高度可扩展和插件化的 DNS 服务器。它来自云原生计算基金会（CNCF），是 Kubernetes 的默认 DNS 服务器，其设计目标是易于使用且功能强大。 核心特点：  插件化架构：几乎所有功能都通过插件实现，可以灵活组合，适用于传统 DNS、服务发现、负载均衡等多种场景。 高性能与可靠性：基于 Go">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.470Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="CoreDNS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/07/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/CoreDNS%E6%9E%84%E5%BB%BA%E9%AB%98%E6%80%A7%E8%83%BDDNS%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/08/07/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/CoreDNS%E6%9E%84%E5%BB%BA%E9%AB%98%E6%80%A7%E8%83%BDDNS%E6%9C%8D%E5%8A%A1%E5%99%A8/","path":"2025/08/07/容器技术/CoreDNS构建高性能DNS服务器/","title":"CoreDNS构建高性能DNS服务器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CoreDNS构建高性能DNS服务器 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E6%A6%82%E8%BF%B0%E4%B8%8E%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、 概述与核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-CoreDNS%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是 CoreDNS？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-CoreDNS-%E4%B8%8E%E4%BC%A0%E7%BB%9F-DNS%EF%BC%88%E5%A6%82-BIND%EF%BC%89%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 CoreDNS 与传统 DNS（如 BIND）的区别</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3-%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%9ACorefile"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 核心配置文件：Corefile</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">二、 安装与基础配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-%E5%AE%89%E8%A3%85-CoreDNS"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 安装 CoreDNS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1%E5%8C%96%E9%83%A8%E7%BD%B2"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 系统服务化部署</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 基础配置文件示例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">三、 插件系统详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-%E6%8F%92%E4%BB%B6%E6%A6%82%E8%BF%B0%E4%B8%8E%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 插件概述与工作模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 常用插件详解</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#hosts-%E6%8F%92%E4%BB%B6"><span class="nav-number">3.2.1.</span> <span class="nav-text">hosts 插件</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#file-%E6%8F%92%E4%BB%B6"><span class="nav-number">3.2.2.</span> <span class="nav-text">file 插件</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#forward-%E6%8F%92%E4%BB%B6"><span class="nav-number">3.2.3.</span> <span class="nav-text">forward 插件</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#cache-%E6%8F%92%E4%BB%B6"><span class="nav-number">3.2.4.</span> <span class="nav-text">cache 插件</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-Kubernetes-%E9%9B%86%E6%88%90%E6%8F%92%E4%BB%B6-kubernetes"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 Kubernetes 集成插件 (kubernetes)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE%E4%B8%8E%E5%AE%9E%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">四、 高级配置与实战</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-1-%E5%A4%9A%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%85%8D%E7%BD%AE"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 多区域与复杂配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-DNSSEC-%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 DNSSEC 配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-3-TSIG-%E9%85%8D%E7%BD%AE%EF%BC%88%E4%BA%8B%E5%8A%A1%E7%AD%BE%E5%90%8D%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 TSIG 配置（事务签名）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-4-%E4%BD%BF%E7%94%A8-etcd-%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 使用 etcd 插件实现动态服务发现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">五、 故障排查与性能优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%AD%E3%80%81-%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/07/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/CoreDNS%E6%9E%84%E5%BB%BA%E9%AB%98%E6%80%A7%E8%83%BDDNS%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CoreDNS构建高性能DNS服务器 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CoreDNS构建高性能DNS服务器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-08-07 00:00:00" itemprop="dateCreated datePublished" datetime="2025-08-07T00:00:00+08:00">2025-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="一、-概述与核心概念"><a href="#一、-概述与核心概念" class="headerlink" title="一、 概述与核心概念"></a>一、 概述与核心概念</h4><h5 id="1-1-什么是-CoreDNS？"><a href="#1-1-什么是-CoreDNS？" class="headerlink" title="1.1 什么是 CoreDNS？"></a>1.1 什么是 CoreDNS？</h5><p>CoreDNS 是一个用 Go 语言编写的、<strong>高度可扩展和插件化</strong>的 DNS 服务器。它来自云原生计算基金会（CNCF），是 Kubernetes 的默认 DNS 服务器，其设计目标是易于使用且功能强大。</p>
+<p><strong>核心特点</strong>：</p>
+<ul>
+<li><strong>插件化架构</strong>：几乎所有功能都通过插件实现，可以灵活组合，适用于传统 DNS、服务发现、负载均衡等多种场景。</li>
+<li><strong>高性能与可靠性</strong>：基于 Go 语言，性能优异。支持自动重试、健康检查和负载均衡。</li>
+<li><strong>易于配置</strong>：使用简单易懂的 <code>Caddyfile</code> 格式配置文件。</li>
+<li><strong>Kubernetes 原生</strong>：深度集成 K8s，用于集群内服务发现。</li>
+</ul>
+<h5 id="1-2-CoreDNS-与传统-DNS（如-BIND）的区别"><a href="#1-2-CoreDNS-与传统-DNS（如-BIND）的区别" class="headerlink" title="1.2 CoreDNS 与传统 DNS（如 BIND）的区别"></a>1.2 CoreDNS 与传统 DNS（如 BIND）的区别</h5><p>传统 DNS 服务器功能固定且庞大。CoreDNS 则像一个“DNS 功能总线”，通过加载不同的插件来实现特定功能，这使得它更轻量、更灵活。正如其官方所说：<strong>CoreDNS is powered by plugins.</strong></p>
+<h5 id="1-3-核心配置文件：Corefile"><a href="#1-3-核心配置文件：Corefile" class="headerlink" title="1.3 核心配置文件：Corefile"></a>1.3 核心配置文件：Corefile</h5><p>CoreDNS 的行为由 <code>Corefile</code> 定义。其基本结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># ZONE: 定义服务器负责的区，PORT 默认为 53</span><br><span class="line">ZONE:[PORT] &#123;</span><br><span class="line">  # PLUGIN: 定义要加载的插件及其参数</span><br><span class="line">  [PLUGIN] [PLUGIN_ARGUMENTS]...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.:53 &#123;</span><br><span class="line">    whoami</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">weiyigeek.top &#123;</span><br><span class="line">    file db.weiyigeek.top</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="二、-安装与基础配置"><a href="#二、-安装与基础配置" class="headerlink" title="二、 安装与基础配置"></a>二、 安装与基础配置</h4><h5 id="2-1-安装-CoreDNS"><a href="#2-1-安装-CoreDNS" class="headerlink" title="2.1 安装 CoreDNS"></a>2.1 安装 CoreDNS</h5><p><strong>方式一：二进制安装（推荐）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">COREDNS_VERSION=<span class="string">&quot;1.11.1&quot;</span></span><br><span class="line">wget https://github.com/coredns/coredns/releases/download/v<span class="variable">$&#123;COREDNS_VERSION&#125;</span>/coredns_<span class="variable">$&#123;COREDNS_VERSION&#125;</span>_linux_amd64.tgz</span><br><span class="line">tar xf coredns_<span class="variable">$&#123;COREDNS_VERSION&#125;</span>_linux_amd64.tgz -C /usr/local/bin/</span><br><span class="line"><span class="built_in">ln</span> -s /usr/local/bin/coredns /usr/bin/coredns</span><br></pre></td></tr></table></figure>
+
+<p><strong>方式二：从源码编译</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b v1.11.1 https://github.com/coredns/coredns</span><br><span class="line"><span class="built_in">cd</span> coredns</span><br><span class="line">make</span><br><span class="line"><span class="comment"># 或使用 Docker 环境编译</span></span><br><span class="line">docker run --<span class="built_in">rm</span> -i -t -v <span class="variable">$PWD</span>:/v -w /v golang:1.21 make</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-2-系统服务化部署"><a href="#2-2-系统服务化部署" class="headerlink" title="2.2 系统服务化部署"></a>2.2 系统服务化部署</h5><ol>
+<li><strong>创建专用用户和目录</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">useradd coredns -s /sbin/nologin</span><br><span class="line"><span class="built_in">mkdir</span> -p /etc/coredns/</span><br><span class="line"><span class="built_in">chown</span> -R coredns /etc/coredns/</span><br></pre></td></tr></table></figure></li>
+<li><strong>创建 Systemd 服务文件</strong> (<code>/usr/lib/systemd/system/coredns.service</code>)：<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[Unit]</span></span><br><span class="line"><span class="attr">Description</span>=CoreDNS DNS server</span><br><span class="line"><span class="attr">Documentation</span>=https://coredns.io</span><br><span class="line"><span class="attr">After</span>=network.target</span><br><span class="line"></span><br><span class="line"><span class="section">[Service]</span></span><br><span class="line"><span class="attr">LimitNOFILE</span>=<span class="number">1048576</span></span><br><span class="line"><span class="attr">User</span>=coredns</span><br><span class="line"><span class="attr">WorkingDirectory</span>=/etc/coredns</span><br><span class="line"><span class="attr">ExecStart</span>=/usr/bin/coredns -conf=/etc/coredns/Corefile</span><br><span class="line"><span class="attr">ExecReload</span>=/bin/kill -SIGUSR1 <span class="variable">$MAINPID</span></span><br><span class="line"><span class="attr">Restart</span>=<span class="literal">on</span>-failure</span><br><span class="line"></span><br><span class="line"><span class="section">[Install]</span></span><br><span class="line"><span class="attr">WantedBy</span>=multi-user.target</span><br></pre></td></tr></table></figure></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl <span class="built_in">enable</span> coredns</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li><strong>配置防火墙</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --permanent --add-service=dns</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h5 id="2-3-基础配置文件示例"><a href="#2-3-基础配置文件示例" class="headerlink" title="2.3 基础配置文件示例"></a>2.3 基础配置文件示例</h5><p>创建 <code>/etc/coredns/Corefile</code>，配置一个简单的 DNS 服务器，使用 <code>hosts</code> 插件进行本地解析，并转发未知查询到上游 DNS。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">.:53 &#123;</span><br><span class="line">    bind 0.0.0.0</span><br><span class="line">    hosts &#123;</span><br><span class="line">        # 自定义本地解析</span><br><span class="line">        192.168.1.2 www.weiyigeek.top</span><br><span class="line">        192.168.1.3 blog.weiyigeek.top</span><br><span class="line">        ttl 60</span><br><span class="line">        reload 1m</span><br><span class="line">        fallthrough # 未匹配时继续执行下一个插件</span><br><span class="line">    &#125;</span><br><span class="line">    # 转发未知查询到公共 DNS</span><br><span class="line">    forward . 223.6.6.6 114.114.114.114</span><br><span class="line">    cache 120 # 缓存</span><br><span class="line">    log       # 记录日志</span><br><span class="line">    errors    # 记录错误</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li><strong>启动并测试</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl start coredns</span><br><span class="line">dig www.weiyigeek.top @localhost</span><br><span class="line">dig google.com @localhost <span class="comment"># 应被转发解析</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="三、-插件系统详解"><a href="#三、-插件系统详解" class="headerlink" title="三、 插件系统详解"></a>三、 插件系统详解</h4><h5 id="3-1-插件概述与工作模式"><a href="#3-1-插件概述与工作模式" class="headerlink" title="3.1 插件概述与工作模式"></a>3.1 插件概述与工作模式</h5><p>CoreDNS 的功能完全由插件驱动。插件分为两类：</p>
+<ul>
+<li><strong>Normal 插件</strong>：参与请求处理逻辑，并出现在插件链中（如 <code>hosts</code>, <code>file</code>, <code>forward</code>）。</li>
+<li><strong>Other 插件</strong>：不参与请求逻辑，仅修改服务器配置（如 <code>health</code>, <code>ready</code>, <code>prometheus</code>）。</li>
+</ul>
+<p><strong>插件链执行逻辑</strong>：</p>
+<ol>
+<li>请求进入匹配的 Server Zone。</li>
+<li>按 <code>plugin.cfg</code> 定义的顺序依次执行插件链上的插件。</li>
+<li>每个插件决定如何处理请求：直接响应、传递 (<code>fallthrough</code>)、或添加信息后继续传递。</li>
+</ol>
+<p><strong>查看可用插件</strong>：<code>coredns -plugins</code></p>
+<h5 id="3-2-常用插件详解"><a href="#3-2-常用插件详解" class="headerlink" title="3.2 常用插件详解"></a>3.2 常用插件详解</h5><h6 id="hosts-插件"><a href="#hosts-插件" class="headerlink" title="hosts 插件"></a><strong><code>hosts</code> 插件</strong></h6><p>用于从 <code>/etc/hosts</code> 风格的文件或内联配置提供 A&#x2F;AAAA&#x2F;PTR 记录。适合少量静态记录。</p>
+<ul>
+<li><strong>语法</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hosts [FILE] &#123;</span><br><span class="line">	[INLINE_ENTRIES]</span><br><span class="line">	ttl SECONDS</span><br><span class="line">	reload DURATION</span><br><span class="line">	fallthrough [ZONES...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.:53 &#123;</span><br><span class="line">	hosts &#123;</span><br><span class="line">		192.168.1.10 api.internal</span><br><span class="line">		192.168.1.11 db.internal</span><br><span class="line">		fallthrough</span><br><span class="line">	&#125;</span><br><span class="line">	forward . 8.8.8.8</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h6 id="file-插件"><a href="#file-插件" class="headerlink" title="file 插件"></a><strong><code>file</code> 插件</strong></h6><p>用于从符合 <strong>RFC 1035</strong> 标准的主区域文件提供 DNS 服务。适合大量记录或需要标准区域文件管理的场景。</p>
+<ul>
+<li><strong>语法</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">file DBFILE [ZONES...] &#123;</span><br><span class="line">	reload DURATION</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">weiyigeek.top &#123;</span><br><span class="line">	file /etc/coredns/db.weiyigeek.top</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+*区域文件示例 (<code>/etc/coredns/db.weiyigeek.top</code>)*：<figure class="highlight bind"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$TTL</span> <span class="number">86400</span></span><br><span class="line">@   <span class="keyword">IN</span>  <span class="keyword">SOA</span>  ns1.weiyigeek.top. admin.weiyigeek.top. (</span><br><span class="line">				<span class="number">2023082501</span> <span class="comment">; Serial</span></span><br><span class="line">				<span class="number">7200</span>       <span class="comment">; Refresh</span></span><br><span class="line">				<span class="number">3600</span>       <span class="comment">; Retry</span></span><br><span class="line">				<span class="number">1209600</span>    <span class="comment">; Expire</span></span><br><span class="line">				<span class="number">3600</span> )     <span class="comment">; Negative Cache TTL</span></span><br><span class="line"><span class="comment">;</span></span><br><span class="line">@   <span class="keyword">IN</span>  <span class="keyword">NS</span>   ns1</span><br><span class="line">ns1 <span class="keyword">IN</span>  <span class="keyword">A</span>    <span class="number">192.168.1.100</span></span><br><span class="line">www <span class="keyword">IN</span>  <span class="keyword">A</span>    <span class="number">192.168.1.101</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h6 id="forward-插件"><a href="#forward-插件" class="headerlink" title="forward 插件"></a><strong><code>forward</code> 插件</strong></h6><p>将查询转发到上游 DNS 服务器。是构建递归解析器或指定上游的关键插件。</p>
+<ul>
+<li><strong>语法</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">forward . UPSTREAM_DNS...</span><br></pre></td></tr></table></figure></li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.:53 &#123;</span><br><span class="line">	forward . 8.8.8.8:53 1.1.1.1:53 /etc/resolv.conf</span><br><span class="line">	cache 60</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h6 id="cache-插件"><a href="#cache-插件" class="headerlink" title="cache 插件"></a><strong><code>cache</code> 插件</strong></h6><p>缓存 DNS 响应，减少上游查询，提升性能。</p>
+<ul>
+<li><strong>语法</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cache [TTL] &#123;</span><br><span class="line">	success CAPACITY [TTL]</span><br><span class="line">	denial CAPACITY [TTL]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">.:53 &#123;</span><br><span class="line">	forward . 8.8.8.8</span><br><span class="line">	cache 120 # 缓存所有响应120秒</span><br><span class="line">	# 或更精细控制</span><br><span class="line">	cache &#123;</span><br><span class="line">		success 5000 300</span><br><span class="line">		denial 1000 60</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="3-3-Kubernetes-集成插件-kubernetes"><a href="#3-3-Kubernetes-集成插件-kubernetes" class="headerlink" title="3.3 Kubernetes 集成插件 (kubernetes)"></a>3.3 Kubernetes 集成插件 (<code>kubernetes</code>)</h5><p>CoreDNS 在 K8s 中的核心插件，用于服务发现（将 Service 名称解析为 ClusterIP）。</p>
+<ul>
+<li><strong>典型 K8s 配置</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">.:53 &#123;</span><br><span class="line">	errors</span><br><span class="line">	health</span><br><span class="line">	kubernetes cluster.local in-addr.arpa ip6.arpa &#123;</span><br><span class="line">		pods verified</span><br><span class="line">		fallthrough in-addr.arpa ip6.arpa</span><br><span class="line">	&#125;</span><br><span class="line">	prometheus :9153</span><br><span class="line">	forward . /etc/resolv.conf</span><br><span class="line">	cache 30</span><br><span class="line">	loop</span><br><span class="line">	reload</span><br><span class="line">	loadbalance</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="四、-高级配置与实战"><a href="#四、-高级配置与实战" class="headerlink" title="四、 高级配置与实战"></a>四、 高级配置与实战</h4><h5 id="4-1-多区域与复杂配置"><a href="#4-1-多区域与复杂配置" class="headerlink" title="4.1 多区域与复杂配置"></a>4.1 多区域与复杂配置</h5><p>一个 Corefile 可以定义多个服务器块，处理不同域或端口的请求。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># 处理内部域</span><br><span class="line">internal.company &#123;</span><br><span class="line">    file /etc/coredns/db.internal</span><br><span class="line">    log</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 处理外部域，监听在5300端口</span><br><span class="line">example.com:5300 &#123;</span><br><span class="line">    forward . 8.8.8.8</span><br><span class="line">    cache 300</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 默认处理所有其他查询</span><br><span class="line">.:53 &#123;</span><br><span class="line">    forward . 1.1.1.1 9.9.9.9</span><br><span class="line">    cache 60</span><br><span class="line">    errors</span><br><span class="line">    log</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-2-DNSSEC-配置"><a href="#4-2-DNSSEC-配置" class="headerlink" title="4.2 DNSSEC 配置"></a>4.2 DNSSEC 配置</h5><p>CoreDNS 支持动态 DNSSEC 签名。</p>
+<ol>
+<li><strong>生成 DNSSEC 密钥</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /etc/coredns</span><br><span class="line">dnssec-keygen -a ECDSAP256SHA256 -f KSK weiyigeek.top</span><br><span class="line"><span class="comment"># 生成 Kweiyigeek.top.+013+12345.key 和 .private 文件</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>使用 <code>dnssec</code> 插件</strong>（动态签名响应）：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">weiyigeek.top &#123;</span><br><span class="line">	file /etc/coredns/db.weiyigeek.top</span><br><span class="line">	dnssec &#123;</span><br><span class="line">		key file /etc/coredns/Kweiyigeek.top.+013+12345.key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>使用 <code>sign</code> 插件</strong>（预签名区域文件）：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">weiyigeek.top &#123;</span><br><span class="line">	sign /etc/coredns/db.weiyigeek.top &#123;</span><br><span class="line">		key file /etc/coredns/Kweiyigeek.top.+013+12345.key</span><br><span class="line">		directory /var/lib/coredns</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<em>签名后的区域文件将保存在 <code>/var/lib/coredns/db.weiyigeek.top.signed</code>。</em></li>
+</ol>
+<h5 id="4-3-TSIG-配置（事务签名）"><a href="#4-3-TSIG-配置（事务签名）" class="headerlink" title="4.3 TSIG 配置（事务签名）"></a>4.3 TSIG 配置（事务签名）</h5><p>用于验证和签名 DNS 请求&#x2F;响应，常用于区域传输（AXFR&#x2F;IXFR）安全。</p>
+<ol>
+<li><strong>生成 TSIG 密钥</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tsig-keygen -a hmac-sha256 dns-tsig-key. &gt; /etc/coredns/dns-tsig.secrets</span><br></pre></td></tr></table></figure></li>
+<li><strong>配置 <code>tsig</code> 插件</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">weiyigeek.top &#123;</span><br><span class="line">	file /etc/coredns/db.weiyigeek.top</span><br><span class="line">	tsig &#123;</span><br><span class="line">		secrets /etc/coredns/dns-tsig.secrets</span><br><span class="line">		require AXFR IXFR # 要求区域传输必须签名</span><br><span class="line">	&#125;</span><br><span class="line">	transfer &#123;</span><br><span class="line">		to * # 允许向任何请求者传输（生产环境应限制IP）</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h5 id="4-4-使用-etcd-插件实现动态服务发现"><a href="#4-4-使用-etcd-插件实现动态服务发现" class="headerlink" title="4.4 使用 etcd 插件实现动态服务发现"></a>4.4 使用 <code>etcd</code> 插件实现动态服务发现</h5><p>可以将服务记录存储在 etcd 中，CoreDNS 从中读取。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">etcd-weiyigeek.local:53 &#123;</span><br><span class="line">    etcd &#123;</span><br><span class="line">        path /skydns</span><br><span class="line">        endpoint http://172.22.50.98:2379</span><br><span class="line">        fallthrough</span><br><span class="line">    &#125;</span><br><span class="line">    cache 160</span><br><span class="line">    log</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>在 etcd 中存储记录</em>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">etcdctl put /skydns/local/etcd-weiyigeek/www <span class="string">&#x27;&#123;&quot;host&quot;:&quot;172.22.50.100&quot;,&quot;ttl&quot;:60&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+<p><em>查询</em>：<code>dig www.etcd-weiyigeek.local</code></p>
+<h4 id="五、-故障排查与性能优化"><a href="#五、-故障排查与性能优化" class="headerlink" title="五、 故障排查与性能优化"></a>五、 故障排查与性能优化</h4><ul>
+<li><strong>查看日志</strong>：确保配置中启用了 <code>log</code> 和 <code>errors</code> 插件。</li>
+<li><strong>检查插件顺序</strong>：插件链顺序很重要，例如 <code>cache</code> 应在 <code>forward</code> 之后。</li>
+<li><strong>监控</strong>：启用 <code>prometheus</code> 插件（默认在 <code>:9153</code> 端口）以获取指标。</li>
+<li><strong>性能调优</strong>：<ul>
+<li>合理设置 <code>cache</code> 插件的 TTL 和容量。</li>
+<li>根据负载调整 <code>forward</code> 插件中的上游 DNS 服务器列表。</li>
+<li>使用 <code>loadbalance</code> 插件实现上游 DNS 的轮询负载均衡。</li>
+</ul>
+</li>
+</ul>
+<h4 id="六、-总结"><a href="#六、-总结" class="headerlink" title="六、 总结"></a>六、 总结</h4><p>CoreDNS 凭借其<strong>插件化、高性能和易配置</strong>的特性，已成为从传统 DNS 到云原生服务发现的理想选择。通过灵活组合 <code>hosts</code>、<code>file</code>、<code>forward</code>、<code>cache</code> 等插件，可以轻松构建出满足各种需求的 DNS 架构。对于 Kubernetes 环境，它更是不可或缺的核心组件。</p>
+<p><strong>官方资源</strong>：</p>
+<ul>
+<li><strong>文档</strong>：<a target="_blank" rel="noopener" href="https://coredns.io/manual/toc/">https://coredns.io/manual/toc/</a></li>
+<li><strong>插件列表</strong>：<a target="_blank" rel="noopener" href="https://coredns.io/plugins/">https://coredns.io/plugins/</a></li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/coredns/coredns">https://github.com/coredns/coredns</a></li>
+</ul>
+<hr>
+<p><strong>提示</strong>：生产环境部署时，请务必关注安全最佳实践，如使用非 root 用户运行、配置适当的防火墙规则、为区域传输启用 TSIG、以及定期更新 CoreDNS 版本。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/CoreDNS/" rel="tag"># CoreDNS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/07/%E6%9C%AA%E5%88%86%E7%B1%BB/FastDFS%E8%AF%A6%E8%A7%A3/" rel="prev" title="FastDFS详解">
+                  <i class="fa fa-angle-left"></i> FastDFS详解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/08/07/Linux/%E4%BD%BF%E7%94%A8TensorRT%E5%8A%A0%E9%80%9FPytorch%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86/" rel="next" title="使用TensorRT加速Pytorch模型推理">
+                  使用TensorRT加速Pytorch模型推理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

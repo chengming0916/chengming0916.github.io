@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="PostgreSQL作为一款高性能、开源的关系型数据库，在云原生场景中，常需与轻量级Kubernetes发行版K3s结合部署，以实现资源高效利用与灵活运维。本文将详细拆解基于K3s部署PostgreSQL的完整流程，涵盖存储配置、配置管理、服务暴露及部署编排等核心环节，助力开发者快速完成部署落地。 一、环境准备部署前需确保K3s集群已正常运行，且kubectl工具已完成集群连接配置（可通过kube">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K3s部署PostgreSQL">
+<meta property="og:url" content="http://chengming0916.github.io/2024/04/28/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2PostgreSQL/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="PostgreSQL作为一款高性能、开源的关系型数据库，在云原生场景中，常需与轻量级Kubernetes发行版K3s结合部署，以实现资源高效利用与灵活运维。本文将详细拆解基于K3s部署PostgreSQL的完整流程，涵盖存储配置、配置管理、服务暴露及部署编排等核心环节，助力开发者快速完成部署落地。 一、环境准备部署前需确保K3s集群已正常运行，且kubectl工具已完成集群连接配置（可通过kube">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.471Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="PostgreSQL">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="K8s">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/04/28/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2PostgreSQL/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/04/28/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2PostgreSQL/","path":"2024/04/28/容器技术/K3s部署PostgreSQL/","title":"K3s部署PostgreSQL"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>K3s部署PostgreSQL | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">一、环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AD%98%E5%82%A8%E9%85%8D%E7%BD%AE%EF%BC%9APersistentVolume%E4%B8%8EPersistentVolumeClaim"><span class="nav-number">2.</span> <span class="nav-text">二、存储配置：PersistentVolume与PersistentVolumeClaim</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%881%EF%BC%9A%E5%9F%BA%E4%BA%8Elocal-path%E5%AD%98%E5%82%A8%E7%B1%BB%EF%BC%88%E5%8D%95%E8%8A%82%E7%82%B9%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">方案1：基于local-path存储类（单节点场景）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%882%EF%BC%9A%E5%9F%BA%E4%BA%8EhostPath%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%98%E5%82%A8%E7%B1%BB%EF%BC%88%E5%A4%9A%E8%8A%82%E7%82%B9-%E8%87%AA%E5%AE%9A%E4%B9%89%E8%B7%AF%E5%BE%84%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">方案2：基于hostPath的自定义存储类（多节点&#x2F;自定义路径场景）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%EF%BC%9AConfigMap%E5%AE%9A%E4%B9%89%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">3.</span> <span class="nav-text">三、配置管理：ConfigMap定义环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%9C%8D%E5%8A%A1%E6%9A%B4%E9%9C%B2%EF%BC%9AService%E4%B8%8EIngressRouteTCP"><span class="nav-number">4.</span> <span class="nav-text">四、服务暴露：Service与IngressRouteTCP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ClusterIP%E7%B1%BB%E5%9E%8BService%EF%BC%88%E9%9B%86%E7%BE%A4%E5%86%85%E8%AE%BF%E9%97%AE%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">1. ClusterIP类型Service（集群内访问）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-IngressRouteTCP%EF%BC%88%E9%9B%86%E7%BE%A4%E5%A4%96%E8%AE%BF%E9%97%AE%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">2. IngressRouteTCP（集群外访问）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%83%A8%E7%BD%B2%E7%BC%96%E6%8E%92%EF%BC%9AStatefulSet%E9%83%A8%E7%BD%B2PostgreSQL"><span class="nav-number">5.</span> <span class="nav-text">五、部署编排：StatefulSet部署PostgreSQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%BB%93%E6%9E%9C"><span class="nav-number">6.</span> <span class="nav-text">六、验证部署结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/04/28/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2PostgreSQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="K3s部署PostgreSQL | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          K3s部署PostgreSQL
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-04-28 00:00:00" itemprop="dateCreated datePublished" datetime="2024-04-28T00:00:00+08:00">2024-04-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">容器技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>PostgreSQL作为一款高性能、开源的关系型数据库，在云原生场景中，常需与轻量级Kubernetes发行版K3s结合部署，以实现资源高效利用与灵活运维。本文将详细拆解基于K3s部署PostgreSQL的完整流程，涵盖存储配置、配置管理、服务暴露及部署编排等核心环节，助力开发者快速完成部署落地。</p>
+<h2 id="一、环境准备"><a href="#一、环境准备" class="headerlink" title="一、环境准备"></a>一、环境准备</h2><p>部署前需确保K3s集群已正常运行，且kubectl工具已完成集群连接配置（可通过<code>kubectl get nodes</code>命令验证集群状态）。本文所有资源配置均部署在独立的<code>postgres</code>命名空间下，避免与其他应用资源冲突，需先执行以下命令创建该命名空间：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create namespace postgres</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、存储配置：PersistentVolume与PersistentVolumeClaim"><a href="#二、存储配置：PersistentVolume与PersistentVolumeClaim" class="headerlink" title="二、存储配置：PersistentVolume与PersistentVolumeClaim"></a>二、存储配置：PersistentVolume与PersistentVolumeClaim</h2><p>PostgreSQL作为有状态应用，数据持久化是核心需求。本文提供两种存储配置方案，可根据集群规模（单节点&#x2F;多节点）及实际存储需求灵活选择。</p>
+<h3 id="方案1：基于local-path存储类（单节点场景）"><a href="#方案1：基于local-path存储类（单节点场景）" class="headerlink" title="方案1：基于local-path存储类（单节点场景）"></a>方案1：基于local-path存储类（单节点场景）</h3><p>local-path是K3s默认集成的存储类，适用于单节点K3s集群，无需手动创建PersistentVolume（PV），仅需定义PersistentVolumeClaim（PVC），系统会自动创建PV并完成绑定。创建<code>postgres-pvc-local-path.yaml</code>配置文件，内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres-pvc</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">accessModes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ReadWriteOnce</span></span><br><span class="line">  <span class="attr">storageClassName:</span> <span class="string">local-path</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">storage:</span> <span class="string">10Gi</span></span><br></pre></td></tr></table></figure>
+
+<p>该配置声明了10Gi的存储资源请求，访问模式为<code>ReadWriteOnce</code>（仅允许单个节点读写），完全适配单节点K3s的部署场景，配置简洁且无需额外运维。</p>
+<h3 id="方案2：基于hostPath的自定义存储类（多节点-自定义路径场景）"><a href="#方案2：基于hostPath的自定义存储类（多节点-自定义路径场景）" class="headerlink" title="方案2：基于hostPath的自定义存储类（多节点&#x2F;自定义路径场景）"></a>方案2：基于hostPath的自定义存储类（多节点&#x2F;自定义路径场景）</h3><p>若需自定义存储路径，或集群为多节点架构，可手动创建PV并绑定PVC，实现更灵活的存储管理。创建<code>postgres-pvc-host-path.yaml</code>文件，包含PV与PVC的完整定义（修正原文中<code>storge</code>的拼写错误为<code>storage</code>）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolume</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres-pv</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">storageClassName:</span> <span class="string">postgres-persistent-storage</span></span><br><span class="line">  <span class="attr">capacity:</span></span><br><span class="line">    <span class="attr">storage:</span> <span class="string">5Gi</span></span><br><span class="line">  <span class="attr">accessModes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ReadWriteMany</span></span><br><span class="line">  <span class="attr">hostPath:</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/mnt/postgres/data</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres-pvc</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">storageClassName:</span> <span class="string">postgres-persistent-storage</span></span><br><span class="line">  <span class="attr">accessModes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ReadWriteMany</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">storage:</span> <span class="string">5Gi</span></span><br></pre></td></tr></table></figure>
+
+<p>需提前在集群节点上创建<code>/mnt/postgres/data</code>目录，并确保目录权限正确（建议设置为777或匹配Pod运行用户权限）；访问模式<code>ReadWriteMany</code>支持多节点读写，可满足多节点K3s集群的部署需求。</p>
+<p>执行以下命令创建对应存储资源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案1（单节点）</span></span><br><span class="line">kubectl apply -f postgres-pvc-local-path.yaml</span><br><span class="line"><span class="comment"># 方案2（多节点/自定义路径）</span></span><br><span class="line">kubectl apply -f postgres-pvc-host-path.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、配置管理：ConfigMap定义环境变量"><a href="#三、配置管理：ConfigMap定义环境变量" class="headerlink" title="三、配置管理：ConfigMap定义环境变量"></a>三、配置管理：ConfigMap定义环境变量</h2><p>PostgreSQL的核心初始化配置（如默认数据库名、管理员用户名、密码）可通过ConfigMap统一管理，便于后续配置修改与维护，无需重新构建镜像或重启Pod。创建<code>postgres-config.yaml</code>配置文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres-config</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">POSTGRES_DB:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">POSTGRES_USER:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">POSTGRES_PASSWORD:</span> <span class="string">postgres</span></span><br></pre></td></tr></table></figure>
+
+<p>本文为简化部署流程，使用ConfigMap存储密码；实际生产环境中，建议使用Secret存储敏感信息（如数据库密码），提升配置安全性。</p>
+<p>执行以下命令创建ConfigMap资源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f postgres-config.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、服务暴露：Service与IngressRouteTCP"><a href="#四、服务暴露：Service与IngressRouteTCP" class="headerlink" title="四、服务暴露：Service与IngressRouteTCP"></a>四、服务暴露：Service与IngressRouteTCP</h2><p>为实现PostgreSQL的可访问性，需根据访问场景（集群内&#x2F;集群外）配置对应的服务暴露方式。K3s默认集成Traefik作为Ingress控制器，可通过Service实现集群内访问，通过IngressRouteTCP实现集群外访问。</p>
+<h3 id="1-ClusterIP类型Service（集群内访问）"><a href="#1-ClusterIP类型Service（集群内访问）" class="headerlink" title="1. ClusterIP类型Service（集群内访问）"></a>1. ClusterIP类型Service（集群内访问）</h3><p>创建<code>postgres-service.yaml</code>文件，定义ClusterIP类型的Service，监听PostgreSQL默认端口5432，实现集群内Pod间的访问：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">5432</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">5432</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br></pre></td></tr></table></figure>
+
+<p>ClusterIP类型Service仅允许集群内Pod访问，集群内其他应用可通过服务域名<code>postgres.postgres.svc.cluster.local:5432</code>连接PostgreSQL数据库。</p>
+<h3 id="2-IngressRouteTCP（集群外访问）"><a href="#2-IngressRouteTCP（集群外访问）" class="headerlink" title="2. IngressRouteTCP（集群外访问）"></a>2. IngressRouteTCP（集群外访问）</h3><p>若需从集群外访问PostgreSQL，可通过Traefik的IngressRouteTCP暴露TCP端口。创建<code>postgres-ingress.yaml</code>文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">traefik.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">IngressRouteTCP</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres-tcp</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">entryPoints:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">routes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">match:</span> <span class="string">HostSNI(`*`)</span></span><br><span class="line">      <span class="attr">services:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">          <span class="attr">port:</span> <span class="number">5432</span></span><br></pre></td></tr></table></figure>
+
+<p>需先在Traefik控制器中配置<code>postgres</code>入口点（entryPoints），指定监听的主机端口（建议与PostgreSQL默认端口5432保持一致），否则IngressRouteTCP配置无法生效。</p>
+<p>执行以下命令创建服务相关资源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f postgres-service.yaml</span><br><span class="line">kubectl apply -f postgres-ingress.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、部署编排：StatefulSet部署PostgreSQL"><a href="#五、部署编排：StatefulSet部署PostgreSQL" class="headerlink" title="五、部署编排：StatefulSet部署PostgreSQL"></a>五、部署编排：StatefulSet部署PostgreSQL</h2><p>PostgreSQL作为有状态应用，推荐使用StatefulSet而非Deployment部署，可确保Pod拥有稳定的网络标识和持久化存储，避免因Pod重启导致数据丢失或网络地址变更。创建<code>postgres-statefulset.yaml</code>文件（修正原文“deployment.yaml”命名偏差，贴合StatefulSet资源类型）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">StatefulSet</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">postgres:16.3</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">5432</span></span><br><span class="line">        <span class="attr">envFrom:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">configMapRef:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">postgres-config</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgredb</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/var/lib/postgresql/data</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgredb</span></span><br><span class="line">        <span class="attr">persistentVolumeClaim:</span></span><br><span class="line">          <span class="attr">claimName:</span> <span class="string">postgres-pvc</span></span><br></pre></td></tr></table></figure>
+
+<p>使用<code>postgres:16.3</code>稳定版本镜像，通过<code>envFrom</code>批量加载ConfigMap中的环境变量，将PVC挂载到PostgreSQL的数据存储目录<code>/var/lib/postgresql/data</code>，确保数据持久化；镜像拉取策略设为<code>IfNotPresent</code>，避免重复拉取镜像，提升部署效率。</p>
+<p>执行以下命令部署PostgreSQL：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f postgres-statefulset.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、验证部署结果"><a href="#六、验证部署结果" class="headerlink" title="六、验证部署结果"></a>六、验证部署结果</h2><p>部署完成后，需通过一系列命令验证各资源状态，确保PostgreSQL正常运行。</p>
+<ol>
+<li>检查PVC绑定状态：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pvc -n postgres</span><br></pre></td></tr></table></figure>
+
+<p>正常情况下，PVC的STATUS列显示为<code>Bound</code>，表示存储绑定成功。</p>
+<ol start="2">
+<li>检查StatefulSet与Pod运行状态：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl get statefulset -n postgres</span><br><span class="line">kubectl get pods -n postgres</span><br></pre></td></tr></table></figure>
+
+<p>确保StatefulSet的READY列显示为<code>1/1</code>（副本数为1时），Pod的STATUS列显示为<code>Running</code>，无异常重启记录。</p>
+<ol start="3">
+<li>测试数据库连接：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入PostgreSQL Pod内部</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it postgres-0 -n postgres -- bash</span><br><span class="line"><span class="comment"># 连接PostgreSQL数据库（使用ConfigMap中定义的用户名和数据库名）</span></span><br><span class="line">psql -U postgres -d postgres</span><br></pre></td></tr></table></figure>
+
+<p>若能成功进入PostgreSQL命令行界面（显示<code>postgres=#</code>提示符），说明PostgreSQL部署成功且可正常使用。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文基于K3s原生资源（PVC&#x2F;PV、ConfigMap、Service、StatefulSet），完成了PostgreSQL的全流程部署，覆盖了存储配置、配置管理、服务暴露、部署编排及结果验证等核心环节，流程清晰、可操作性强。在实际生产环境中，可根据业务需求灵活调整：如增加副本数实现高可用、使用Secret管理敏感信息、优化Ingress配置实现访问控制等，进一步提升部署的安全性与稳定性。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+              <a href="/tags/K8s/" rel="tag"># K8s</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/04/26/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/K3s%E9%83%A8%E7%BD%B2MySQL/" rel="prev" title="K3s部署MySQL">
+                  <i class="fa fa-angle-left"></i> K3s部署MySQL
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/06/01/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E8%A7%A3%E5%86%B3LibVLCSharp%E5%BC%B9%E5%87%BADirect3d11%E7%AA%97%E4%BD%93%E9%97%AE%E9%A2%98/" rel="next" title="解决LibVLCSharp弹出Direct3d11窗体问题">
+                  解决LibVLCSharp弹出Direct3d11窗体问题 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

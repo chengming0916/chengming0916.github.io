@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、核心定位本文作为GitOps环境搭建系列的第一篇，聚焦K3s集群的部署与基础配置。K3s是Rancher Labs推出的轻量级Kubernetes发行版，专为边缘计算、IoT设备和资源受限环境设计。相比标准Kubernetes，K3s具有安装包小（约40MB）、内存占用低、启动快速等优势，是构建轻量级GitOps环境的理想选择。 在GitOps环境中，K3s作为底层容器编排平台，承载所有Git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于K3s搭建GitOps环境1-K3s安装">
+<meta property="og:url" content="http://chengming0916.github.io/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%831-K3s%E5%AE%89%E8%A3%85/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、核心定位本文作为GitOps环境搭建系列的第一篇，聚焦K3s集群的部署与基础配置。K3s是Rancher Labs推出的轻量级Kubernetes发行版，专为边缘计算、IoT设备和资源受限环境设计。相比标准Kubernetes，K3s具有安装包小（约40MB）、内存占用低、启动快速等优势，是构建轻量级GitOps环境的理想选择。 在GitOps环境中，K3s作为底层容器编排平台，承载所有Git">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.471Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="GitOps">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%831-K3s%E5%AE%89%E8%A3%85/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%831-K3s%E5%AE%89%E8%A3%85/","path":"2024/03/11/容器技术/GitOps/基于K3s搭建GitOps环境1-K3s安装/","title":"基于K3s搭建GitOps环境1-K3s安装"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于K3s搭建GitOps环境1-K3s安装 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%BD%8D"><span class="nav-number">1.</span> <span class="nav-text">一、核心定位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2%E5%89%8D%E7%BD%AE%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">二、部署前置检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81K3s%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2"><span class="nav-number">3.</span> <span class="nav-text">三、K3s集群部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Master%E8%8A%82%E7%82%B9%E5%AE%89%E8%A3%85"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 Master节点安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Worker%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 Worker节点加入集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%85%8D%E7%BD%AEkubeconfig"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 配置kubeconfig</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AD%98%E5%82%A8%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">四、存储配置优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%BF%AE%E6%94%B9local-path%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 修改local-path存储类回收策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%98%E5%82%A8%E8%B7%AF%E5%BE%84"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 自定义存储路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85"><span class="nav-number">5.</span> <span class="nav-text">五、管理工具安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-Helm%E5%AE%89%E8%A3%85"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 Helm安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%91%BD%E4%BB%A4%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 命令自动补全</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E7%A7%81%E6%9C%89%E9%95%9C%E5%83%8F%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-number">6.</span> <span class="nav-text">六、私有镜像库配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%85%8D%E7%BD%AE%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%E5%99%A8"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 配置镜像加速器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89Harbor%E4%BB%93%E5%BA%93"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 配置私有Harbor仓库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%BB%93%E6%9E%9C"><span class="nav-number">7.</span> <span class="nav-text">七、验证部署结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%9F%BA%E7%A1%80%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 基础功能测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 集群状态检查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%B8%B8%E7%94%A8%E8%BF%90%E7%BB%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">8.</span> <span class="nav-text">八、常用运维命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E9%9B%86%E7%BE%A4%E7%AE%A1%E7%90%86"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 集群管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E5%BA%94%E7%94%A8%E7%AE%A1%E7%90%86"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 应用管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-Helm%E7%AE%A1%E7%90%86"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 Helm管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%BF%AE%E5%A4%8D"><span class="nav-number">9.</span> <span class="nav-text">九、常见问题修复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E9%85%8D%E7%BD%AE%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">十、配置参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%831-K3s%E5%AE%89%E8%A3%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于K3s搭建GitOps环境1-K3s安装 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于K3s搭建GitOps环境1-K3s安装
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-03-11 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-11T00:00:00+08:00">2024-03-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、核心定位"><a href="#一、核心定位" class="headerlink" title="一、核心定位"></a>一、核心定位</h2><p>本文作为GitOps环境搭建系列的第一篇，聚焦K3s集群的部署与基础配置。K3s是Rancher Labs推出的轻量级Kubernetes发行版，专为边缘计算、IoT设备和资源受限环境设计。相比标准Kubernetes，K3s具有安装包小（约40MB）、内存占用低、启动快速等优势，是构建轻量级GitOps环境的理想选择。</p>
+<p>在GitOps环境中，K3s作为底层容器编排平台，承载所有GitOps组件（Gitea、ArgoCD、Tekton、Harbor等）的运行，提供容器调度、服务发现、存储管理、网络通信等核心能力。</p>
+<h2 id="二、部署前置检查"><a href="#二、部署前置检查" class="headerlink" title="二、部署前置检查"></a>二、部署前置检查</h2><p>部署前需验证服务器环境，确保满足K3s运行要求：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 检查操作系统版本（支持Ubuntu 20.04+/CentOS 7+/RHEL 8+）</span></span><br><span class="line"><span class="built_in">cat</span> /etc/os-release</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 检查内核版本（需≥3.10）</span></span><br><span class="line"><span class="built_in">uname</span> -r</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 检查内存和存储空间</span></span><br><span class="line">free -h</span><br><span class="line"><span class="built_in">df</span> -h /</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 检查网络连通性</span></span><br><span class="line">ping -c 3 8.8.8.8</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 检查防火墙状态（建议关闭或配置放行规则）</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status firewalld</span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line"><span class="built_in">sudo</span> ufw status</span><br></pre></td></tr></table></figure>
+
+<p><strong>前置条件检查清单：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> 操作系统符合要求</li>
+<li><input disabled="" type="checkbox"> 内核版本≥3.10</li>
+<li><input disabled="" type="checkbox"> 内存≥2GB，存储≥20GB</li>
+<li><input disabled="" type="checkbox"> 网络可访问外网（用于拉取镜像）</li>
+<li><input disabled="" type="checkbox"> 防火墙已关闭或配置放行规则</li>
+<li><input disabled="" type="checkbox"> 已配置sudo权限或root用户</li>
+</ul>
+<h2 id="三、K3s集群部署"><a href="#三、K3s集群部署" class="headerlink" title="三、K3s集群部署"></a>三、K3s集群部署</h2><h3 id="3-1-Master节点安装"><a href="#3-1-Master节点安装" class="headerlink" title="3.1 Master节点安装"></a>3.1 Master节点安装</h3><p>执行以下命令安装K3s Master节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用国内镜像源加速安装</span></span><br><span class="line">curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | \</span><br><span class="line">    INSTALL_K3S_MIRROR=cn \</span><br><span class="line">    INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644&#x27;</span> sh -</span><br></pre></td></tr></table></figure>
+
+<p><strong>安装参数说明：</strong></p>
+<ul>
+<li><code>INSTALL_K3S_MIRROR=cn</code>：使用中国区镜像源，加速安装过程</li>
+<li><code>--write-kubeconfig-mode=644</code>：设置kubeconfig文件权限为644，便于多用户访问</li>
+<li><code>--service-node-port-range=1-65535</code>：解除NodePort端口限制（默认30000-32767）</li>
+<li><code>--advertise-address=192.168.1.100</code>：指定集群管理IP（替换为实际IP）</li>
+<li><code>--disable=traefik</code>：禁用Traefik（如需自定义Traefik配置）</li>
+<li><code>--disable=local-path</code>：禁用本地存储（如需使用其他存储方案）</li>
+</ul>
+<h3 id="3-2-Worker节点加入集群"><a href="#3-2-Worker节点加入集群" class="headerlink" title="3.2 Worker节点加入集群"></a>3.2 Worker节点加入集群</h3><p>在Worker节点执行以下命令加入集群：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取Master节点的token（在Master节点执行）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> /var/lib/rancher/k3s/server/node-token</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在Worker节点执行加入命令（替换&lt;k3s-server-ip&gt;和&lt;token&gt;）</span></span><br><span class="line">curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | \</span><br><span class="line">    K3S_URL=https://&lt;k3s-server-ip&gt;:6443 \</span><br><span class="line">    K3S_TOKEN=&lt;token&gt; \</span><br><span class="line">    INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644&#x27;</span> sh -</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明：</strong></p>
+<ul>
+<li><code>&lt;k3s-server-ip&gt;</code>：Master节点的IP地址</li>
+<li><code>&lt;token&gt;</code>：从Master节点获取的加入令牌</li>
+</ul>
+<h3 id="3-3-配置kubeconfig"><a href="#3-3-配置kubeconfig" class="headerlink" title="3.3 配置kubeconfig"></a>3.3 配置kubeconfig</h3><p>配置kubectl访问凭证：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置KUBECONFIG环境变量</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export KUBECONFIG=/etc/rancher/k3s/k3s.yaml&quot;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证集群访问</span></span><br><span class="line">kubectl get nodes</span><br><span class="line">kubectl cluster-info</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、存储配置优化"><a href="#四、存储配置优化" class="headerlink" title="四、存储配置优化"></a>四、存储配置优化</h2><h3 id="4-1-修改local-path存储类回收策略"><a href="#4-1-修改local-path存储类回收策略" class="headerlink" title="4.1 修改local-path存储类回收策略"></a>4.1 修改local-path存储类回收策略</h3><p>K3s默认使用local-path存储类，其回收策略为<code>Delete</code>（删除Pod时会删除关联的PV）。生产环境建议改为<code>Retain</code>，防止数据误删。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前存储类配置</span></span><br><span class="line">kubectl get storageclasses.storage.k8s.io local-path -o yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建修改后的存储类配置</span></span><br><span class="line"><span class="built_in">cat</span> &gt; storage-class.yaml &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: storage.k8s.io/v1</span></span><br><span class="line"><span class="string">kind: StorageClass</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  annotations:</span></span><br><span class="line"><span class="string">    defaultVolumeType: local</span></span><br><span class="line"><span class="string">    storageclass.kubernetes.io/is-default-class: &quot;true&quot;</span></span><br><span class="line"><span class="string">  name: local-path</span></span><br><span class="line"><span class="string">provisioner: rancher.io/local-path</span></span><br><span class="line"><span class="string">reclaimPolicy: Retain  # 修改为Retain，防止数据误删</span></span><br><span class="line"><span class="string">volumeBindingMode: WaitForFirstConsumer</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用修改后的存储类</span></span><br><span class="line">kubectl delete storageclasses.storage.k8s.io local-path</span><br><span class="line">kubectl apply -f storage-class.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-自定义存储路径"><a href="#4-2-自定义存储路径" class="headerlink" title="4.2 自定义存储路径"></a>4.2 自定义存储路径</h3><p>如需自定义存储路径，可在安装时指定：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装时指定存储路径</span></span><br><span class="line">curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | \</span><br><span class="line">    INSTALL_K3S_MIRROR=cn \</span><br><span class="line">    INSTALL_K3S_EXEC=<span class="string">&#x27;--write-kubeconfig-mode=644 --default-local-storage-path=/mnt/storage/k3s&#x27;</span> sh -</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、管理工具安装"><a href="#五、管理工具安装" class="headerlink" title="五、管理工具安装"></a>五、管理工具安装</h2><h3 id="5-1-Helm安装"><a href="#5-1-Helm安装" class="headerlink" title="5.1 Helm安装"></a>5.1 Helm安装</h3><p>Helm是Kubernetes的包管理工具，后续组件部署将大量使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在线安装（推荐）</span></span><br><span class="line">curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># Ubuntu使用snap安装</span></span><br><span class="line"><span class="built_in">sudo</span> snap install helm --classic</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证安装</span></span><br><span class="line">helm version --short</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-命令自动补全"><a href="#5-2-命令自动补全" class="headerlink" title="5.2 命令自动补全"></a>5.2 命令自动补全</h3><p>配置命令自动补全，提升操作效率：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装bash-completion</span></span><br><span class="line"><span class="built_in">sudo</span> apt install bash-completion</span><br><span class="line"><span class="built_in">source</span> /usr/share/bash-completion/bash_completion</span><br><span class="line"></span><br><span class="line"><span class="comment"># kubectl自动补全</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;source &lt;(kubectl completion bash)&#x27;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br><span class="line"></span><br><span class="line"><span class="comment"># helm自动补全</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;source &lt;(helm completion bash)&#x27;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、私有镜像库配置"><a href="#六、私有镜像库配置" class="headerlink" title="六、私有镜像库配置"></a>六、私有镜像库配置</h2><p>K3s支持配置私有镜像库，加速镜像拉取或使用内网镜像仓库：</p>
+<h3 id="6-1-配置镜像加速器"><a href="#6-1-配置镜像加速器" class="headerlink" title="6.1 配置镜像加速器"></a>6.1 配置镜像加速器</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建registries.yaml配置文件</span></span><br><span class="line"><span class="string">sudo</span> <span class="string">cat</span> <span class="string">&gt;</span> <span class="string">/etc/rancher/k3s/registries.yaml</span> <span class="string">&lt;&lt;</span> <span class="string">EOF</span></span><br><span class="line"><span class="attr">mirrors:</span></span><br><span class="line">  <span class="attr">&quot;docker.io&quot;:</span></span><br><span class="line">    <span class="attr">endpoint:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;https://fogjl973.mirror.aliyuncs.com&quot;</span>  <span class="comment"># 阿里云镜像加速器</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;https://registry-1.docker.io&quot;</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启K3s使配置生效</span></span><br><span class="line"><span class="string">sudo</span> <span class="string">systemctl</span> <span class="string">restart</span> <span class="string">k3s</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-配置私有Harbor仓库"><a href="#6-2-配置私有Harbor仓库" class="headerlink" title="6.2 配置私有Harbor仓库"></a>6.2 配置私有Harbor仓库</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置带认证的私有仓库</span></span><br><span class="line"><span class="string">sudo</span> <span class="string">cat</span> <span class="string">&gt;</span> <span class="string">/etc/rancher/k3s/registries.yaml</span> <span class="string">&lt;&lt;</span> <span class="string">EOF</span></span><br><span class="line"><span class="attr">mirrors:</span></span><br><span class="line">  <span class="attr">&quot;harbor.example.io&quot;:</span>  <span class="comment"># 替换为您的Harbor域名</span></span><br><span class="line">    <span class="attr">endpoint:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;https://harbor.example.io&quot;</span></span><br><span class="line"><span class="attr">configs:</span></span><br><span class="line">  <span class="attr">&quot;harbor.example.io&quot;:</span></span><br><span class="line">    <span class="attr">auth:</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">admin</span></span><br><span class="line">      <span class="attr">password:</span> <span class="string">Harbor12345</span></span><br><span class="line">    <span class="attr">tls:</span></span><br><span class="line">      <span class="attr">ca_file:</span> <span class="string">/opt/certs/ca.crt</span>  <span class="comment"># 自签名证书路径</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="七、验证部署结果"><a href="#七、验证部署结果" class="headerlink" title="七、验证部署结果"></a>七、验证部署结果</h2><h3 id="7-1-基础功能测试"><a href="#7-1-基础功能测试" class="headerlink" title="7.1 基础功能测试"></a>7.1 基础功能测试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建测试应用</span></span><br><span class="line">kubectl create deploy <span class="built_in">whoami</span> --image=traefik/whoami --replicas=2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 监控Pod启动状态</span></span><br><span class="line">kubectl get pods --watch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 暴露服务</span></span><br><span class="line">kubectl expose deploy <span class="built_in">whoami</span> --port=80</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 查看服务状态</span></span><br><span class="line">kubectl get svc <span class="built_in">whoami</span> -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 扩容测试</span></span><br><span class="line">kubectl scale deploy <span class="built_in">whoami</span> --replicas=5</span><br><span class="line">kubectl get pods</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 清理测试资源</span></span><br><span class="line">kubectl delete all --all</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-集群状态检查"><a href="#7-2-集群状态检查" class="headerlink" title="7.2 集群状态检查"></a>7.2 集群状态检查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有节点状态</span></span><br><span class="line">kubectl get nodes -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有命名空间资源</span></span><br><span class="line">kubectl get all -A</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看核心组件状态</span></span><br><span class="line">kubectl get pods -n kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看存储类</span></span><br><span class="line">kubectl get storageclass</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看集群事件</span></span><br><span class="line">kubectl get events --sort-by=<span class="string">&#x27;.lastTimestamp&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="八、常用运维命令"><a href="#八、常用运维命令" class="headerlink" title="八、常用运维命令"></a>八、常用运维命令</h2><h3 id="8-1-集群管理"><a href="#8-1-集群管理" class="headerlink" title="8.1 集群管理"></a>8.1 集群管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看集群信息</span></span><br><span class="line">kubectl cluster-info</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看节点详细信息</span></span><br><span class="line">kubectl describe node &lt;node-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看节点标签</span></span><br><span class="line">kubectl get node --show-labels</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看资源使用情况</span></span><br><span class="line">kubectl top nodes</span><br><span class="line">kubectl top pods -A</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-应用管理"><a href="#8-2-应用管理" class="headerlink" title="8.2 应用管理"></a>8.2 应用管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看指定命名空间资源</span></span><br><span class="line">kubectl get all -n &lt;namespace&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Pod日志</span></span><br><span class="line">kubectl logs -n &lt;namespace&gt; &lt;pod-name&gt;</span><br><span class="line">kubectl logs -f -n &lt;namespace&gt; &lt;pod-name&gt;  <span class="comment"># 实时日志</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入Pod容器</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it -n &lt;namespace&gt; &lt;pod-name&gt; -- /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启Deployment</span></span><br><span class="line">kubectl rollout restart deploy/&lt;deploy-name&gt; -n &lt;namespace&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看部署历史</span></span><br><span class="line">kubectl rollout <span class="built_in">history</span> deploy/&lt;deploy-name&gt; -n &lt;namespace&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-3-Helm管理"><a href="#8-3-Helm管理" class="headerlink" title="8.3 Helm管理"></a>8.3 Helm管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看charts的values文件</span></span><br><span class="line">helm show values bitnami/redis &gt; values.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加Helm仓库</span></span><br><span class="line">helm repo add &lt;repo-name&gt; &lt;repo-url&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新仓库索引</span></span><br><span class="line">helm repo update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索chart</span></span><br><span class="line">helm search repo &lt;keyword&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="九、常见问题修复"><a href="#九、常见问题修复" class="headerlink" title="九、常见问题修复"></a>九、常见问题修复</h2><table>
+<thead>
+<tr>
+<th>问题现象</th>
+<th>排查方向</th>
+<th>修复方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>节点NotReady</td>
+<td>网络&#x2F;容器运行时</td>
+<td>检查网络连通性，重启containerd：<code>sudo systemctl restart containerd</code></td>
+</tr>
+<tr>
+<td>Pod一直Pending</td>
+<td>资源不足&#x2F;存储问题</td>
+<td>检查节点资源：<code>kubectl describe pod &lt;pod-name&gt;</code>，查看事件</td>
+</tr>
+<tr>
+<td>镜像拉取失败</td>
+<td>镜像仓库&#x2F;网络</td>
+<td>检查镜像地址，配置镜像加速器或私有仓库</td>
+</tr>
+<tr>
+<td>kubeconfig权限错误</td>
+<td>文件权限</td>
+<td>设置正确权限：<code>sudo chmod 644 /etc/rancher/k3s/k3s.yaml</code></td>
+</tr>
+<tr>
+<td>Helm安装失败</td>
+<td>网络&#x2F;版本</td>
+<td>检查网络，使用国内镜像源或离线安装</td>
+</tr>
+</tbody></table>
+<h2 id="十、配置参考"><a href="#十、配置参考" class="headerlink" title="十、配置参考"></a>十、配置参考</h2><p>所有配置文件和部署脚本请参考：<br><strong><a target="_blank" rel="noopener" href="https://gitee.com/Chemmy/kube-template/tree/master/devops/k3s">https://gitee.com/Chemmy/kube-template/tree/master/devops/k3s</a></strong></p>
+<p>该目录包含：</p>
+<ul>
+<li>K3s安装脚本</li>
+<li>存储类配置</li>
+<li>镜像仓库配置</li>
+<li>节点加入脚本</li>
+<li>生产环境优化配置</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文完成了K3s集群的标准化部署，包括Master节点安装、Worker节点加入、存储配置优化、管理工具安装等核心步骤。K3s作为轻量级Kubernetes发行版，为后续GitOps组件部署提供了稳定可靠的底层平台。</p>
+<p>部署完成后，建议进行全面的功能测试，确保集群各项功能正常。下一篇文章将基于此K3s集群，部署Traefik反向代理，为后续组件提供统一的访问入口。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/GitOps/" rel="tag"># GitOps</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/10/Linux/Windows%E4%B8%8ELinux%E6%96%87%E4%BB%B6%E4%BA%92%E4%BC%A0%E5%B7%A5%E5%85%B7/" rel="prev" title="Windows与Linux文件互传工具">
+                  <i class="fa fa-angle-left"></i> Windows与Linux文件互传工具
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%83/" rel="next" title="基于K3s搭建GitOps环境">
+                  基于K3s搭建GitOps环境 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

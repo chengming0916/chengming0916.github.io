@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="迭代器模式（Iterator Pattern）是一种经典的行为型设计模式，其核心目标是提供一种标准化方式顺序访问聚合对象中的各个元素，同时不暴露该对象的内部存储结构。它通过将遍历逻辑与集合本身解耦，让集合类专注于数据的存储与管理，迭代器类专注于遍历行为的实现，大幅提升代码的灵活性、可维护性与可扩展性，是处理集合遍历场景的核心设计范式。 迭代器模式的核心价值在于“分离遍历与存储”，它屏蔽了不同集合（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="迭代器模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/16/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/15.%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="迭代器模式（Iterator Pattern）是一种经典的行为型设计模式，其核心目标是提供一种标准化方式顺序访问聚合对象中的各个元素，同时不暴露该对象的内部存储结构。它通过将遍历逻辑与集合本身解耦，让集合类专注于数据的存储与管理，迭代器类专注于遍历行为的实现，大幅提升代码的灵活性、可维护性与可扩展性，是处理集合遍历场景的核心设计范式。 迭代器模式的核心价值在于“分离遍历与存储”，它屏蔽了不同集合（">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.425Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="迭代器模式">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/16/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/15.%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/16/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/15.%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/","path":"2019/11/16/学习笔记/设计模式/15.迭代器模式/","title":"迭代器模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>迭代器模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、迭代器模式的核心结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%8A%BD%E8%B1%A1%E8%BF%AD%E4%BB%A3%E5%99%A8%EF%BC%88Iterator%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 抽象迭代器（Iterator）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%85%B7%E4%BD%93%E8%BF%AD%E4%BB%A3%E5%99%A8%EF%BC%88Concrete-Iterator%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 具体迭代器（Concrete Iterator）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E6%8A%BD%E8%B1%A1%E8%81%9A%E5%90%88%E7%B1%BB%EF%BC%88Aggregate%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 抽象聚合类（Aggregate）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-%E5%85%B7%E4%BD%93%E8%81%9A%E5%90%88%E7%B1%BB%EF%BC%88Concrete-Aggregate%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 具体聚合类（Concrete Aggregate）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、多语言实现迭代器模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E4%BE%9D%E6%89%98%E5%86%85%E7%BD%AE%E6%8E%A5%E5%8F%A3%EF%BC%8C%E8%B4%B4%E5%90%88%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（依托内置接口，贴合语言特性）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88%E4%BE%9D%E6%89%98%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%8D%8F%E8%AE%AE%EF%BC%8C%E7%AE%80%E6%B4%81%E9%AB%98%E6%95%88%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（依托迭代器协议，简洁高效）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Go-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8E%A5%E5%8F%A3-%E7%BB%93%E6%9E%84%E4%BD%93%EF%BC%8C%E8%BD%BB%E9%87%8F%E5%8C%96%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Go 实现（接口+结构体，轻量化实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8A%BD%E8%B1%A1%E7%B1%BB-%E6%A8%A1%E6%9D%BF%EF%BC%8C%E9%80%9A%E7%94%A8%E5%8C%96%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（抽象类+模板，通用化设计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%EF%BC%8C%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针，模拟实现）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、迭代器模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、迭代器模式的使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%A0%B8%E5%BF%83%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 核心适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%85%B8%E5%9E%8B%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 典型实战案例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/16/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/15.%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="迭代器模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          迭代器模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-16 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-16T00:00:00+08:00">2019-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>迭代器模式（Iterator Pattern）是一种经典的行为型设计模式，其核心目标是<strong>提供一种标准化方式顺序访问聚合对象中的各个元素，同时不暴露该对象的内部存储结构</strong>。它通过将遍历逻辑与集合本身解耦，让集合类专注于数据的存储与管理，迭代器类专注于遍历行为的实现，大幅提升代码的灵活性、可维护性与可扩展性，是处理集合遍历场景的核心设计范式。</p>
+<p>迭代器模式的核心价值在于“分离遍历与存储”，它屏蔽了不同集合（如数组、链表、哈希表）的底层实现差异，为外部提供统一的遍历接口，使得调用者无需关心集合的内部结构，只需通过迭代器即可完成元素的遍历，完美契合“单一职责原则”与“开闭原则”。</p>
+<h2 id="一、迭代器模式的核心结构"><a href="#一、迭代器模式的核心结构" class="headerlink" title="一、迭代器模式的核心结构"></a>一、迭代器模式的核心结构</h2><p>迭代器模式的结构清晰，角色分工明确，核心由四个角色构成，各角色协同工作，共同实现“解耦遍历逻辑与集合存储”的核心目标，确保遍历行为的标准化与集合的封装性：</p>
+<h3 id="1-1-抽象迭代器（Iterator）"><a href="#1-1-抽象迭代器（Iterator）" class="headerlink" title="1.1 抽象迭代器（Iterator）"></a>1.1 抽象迭代器（Iterator）</h3><p>定义遍历聚合对象的通用接口，是所有具体迭代器的行为契约。通常包含两个核心方法：<code>HasNext()</code>（判断当前位置是否还有下一个元素，返回布尔值）和<code>Next()</code>（获取当前位置的下一个元素，并将遍历指针移动到下一位），部分场景可扩展<code>Reset()</code>（重置遍历指针）、<code>Remove()</code>（移除当前元素）等方法。</p>
+<h3 id="1-2-具体迭代器（Concrete-Iterator）"><a href="#1-2-具体迭代器（Concrete-Iterator）" class="headerlink" title="1.2 具体迭代器（Concrete Iterator）"></a>1.2 具体迭代器（Concrete Iterator）</h3><p>实现抽象迭代器接口，是迭代器模式的核心执行类。它内部持有对应具体聚合对象的引用，维护当前遍历的位置指针，负责完成实际的遍历逻辑，同时处理迭代边界（如越界判断），确保遍历的安全性。</p>
+<h3 id="1-3-抽象聚合类（Aggregate）"><a href="#1-3-抽象聚合类（Aggregate）" class="headerlink" title="1.3 抽象聚合类（Aggregate）"></a>1.3 抽象聚合类（Aggregate）</h3><p>定义聚合对象的通用接口，声明集合的核心行为（如添加、删除元素），并提供一个创建迭代器的抽象方法（如<code>CreateIterator()</code>）。抽象聚合类的核心作用是规范具体聚合类的行为，同时为外部提供获取迭代器的统一入口。</p>
+<h3 id="1-4-具体聚合类（Concrete-Aggregate）"><a href="#1-4-具体聚合类（Concrete-Aggregate）" class="headerlink" title="1.4 具体聚合类（Concrete Aggregate）"></a>1.4 具体聚合类（Concrete Aggregate）</h3><p>实现抽象聚合类的接口，是被遍历的目标集合，负责存储具体的元素数据（如数组、链表等底层结构）。它会返回一个与自身匹配的具体迭代器实例，将遍历逻辑委托给迭代器，自身仅专注于数据的存储与管理。</p>
+<p>核心逻辑链路：客户端 → 实例化具体聚合类（存储数据） → 调用聚合类的<code>CreateIterator()</code>方法获取具体迭代器 → 通过迭代器的<code>HasNext()</code>和<code>Next()</code>方法遍历元素 → 完成遍历。整个过程中，客户端无需关注集合的内部结构，仅与迭代器接口交互。</p>
+<h2 id="二、多语言实现迭代器模式"><a href="#二、多语言实现迭代器模式" class="headerlink" title="二、多语言实现迭代器模式"></a>二、多语言实现迭代器模式</h2><p>为便于开发者落地实践，本文以“字符串集合遍历”为经典案例，实现多语言版本的迭代器模式，覆盖面向对象语言、动态语言、面向过程语言及Go语言的特色实现。所有实现均保证完整可运行，贴合各语言设计理念，补充规范注释、异常处理和边界判断，兼顾实用性与可读性，同时体现各语言对迭代器模式的适配方式。</p>
+<h3 id="2-1-C-实现（依托内置接口，贴合语言特性）"><a href="#2-1-C-实现（依托内置接口，贴合语言特性）" class="headerlink" title="2.1 C# 实现（依托内置接口，贴合语言特性）"></a>2.1 C# 实现（依托内置接口，贴合语言特性）</h3><p>C# 语言内置了<code>IEnumerator</code>（抽象迭代器）和<code>IEnumerable</code>（抽象聚合类）接口，天然适配迭代器模式，开发者可直接复用内置接口实现，无需自定义抽象层，代码简洁且符合.NET框架规范，适配企业级系统开发。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 具体迭代器：实现系统内置抽象迭代器接口IEnumerator</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 负责字符串集合的遍历逻辑，维护遍历位置，处理边界判断</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StringIterator</span> : <span class="title">IEnumerator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 持有具体聚合对象的元素数组</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="built_in">string</span>[] _items;</span><br><span class="line">    <span class="comment">// 当前遍历位置指针（初始值为-1，代表未开始遍历）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> _position = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 初始化迭代器，绑定要遍历的集合元素</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;items&quot;&gt;</span>字符串集合数组<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">StringIterator</span>(<span class="params"><span class="built_in">string</span>[] items</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _items = items ?? <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentNullException(<span class="keyword">nameof</span>(items), <span class="string">&quot;遍历的集合不可为null&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 获取当前位置的元素</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">object</span> Current</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 处理越界异常，避免非法访问</span></span><br><span class="line">            <span class="keyword">if</span> (_position &lt; <span class="number">0</span> || _position &gt;= _items.Length)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;迭代器位置非法，无法获取当前元素&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> _items[_position];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 移动到下一个元素，返回是否存在下一个元素</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;returns&gt;</span>是否存在下一个元素<span class="doctag">&lt;/returns&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">bool</span> <span class="title">MoveNext</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _position++;</span><br><span class="line">        <span class="comment">// 判断当前位置是否在集合范围内</span></span><br><span class="line">        <span class="keyword">return</span> _position &lt; _items.Length;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 重置迭代器位置，重新开始遍历</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Reset</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _position = <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 具体聚合类：实现系统内置抽象聚合接口IEnumerable</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 负责存储字符串元素，提供创建迭代器的方法</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">StringCollection</span> : <span class="title">IEnumerable</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 底层存储元素的数组</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="built_in">string</span>[] _items;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 初始化字符串集合</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;items&quot;&gt;</span>要存储的字符串数组<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">StringCollection</span>(<span class="params"><span class="built_in">string</span>[] items</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _items = items ?? <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentNullException(<span class="keyword">nameof</span>(items), <span class="string">&quot;集合元素不可为null&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> 创建并返回对应的具体迭代器实例</span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;returns&gt;</span>字符串集合迭代器<span class="doctag">&lt;/returns&gt;</span></span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IEnumerator <span class="title">GetEnumerator</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> StringIterator(_items);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端测试代码</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 初始化具体聚合对象（存储数据）</span></span><br><span class="line">            <span class="keyword">var</span> collection = <span class="keyword">new</span> StringCollection(<span class="keyword">new</span>[] &#123; <span class="string">&quot;C#&quot;</span>, <span class="string">&quot;迭代器模式&quot;</span>, <span class="string">&quot;设计模式&quot;</span> &#125;);</span><br><span class="line">            <span class="comment">// 借助foreach遍历（C# foreach本质是调用迭代器的MoveNext和Current）</span></span><br><span class="line">            Console.WriteLine(<span class="string">&quot;C# 迭代器遍历结果：&quot;</span>);</span><br><span class="line">            <span class="keyword">foreach</span> (<span class="keyword">var</span> item <span class="keyword">in</span> collection)</span><br><span class="line">            &#123;</span><br><span class="line">                Console.WriteLine(item);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;遍历异常：<span class="subst">&#123;ex.Message&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（依托迭代器协议，简洁高效）"><a href="#2-2-Python-实现（依托迭代器协议，简洁高效）" class="headerlink" title="2.2 Python 实现（依托迭代器协议，简洁高效）"></a>2.2 Python 实现（依托迭代器协议，简洁高效）</h3><p>Python 不强制要求定义抽象接口，而是通过“迭代器协议”（实现<code>__iter__</code>和<code>__next__</code>方法）实现迭代器功能，语法简洁灵活，无需繁琐的接口声明，依托GC自动管理内存，适配快速开发、脚本开发及轻量级项目场景，完美贴合Python“简洁实用”的设计理念。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 具体迭代器：实现Python迭代器协议（__iter__和__next__方法）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StringIterator</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, items</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;初始化迭代器&quot;&quot;&quot;</span>        <span class="comment"># 绑定要遍历的集合元素</span></span><br><span class="line">        <span class="variable language_">self</span>._items = items <span class="keyword">if</span> items <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">else</span> []</span><br><span class="line">        <span class="comment"># 当前遍历位置指针（初始值为0，Python中数组下标从0开始）</span></span><br><span class="line">        <span class="variable language_">self</span>._index = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;迭代器协议要求：返回自身，支持for-in遍历&quot;&quot;&quot;</span>        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;迭代器协议要求：获取下一个元素，无元素时抛出StopIteration终止遍历&quot;&quot;&quot;</span>        <span class="keyword">if</span> <span class="variable language_">self</span>._index &lt; <span class="built_in">len</span>(<span class="variable language_">self</span>._items):</span><br><span class="line">            <span class="comment"># 获取当前元素并移动指针</span></span><br><span class="line">            result = <span class="variable language_">self</span>._items[<span class="variable language_">self</span>._index]</span><br><span class="line">            <span class="variable language_">self</span>._index += <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        <span class="comment"># 迭代终止标志，for-in会自动捕获该异常并结束遍历</span></span><br><span class="line">        <span class="keyword">raise</span> StopIteration(<span class="string">&quot;迭代已结束，无更多元素&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体聚合类：实现__iter__方法，返回迭代器实例</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StringCollection</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, items</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;初始化字符串集合&quot;&quot;&quot;</span>        <span class="variable language_">self</span>._items = items <span class="keyword">if</span> items <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">else</span> []</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;返回具体迭代器实例，供外部遍历&quot;&quot;&quot;</span>        <span class="keyword">return</span> StringIterator(<span class="variable language_">self</span>._items)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端测试代码</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 初始化集合并遍历</span></span><br><span class="line">        collection = StringCollection([<span class="string">&quot;Python&quot;</span>, <span class="string">&quot;迭代器模式&quot;</span>, <span class="string">&quot;设计模式&quot;</span>])</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Python 迭代器遍历结果：&quot;</span>)</span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> collection:</span><br><span class="line">            <span class="built_in">print</span>(item)</span><br><span class="line">    <span class="keyword">except</span> StopIteration <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;迭代异常：<span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;其他异常：<span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Go-实现（接口-结构体，轻量化实现）"><a href="#2-3-Go-实现（接口-结构体，轻量化实现）" class="headerlink" title="2.3 Go 实现（接口+结构体，轻量化实现）"></a>2.3 Go 实现（接口+结构体，轻量化实现）</h3><p>Go 语言无类和继承概念，核心遵循“组合优于继承”的设计哲学，通过接口定义迭代器和聚合类的契约，结构体实现具体的迭代器和聚合逻辑，代码极简、高效，贴合Go语言“简洁、务实、高性能”的设计理念，适配高并发、高性能的后端开发场景。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象迭代器接口：定义遍历的统一契约</span></span><br><span class="line"><span class="keyword">type</span> Iterator <span class="keyword">interface</span> &#123;</span><br><span class="line">    HasNext() <span class="type">bool</span>   <span class="comment">// 判断是否有下一个元素</span></span><br><span class="line">    Next() <span class="type">string</span>    <span class="comment">// 获取下一个元素</span></span><br><span class="line">    Reset()          <span class="comment">// 重置迭代器位置</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体迭代器：字符串集合迭代器</span></span><br><span class="line"><span class="keyword">type</span> StringIterator <span class="keyword">struct</span> &#123;</span><br><span class="line">    items []<span class="type">string</span>  <span class="comment">// 要遍历的元素数组</span></span><br><span class="line">    index <span class="type">int</span>       <span class="comment">// 当前遍历位置指针</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewStringIterator 工厂函数：创建字符串迭代器实例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewStringIterator</span><span class="params">(items []<span class="type">string</span>)</span></span> *StringIterator &#123;</span><br><span class="line">    <span class="keyword">if</span> items == <span class="literal">nil</span> &#123;</span><br><span class="line">        items = <span class="built_in">make</span>([]<span class="type">string</span>, <span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &amp;StringIterator&#123;</span><br><span class="line">        items: items,</span><br><span class="line">        index: <span class="number">0</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// HasNext 判断是否有下一个元素</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(it *StringIterator)</span></span> HasNext() <span class="type">bool</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> it.index &lt; <span class="built_in">len</span>(it.items)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Next 获取下一个元素，若无元素则返回空字符串</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(it *StringIterator)</span></span> Next() <span class="type">string</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> it.HasNext() &#123;</span><br><span class="line">        item := it.items[it.index]</span><br><span class="line">        it.index++</span><br><span class="line">        <span class="keyword">return</span> item</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(<span class="string">&quot;迭代已结束，无更多元素&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Reset 重置迭代器位置，重新开始遍历</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(it *StringIterator)</span></span> Reset() &#123;</span><br><span class="line">    it.index = <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象聚合类接口：定义创建迭代器的契约</span></span><br><span class="line"><span class="keyword">type</span> Aggregate <span class="keyword">interface</span> &#123;</span><br><span class="line">    CreateIterator() Iterator <span class="comment">// 创建迭代器</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体聚合类：字符串集合</span></span><br><span class="line"><span class="keyword">type</span> StringCollection <span class="keyword">struct</span> &#123;</span><br><span class="line">    items []<span class="type">string</span> <span class="comment">// 底层存储元素的数组</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewStringCollection 工厂函数：创建字符串集合实例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewStringCollection</span><span class="params">(items []<span class="type">string</span>)</span></span> *StringCollection &#123;</span><br><span class="line">    <span class="keyword">if</span> items == <span class="literal">nil</span> &#123;</span><br><span class="line">        items = <span class="built_in">make</span>([]<span class="type">string</span>, <span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &amp;StringCollection&#123;</span><br><span class="line">        items: items,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// CreateIterator 创建并返回迭代器实例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *StringCollection)</span></span> CreateIterator() Iterator &#123;</span><br><span class="line">    <span class="keyword">return</span> NewStringIterator(c.items)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端测试代码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// 初始化具体聚合对象</span></span><br><span class="line">    collection := NewStringCollection([]<span class="type">string</span>&#123;<span class="string">&quot;Go&quot;</span>, <span class="string">&quot;迭代器模式&quot;</span>, <span class="string">&quot;设计模式&quot;</span>&#125;)</span><br><span class="line">    <span class="comment">// 获取迭代器</span></span><br><span class="line">    iterator := collection.CreateIterator()</span><br><span class="line"></span><br><span class="line">    fmt.Println(<span class="string">&quot;Go 迭代器遍历结果：&quot;</span>)</span><br><span class="line">    <span class="comment">// 遍历元素</span></span><br><span class="line">    <span class="keyword">for</span> iterator.HasNext() &#123;</span><br><span class="line">        fmt.Println(iterator.Next())</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重置迭代器并重新遍历</span></span><br><span class="line">    iterator.Reset()</span><br><span class="line">    fmt.Println(<span class="string">&quot;Go 迭代器重置后遍历结果：&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> iterator.HasNext() &#123;</span><br><span class="line">        fmt.Println(iterator.Next())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（抽象类-模板，通用化设计）"><a href="#2-4-C-实现（抽象类-模板，通用化设计）" class="headerlink" title="2.4 C++ 实现（抽象类+模板，通用化设计）"></a>2.4 C++ 实现（抽象类+模板，通用化设计）</h3><p>C++ 作为经典面向对象语言，通过抽象类（纯虚函数）定义迭代器和聚合类的接口，结合模板机制实现通用化设计，支持多种数据类型的遍历，兼顾灵活性与高性能，需手动管理内存，适配底层开发、高频调用场景，是底层系统、高性能应用的优选实现方式。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdexcept&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象迭代器（模板类，支持任意数据类型）</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Iterator</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Iterator</span>() = <span class="keyword">default</span>; <span class="comment">// 虚析构函数，避免多态场景下内存泄漏</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">HasNext</span><span class="params">()</span> </span>= <span class="number">0</span>;    <span class="comment">// 纯虚函数：判断是否有下一个元素</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> T <span class="title">Next</span><span class="params">()</span> </span>= <span class="number">0</span>;         <span class="comment">// 纯虚函数：获取下一个元素</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Reset</span><span class="params">()</span> </span>= <span class="number">0</span>;      <span class="comment">// 纯虚函数：重置迭代器位置</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体迭代器（模板类，适配字符串、int等多种类型）</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ConcreteIterator</span> : <span class="keyword">public</span> Iterator&lt;T&gt; &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    vector&lt;T&gt; items;  <span class="comment">// 存储要遍历的元素</span></span><br><span class="line">    <span class="type">int</span> index;        <span class="comment">// 当前遍历位置指针</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 初始化迭代器，绑定集合元素</span></span><br><span class="line">    <span class="built_in">ConcreteIterator</span>(<span class="type">const</span> vector&lt;T&gt;&amp; items) : <span class="built_in">items</span>(items), <span class="built_in">index</span>(<span class="number">0</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断是否有下一个元素</span></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">HasNext</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> index &lt; items.<span class="built_in">size</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取下一个元素，越界时抛出异常</span></span><br><span class="line">    <span class="function">T <span class="title">Next</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">HasNext</span>()) &#123;</span><br><span class="line">            <span class="keyword">return</span> items[index++];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="built_in">out_of_range</span>(<span class="string">&quot;迭代器越界，无更多元素&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重置迭代器位置</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Reset</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        index = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象聚合类（模板类，支持任意数据类型）</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Aggregate</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Aggregate</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Iterator&lt;T&gt;* <span class="title">CreateIterator</span><span class="params">()</span> </span>= <span class="number">0</span>; <span class="comment">// 纯虚函数：创建迭代器</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Add</span><span class="params">(<span class="type">const</span> T&amp; item)</span> </span>= <span class="number">0</span>;       <span class="comment">// 纯虚函数：添加元素</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体聚合类（模板类，字符串集合）</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ConcreteAggregate</span> : <span class="keyword">public</span> Aggregate&lt;T&gt; &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    vector&lt;T&gt; items; <span class="comment">// 底层存储元素的vector容器</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 添加元素到集合</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Add</span><span class="params">(<span class="type">const</span> T&amp; item)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        items.<span class="built_in">push_back</span>(item);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建并返回具体迭代器实例</span></span><br><span class="line">    <span class="function">Iterator&lt;T&gt;* <span class="title">CreateIterator</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">ConcreteIterator</span>&lt;T&gt;(items);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端测试代码</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 初始化具体聚合对象（字符串类型）</span></span><br><span class="line">        ConcreteAggregate&lt;string&gt; collection;</span><br><span class="line">        <span class="comment">// 向集合中添加元素</span></span><br><span class="line">        collection.<span class="built_in">Add</span>(<span class="string">&quot;C++&quot;</span>);</span><br><span class="line">        collection.<span class="built_in">Add</span>(<span class="string">&quot;迭代器模式&quot;</span>);</span><br><span class="line">        collection.<span class="built_in">Add</span>(<span class="string">&quot;设计模式&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建迭代器</span></span><br><span class="line">        Iterator&lt;string&gt;* iterator = collection.<span class="built_in">CreateIterator</span>();</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;C++ 迭代器遍历结果：&quot;</span> &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历元素</span></span><br><span class="line">        <span class="keyword">while</span> (iterator-&gt;<span class="built_in">HasNext</span>()) &#123;</span><br><span class="line">            cout &lt;&lt; iterator-&gt;<span class="built_in">Next</span>() &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 重置迭代器并重新遍历</span></span><br><span class="line">        iterator-&gt;<span class="built_in">Reset</span>();</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;C++ 迭代器重置后遍历结果：&quot;</span> &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">while</span> (iterator-&gt;<span class="built_in">HasNext</span>()) &#123;</span><br><span class="line">            cout &lt;&lt; iterator-&gt;<span class="built_in">Next</span>() &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 释放内存，避免内存泄漏</span></span><br><span class="line">        <span class="keyword">delete</span> iterator;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">catch</span> (<span class="type">const</span> out_of_range&amp; e) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;迭代异常：&quot;</span> &lt;&lt; e.<span class="built_in">what</span>() &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">catch</span> (<span class="type">const</span> exception&amp; e) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;其他异常：&quot;</span> &lt;&lt; e.<span class="built_in">what</span>() &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针，模拟实现）"><a href="#2-5-纯C语言实现（结构体-函数指针，模拟实现）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针，模拟实现）"></a>2.5 纯C语言实现（结构体+函数指针，模拟实现）</h3><p>纯C语言无面向对象特性，无类和多态，通过“结构体封装数据+函数指针封装行为”，手动模拟迭代器模式的核心逻辑。用结构体封装聚合对象和迭代器的属性，用函数指针模拟抽象接口的方法，需手动管理内存，代码虽略显冗余，但底层可控性强，适配嵌入式、底层开发等资源受限场景，完美还原“遍历与存储解耦”的核心思想。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义最大字符串长度，避免内存溢出</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_STR_LEN 32</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象迭代器：用函数指针模拟接口方法</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span>** items;                <span class="comment">// 遍历的元素数组（字符串指针数组）</span></span><br><span class="line">    <span class="type">int</span> length;                  <span class="comment">// 数组长度</span></span><br><span class="line">    <span class="type">int</span> index;                   <span class="comment">// 当前遍历位置指针</span></span><br><span class="line">    <span class="type">int</span> (*HasNext)(<span class="type">void</span>*);       <span class="comment">// 函数指针：判断是否有下一个元素</span></span><br><span class="line">    <span class="type">char</span>* (*Next)(<span class="type">void</span>*);        <span class="comment">// 函数指针：获取下一个元素</span></span><br><span class="line">    <span class="type">void</span> (*Reset)(<span class="type">void</span>*);        <span class="comment">// 函数指针：重置迭代器位置</span></span><br><span class="line">&#125; Iterator;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体迭代器方法：判断是否有下一个元素</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">has_next</span><span class="params">(<span class="type">void</span>* iterator)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (iterator == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;迭代器实例为空，无法判断是否有下一个元素\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Iterator* it = (Iterator*)iterator;</span><br><span class="line">    <span class="keyword">return</span> it-&gt;index &lt; it-&gt;length ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体迭代器方法：获取下一个元素</span></span><br><span class="line"><span class="type">char</span>* <span class="title function_">next</span><span class="params">(<span class="type">void</span>* iterator)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (iterator == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;迭代器实例为空，无法获取元素\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Iterator* it = (Iterator*)iterator;</span><br><span class="line">    <span class="keyword">if</span> (has_next(it)) &#123;</span><br><span class="line">        <span class="comment">// 申请内存存储返回的字符串，避免野指针</span></span><br><span class="line">        <span class="type">char</span>* item = (<span class="type">char</span>*)<span class="built_in">malloc</span>(MAX_STR_LEN * <span class="keyword">sizeof</span>(<span class="type">char</span>));</span><br><span class="line">        <span class="keyword">if</span> (item == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;内存分配失败，无法获取元素\n&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">strncpy</span>(item, it-&gt;items[it-&gt;index], MAX_STR_LEN - <span class="number">1</span>);</span><br><span class="line">        item[MAX_STR_LEN - <span class="number">1</span>] = <span class="string">&#x27;\0&#x27;</span>; <span class="comment">// 确保字符串结束符</span></span><br><span class="line">        it-&gt;index++;</span><br><span class="line">        <span class="keyword">return</span> item;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;迭代已结束，无更多元素\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体迭代器方法：重置迭代器位置</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">reset</span><span class="params">(<span class="type">void</span>* iterator)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (iterator == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;迭代器实例为空，无法重置\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Iterator* it = (Iterator*)iterator;</span><br><span class="line">    it-&gt;index = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象聚合类：用结构体+函数指针模拟接口</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span>** items;                <span class="comment">// 存储元素的字符串指针数组</span></span><br><span class="line">    <span class="type">int</span> length;                  <span class="comment">// 数组长度</span></span><br><span class="line">    Iterator* (*CreateIterator)(<span class="type">void</span>*); <span class="comment">// 函数指针：创建迭代器</span></span><br><span class="line">&#125; Aggregate;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体聚合类方法：创建迭代器实例</span></span><br><span class="line">Iterator* <span class="title function_">create_iterator</span><span class="params">(<span class="type">void</span>* aggregate)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (aggregate == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;聚合对象为空，无法创建迭代器\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Aggregate* agg = (Aggregate*)aggregate;</span><br><span class="line">    <span class="comment">// 申请迭代器内存</span></span><br><span class="line">    Iterator* it = (Iterator*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Iterator));</span><br><span class="line">    <span class="keyword">if</span> (it == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;内存分配失败，无法创建迭代器\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 绑定聚合对象的元素和长度</span></span><br><span class="line">    it-&gt;items = agg-&gt;items;</span><br><span class="line">    it-&gt;length = agg-&gt;length;</span><br><span class="line">    it-&gt;index = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 绑定迭代器方法（函数指针赋值）</span></span><br><span class="line">    it-&gt;HasNext = has_next;</span><br><span class="line">    it-&gt;Next = next;</span><br><span class="line">    it-&gt;Reset = reset;</span><br><span class="line">    <span class="keyword">return</span> it;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放迭代器内存（避免内存泄漏）</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">iterator_destroy</span><span class="params">(Iterator* it)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (it != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">free</span>(it);</span><br><span class="line">        it = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端测试代码</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 初始化集合数据（字符串数组）</span></span><br><span class="line">    <span class="type">char</span>* items[] = &#123;<span class="string">&quot;C语言&quot;</span>, <span class="string">&quot;迭代器模式&quot;</span>, <span class="string">&quot;设计模式&quot;</span>&#125;;</span><br><span class="line">    <span class="type">int</span> len = <span class="keyword">sizeof</span>(items) / <span class="keyword">sizeof</span>(<span class="type">char</span>*);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 初始化聚合对象</span></span><br><span class="line">    Aggregate aggregate;</span><br><span class="line">    aggregate.items = items;</span><br><span class="line">    aggregate.length = len;</span><br><span class="line">    aggregate.CreateIterator = create_iterator;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 创建迭代器</span></span><br><span class="line">    Iterator* iterator = aggregate.CreateIterator(&amp;aggregate);</span><br><span class="line">    <span class="keyword">if</span> (iterator == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. 遍历元素</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;C语言 迭代器遍历结果：\n&quot;</span>);</span><br><span class="line">    <span class="type">char</span>* item = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">while</span> (iterator-&gt;HasNext(iterator)) &#123;</span><br><span class="line">        item = iterator-&gt;Next(iterator);</span><br><span class="line">        <span class="keyword">if</span> (item != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, item);</span><br><span class="line">            <span class="built_in">free</span>(item); <span class="comment">// 释放获取元素时申请的内存</span></span><br><span class="line">            item = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5. 重置迭代器并重新遍历</span></span><br><span class="line">    iterator-&gt;Reset(iterator);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;C语言 迭代器重置后遍历结果：\n&quot;</span>);</span><br><span class="line">    <span class="keyword">while</span> (iterator-&gt;HasNext(iterator)) &#123;</span><br><span class="line">        item = iterator-&gt;Next(iterator);</span><br><span class="line">        <span class="keyword">if</span> (item != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, item);</span><br><span class="line">            <span class="built_in">free</span>(item);</span><br><span class="line">            item = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 6. 释放迭代器内存</span></span><br><span class="line">    iterator_destroy(iterator);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、迭代器模式的优缺点"><a href="#三、迭代器模式的优缺点" class="headerlink" title="三、迭代器模式的优缺点"></a>三、迭代器模式的优缺点</h2><p>迭代器模式的核心价值是“解耦遍历逻辑与集合存储，提供统一遍历接口”，其优缺点均围绕这一核心展开。在实际开发中，需结合集合的复杂度、遍历场景的需求和性能要求，权衡使用，避免过度设计或滥用，确保既发挥其核心优势，又规避潜在问题。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>解耦遍历与集合，符合单一职责原则</strong>：集合类专注于数据的存储与管理，迭代器类专注于遍历逻辑的实现，两者职责分离，降低代码耦合度，便于后期维护和迭代。</p>
+</li>
+<li><p><strong>统一遍历接口，屏蔽底层差异</strong>：无论集合的底层存储结构（数组、链表、哈希表、树等）如何，外部都通过统一的迭代器接口遍历元素，调用者无需关心集合的内部实现，降低使用成本，提升代码的通用性。</p>
+</li>
+<li><p><strong>支持多态遍历，扩展灵活</strong>：可针对同一集合实现多种迭代器（如正序遍历、逆序遍历、过滤遍历、深度优先遍历），无需修改集合本身，新增遍历逻辑只需新增迭代器，符合“开闭原则”。</p>
+</li>
+<li><p><strong>简化集合扩展，提升系统可维护性</strong>：新增集合类型时，只需实现对应的迭代器，无需修改已有遍历代码，降低扩展成本；同时，遍历逻辑的修改仅需调整迭代器，不影响集合和调用者。</p>
+</li>
+<li><p><strong>保护集合封装性</strong>：迭代器仅暴露遍历接口，不暴露集合的内部存储结构和操作细节，避免外部直接操作集合内部数据，提升代码的安全性和封装性。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>增加代码复杂度，冗余度提升</strong>：对于简单集合（如小型数组），直接使用下标遍历或语言内置遍历方式即可，引入迭代器会增加额外的类&#x2F;结构体、接口和方法定义，导致代码冗余，增加开发和维护成本。</p>
+</li>
+<li><p><strong>存在轻微性能开销</strong>：相比直接遍历集合（如数组下标访问），迭代器的方法调用（如<code>HasNext()</code>、<code>Next()</code>）会带来轻微的运行时开销，对于高频遍历、低延迟要求的场景（如底层算法、高频数据处理），可能影响性能。</p>
+</li>
+<li><p><strong>双向迭代&#x2F;随机访问实现复杂</strong>：基础迭代器仅支持单向顺序遍历，若需实现双向迭代（向前&#x2F;向后遍历）或随机访问（直接访问指定位置元素），需扩展迭代器接口，增加设计复杂度和实现成本。</p>
+</li>
+<li><p><strong>多线程场景下需额外处理同步</strong>：在多线程并发遍历集合时，若集合发生修改（添加、删除元素），迭代器可能出现遍历异常（如 ConcurrentModificationException），需额外添加同步机制，增加代码复杂度。</p>
+</li>
+</ul>
+<h2 id="四、迭代器模式的使用场景"><a href="#四、迭代器模式的使用场景" class="headerlink" title="四、迭代器模式的使用场景"></a>四、迭代器模式的使用场景</h2><p>迭代器模式的核心适用场景是“需要统一遍历接口、隐藏集合内部结构，或需要灵活扩展遍历逻辑”的业务场景。以下结合具体场景及典型实战案例，帮助开发者快速判断是否适用，实现精准落地，避免滥用或错用。</p>
+<h3 id="4-1-核心适用场景"><a href="#4-1-核心适用场景" class="headerlink" title="4.1 核心适用场景"></a>4.1 核心适用场景</h3><ul>
+<li><p><strong>隐藏集合内部结构的场景</strong>：当需要对外屏蔽集合的底层实现（如自定义容器、复杂数据结构、第三方集合库），仅暴露遍历能力，避免外部依赖集合的内部结构时，如框架级别的集合组件、自定义数据容器。</p>
+</li>
+<li><p><strong>统一多集合遍历方式的场景</strong>：系统中存在多种集合类型（数组、链表、哈希表、树等），需为调用者提供一致的遍历接口，降低调用者的使用成本，如通用工具类、集合框架（如C#的ICollection、Java的Collection）。</p>
+</li>
+<li><p><strong>自定义遍历逻辑的场景</strong>：需要实现特殊遍历规则（如过滤元素、逆序遍历、深度优先&#x2F;广度优先遍历树&#x2F;图结构、分页遍历），且遍历逻辑可能频繁变化时，如数据筛选工具、树形结构遍历、分页查询结果遍历。</p>
+</li>
+<li><p><strong>跨语言&#x2F;框架的集合操作场景</strong>：在多语言协作或通用框架中，需标准化集合遍历行为，确保不同语言、不同组件的遍历接口一致，如跨语言RPC框架中的集合传输、通用数据处理组件。</p>
+</li>
+<li><p><strong>集合扩展频繁的场景</strong>：系统中频繁新增集合类型，且需要保证遍历接口的一致性，无需修改已有遍历代码，如插件化系统中的集合扩展、动态数据结构的遍历。</p>
+</li>
+</ul>
+<h3 id="4-2-典型实战案例"><a href="#4-2-典型实战案例" class="headerlink" title="4.2 典型实战案例"></a>4.2 典型实战案例</h3><ul>
+<li><p><strong>编程语言内置集合框架</strong>：如C#的<code>IEnumerable</code>&#x2F;<code>IEnumerator</code>、Java的<code>Iterator</code>&#x2F;<code>Iterable</code>、C++的STL迭代器、Python的迭代器协议，均是迭代器模式的经典实现，为开发者提供统一的集合遍历接口。</p>
+</li>
+<li><p><strong>数据库查询结果集遍历</strong>：如JDBC的<code>ResultSet</code>、ORM框架（MyBatis、EF Core）的查询结果迭代器，将数据库查询结果封装为集合，通过迭代器逐行遍历，屏蔽数据库底层存储差异。</p>
+</li>
+<li><p><strong>树形结构&#x2F;图结构遍历</strong>：如二叉树的前序、中序、后序遍历，图的深度优先（DFS）、广度优先（BFS）遍历，通过自定义迭代器实现不同的遍历逻辑，无需修改树&#x2F;图的核心结构。</p>
+</li>
+<li><p><strong>分页数据遍历</strong>：如电商平台的商品列表分页、后台系统的订单分页查询，通过迭代器封装分页逻辑，调用者只需通过迭代器获取下一页数据，无需关心分页的实现细节。</p>
+</li>
+<li><p><strong>自定义容器开发</strong>：如开发自定义的缓存容器、队列、栈等数据结构，通过迭代器暴露遍历能力，隐藏容器的内部存储结构（如数组、链表），提升容器的封装性和可扩展性。</p>
+</li>
+</ul>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>迭代器模式的核心是<strong>“分离遍历逻辑与数据存储，提供统一的遍历接口”</strong>，它是“单一职责原则”和“开闭原则”的典型落地方式，通过将遍历行为抽离为独立的迭代器，让集合专注于数据管理，迭代器专注于遍历实现，大幅提升代码的灵活性、可维护性和可扩展性。其本质是“封装遍历变化”，屏蔽不同集合的底层差异，为外部提供标准化的遍历体验。</p>
+<p>从多语言实现来看，尽管各语言的语法特性、设计理念差异显著，但核心逻辑高度统一，且均能适配自身的语言特性，完整实现迭代器模式的核心价值：</p>
+<ul>
+<li><p>面向对象语言（C#、C++）：通过接口&#x2F;抽象类严格遵循迭代器模式的四大角色，结合语言内置特性（如C#的<code>IEnumerable</code>、C++的模板）实现通用化、规范化的迭代器，贴合经典设计范式，适配企业级系统和高性能场景；</p>
+</li>
+<li><p>动态语言（Python）：利用原生迭代器协议简化实现，无需显式定义抽象接口，更注重实用性和简洁性，通过<code>__iter__</code>和<code>__next__</code>方法快速实现迭代器功能，适配快速开发场景；</p>
+</li>
+<li><p>Go语言：以“接口为核心”，通过接口定义迭代器和聚合类的契约，结构体实现具体逻辑，轻量化实现解耦目标，贴合高并发、高性能的后端开发需求，代码简洁高效；</p>
+</li>
+<li><p>纯C语言：通过结构体+函数指针模拟面向对象特性，手动封装数据和遍历行为，虽代码冗余，但底层可控性强，适配嵌入式、底层开发等资源受限场景，完美还原迭代器模式“解耦遍历与存储”的核心思想。</p>
+</li>
+</ul>
+<p>在工程实践中，使用迭代器模式需把握三个核心原则：一是避免过度设计，对于简单集合（如小型数组），直接使用语言内置的遍历方式即可，无需引入迭代器；二是权衡性能与灵活性，高频遍历、低延迟的场景需谨慎使用，或选择轻量级迭代器实现；三是注重接口设计，确保迭代器接口的通用性和扩展性，便于后续新增遍历逻辑和集合类型。</p>
+<p>总体而言，迭代器模式是处理集合遍历场景的核心设计工具，尤其在集合类型多样、遍历逻辑复杂、需要隐藏内部结构的场景中价值显著。理解迭代器模式的核心，不在于照搬代码结构，而在于掌握“遍历逻辑与数据存储解耦”的设计思路，合理运用可让代码结构更清晰、职责更单一、扩展更灵活，提升系统的可维护性和复用性。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="tag"># 迭代器模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/15/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/14.%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/" rel="prev" title="命令模式">
+                  <i class="fa fa-angle-left"></i> 命令模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/17/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/16.%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="next" title="观察者模式">
+                  观察者模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、问题背景与准备工作当您忘记 MySQL 的 root 密码，或者怀疑密码被篡改（例如服务器遭受攻击）时，可以通过进入 MySQL 的“安全模式”来重置密码。此方法适用于 MySQL 5.7 及更高版本。 重要前提：您需要拥有操作系统的管理员权限，并能访问 MySQL 的安装目录。  二、核心步骤：进入安全模式并重置密码2.1 第一步：停止 MySQL 服务首先，必须停止正在运行的 MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows下重置MySQL密码">
+<meta property="og:url" content="http://chengming0916.github.io/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、问题背景与准备工作当您忘记 MySQL 的 root 密码，或者怀疑密码被篡改（例如服务器遭受攻击）时，可以通过进入 MySQL 的“安全模式”来重置密码。此方法适用于 MySQL 5.7 及更高版本。 重要前提：您需要拥有操作系统的管理员权限，并能访问 MySQL 的安装目录。  二、核心步骤：进入安全模式并重置密码2.1 第一步：停止 MySQL 服务首先，必须停止正在运行的 MySQL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/IMG-20260417144637993.png">
+<meta property="article:published_time" content="2024-09-25T06:06:32.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.494Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/IMG-20260417144637993.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/","path":"2024/09/25/未分类/Windows下重置MySQL密码/","title":"Windows下重置MySQL密码"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Windows下重置MySQL密码 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF%E4%B8%8E%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">一、问题背景与准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4%EF%BC%9A%E8%BF%9B%E5%85%A5%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E5%B9%B6%E9%87%8D%E7%BD%AE%E5%AF%86%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">二、核心步骤：进入安全模式并重置密码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%81%9C%E6%AD%A2-MySQL-%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 第一步：停止 MySQL 服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E4%BB%A5%E6%97%A0%E6%8E%88%E6%9D%83%E8%A1%A8%E6%A8%A1%E5%BC%8F%E5%90%AF%E5%8A%A8-MySQL"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 第二步：以无授权表模式启动 MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93%E5%B9%B6%E6%B8%85%E7%A9%BA-root-%E5%AF%86%E7%A0%81"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 第三步：连接数据库并清空 root 密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E9%87%8D%E5%90%AF-MySQL-%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 第四步：重启 MySQL 服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%B8%BA-root-%E8%B4%A6%E6%88%B7%E8%AE%BE%E7%BD%AE%E6%96%B0%E5%AF%86%E7%A0%81%EF%BC%88%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、为 root 账户设置新密码（安全加固）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8-SET-PASSWORD-%E5%91%BD%E4%BB%A4%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 方法一：使用 SET PASSWORD 命令（推荐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-mysqladmin-%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 方法二：使用 mysqladmin 命令行工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%96%B9%E6%B3%95%E4%B8%89%EF%BC%9A%E7%9B%B4%E6%8E%A5%E6%9B%B4%E6%96%B0-user-%E8%A1%A8"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 方法三：直接更新 user 表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4%E4%B8%8E%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">四、故障排除与注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E4%B8%8E%E8%A7%A3%E5%86%B3"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 常见错误与解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 安全建议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%B8%8D%E5%90%8C-MySQL-%E7%89%88%E6%9C%AC%E7%9A%84%E5%B7%AE%E5%BC%82"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 不同 MySQL 版本的差异</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">五、总结操作流程</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Windows下重置MySQL密码 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows下重置MySQL密码
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-25 14:06:32" itemprop="dateCreated datePublished" datetime="2024-09-25T14:06:32+08:00">2024-09-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、问题背景与准备工作"><a href="#一、问题背景与准备工作" class="headerlink" title="一、问题背景与准备工作"></a>一、问题背景与准备工作</h2><p>当您忘记 MySQL 的 root 密码，或者怀疑密码被篡改（例如服务器遭受攻击）时，可以通过进入 MySQL 的“安全模式”来重置密码。此方法适用于 MySQL 5.7 及更高版本。</p>
+<p><strong>重要前提</strong>：您需要拥有操作系统的管理员权限，并能访问 MySQL 的安装目录。</p>
+<hr>
+<h2 id="二、核心步骤：进入安全模式并重置密码"><a href="#二、核心步骤：进入安全模式并重置密码" class="headerlink" title="二、核心步骤：进入安全模式并重置密码"></a>二、核心步骤：进入安全模式并重置密码</h2><h3 id="2-1-第一步：停止-MySQL-服务"><a href="#2-1-第一步：停止-MySQL-服务" class="headerlink" title="2.1 第一步：停止 MySQL 服务"></a>2.1 第一步：停止 MySQL 服务</h3><p>首先，必须停止正在运行的 MySQL 服务。</p>
+<p><strong>方法 A：使用命令提示符（推荐）</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">net</span> stop mysql</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意</strong>：服务名可能因安装版本而异（如 <code>mysql57</code>、<code>mysql80</code>）。如果上述命令失败，请打开“服务”管理面板（<code>services.msc</code>）查找准确的 MySQL 服务名称。</p>
+</blockquote>
+<p><strong>方法 B：通过服务管理面板</strong></p>
+<ol>
+<li>按 <code>Win + R</code>，输入 <code>services.msc</code> 并回车。</li>
+<li>在服务列表中找到 MySQL 服务（如 “MySQL57”）。</li>
+<li>右键点击，选择“停止”。</li>
+</ol>
+<p><img src="/2024/09/25/%E6%9C%AA%E5%88%86%E7%B1%BB/Windows%E4%B8%8B%E9%87%8D%E7%BD%AEMySQL%E5%AF%86%E7%A0%81/IMG-20260417144637993.png"></p>
+<h3 id="2-2-第二步：以无授权表模式启动-MySQL"><a href="#2-2-第二步：以无授权表模式启动-MySQL" class="headerlink" title="2.2 第二步：以无授权表模式启动 MySQL"></a>2.2 第二步：以无授权表模式启动 MySQL</h3><p>此模式允许您无需密码即可连接数据库。</p>
+<ol>
+<li><p><strong>打开新的命令提示符窗口（管理员身份）</strong>。</p>
+</li>
+<li><p><strong>切换到 MySQL 的 <code>bin</code> 目录</strong>：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> “C:\Program Files\MySQL\MySQL Server <span class="number">5</span>.<span class="number">7</span>\bin”</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>请根据您的实际安装路径调整。</p>
+</blockquote>
+</li>
+<li><p><strong>启动 MySQL 并跳过权限验证</strong>：</p>
+<ul>
+<li><strong>标准命令</strong>：<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld --skip-grant-tables</span><br></pre></td></tr></table></figure></li>
+<li><strong>如果配置了 <code>my.ini</code> 文件</strong>（通常指定了数据目录），必须引入配置文件：<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld --defaults-file=”../my.ini” --skip-grant-tables</span><br></pre></td></tr></table></figure>
+配置文件 <code>my.ini</code> 通常位于 <code>C:\ProgramData\MySQL\MySQL Server X.X\</code> 目录下。</li>
+</ul>
+</li>
+<li><p>此时，当前窗口会挂起，显示 MySQL 已启动。<strong>请勿关闭此窗口</strong>。</p>
+</li>
+</ol>
+<h3 id="2-3-第三步：连接数据库并清空-root-密码"><a href="#2-3-第三步：连接数据库并清空-root-密码" class="headerlink" title="2.3 第三步：连接数据库并清空 root 密码"></a>2.3 第三步：连接数据库并清空 root 密码</h3><ol>
+<li><p><strong>打开另一个新的命令提示符窗口（管理员身份）</strong>。</p>
+</li>
+<li><p><strong>同样切换到 MySQL 的 <code>bin</code> 目录</strong>。</p>
+</li>
+<li><p><strong>无密码连接 MySQL</strong>：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root</span><br></pre></td></tr></table></figure>
+<p>成功连接后，会看到 <code>mysql&gt;</code> 提示符。</p>
+</li>
+<li><p><strong>切换到 <code>mysql</code> 系统数据库并清空 root 密码</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">USE mysql;</span><br><span class="line"><span class="comment">-- 对于 MySQL 5.7+，密码存储在 `authentication_string` 字段</span></span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">user</span> <span class="keyword">SET</span> authentication_string<span class="operator">=</span>’’ <span class="keyword">WHERE</span> <span class="keyword">user</span><span class="operator">=</span>’root’;</span><br><span class="line"><span class="comment">-- 对于 MySQL 5.6 及更早版本，使用 `password` 字段</span></span><br><span class="line"><span class="comment">-- UPDATE user SET password=’’ WHERE user=’root’;</span></span><br></pre></td></tr></table></figure>
+<p>执行成功后，会提示 <code>Query OK, 1 row affected</code>。</p>
+</li>
+<li><p><strong>刷新权限并退出</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FLUSH PRIVILEGES;</span><br><span class="line">QUIT;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="2-4-第四步：重启-MySQL-服务"><a href="#2-4-第四步：重启-MySQL-服务" class="headerlink" title="2.4 第四步：重启 MySQL 服务"></a>2.4 第四步：重启 MySQL 服务</h3><ol>
+<li>返回到运行 <code>mysqld --skip-grant-tables</code> 的命令窗口，按 <code>Ctrl + C</code> 终止进程。</li>
+<li>或者，打开任务管理器，结束 <code>mysqld.exe</code> 进程。</li>
+<li>重新启动 MySQL 服务：<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">net</span> <span class="built_in">start</span> mysql</span><br></pre></td></tr></table></figure>
+（同样，请使用您的实际服务名）</li>
+</ol>
+<p><strong>至此，root 密码已被清空。您可以使用 <code>mysql -u root</code> 直接登录，无需密码。</strong></p>
+<hr>
+<h2 id="三、为-root-账户设置新密码（安全加固）"><a href="#三、为-root-账户设置新密码（安全加固）" class="headerlink" title="三、为 root 账户设置新密码（安全加固）"></a>三、为 root 账户设置新密码（安全加固）</h2><p>出于安全考虑，必须为 root 账户设置一个强密码。登录后，可选择以下任一方法。</p>
+<h3 id="3-1-方法一：使用-SET-PASSWORD-命令（推荐）"><a href="#3-1-方法一：使用-SET-PASSWORD-命令（推荐）" class="headerlink" title="3.1 方法一：使用 SET PASSWORD 命令（推荐）"></a>3.1 方法一：使用 <code>SET PASSWORD</code> 命令（推荐）</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 登录 MySQL</span></span><br><span class="line">mysql <span class="operator">-</span>u root</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 修改密码（MySQL 5.7+ 语法）</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> ‘root’@’localhost’ IDENTIFIED <span class="keyword">BY</span> ‘您的新密码’;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或使用传统语法（某些版本支持）</span></span><br><span class="line"><span class="keyword">SET</span> PASSWORD <span class="keyword">FOR</span> ‘root’@’localhost’ <span class="operator">=</span> PASSWORD(‘您的新密码’);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-方法二：使用-mysqladmin-命令行工具"><a href="#3-2-方法二：使用-mysqladmin-命令行工具" class="headerlink" title="3.2 方法二：使用 mysqladmin 命令行工具"></a>3.2 方法二：使用 <code>mysqladmin</code> 命令行工具</h3><p>在命令提示符（非 MySQL 客户端）中操作：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqladmin -u root password “您的新密码”</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意</strong>：如果 root 已有密码，需要使用 <code>-p</code> 参数输入旧密码。此方法会因在命令行中暴露密码而收到安全警告。</p>
+</blockquote>
+<h3 id="3-3-方法三：直接更新-user-表"><a href="#3-3-方法三：直接更新-user-表" class="headerlink" title="3.3 方法三：直接更新 user 表"></a>3.3 方法三：直接更新 <code>user</code> 表</h3><p>在 MySQL 客户端内执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">USE mysql;</span><br><span class="line"><span class="comment">-- 对于 MySQL 5.7+</span></span><br><span class="line"><span class="keyword">UPDATE</span> <span class="keyword">user</span> <span class="keyword">SET</span> authentication_string <span class="operator">=</span> PASSWORD(‘您的新密码’) <span class="keyword">WHERE</span> <span class="keyword">user</span> <span class="operator">=</span> ‘root’;</span><br><span class="line"><span class="comment">-- 对于旧版本</span></span><br><span class="line"><span class="comment">-- UPDATE user SET password = PASSWORD(‘您的新密码’) WHERE user = ‘root’;</span></span><br><span class="line"></span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+<p><strong>无论使用哪种方法，修改密码后都必须执行 <code>FLUSH PRIVILEGES;</code> 使更改立即生效。</strong></p>
+<hr>
+<h2 id="四、故障排除与注意事项"><a href="#四、故障排除与注意事项" class="headerlink" title="四、故障排除与注意事项"></a>四、故障排除与注意事项</h2><h3 id="4-1-常见错误与解决"><a href="#4-1-常见错误与解决" class="headerlink" title="4.1 常见错误与解决"></a>4.1 常见错误与解决</h3><ul>
+<li><p><strong>错误：<code>mysqld: [ERROR] Found option without preceding group in config file</code></strong><br><strong>原因</strong>：<code>my.ini</code> 配置文件编码或格式错误（例如保存为 UTF-8 with BOM）。<br><strong>解决</strong>：使用记事本打开 <code>my.ini</code>，另存为 <code>ANSI</code> 编码。</p>
+</li>
+<li><p><strong>错误：<code>No such file or directory</code></strong><br><strong>原因</strong>：未指定正确的 <code>my.ini</code> 路径，或数据目录不存在。<br><strong>解决</strong>：使用 <code>--defaults-file</code> 参数明确指定配置文件完整路径。</p>
+</li>
+<li><p><strong>服务无法启动</strong><br><strong>解决</strong>：检查事件查看器（<code>eventvwr.msc</code>）中 “应用程序” 日志的 MySQL 错误信息。</p>
+</li>
+</ul>
+<h3 id="4-2-安全建议"><a href="#4-2-安全建议" class="headerlink" title="4.2 安全建议"></a>4.2 安全建议</h3><ol>
+<li><strong>立即修改密码</strong>：重置后，务必立即设置一个强密码。</li>
+<li><strong>检查用户</strong>：登录后，执行 <code>SELECT user, host FROM mysql.user;</code>，检查是否有未知或可疑账户。</li>
+<li><strong>考虑重装</strong>：如果服务器确认被入侵，重置密码仅是第一步，建议全面安全检查，甚至考虑备份数据后重装 MySQL。</li>
+<li><strong>使用强密码</strong>：密码应包含大小写字母、数字和特殊字符，长度至少12位。</li>
+</ol>
+<h3 id="4-3-不同-MySQL-版本的差异"><a href="#4-3-不同-MySQL-版本的差异" class="headerlink" title="4.3 不同 MySQL 版本的差异"></a>4.3 不同 MySQL 版本的差异</h3><table>
+<thead>
+<tr>
+<th align="left">版本</th>
+<th align="left">密码字段</th>
+<th align="left">修改密码推荐命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>MySQL 5.7+</strong></td>
+<td align="left"><code>authentication_string</code></td>
+<td align="left"><code>ALTER USER … IDENTIFIED BY ‘密码’;</code></td>
+</tr>
+<tr>
+<td align="left"><strong>MySQL 5.6 及更早</strong></td>
+<td align="left"><code>password</code></td>
+<td align="left"><code>SET PASSWORD = PASSWORD(‘密码’);</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="五、总结操作流程"><a href="#五、总结操作流程" class="headerlink" title="五、总结操作流程"></a>五、总结操作流程</h2><ol>
+<li><strong>停止服务</strong>：<code>net stop mysql</code></li>
+<li><strong>无授权启动</strong>：在 <code>bin</code> 目录运行 <code>mysqld --skip-grant-tables</code>（必要时加 <code>--defaults-file</code>）。</li>
+<li><strong>无密码连接</strong>：新窗口运行 <code>mysql -u root</code>。</li>
+<li><strong>清空密码</strong>：执行 <code>UPDATE mysql.user SET authentication_string=’’ WHERE user=’root’;</code> 后 <code>FLUSH PRIVILEGES;</code>。</li>
+<li><strong>重启服务</strong>：结束 <code>mysqld</code> 进程，运行 <code>net start mysql</code>。</li>
+<li><strong>设置新密码</strong>：登录后使用 <code>ALTER USER</code> 命令设置强密码。</li>
+<li><strong>安全检查</strong>：审查用户列表，确保无其他安全隐患。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/23/%E6%9C%AA%E5%88%86%E7%B1%BB/%E9%98%B5%E5%88%97%E5%8D%A1%E6%8E%A5%E5%8F%A3%E5%9E%8B%E5%8F%B7/" rel="prev" title="阵列卡接口型号">
+                  <i class="fa fa-angle-left"></i> 阵列卡接口型号
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/26/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Kubernetes%E9%83%A8%E7%BD%B2Traefik/" rel="next" title="Kubernetes安装Traefik">
+                  Kubernetes安装Traefik <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

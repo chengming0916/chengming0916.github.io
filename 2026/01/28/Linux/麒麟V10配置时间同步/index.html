@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="1. Chrony简介Chrony是一个开源自由的网络时间协议（NTP）客户端和服务器软件。它能让计算机保持系统时钟与时钟服务器（NTP）同步，确保计算机保持精确的时间。Chrony也可以作为服务端软件为其他计算机提供时间同步服务。 Chrony由两个程序组成：  chronyd：后台运行的守护进程，用于调整内核中运行的系统时钟和时钟服务器同步 chronyc：用户界面程序，用于监控性能并进行多样">
+<meta property="og:type" content="article">
+<meta property="og:title" content="麒麟V10配置时间同步">
+<meta property="og:url" content="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="1. Chrony简介Chrony是一个开源自由的网络时间协议（NTP）客户端和服务器软件。它能让计算机保持系统时钟与时钟服务器（NTP）同步，确保计算机保持精确的时间。Chrony也可以作为服务端软件为其他计算机提供时间同步服务。 Chrony由两个程序组成：  chronyd：后台运行的守护进程，用于调整内核中运行的系统时钟和时钟服务器同步 chronyc：用户界面程序，用于监控性能并进行多样">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140806091.png">
+<meta property="og:image" content="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140904993.png">
+<meta property="og:image" content="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140538080.png">
+<meta property="article:published_time" content="2026-01-28T12:04:38.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.641Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="麒麟V10">
+<meta property="article:tag" content="国产化">
+<meta property="article:tag" content="时间同步">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140806091.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/","path":"2026/01/28/Linux/麒麟V10配置时间同步/","title":"麒麟V10配置时间同步"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>麒麟V10配置时间同步 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Chrony%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1. Chrony简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">2. 时间同步相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%A1%AC%E4%BB%B6%E6%97%B6%E9%97%B4"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 硬件时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%97%B6%E9%97%B4%E6%A0%87%E5%87%86"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 时间标准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%E7%9B%AE%E7%9A%84"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 时间同步目的</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">3. 安装与配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 服务端配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 客户端配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="nav-number">4.</span> <span class="nav-text">4. 常用命令与监控</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%9F%A5%E7%9C%8B%E5%90%8C%E6%AD%A5%E7%8A%B6%E6%80%81"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 查看同步状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 时间同步状态检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 系统时间管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">5. 常见问题与解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E8%BF%81%E7%A7%BBVM%E5%90%8E%E6%97%B6%E9%97%B4%E5%B7%AE%E5%BC%82%E8%BE%83%E5%A4%A7"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 迁移VM后时间差异较大</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%A4%96%E7%BD%91%E6%97%B6%E9%97%B4%E6%BA%90%E4%B8%8D%E5%8F%AF%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 外网时间源不可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-Chronyd%E6%9C%8D%E5%8A%A1%E6%AD%A3%E5%B8%B8%E4%BD%86%E6%9C%AA%E5%90%8C%E6%AD%A5"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 Chronyd服务正常但未同步</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%B8%B8%E7%94%A8%E6%97%B6%E9%92%9F%E6%BA%90%E6%8E%A8%E8%8D%90"><span class="nav-number">6.</span> <span class="nav-text">6. 常用时钟源推荐</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%85%AC%E5%85%B1NTP%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 公共NTP服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 配置示例</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="麒麟V10配置时间同步 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          麒麟V10配置时间同步
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-01-28 20:04:38" itemprop="dateCreated datePublished" datetime="2026-01-28T20:04:38+08:00">2026-01-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="1-Chrony简介"><a href="#1-Chrony简介" class="headerlink" title="1. Chrony简介"></a>1. Chrony简介</h2><p>Chrony是一个开源自由的网络时间协议（NTP）客户端和服务器软件。它能让计算机保持系统时钟与时钟服务器（NTP）同步，确保计算机保持精确的时间。Chrony也可以作为服务端软件为其他计算机提供时间同步服务。</p>
+<p>Chrony由两个程序组成：</p>
+<ul>
+<li><strong>chronyd</strong>：后台运行的守护进程，用于调整内核中运行的系统时钟和时钟服务器同步</li>
+<li><strong>chronyc</strong>：用户界面程序，用于监控性能并进行多样化的配置</li>
+</ul>
+<h2 id="2-时间同步相关概念"><a href="#2-时间同步相关概念" class="headerlink" title="2. 时间同步相关概念"></a>2. 时间同步相关概念</h2><h3 id="2-1-硬件时间"><a href="#2-1-硬件时间" class="headerlink" title="2.1 硬件时间"></a>2.1 硬件时间</h3><p>硬件时间，也被称为实时时钟（RTC），是指计算机主板上的一个独立于操作系统的设备，它在电源关闭甚至断电情况下也能保持运行。</p>
+<p><strong>相关命令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查询硬件时间</span></span><br><span class="line">hwclock --show</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将系统时间设置为硬件时间</span></span><br><span class="line">hwclock --systohc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将硬件时间设置为系统时间</span></span><br><span class="line">hwclock --hctosys</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-时间标准"><a href="#2-2-时间标准" class="headerlink" title="2.2 时间标准"></a>2.2 时间标准</h3><ul>
+<li><strong>UTC</strong>：协调世界时，基于原子时钟的时间标准</li>
+<li><strong>Local time</strong>：本地时间，系统时间经过时区转换后的时间</li>
+</ul>
+<h3 id="2-3-时间同步目的"><a href="#2-3-时间同步目的" class="headerlink" title="2.3 时间同步目的"></a>2.3 时间同步目的</h3><ol>
+<li><strong>对外同步</strong>：保证本地时间和国际通用时间保持同步（通过NTP）</li>
+<li><strong>对内同步</strong>：保证系统时间和硬件时间同步（通过rtcsync）</li>
+</ol>
+<h2 id="3-安装与配置"><a href="#3-安装与配置" class="headerlink" title="3. 安装与配置"></a>3. 安装与配置</h2><h3 id="3-1-服务端配置"><a href="#3-1-服务端配置" class="headerlink" title="3.1 服务端配置"></a>3.1 服务端配置</h3><p><strong>安装Chrony：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum -y install chrony</span><br><span class="line">systemctl <span class="built_in">enable</span> chronyd</span><br><span class="line">systemctl start chronyd</span><br></pre></td></tr></table></figure>
+
+<p><strong>修改配置文件 <code>/etc/chrony.conf</code>：</strong></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 记录时间补偿调整</span></span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许系统时钟在前三次更新中步进</span></span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用RTC内核同步</span></span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许所有客户端连接</span></span><br><span class="line">allow all</span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地时间作为标准时间授时</span></span><br><span class="line">local stratum 10</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置说明：</strong></p>
+<ul>
+<li><code>local</code>指令允许将本地时间作为标准时间授时给其他客户端</li>
+<li><code>stratum 10</code>表示距离真实时间源较远，防止机器本身的时间与真实时间混淆</li>
+</ul>
+<h3 id="3-2-客户端配置"><a href="#3-2-客户端配置" class="headerlink" title="3.2 客户端配置"></a>3.2 客户端配置</h3><p><strong>修改配置文件 <code>/etc/chrony.conf</code>：</strong></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server 10.0.0.1 iburst</span><br></pre></td></tr></table></figure>
+
+<p><strong>重启服务：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart chronyd</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-常用命令与监控"><a href="#4-常用命令与监控" class="headerlink" title="4. 常用命令与监控"></a>4. 常用命令与监控</h2><h3 id="4-1-查看同步状态"><a href="#4-1-查看同步状态" class="headerlink" title="4.1 查看同步状态"></a>4.1 查看同步状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chronyc sources -v</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140806091.png"></p>
+<p><strong>状态标识说明：</strong></p>
+<table>
+<thead>
+<tr>
+<th>标识</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>*</code></td>
+<td>chronyd当前同步到的源</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>可接受的信号源</td>
+</tr>
+<tr>
+<td><code>-</code></td>
+<td>被合并算法排除的可接受源</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>已失去连接性或数据包未通过测试</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>被认为是虚假行情的时钟</td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>时间似乎具有太多可变性的来源</td>
+</tr>
+</tbody></table>
+<h3 id="4-2-时间同步状态检查"><a href="#4-2-时间同步状态检查" class="headerlink" title="4.2 时间同步状态检查"></a>4.2 时间同步状态检查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chronyc tracking</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140904993.png"></p>
+<p><strong>关键参数说明：</strong></p>
+<ul>
+<li><strong>Reference ID</strong>：正在同步的NTP服务器地址</li>
+<li><strong>Stratum</strong>：系统在NTP层次中的级别</li>
+<li><strong>System time</strong>：系统时间相对于NTP服务器时间的差异</li>
+<li><strong>Last offset</strong>：上一次时间同步时的偏移量</li>
+<li><strong>Frequency</strong>：本地系统时钟的速度（ppm）</li>
+</ul>
+<h3 id="4-3-系统时间管理"><a href="#4-3-系统时间管理" class="headerlink" title="4.3 系统时间管理"></a>4.3 系统时间管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看时间状态</span></span><br><span class="line">timedatectl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置NTP服务状态（慎用）</span></span><br><span class="line">timedatectl set-ntp <span class="built_in">yes</span>/no</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/01/28/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/IMG-20260205140538080.png"></p>
+<h2 id="5-常见问题与解决方案"><a href="#5-常见问题与解决方案" class="headerlink" title="5. 常见问题与解决方案"></a>5. 常见问题与解决方案</h2><h3 id="5-1-迁移VM后时间差异较大"><a href="#5-1-迁移VM后时间差异较大" class="headerlink" title="5.1 迁移VM后时间差异较大"></a>5.1 迁移VM后时间差异较大</h3><p><strong>问题</strong>：需要快速同步时间</p>
+<p><strong>解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 逐步校正（较慢）</span></span><br><span class="line">chronyc makestep 0.1 3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 立即同步时钟</span></span><br><span class="line">chronyc -m <span class="string">&#x27;burst 3/3&#x27;</span> <span class="string">&#x27;makestep 0.1 3&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-外网时间源不可用"><a href="#5-2-外网时间源不可用" class="headerlink" title="5.2 外网时间源不可用"></a>5.2 外网时间源不可用</h3><p><strong>问题</strong>：启用本地模式后，客户端无法同步时间</p>
+<p><strong>解决方案</strong>：<code>local</code>模式只能有一个服务器配置该参数</p>
+<h3 id="5-3-Chronyd服务正常但未同步"><a href="#5-3-Chronyd服务正常但未同步" class="headerlink" title="5.3 Chronyd服务正常但未同步"></a>5.3 Chronyd服务正常但未同步</h3><p><strong>问题</strong>：NetworkManager调度程序脚本BUG（3.2-2版本）</p>
+<p><strong>解决方案：</strong></p>
+<ul>
+<li><strong>临时</strong>：重启chronyd服务</li>
+<li><strong>永久</strong>：升级到3.4以上版本</li>
+</ul>
+<h2 id="6-常用时钟源推荐"><a href="#6-常用时钟源推荐" class="headerlink" title="6. 常用时钟源推荐"></a>6. 常用时钟源推荐</h2><h3 id="6-1-公共NTP服务器"><a href="#6-1-公共NTP服务器" class="headerlink" title="6.1 公共NTP服务器"></a>6.1 公共NTP服务器</h3><ul>
+<li><strong>pool.ntp.org</strong>：<code>cn.pool.ntp.org</code>，<code>0-3.cn.pool.ntp.org</code></li>
+<li><strong>阿里云</strong>：<code>ntp.aliyun.com</code>，<code>ntp1-7.aliyun.com</code></li>
+<li><strong>大学NTP服务</strong>：<ul>
+<li><code>s1a.time.edu.cn</code>（北京邮电大学）</li>
+<li><code>s1b.time.edu.cn</code>（清华大学）</li>
+<li><code>s1c.time.edu.cn</code>（北京大学）</li>
+</ul>
+</li>
+<li><strong>国家授时中心</strong>：<code>210.72.145.44</code></li>
+</ul>
+<h3 id="6-2-配置示例"><a href="#6-2-配置示例" class="headerlink" title="6.2 配置示例"></a>6.2 配置示例</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用阿里云NTP服务器</span></span><br><span class="line">server ntp.aliyun.com iburst</span><br><span class="line">server ntp1.aliyun.com iburst</span><br><span class="line">server ntp2.aliyun.com iburst</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E9%BA%92%E9%BA%9FV10/" rel="tag"># 麒麟V10</a>
+              <a href="/tags/%E5%9B%BD%E4%BA%A7%E5%8C%96/" rel="tag"># 国产化</a>
+              <a href="/tags/%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/" rel="tag"># 时间同步</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/01/23/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E4%BB%A3%E7%90%86%E9%85%8D%E7%BD%AE/" rel="prev" title="Docker代理配置">
+                  <i class="fa fa-angle-left"></i> Docker代理配置
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/02/02/Linux/%E9%BA%92%E9%BA%9FV10%E9%85%8D%E7%BD%AEEPEL%E6%BA%90/" rel="next" title="麒麟V10配置EPEL源">
+                  麒麟V10配置EPEL源 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

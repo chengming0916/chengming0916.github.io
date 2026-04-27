@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文参考了 OPNsense中文手册 和 OPNsense 防火墙系列一 等优秀资料。  一、简介与核心概念1.1 什么是 OPNsense？OPNsense® 是一个基于 FreeBSD 的开源、易用且易于构建的防火墙和路由平台。它集成了商业防火墙中的大部分高级功能，同时具备开源项目的透明性和可验证性。 使命：为用户、开发人员和企业提供友好、稳定和透明的环境，使其成为使用最广泛的开源安全平台。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OPNsense安装与使用">
+<meta property="og:url" content="http://chengming0916.github.io/2023/11/30/%E6%9C%AA%E5%88%86%E7%B1%BB/OPNsense%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="本文参考了 OPNsense中文手册 和 OPNsense 防火墙系列一 等优秀资料。  一、简介与核心概念1.1 什么是 OPNsense？OPNsense® 是一个基于 FreeBSD 的开源、易用且易于构建的防火墙和路由平台。它集成了商业防火墙中的大部分高级功能，同时具备开源项目的透明性和可验证性。 使命：为用户、开发人员和企业提供友好、稳定和透明的环境，使其成为使用最广泛的开源安全平台。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-30T09:37:57.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.486Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2023/11/30/%E6%9C%AA%E5%88%86%E7%B1%BB/OPNsense%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2023/11/30/%E6%9C%AA%E5%88%86%E7%B1%BB/OPNsense%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/","path":"2023/11/30/未分类/OPNsense安装与使用/","title":"OPNsense安装与使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>OPNsense安装与使用 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B%E4%B8%8E%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、简介与核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-OPNsense%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是 OPNsense？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD%E6%A6%82%E8%A7%88"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心功能概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E9%87%8D%E8%A6%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%88%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 重要注意事项（避坑指南）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87%E4%B8%8E%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">二、安装准备与硬件要求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82%E5%8F%82%E8%80%83"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 硬件要求参考</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%AE%98%E6%96%B9%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82%E6%8C%87%E5%8D%97"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 官方硬件要求指南</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">三、安装与基础配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%B8%8B%E8%BD%BD%E9%95%9C%E5%83%8F"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 下载镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 安装系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%88%9D%E5%A7%8B%E8%AE%BE%E7%BD%AE%E5%90%91%E5%AF%BC"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 初始设置向导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E6%9B%B4%E6%8D%A2%E8%BD%AF%E4%BB%B6%E9%95%9C%E5%83%8F%E6%BA%90"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 更换软件镜像源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">四、网络接口配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%8E%A5%E5%8F%A3%E5%88%86%E9%85%8D"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 接口分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-WAN%E5%8F%A3%E8%AE%BE%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 WAN口设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-LAN%E5%8F%A3%E8%AE%BE%E7%BD%AE"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 LAN口设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E7%BB%88%E7%AB%AF%E7%B4%A7%E6%80%A5%E9%85%8D%E7%BD%AE%E7%BD%91%E5%8D%A1"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 终端紧急配置网卡</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%98%B2%E7%81%AB%E5%A2%99%E8%A7%84%E5%88%99%E9%85%8D%E7%BD%AE"><span class="nav-number">5.</span> <span class="nav-text">五、防火墙规则配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%88%9B%E5%BB%BA%E5%85%81%E8%AE%B8%E8%A7%84%E5%88%99%EF%BC%88%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%85%81%E8%AE%B8LAN%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 创建允许规则（示例：允许LAN访问外网）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%88%9B%E5%BB%BA%E9%98%BB%E6%96%AD%E8%A7%84%E5%88%99%EF%BC%88%E7%A4%BA%E4%BE%8B%EF%BC%9A%E7%A6%81%E6%AD%A2%E8%AE%BF%E9%97%AE%E9%98%BF%E9%87%8CDNS%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 创建阻断规则（示例：禁止访问阿里DNS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE"><span class="nav-number">6.</span> <span class="nav-text">六、基础服务配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E7%B3%BB%E7%BB%9FDNS%E4%B8%8EUnbound-DNS"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 系统DNS与Unbound DNS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-DHCPv4-%E6%9C%8D%E5%8A%A1"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 DHCPv4 服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E7%BD%91%E7%BB%9C%E6%97%B6%E9%97%B4%E5%8D%8F%E8%AE%AE%EF%BC%88NTP%EF%BC%89"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 网络时间协议（NTP）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81IPv6-%E9%85%8D%E7%BD%AE"><span class="nav-number">7.</span> <span class="nav-text">七、IPv6 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%85%AC%E7%BD%91IPv6%EF%BC%88%E6%9C%89PD%E5%89%8D%E7%BC%80%EF%BC%89"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 公网IPv6（有PD前缀）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-NATv6%EF%BC%88%E6%97%A0PD%E5%89%8D%E7%BC%80%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%86%85%E7%BD%91IPv6%EF%BC%89"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 NATv6（无PD前缀，使用内网IPv6）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E8%A7%A3%E5%86%B3IPv6%E5%A4%A7%E5%8C%85%E9%97%AE%E9%A2%98"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 解决IPv6大包问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E8%BF%9B%E9%98%B6%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">8.</span> <span class="nav-text">八、进阶功能配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E6%B5%81%E9%87%8F%E6%95%B4%E5%BD%A2%EF%BC%88%E6%B5%81%E6%8E%A7%EF%BC%89"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 流量整形（流控）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E5%88%AB%E5%90%8D%EF%BC%88Aliases%EF%BC%89"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 别名（Aliases）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 端口转发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-4-%E9%AB%98%E5%8F%AF%E7%94%A8%EF%BC%88HA%EF%BC%89%E9%85%8D%E7%BD%AE"><span class="nav-number">8.4.</span> <span class="nav-text">8.4 高可用（HA）配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-5-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%EF%BC%88%E5%8F%AF%E8%B0%83%E5%8F%82%E6%95%B0%EF%BC%89"><span class="nav-number">8.5.</span> <span class="nav-text">8.5 性能优化（可调参数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-6-%E7%BD%91%E5%85%B3%E7%BB%84%EF%BC%88%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%EF%BC%89"><span class="nav-number">8.6.</span> <span class="nav-text">8.6 网关组（故障转移&#x2F;负载均衡）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4"><span class="nav-number">9.</span> <span class="nav-text">九、故障排除</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-CSRF-check-failure-%E9%94%99%E8%AF%AF"><span class="nav-number">9.1.</span> <span class="nav-text">9.1 CSRF check failure 错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E7%BD%91%E9%A1%B5%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE"><span class="nav-number">9.2.</span> <span class="nav-text">9.2 网页反向代理设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-3-%E5%BC%80%E5%90%AFSSH%E8%AE%BF%E9%97%AE"><span class="nav-number">9.3.</span> <span class="nav-text">9.3 开启SSH访问</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2023/11/30/%E6%9C%AA%E5%88%86%E7%B1%BB/OPNsense%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="OPNsense安装与使用 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OPNsense安装与使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-30 17:37:57" itemprop="dateCreated datePublished" datetime="2023-11-30T17:37:57+08:00">2023-11-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文参考了 <a target="_blank" rel="noopener" href="https://pfchina.org/?page_id=10126">OPNsense中文手册</a> 和 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/Yogile/p/16642649.html">OPNsense 防火墙系列一</a> 等优秀资料。</p>
+</blockquote>
+<h2 id="一、简介与核心概念"><a href="#一、简介与核心概念" class="headerlink" title="一、简介与核心概念"></a>一、简介与核心概念</h2><h3 id="1-1-什么是-OPNsense？"><a href="#1-1-什么是-OPNsense？" class="headerlink" title="1.1 什么是 OPNsense？"></a>1.1 什么是 OPNsense？</h3><p><strong>OPNsense®</strong> 是一个基于 <strong>FreeBSD</strong> 的<strong>开源、易用且易于构建</strong>的防火墙和路由平台。它集成了商业防火墙中的大部分高级功能，同时具备开源项目的透明性和可验证性。</p>
+<p><strong>使命</strong>：为用户、开发人员和企业提供友好、稳定和透明的环境，使其成为使用最广泛的开源安全平台。</p>
+<h3 id="1-2-核心功能概览"><a href="#1-2-核心功能概览" class="headerlink" title="1.2 核心功能概览"></a>1.2 核心功能概览</h3><ul>
+<li><strong>防火墙与路由</strong>：状态检测防火墙、高级路由策略。</li>
+<li><strong>VPN支持</strong>：IPsec、OpenVPN（站点到站点、移动用户）。</li>
+<li><strong>网络服务</strong>：DHCP&#x2F;DHCPv6服务器、DNS转发器&#x2F;解析器、动态DNS。</li>
+<li><strong>高级功能</strong>：<ul>
+<li>流量整形与策略路由。</li>
+<li>入侵检测与防御（IDS&#x2F;IPS）。</li>
+<li>正向缓存代理（Squid）。</li>
+<li>强制门户（多区域、凭证支持）。</li>
+<li>高可用性与硬件故障转移（含配置同步）。</li>
+</ul>
+</li>
+<li><strong>管理与监控</strong>：内置报告工具、RRD图表、数据包捕获、配置备份与还原。</li>
+</ul>
+<h3 id="1-3-重要注意事项（避坑指南）"><a href="#1-3-重要注意事项（避坑指南）" class="headerlink" title="1.3 重要注意事项（避坑指南）"></a>1.3 重要注意事项（避坑指南）</h3><p>在开始前，请务必了解以下关键点：</p>
+<ol>
+<li><strong>NAT类型</strong>：OPNsense默认不支持<strong>全锥型NAT（NAT1）</strong>，最高支持<strong>端口限制型NAT</strong>。可通过UPnP或端口转发缓解，但更推荐后者。</li>
+<li><strong>性能影响</strong>：<ul>
+<li>在<strong>PPPoE拨号</strong>等变动IP的接口上启用入侵检测，可能导致CPU占用过高。</li>
+<li>流量分析、图表等功能在异常断电后可能数据损坏，同样会引起高CPU占用。</li>
+</ul>
+</li>
+<li><strong>网络规划</strong>：前期规划至关重要！随意添加网卡会导致<strong>标识符</strong>和<strong>设备</strong>映射变动，影响高可用等功能的稳定性。</li>
+<li><strong>虚拟化平台选择</strong>：<ul>
+<li><strong>强烈推荐使用PVE</strong>。在ESXi上运行高可用可能出现<code>DUP!</code>问题，且内存占用计算不准确。</li>
+<li>ESXi上开启端口组<strong>混杂模式</strong>可解决<code>DUP!</code>，但会导致OpenWrt无法访问OPNsense，且影响Docker MacVlan。</li>
+</ul>
+</li>
+<li><strong>硬件兼容性</strong>：<ul>
+<li>部分Intel 2.5G网卡存在BUG，可能导致无法发出DHCP Offer，请避免使用。</li>
+<li>VLAN配置在物理机上可能存在问题。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="二、安装准备与硬件要求"><a href="#二、安装准备与硬件要求" class="headerlink" title="二、安装准备与硬件要求"></a>二、安装准备与硬件要求</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><ul>
+<li><strong>两台电脑</strong>（用于测试，双网口以上）。</li>
+<li><strong>存储</strong>：大于20GB（推荐50GB）。</li>
+<li><strong>其他</strong>：RJ45网线、显示器和键盘。</li>
+</ul>
+<h3 id="2-2-硬件要求参考"><a href="#2-2-硬件要求参考" class="headerlink" title="2.2 硬件要求参考"></a>2.2 硬件要求参考</h3><p>以下为作者环境（i5-1135G7, 64G DDR4, 1T NVMe, ESXi 8）下的占用情况：</p>
+<table>
+<thead>
+<tr>
+<th align="left">场景</th>
+<th align="left">处理器占用 (ESXi)</th>
+<th align="left">内存占用 (ESXi&#x2F;OPNsense)</th>
+<th align="left">存储</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>轻负载</strong></td>
+<td align="left">761 MHz</td>
+<td align="left">16G &#x2F; 7%</td>
+<td align="left">120G</td>
+</tr>
+<tr>
+<td align="left"><strong>满速下载 (92MB&#x2F;s)</strong></td>
+<td align="left">4.6 GHz</td>
+<td align="left">16G &#x2F; 高</td>
+<td align="left">120G</td>
+</tr>
+</tbody></table>
+<h3 id="2-3-官方硬件要求指南"><a href="#2-3-官方硬件要求指南" class="headerlink" title="2.3 官方硬件要求指南"></a>2.3 官方硬件要求指南</h3><table>
+<thead>
+<tr>
+<th align="left">等级</th>
+<th align="left">处理器</th>
+<th align="left">内存</th>
+<th align="left">存储目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>最低要求</strong></td>
+<td align="left">500 MHz 单核</td>
+<td align="left">512 MB</td>
+<td align="left">4GB SD&#x2F;CF卡 (使用nano镜像)</td>
+</tr>
+<tr>
+<td align="left"><strong>合理要求</strong></td>
+<td align="left">1 GHz 双核</td>
+<td align="left">1 GB</td>
+<td align="left">40 GB SSD</td>
+</tr>
+<tr>
+<td align="left"><strong>推荐要求</strong></td>
+<td align="left">1.5 GHz 多核</td>
+<td align="left">4 GB</td>
+<td align="left">120 GB SSD</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>注意</strong>：实际需求取决于<strong>吞吐量</strong>和<strong>启用功能</strong>。例如，Squid代理、大型状态表、高并发强制门户会显著增加CPU和内存消耗。推荐使用<strong>英特尔（Intel）网卡</strong>以获得最佳性能和稳定性。</p>
+</blockquote>
+<p><strong>系统架构</strong>：支持 <strong>x86-32 (i386)</strong> 和 <strong>x86-64 (amd64)<strong>。对于新部署，</strong>强烈建议使用64位版本</strong>。</p>
+<hr>
+<h2 id="三、安装与基础配置"><a href="#三、安装与基础配置" class="headerlink" title="三、安装与基础配置"></a>三、安装与基础配置</h2><h3 id="3-1-下载镜像"><a href="#3-1-下载镜像" class="headerlink" title="3.1 下载镜像"></a>3.1 下载镜像</h3><ol>
+<li>访问 <a target="_blank" rel="noopener" href="https://opnsense.org/download/">OPNsense官网下载页</a>。</li>
+<li>选择：<code>Architecture: amd64</code> -&gt; <code>Image Type: DVD</code> -&gt; <code>Mirror: Aivian</code> 或 <code>Peking University</code>。</li>
+</ol>
+<h3 id="3-2-安装系统"><a href="#3-2-安装系统" class="headerlink" title="3.2 安装系统"></a>3.2 安装系统</h3><ol>
+<li>在虚拟机或物理机上启动镜像。</li>
+<li>在登录提示符 (<code>login:</code>) 处输入：<strong>用户名</strong> <code>installer</code>，<strong>密码</strong> <code>opnsense</code>。</li>
+<li>选择键盘布局（默认回车即可）。</li>
+<li>选择 <code>Install (UFS)</code>。</li>
+<li>选择目标磁盘（通常为 <code>da0</code>）。</li>
+<li>按提示创建交换空间并确认安装。</li>
+<li>安装完成后，<strong>设置root密码</strong>并重启。<strong>务必在重启前移除安装介质</strong>。</li>
+</ol>
+<h3 id="3-3-初始设置向导"><a href="#3-3-初始设置向导" class="headerlink" title="3.3 初始设置向导"></a>3.3 初始设置向导</h3><ol>
+<li>使用同一网段的设备访问 <code>https://192.168.1.1</code>。</li>
+<li>跟随向导进行设置：<ul>
+<li><strong>语言</strong>：中文。</li>
+<li><strong>DNS</strong>：首选 <code>223.5.5.5</code>，辅助 <code>119.29.29.29</code>。</li>
+<li><strong>启用DNSSEC支持</strong>和<strong>强化DNSSEC数据</strong>（推荐，可防DNS劫持。自建DNS请勿开启）。</li>
+<li><strong>时区</strong>：<code>Asia/Shanghai</code>。</li>
+<li><strong>配置WAN&#x2F;LAN接口</strong>。</li>
+<li><strong>重设root密码</strong>（可选）。</li>
+<li><strong>重载系统</strong>完成配置。</li>
+</ul>
+</li>
+</ol>
+<h3 id="3-4-更换软件镜像源"><a href="#3-4-更换软件镜像源" class="headerlink" title="3.4 更换软件镜像源"></a>3.4 更换软件镜像源</h3><p>默认源速度较慢，建议更换：</p>
+<ol>
+<li>进入 <strong>系统 -&gt; 固件 -&gt; 设置</strong>。</li>
+<li>在 <strong>镜像</strong> 下拉框中选择 <code>Aivian (HTTPS,Shangxing,CN)</code>。</li>
+<li><strong>或自定义源</strong>：选择 <code>(custom)</code>，填入：<ul>
+<li>北京大学镜像源：<code>http://mirrors.pku.edu.cn/opnsense/</code></li>
+<li>网易镜像源：<code>http://mirrors.163.com/opnsense/</code><blockquote>
+<p>注意：请勿自行改为 <code>https</code>。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>保存后，进入 <strong>状态</strong> 选项卡，点击 <strong>检查升级</strong>。</li>
+</ol>
+<hr>
+<h2 id="四、网络接口配置"><a href="#四、网络接口配置" class="headerlink" title="四、网络接口配置"></a>四、网络接口配置</h2><h3 id="4-1-接口分配"><a href="#4-1-接口分配" class="headerlink" title="4.1 接口分配"></a>4.1 接口分配</h3><p>进入 <strong>接口 -&gt; 分配</strong>，查看和管理接口。</p>
+<ul>
+<li><strong>标识符</strong>：如 <code>WAN</code>, <code>LAN</code>。</li>
+<li><strong>接口设备</strong>：系统识别的网卡名称（如 <code>vmx0</code>）。</li>
+<li>如需添加新接口（如WAN），在下方 <code>Assign a new interface</code> 选择设备并填写描述（英文&#x2F;数字）。</li>
+</ul>
+<h3 id="4-2-WAN口设置"><a href="#4-2-WAN口设置" class="headerlink" title="4.2 WAN口设置"></a>4.2 WAN口设置</h3><p>进入 **接口 -&gt; [WAN]**。</p>
+<ol>
+<li><strong>基本设置</strong>：勾选 <code>阻止私有网络</code> 和 <code>拦截bogon网络</code>。</li>
+<li><strong>IPv4配置类型</strong>：<ul>
+<li><strong>PPPoE拨号</strong>：选择 <code>PPPoE</code>，在下方的PPPoE配置中填入宽带账号密码。</li>
+<li><strong>DHCP</strong>：选择 <code>DHCP</code>。</li>
+<li><strong>静态IP</strong>：选择 <code>静态IPv4</code>，填写IP、掩码，并添加上游网关（标记为默认网关）。</li>
+</ul>
+</li>
+<li><strong>保存</strong>。</li>
+</ol>
+<h3 id="4-3-LAN口设置"><a href="#4-3-LAN口设置" class="headerlink" title="4.3 LAN口设置"></a>4.3 LAN口设置</h3><p>进入 **接口 -&gt; [LAN]**。</p>
+<ol>
+<li><strong>基本设置</strong>：<strong>取消勾选</strong> <code>阻止私有网络</code> 和 <code>拦截bogon网络</code>。</li>
+<li><strong>IPv4配置类型</strong>：选择 <code>静态IPv4</code>。</li>
+<li><strong>静态IPv4配置</strong>：填写内网IP地址（如 <code>192.168.1.1</code>）和子网掩码（如 <code>24</code>）。</li>
+<li><strong>保存</strong>。</li>
+</ol>
+<h3 id="4-4-终端紧急配置网卡"><a href="#4-4-终端紧急配置网卡" class="headerlink" title="4.4 终端紧急配置网卡"></a>4.4 终端紧急配置网卡</h3><p>如果不慎删除了管理口，可通过控制台恢复：</p>
+<ol>
+<li>登录终端，进入管理选项菜单。</li>
+<li>选择 <code>1) 接口分配</code>，按提示重新分配WAN、LAN等接口的物理网卡。</li>
+<li>选择 <code>2) 接口设置</code>，为指定接口（如LAN）重新配置IP地址等。</li>
+<li>按提示完成并重启相关服务。</li>
+</ol>
+<hr>
+<h2 id="五、防火墙规则配置"><a href="#五、防火墙规则配置" class="headerlink" title="五、防火墙规则配置"></a>五、防火墙规则配置</h2><h3 id="5-1-创建允许规则（示例：允许LAN访问外网）"><a href="#5-1-创建允许规则（示例：允许LAN访问外网）" class="headerlink" title="5.1 创建允许规则（示例：允许LAN访问外网）"></a>5.1 创建允许规则（示例：允许LAN访问外网）</h3><p>进入 <strong>防火墙 -&gt; 规则 -&gt; LAN</strong>，点击 <strong>+</strong> 添加。</p>
+<table>
+<thead>
+<tr>
+<th align="left">选项</th>
+<th align="left">设置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>操作</strong></td>
+<td align="left">通过</td>
+</tr>
+<tr>
+<td align="left"><strong>接口</strong></td>
+<td align="left">LAN</td>
+</tr>
+<tr>
+<td align="left"><strong>方向</strong></td>
+<td align="left">in</td>
+</tr>
+<tr>
+<td align="left"><strong>TCP&#x2F;IP版本</strong></td>
+<td align="left">IPv4</td>
+</tr>
+<tr>
+<td align="left"><strong>协议</strong></td>
+<td align="left">any</td>
+</tr>
+<tr>
+<td align="left"><strong>源</strong></td>
+<td align="left">LAN网络</td>
+</tr>
+<tr>
+<td align="left"><strong>目标</strong></td>
+<td align="left">any</td>
+</tr>
+<tr>
+<td align="left"><strong>目标端口范围</strong></td>
+<td align="left">any</td>
+</tr>
+<tr>
+<td align="left"><strong>描述</strong></td>
+<td align="left">Default allow LAN to any rule</td>
+</tr>
+</tbody></table>
+<h3 id="5-2-创建阻断规则（示例：禁止访问阿里DNS）"><a href="#5-2-创建阻断规则（示例：禁止访问阿里DNS）" class="headerlink" title="5.2 创建阻断规则（示例：禁止访问阿里DNS）"></a>5.2 创建阻断规则（示例：禁止访问阿里DNS）</h3><p>同样在LAN规则页面，点击 <strong>+</strong> 添加。</p>
+<table>
+<thead>
+<tr>
+<th align="left">选项</th>
+<th align="left">设置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>操作</strong></td>
+<td align="left">阻止（或拒绝）</td>
+</tr>
+<tr>
+<td align="left"><strong>接口</strong></td>
+<td align="left">LAN</td>
+</tr>
+<tr>
+<td align="left"><strong>方向</strong></td>
+<td align="left">in</td>
+</tr>
+<tr>
+<td align="left"><strong>TCP&#x2F;IP版本</strong></td>
+<td align="left">IPv4</td>
+</tr>
+<tr>
+<td align="left"><strong>协议</strong></td>
+<td align="left">any</td>
+</tr>
+<tr>
+<td align="left"><strong>源</strong></td>
+<td align="left">LAN网络</td>
+</tr>
+<tr>
+<td align="left"><strong>目标</strong></td>
+<td align="left">223.5.5.5 （单个主机或网络）</td>
+</tr>
+<tr>
+<td align="left"><strong>目标端口范围</strong></td>
+<td align="left">53</td>
+</tr>
+<tr>
+<td align="left"><strong>描述</strong></td>
+<td align="left">禁止访问阿里DNS</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>阻止</strong>：直接丢弃数据包。<strong>拒绝</strong>：返回拒绝数据包。</p>
+</blockquote>
+<hr>
+<h2 id="六、基础服务配置"><a href="#六、基础服务配置" class="headerlink" title="六、基础服务配置"></a>六、基础服务配置</h2><h3 id="6-1-系统DNS与Unbound-DNS"><a href="#6-1-系统DNS与Unbound-DNS" class="headerlink" title="6.1 系统DNS与Unbound DNS"></a>6.1 系统DNS与Unbound DNS</h3><ol>
+<li><strong>系统DNS（网关DNS）</strong>：<ul>
+<li>进入 <strong>系统 -&gt; 设置 -&gt; 常规</strong>。</li>
+<li>在 <strong>网络</strong> 部分的 <code>DNS服务器</code> 中填入公共DNS（如 <code>223.5.5.5</code>），并为其选择对应的WAN网关。</li>
+</ul>
+</li>
+<li><strong>Unbound DNS（局域网DNS）</strong>：<ul>
+<li>进入 <strong>服务 -&gt; Unbound DNS -&gt; 常规</strong>，勾选 <code>启用Unbound</code> 和 <code>启用DNSSEC支持</code>。</li>
+<li>进入 <strong>查询转发</strong>，取消 <code>使用系统DNS服务器</code>，手动添加转发服务器（如 <code>223.5.5.5</code>）。</li>
+<li><strong>DoT加密查询（可选）</strong>：进入 <strong>DoT</strong> 选项卡，添加服务器，例如：<ul>
+<li>服务器IP: <code>223.5.5.5</code></li>
+<li>端口: <code>853</code></li>
+<li>验证CN: <code>dns.alidns.com</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="6-2-DHCPv4-服务"><a href="#6-2-DHCPv4-服务" class="headerlink" title="6.2 DHCPv4 服务"></a>6.2 DHCPv4 服务</h3><p>进入 **服务 -&gt; DHCPv4 -&gt; [LAN]**。</p>
+<ul>
+<li>勾选 <code>启用</code>。</li>
+<li>设置地址池范围，例如：<code>从 192.168.1.10</code> 到 <code>192.168.1.245</code>。</li>
+<li>网关和DNS可不填，默认使用路由器地址。</li>
+</ul>
+<h3 id="6-3-网络时间协议（NTP）"><a href="#6-3-网络时间协议（NTP）" class="headerlink" title="6.3 网络时间协议（NTP）"></a>6.3 网络时间协议（NTP）</h3><p>进入 <strong>服务 -&gt; 网络时间 -&gt; 常规</strong>，可添加以下推荐的NTP服务器：</p>
+<ul>
+<li>国内：<code>ntp.aliyun.com</code>, <code>ntp.tencent.com</code>, <code>ntp.sjtu.edu.cn</code>, <code>cn.pool.ntp.org</code></li>
+<li>国际：<code>time.google.com</code>, <code>time.cloudflare.com</code>, <code>pool.ntp.org</code></li>
+</ul>
+<hr>
+<h2 id="七、IPv6-配置"><a href="#七、IPv6-配置" class="headerlink" title="七、IPv6 配置"></a>七、IPv6 配置</h2><h3 id="7-1-公网IPv6（有PD前缀）"><a href="#7-1-公网IPv6（有PD前缀）" class="headerlink" title="7.1 公网IPv6（有PD前缀）"></a>7.1 公网IPv6（有PD前缀）</h3><ol>
+<li><strong>WAN口</strong>：<code>接口 -&gt; [WAN]</code>，<code>IPv6配置类型</code> 选 <code>DHCPv6</code>。在DHCPv6客户端配置中，打开 <code>仅请求IPv6前缀</code>、<code>发送IPv6前缀提示</code>，<code>前缀委派大小</code> 设为 <code>60</code>（需与运营商下发一致）。</li>
+<li><strong>LAN口</strong>：<code>接口 -&gt; [LAN]</code>，<code>IPv6配置类型</code> 选 <code>跟踪接口</code>，并在 <code>跟踪IPv6接口</code> 中打开 <code>允许手动调整DHCPv6和路由器通告</code>。</li>
+<li><strong>启用IPv6</strong>：<code>防火墙 -&gt; 设置 -&gt; 高级</code>，在IPv6选项中打开 <code>允许IPv6</code>。</li>
+<li><strong>分配地址</strong>：<ul>
+<li><strong>DHCPv6</strong>：<code>服务 -&gt; DHCPv6 -&gt; [LAN]</code> 中启用并设置范围。</li>
+<li><strong>或路由器通告</strong>：<code>服务 -&gt; 路由器通告 -&gt; [LAN]</code>，<code>路由器通告</code> 选 <code>Assisted</code>，勾选 <code>通告默认网关</code>，填入DNS服务器（如 <code>2400:3200::1</code>）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="7-2-NATv6（无PD前缀，使用内网IPv6）"><a href="#7-2-NATv6（无PD前缀，使用内网IPv6）" class="headerlink" title="7.2 NATv6（无PD前缀，使用内网IPv6）"></a>7.2 NATv6（无PD前缀，使用内网IPv6）</h3><ol>
+<li><strong>WAN口</strong>：同上，配置DHCPv6获取地址。</li>
+<li><strong>LAN口</strong>：<code>接口 -&gt; [LAN]</code>，<code>IPv6配置类型</code> 选 <code>静态IPv6</code>，使用ULA地址（如 <code>fd00::1/64</code>）。</li>
+<li><strong>启用IPv6</strong>：同上。</li>
+<li><strong>配置NAT出站规则</strong>：<ul>
+<li><code>防火墙 -&gt; NAT -&gt; 出站</code>，模式改为 <code>混合生成出站NAT规则</code>。</li>
+<li>添加两条手动规则（IPv4和IPv6），关键是将 <code>转换/目标</code> 设为 <code>接口地址</code>，并<strong>勾选 <code>静态端口</code><strong>。这是实现</strong>端口限制型NAT</strong>的关键。</li>
+</ul>
+</li>
+<li><strong>分配地址</strong>：同7.1第4步，为LAN配置DHCPv6或路由器通告。</li>
+</ol>
+<h3 id="7-3-解决IPv6大包问题"><a href="#7-3-解决IPv6大包问题" class="headerlink" title="7.3 解决IPv6大包问题"></a>7.3 解决IPv6大包问题</h3><p>若 <a target="_blank" rel="noopener" href="https://www.test-ipv6.com/">test-ipv6.com</a> 提示大包错误，需调整MSS：</p>
+<ul>
+<li>在 <strong>接口 -&gt; [WAN] -&gt; 通用配置</strong> 中，设置 <code>MSS</code> 值。</li>
+<li>计算公式：<code>MSS = PPPoE MTU(通常1492) - 60</code>，约为 <code>1430</code>。可尝试 <code>1420</code> 或 <code>1400</code>。</li>
+<li>测试命令（Windows）：<code>ping -l 1500 baidu.com</code> 逐步减小 <code>-l</code> 后数值直到通，该值即为可用MSS。</li>
+</ul>
+<hr>
+<h2 id="八、进阶功能配置"><a href="#八、进阶功能配置" class="headerlink" title="八、进阶功能配置"></a>八、进阶功能配置</h2><h3 id="8-1-流量整形（流控）"><a href="#8-1-流量整形（流控）" class="headerlink" title="8.1 流量整形（流控）"></a>8.1 流量整形（流控）</h3><p>以创建HTTP流量优先级为例：</p>
+<ol>
+<li><strong>创建管道</strong>：<code>防火墙 -&gt; 流控 -&gt; 管道</code>，创建上传&#x2F;下载管道，设置带宽（如 160Mbit&#x2F;s上传，1000Mbit&#x2F;s下载）。</li>
+<li><strong>创建队列</strong>：<code>防火墙 -&gt; 流控 -&gt; 队列</code>，为不同协议创建队列并绑定到管道，设置权重（值越低优先级越高）。<ul>
+<li>例如：<code>HTTP上传队列</code> 权重50， <code>其他流量队列上传</code> 权重80。</li>
+</ul>
+</li>
+<li><strong>创建规则</strong>：<code>防火墙 -&gt; 流控 -&gt; 规则</code>，创建规则将特定流量（如目标端口80&#x2F;443）指向高优先级队列。</li>
+<li>在 <code>防火墙 -&gt; 流控 -&gt; 状态</code> 中查看队列状态。</li>
+</ol>
+<h3 id="8-2-别名（Aliases）"><a href="#8-2-别名（Aliases）" class="headerlink" title="8.2 别名（Aliases）"></a>8.2 别名（Aliases）</h3><p>别名用于批量管理IP、端口等，是防火墙规则的强大工具。</p>
+<ul>
+<li><strong>类型</strong>：主机、网络、端口、URL Table (IPs)（可定期更新）、GeoIP等。</li>
+<li><strong>创建</strong>：<code>防火墙 -&gt; 别名</code>，点击 **+**，选择类型并填入内容（如IP列表、URL）。</li>
+<li><strong>嵌套</strong>：可以在一个别名中引用其他别名。</li>
+</ul>
+<h3 id="8-3-端口转发"><a href="#8-3-端口转发" class="headerlink" title="8.3 端口转发"></a>8.3 端口转发</h3><p>相比UPnP更安全可控。</p>
+<ol>
+<li><strong>普通转发</strong>：<code>防火墙 -&gt; NAT -&gt; 转发</code>，点击 **+**。<ul>
+<li>接口：<code>WAN</code></li>
+<li>协议：<code>TCP/UDP</code></li>
+<li>目标：<code>WAN地址</code></li>
+<li>目标端口：外部端口</li>
+<li>重定向目标IP：内网主机IP</li>
+<li>重定向目标端口：内部端口</li>
+</ul>
+</li>
+<li><strong>DNS重定向示例</strong>：将内网DNS请求重定向到指定服务器。<ul>
+<li>接口：<code>LAN</code></li>
+<li>勾选 <code>目标 / 反转</code></li>
+<li>目标：<code>LAN网络</code></li>
+<li>目标端口：<code>DNS</code></li>
+<li>重定向目标IP：<code>192.168.1.2</code></li>
+<li>重定向目标端口：<code>DNS</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="8-4-高可用（HA）配置"><a href="#8-4-高可用（HA）配置" class="headerlink" title="8.4 高可用（HA）配置"></a>8.4 高可用（HA）配置</h3><p><strong>前提</strong>：两台OPNsense，接口分配完全一致，并有一个专用HA接口用于心跳同步。</p>
+<ol>
+<li><strong>配置CARP虚拟IP</strong>：在主防火墙的 <code>接口 -&gt; 虚拟IP -&gt; 设置</code> 中，为LAN（或WAN）添加CARP虚拟IP（如 <code>192.168.1.1/24</code>），设置VHID和密码。</li>
+<li><strong>配置同步</strong>：<ul>
+<li>主防火墙：<code>系统 -&gt; 高可用 -&gt; 设置</code>，启用同步，指定同步接口（HA口）、对端IP和密码，选择同步模块。</li>
+<li>备防火墙：同样位置，启用同步并勾选 <code>禁用抢占</code>、<code>断开拨号接口</code>。</li>
+</ul>
+</li>
+<li><strong>同步配置</strong>：在主防火墙状态页点击上传图标进行初始同步。</li>
+<li><strong>检查</strong>：在 <code>接口 -&gt; 概况</code> 中，主防火墙的虚拟IP旁有绿色图标，备防火墙为灰色。</li>
+</ol>
+<h3 id="8-5-性能优化（可调参数）"><a href="#8-5-性能优化（可调参数）" class="headerlink" title="8.5 性能优化（可调参数）"></a>8.5 性能优化（可调参数）</h3><p>进入 <strong>系统 -&gt; 设置 -&gt; 可调参数</strong>，可添加以下参数提升性能（部分）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hw.ibrs_disable=1                # 禁用Spectre V2缓解，提升性能</span><br><span class="line">net.isr.maxthreads=-1            # 使用所有CPU核心处理网络中断</span><br><span class="line">net.isr.bindthreads=1            # 将中断线程绑定到核心</span><br><span class="line">net.inet.rss.enabled=1           # 启用接收方缩放</span><br><span class="line">net.inet.rss.bits=2              # RSS位，根据核心数调整（核心数/4）</span><br><span class="line">net.inet.tcp.soreceive_stream=1  # 启用优化的内核套接字接口</span><br><span class="line">kern.ipc.maxsockbuf=16777216     # 增大套接字缓冲区（10G网卡）</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意</strong>：调整需谨慎，建议参考 <a target="_blank" rel="noopener" href="https://calomel.org/freebsd_network_tuning.html">FreeBSD网络性能调优指南</a>。</p>
+</blockquote>
+<h3 id="8-6-网关组（故障转移-负载均衡）"><a href="#8-6-网关组（故障转移-负载均衡）" class="headerlink" title="8.6 网关组（故障转移&#x2F;负载均衡）"></a>8.6 网关组（故障转移&#x2F;负载均衡）</h3><ol>
+<li><strong>配置网关</strong>：<code>系统 -&gt; 网关 -&gt; 配置</code>，确保各WAN口网关监控状态为“正常”。</li>
+<li><strong>创建网关组</strong>：<code>系统 -&gt; 网关 -&gt; 组</code>，点击 **+**。<ul>
+<li>添加网关并设置优先级（故障转移），例如：WAN_GW为<code>层级1</code>，WAN2_DHCP为<code>层级2</code>。</li>
+<li>触发条件：<code>丢包</code>。</li>
+</ul>
+</li>
+<li><strong>修改策略路由</strong>：在LAN的防火墙出站规则中，将<code>网关</code>选项改为新建的网关组。</li>
+</ol>
+<hr>
+<h2 id="九、故障排除"><a href="#九、故障排除" class="headerlink" title="九、故障排除"></a>九、故障排除</h2><h3 id="9-1-CSRF-check-failure-错误"><a href="#9-1-CSRF-check-failure-错误" class="headerlink" title="9.1 CSRF check failure 错误"></a>9.1 CSRF check failure 错误</h3><p>登录后出现此白色错误页，通常是因为浏览器缓存或会话问题。</p>
+<ul>
+<li><strong>解决方法</strong>：清除浏览器缓存和Cookie，使用无痕模式，或直接访问 <code>https://192.168.1.1/</code>（不带后续路径）。如仍不行，可尝试重启OPNsense的Web服务（非重启系统）。</li>
+</ul>
+<h3 id="9-2-网页反向代理设置"><a href="#9-2-网页反向代理设置" class="headerlink" title="9.2 网页反向代理设置"></a>9.2 网页反向代理设置</h3><p>若通过Nginx等反向代理访问OPNsense管理界面，需在OPNsense中关闭某些检查：</p>
+<ul>
+<li>进入 <strong>系统 -&gt; 设置 -&gt; 管理</strong>。</li>
+<li>勾选：<code>禁用Web GUI重定向规则</code>、<code>禁用DNS重绑定检查</code>、<code>禁用HTTP_REFERER强制检查</code>。</li>
+</ul>
+<h3 id="9-3-开启SSH访问"><a href="#9-3-开启SSH访问" class="headerlink" title="9.3 开启SSH访问"></a>9.3 开启SSH访问</h3><ul>
+<li>进入 <strong>系统 -&gt; 设置 -&gt; 管理</strong>。</li>
+<li>勾选：<code>启用安全Shell</code>、<code>允许root用户登录</code>、<code>允许密码登录</code>。</li>
+<li>监听接口：可选择<code>全部</code>或指定接口。</li>
+</ul>
+<hr>
+<p><strong>版权声明</strong>：本文部分内容参考并整合了多位社区作者的经验，特别感谢 <a target="_blank" rel="noopener" href="https://pfchina.org/">OPNsense中文手册</a> 和博主“鐵血男兒”的分享。本文旨在为初学者提供一个清晰的指引，更多深入细节请查阅官方文档和社区论坛。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/09/08/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/C%E8%AF%AD%E8%A8%80/C%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/" rel="prev" title="C语言学习笔记-1">
+                  <i class="fa fa-angle-left"></i> C语言学习笔记-1
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/02/28/Linux/Ubuntu%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/" rel="next" title="Ubuntu时间同步">
+                  Ubuntu时间同步 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

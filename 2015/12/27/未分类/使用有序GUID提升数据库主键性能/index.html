@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文深入探讨了使用随机GUID作为数据库主键的性能瓶颈，并详细介绍了有序GUID（Sequential GUID &#x2F; COMB GUID）的解决方案。通过将时间戳嵌入GUID的特定位置，使其在插入时保持大致递增的顺序，从而在多种数据库（SQL Server, MySQL, Oracle, PostgreSQL）中获得接近整型自增主键的插入性能。 一、 问题背景：为什么随机GUID性能差？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用有序GUID提升数据库主键性能">
+<meta property="og:url" content="http://chengming0916.github.io/2015/12/27/%E6%9C%AA%E5%88%86%E7%B1%BB/%E4%BD%BF%E7%94%A8%E6%9C%89%E5%BA%8FGUID%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E9%94%AE%E6%80%A7%E8%83%BD/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="本文深入探讨了使用随机GUID作为数据库主键的性能瓶颈，并详细介绍了有序GUID（Sequential GUID &#x2F; COMB GUID）的解决方案。通过将时间戳嵌入GUID的特定位置，使其在插入时保持大致递增的顺序，从而在多种数据库（SQL Server, MySQL, Oracle, PostgreSQL）中获得接近整型自增主键的插入性能。 一、 问题背景：为什么随机GUID性能差？">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-12-27T07:34:55.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.494Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="GUID">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/12/27/%E6%9C%AA%E5%88%86%E7%B1%BB/%E4%BD%BF%E7%94%A8%E6%9C%89%E5%BA%8FGUID%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E9%94%AE%E6%80%A7%E8%83%BD/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/12/27/%E6%9C%AA%E5%88%86%E7%B1%BB/%E4%BD%BF%E7%94%A8%E6%9C%89%E5%BA%8FGUID%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E9%94%AE%E6%80%A7%E8%83%BD/","path":"2015/12/27/未分类/使用有序GUID提升数据库主键性能/","title":"使用有序GUID提升数据库主键性能"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用有序GUID提升数据库主键性能 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9A%8F%E6%9C%BAGUID%E6%80%A7%E8%83%BD%E5%B7%AE%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、 问题背景：为什么随机GUID性能差？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-%E4%BC%A0%E7%BB%9F%E6%96%B9%E6%A1%88%EF%BC%9A%E6%95%B4%E5%9E%8B%E8%87%AA%E5%A2%9EID"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 传统方案：整型自增ID</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-%E8%AF%B1%E4%BA%BA%E4%BD%86%E5%8D%B1%E9%99%A9%E7%9A%84%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88%EF%BC%9A%E9%9A%8F%E6%9C%BAGUID"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 诱人但危险的替代方案：随机GUID</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A%E6%9C%89%E5%BA%8FGUID%EF%BC%88COMB-GUID%EF%BC%89%E7%9A%84%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="nav-number">2.</span> <span class="nav-text">二、 解决方案：有序GUID（COMB GUID）的核心思想</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E6%A0%B8%E5%BF%83%E6%8C%91%E6%88%98%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9A%E9%80%82%E9%85%8D%E4%B8%8D%E5%90%8C%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">三、 核心挑战与实现：适配不同数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-GUID%E7%BB%93%E6%9E%84%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E5%B7%AE%E5%BC%82"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 GUID结构与数据库差异</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-%E7%AE%97%E6%B3%95%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 算法定义与实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E9%80%82%E9%85%8D%E6%8C%87%E5%8D%97%E4%B8%8E%E6%80%A7%E8%83%BD%E7%BB%93%E8%AE%BA"><span class="nav-number">4.</span> <span class="nav-text">四、 适配指南与性能结论</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#4-1-%E5%90%84%E6%95%B0%E6%8D%AE%E5%BA%93%E9%80%82%E9%85%8D%E7%B1%BB%E5%9E%8B%E6%8E%A8%E8%8D%90"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 各数据库适配类型推荐</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-2-%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E7%BB%93%E8%AE%BA%EF%BC%88%E5%9F%BA%E4%BA%8E%E5%8E%9F%E6%96%87%E6%B5%8B%E8%AF%95%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 性能对比结论（基于原文测试）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E5%AE%8C%E6%95%B4%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">五、 完整实现代码与注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#5-1-%E5%AE%8C%E6%95%B4C-%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 完整C#实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-2-%E9%87%8D%E8%A6%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 重要注意事项</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/12/27/%E6%9C%AA%E5%88%86%E7%B1%BB/%E4%BD%BF%E7%94%A8%E6%9C%89%E5%BA%8FGUID%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E9%94%AE%E6%80%A7%E8%83%BD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用有序GUID提升数据库主键性能 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用有序GUID提升数据库主键性能
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-12-27 15:34:55" itemprop="dateCreated datePublished" datetime="2015-12-27T15:34:55+08:00">2015-12-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文深入探讨了使用随机GUID作为数据库主键的性能瓶颈，并详细介绍了<strong>有序GUID（Sequential GUID &#x2F; COMB GUID）</strong>的解决方案。通过将时间戳嵌入GUID的特定位置，使其在插入时保持大致递增的顺序，从而在多种数据库（SQL Server, MySQL, Oracle, PostgreSQL）中获得接近整型自增主键的插入性能。</p>
+<h4 id="一、-问题背景：为什么随机GUID性能差？"><a href="#一、-问题背景：为什么随机GUID性能差？" class="headerlink" title="一、 问题背景：为什么随机GUID性能差？"></a>一、 问题背景：为什么随机GUID性能差？</h4><h5 id="1-1-传统方案：整型自增ID"><a href="#1-1-传统方案：整型自增ID" class="headerlink" title="1.1 传统方案：整型自增ID"></a>1.1 传统方案：整型自增ID</h5><ul>
+<li><strong>优点</strong>：简单高效，由数据库自动生成，插入时新行总是追加到表末尾。</li>
+<li><strong>缺点</strong>：<ul>
+<li>在ORM框架（如NHibernate, Entity Framework）中可能引发并发问题。</li>
+<li>在数据库复制等分布式场景下，依赖“单一权威源”生成ID会成为瓶颈。</li>
+</ul>
+</li>
+</ul>
+<h5 id="1-2-诱人但危险的替代方案：随机GUID"><a href="#1-2-诱人但危险的替代方案：随机GUID" class="headerlink" title="1.2 诱人但危险的替代方案：随机GUID"></a>1.2 诱人但危险的替代方案：随机GUID</h5><ul>
+<li><strong>优点</strong>：全局唯一，可在客户端生成，无需与数据库交互，完美解决分布式ID生成问题。</li>
+<li><strong>致命缺点</strong>：<strong>插入性能低下</strong>。<ul>
+<li><strong>原因</strong>：大多数数据库使用<strong>聚集索引（Clustered Index）</strong>组织表数据，数据行在磁盘上的物理顺序与主键顺序一致。随机GUID会导致新插入的行位于索引中间位置，引发大量的<strong>页分裂（Page Split）</strong>和<strong>数据移动</strong>，随着数据量增长，插入操作会变得极其缓慢。</li>
+</ul>
+</li>
+</ul>
+<p><strong>简单示例</strong>：<br>向一个已按ID排序的表中插入新行。</p>
+<ul>
+<li>插入 <code>ID=8</code>（最大值）：追加到末尾，效率高。</li>
+<li>插入 <code>ID=5</code>（中间值）：需要移动 <code>ID=7</code> 和 <code>ID=8</code> 的行以腾出空间，效率低。</li>
+</ul>
+<p>随机GUID的插入类似于总是在中间插入。</p>
+<h4 id="二、-解决方案：有序GUID（COMB-GUID）的核心思想"><a href="#二、-解决方案：有序GUID（COMB-GUID）的核心思想" class="headerlink" title="二、 解决方案：有序GUID（COMB GUID）的核心思想"></a>二、 解决方案：有序GUID（COMB GUID）的核心思想</h4><p><strong>核心思路</strong>：改造GUID的结构，将其一部分（通常是6个字节）替换为一个<strong>随时间递增（或至少不减少）的值</strong>（如时间戳），剩余部分保持随机性以保证全局唯一。</p>
+<ul>
+<li><strong>随机GUID示例</strong>（无序）：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fda437b5-6edd-42dc-9bbd-c09d10460ad0</span><br><span class="line">2cb56c59-ef3d-4d24-90e7-835ed5968cdc</span><br></pre></td></tr></table></figure></li>
+<li><strong>有序GUID示例</strong>（时间戳部分递增）：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">00000001-a411-491d-969a-77bf40f55175</span><br><span class="line">00000002-d97d-4bb9-a493-cad277999363</span><br><span class="line">00000003-916c-4986-a363-0a9b9c95ca52</span><br></pre></td></tr></table></figure>
+这样，新生成的GUID在插入时大概率会排在现有数据的后面，避免了中间插入带来的性能损耗。</li>
+</ul>
+<h4 id="三、-核心挑战与实现：适配不同数据库"><a href="#三、-核心挑战与实现：适配不同数据库" class="headerlink" title="三、 核心挑战与实现：适配不同数据库"></a>三、 核心挑战与实现：适配不同数据库</h4><p>不同的数据库对GUID的存储、排序方式存在差异，因此没有“一刀切”的有序GUID生成算法。</p>
+<h5 id="3-1-GUID结构与数据库差异"><a href="#3-1-GUID结构与数据库差异" class="headerlink" title="3.1 GUID结构与数据库差异"></a>3.1 GUID结构与数据库差异</h5><p>一个GUID（128位）通常表示为：<code>11111111-2222-3333-4444-444444444444</code></p>
+<ul>
+<li><code>Data1</code>: 4字节</li>
+<li><code>Data2</code>: 2字节</li>
+<li><code>Data3</code>: 2字节</li>
+<li><code>Data4</code>: 8字节</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">数据库</th>
+<th align="left">原生类型</th>
+<th align="left">排序依据</th>
+<th align="left">有序部分应放置的位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Microsoft SQL Server</strong></td>
+<td align="left"><code>uniqueidentifier</code></td>
+<td align="left"><strong><code>Data4</code>的最后6个字节</strong></td>
+<td align="left">GUID末尾 (<code>Data4</code>的最后6字节)</td>
+</tr>
+<tr>
+<td align="left"><strong>MySQL</strong></td>
+<td align="left"><code>CHAR(36)</code> (字符串)</td>
+<td align="left">字符串的字典序</td>
+<td align="left">GUID开头 (作为字符串比较时)</td>
+</tr>
+<tr>
+<td align="left"><strong>Oracle</strong></td>
+<td align="left"><code>RAW(16)</code> (二进制)</td>
+<td align="left">二进制字节序</td>
+<td align="left">GUID开头 (作为二进制比较时)</td>
+</tr>
+<tr>
+<td align="left"><strong>PostgreSQL</strong></td>
+<td align="left"><code>UUID</code></td>
+<td align="left">有多种比较方式，通常按字符串或二进制</td>
+<td align="left">GUID开头 (作为字符串比较时)</td>
+</tr>
+</tbody></table>
+<p><strong>关键难点</strong>：.NET Framework中<code>Guid</code>结构的字节序（Endianness）与字符串表示之间存在不一致，需要针对“按字符串存储”的情况进行特殊处理。</p>
+<h5 id="3-2-算法定义与实现"><a href="#3-2-算法定义与实现" class="headerlink" title="3.2 算法定义与实现"></a>3.2 算法定义与实现</h5><p>定义三种生成模式以适配不同数据库：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">enum</span> SequentialGuidType</span><br><span class="line">&#123;</span><br><span class="line">    SequentialAsString, <span class="comment">// 用于按字符串排序的DB (如MySQL)</span></span><br><span class="line">    SequentialAsBinary, <span class="comment">// 用于按二进制排序的DB (如Oracle)</span></span><br><span class="line">    SequentialAtEnd     <span class="comment">// 用于SQL Server</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>生成步骤</strong>：</p>
+<ol>
+<li><strong>生成随机部分</strong>：使用强随机数生成器（<code>RNGCryptoServiceProvider</code>）生成10个随机字节。</li>
+<li><strong>生成时间戳部分</strong>：获取当前UTC时间的<code>Ticks</code>（100纳秒间隔数），除以10000转换为毫秒精度，取其后6个字节（48位）。这足以保证约5800年内不重复。</li>
+<li><strong>组装GUID字节数组</strong>：根据<code>SequentialGuidType</code>，将时间戳字节和随机字节按规则拼接成16字节数组。</li>
+<li><strong>处理字节序</strong>：针对<code>SequentialAsString</code>模式且在Little-Endian系统上，需要调整<code>Data1</code>和<code>Data2</code>区块的字节顺序，以确保其<code>ToString()</code>后的字符串保持有序。</li>
+<li><strong>构造Guid对象</strong>：使用字节数组构造函数返回最终的<code>Guid</code>。</li>
+</ol>
+<p><strong>注意</strong>：使用6字节时间戳意味着在极端情况下（如每秒生成超过281万亿个GUID）可能重复，但结合10字节强随机数，实际碰撞概率极低，可安全用于绝大多数场景。</p>
+<h4 id="四、-适配指南与性能结论"><a href="#四、-适配指南与性能结论" class="headerlink" title="四、 适配指南与性能结论"></a>四、 适配指南与性能结论</h4><h5 id="4-1-各数据库适配类型推荐"><a href="#4-1-各数据库适配类型推荐" class="headerlink" title="4.1 各数据库适配类型推荐"></a>4.1 各数据库适配类型推荐</h5><table>
+<thead>
+<tr>
+<th align="left">数据库</th>
+<th align="left">推荐使用的 <code>SequentialGuidType</code></th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Microsoft SQL Server</strong></td>
+<td align="left"><code>SequentialAtEnd</code></td>
+<td align="left">匹配其按<code>Data4</code>末尾排序的特性。</td>
+</tr>
+<tr>
+<td align="left"><strong>MySQL</strong></td>
+<td align="left"><code>SequentialAsString</code></td>
+<td align="left">GUID通常存为<code>CHAR(36)</code>，按字符串比较。</td>
+</tr>
+<tr>
+<td align="left"><strong>Oracle</strong></td>
+<td align="left"><code>SequentialAsBinary</code></td>
+<td align="left">GUID存为<code>RAW(16)</code>，按二进制比较。</td>
+</tr>
+<tr>
+<td align="left"><strong>PostgreSQL</strong></td>
+<td align="left"><code>SequentialAsString</code></td>
+<td align="left"><code>UUID</code>类型通常按字符串处理。</td>
+</tr>
+<tr>
+<td align="left"><strong>SQLite</strong></td>
+<td align="left"><em>视情况而定</em></td>
+<td align="left">无原生GUID类型，取决于使用的扩展如何存储。</td>
+</tr>
+</tbody></table>
+<h5 id="4-2-性能对比结论（基于原文测试）"><a href="#4-2-性能对比结论（基于原文测试）" class="headerlink" title="4.2 性能对比结论（基于原文测试）"></a>4.2 性能对比结论（基于原文测试）</h5><ul>
+<li><strong>SQL Server</strong>：使用<code>SequentialAtEnd</code>时，插入性能<strong>接近整型自增ID</strong>，比随机GUID提升约**75%**。</li>
+<li><strong>MySQL</strong>：使用<code>SequentialAsString</code>时，性能<strong>接近整型自增ID</strong>。随机GUID在大量插入时性能会急剧下降。</li>
+<li><strong>Oracle &amp; PostgreSQL</strong>：有序GUID也有显著提升（PostgreSQL节省近一半时间），但优势不如前两者明显，因为其存储引擎对随机插入的优化更好。</li>
+</ul>
+<p><strong>代价</strong>：生成有序GUID比生成随机GUID（<code>Guid.NewGuid()</code>）慢，主要耗时在强随机数生成。但这对于大多数应用来说，与数据库插入性能的巨大提升相比，是微不足道的开销。</p>
+<h4 id="五、-完整实现代码与注意事项"><a href="#五、-完整实现代码与注意事项" class="headerlink" title="五、 完整实现代码与注意事项"></a>五、 完整实现代码与注意事项</h4><h5 id="5-1-完整C-实现"><a href="#5-1-完整C-实现" class="headerlink" title="5.1 完整C#实现"></a>5.1 完整C#实现</h5><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Security.Cryptography;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="built_in">enum</span> SequentialGuidType</span><br><span class="line">&#123;</span><br><span class="line">    SequentialAsString,</span><br><span class="line">    SequentialAsBinary,</span><br><span class="line">    SequentialAtEnd</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">SequentialGuidGenerator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> RNGCryptoServiceProvider _rng = <span class="keyword">new</span> RNGCryptoServiceProvider();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Guid <span class="title">NewSequentialGuid</span>(<span class="params">SequentialGuidType guidType</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">byte</span>[] randomBytes = <span class="keyword">new</span> <span class="built_in">byte</span>[<span class="number">10</span>];</span><br><span class="line">        _rng.GetBytes(randomBytes);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">long</span> timestamp = DateTime.UtcNow.Ticks / <span class="number">10000L</span>;</span><br><span class="line">        <span class="built_in">byte</span>[] timestampBytes = BitConverter.GetBytes(timestamp);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (BitConverter.IsLittleEndian)</span><br><span class="line">        &#123;</span><br><span class="line">            Array.Reverse(timestampBytes);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">byte</span>[] guidBytes = <span class="keyword">new</span> <span class="built_in">byte</span>[<span class="number">16</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (guidType)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">case</span> SequentialGuidType.SequentialAsString:</span><br><span class="line">            <span class="keyword">case</span> SequentialGuidType.SequentialAsBinary:</span><br><span class="line">                Buffer.BlockCopy(timestampBytes, <span class="number">2</span>, guidBytes, <span class="number">0</span>, <span class="number">6</span>);</span><br><span class="line">                Buffer.BlockCopy(randomBytes, <span class="number">0</span>, guidBytes, <span class="number">6</span>, <span class="number">10</span>);</span><br><span class="line">                <span class="keyword">if</span> (guidType == SequentialGuidType.SequentialAsString &amp;&amp; BitConverter.IsLittleEndian)</span><br><span class="line">                &#123;</span><br><span class="line">                    Array.Reverse(guidBytes, <span class="number">0</span>, <span class="number">4</span>);</span><br><span class="line">                    Array.Reverse(guidBytes, <span class="number">4</span>, <span class="number">2</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">case</span> SequentialGuidType.SequentialAtEnd:</span><br><span class="line">                Buffer.BlockCopy(randomBytes, <span class="number">0</span>, guidBytes, <span class="number">0</span>, <span class="number">10</span>);</span><br><span class="line">                Buffer.BlockCopy(timestampBytes, <span class="number">2</span>, guidBytes, <span class="number">10</span>, <span class="number">6</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Guid(guidBytes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-2-重要注意事项"><a href="#5-2-重要注意事项" class="headerlink" title="5.2 重要注意事项"></a>5.2 重要注意事项</h5><ol>
+<li><strong>非标准格式</strong>：此方法生成的GUID<strong>不符合RFC 4122规范</strong>，因为它没有包含版本号。但几乎所有数据库都不校验此格式。</li>
+<li><strong>时间戳来源</strong>：使用<code>DateTime.UtcNow</code>，其精度在Windows上约为10-15毫秒。这意味着在极短时间内生成大量GUID时，时间戳可能相同，但随机部分保证了唯一性。</li>
+<li><strong>随机性质量</strong>：使用<code>RNGCryptoServiceProvider</code>保证了随机部分的密码学强度，但性能较低。如果追求极致生成速度且对随机性要求可放宽，可考虑其他快速随机源，但需评估唯一性风险。</li>
+<li><strong>集成</strong>：此方案已集成在NHibernate、ABP等框架中。在实际项目中，应通过<code>DbConnection</code>或配置自动判断数据库类型并选择正确的生成模式。</li>
+</ol>
+<hr>
+<p><strong>总结</strong>：有序GUID是一种巧妙权衡，通过牺牲少量的客户端生成性能，换取了数据库插入性能的巨大提升，并保留了GUID的全局唯一、分布式生成的优点。理解不同数据库的GUID排序特性是实现此方案的关键。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/GUID/" rel="tag"># GUID</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/12/07/Linux/gcc4.8%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="prev" title="gcc4.8安装教程">
+                  <i class="fa fa-angle-left"></i> gcc4.8安装教程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016/07/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E7%BB%99%E5%8F%98%E9%87%8F%E5%8F%96%E4%B8%AA%E7%AE%80%E7%9F%AD%E4%B8%94%E6%97%A0%E6%AD%A7%E4%B9%89%E7%9A%84%E5%90%8D%E5%AD%97/" rel="next" title="如何给变量取个简短且无歧义的名字">
+                  如何给变量取个简短且无歧义的名字 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

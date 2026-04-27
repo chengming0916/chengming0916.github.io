@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="抽象工厂模式是GoF 23种经典创建型设计模式的核心成员，作为工厂方法模式的进阶版本，它专为解决多等级、多系列产品的创建问题而生。其核心价值在于为客户端提供一套创建“产品族”的统一接口，屏蔽具体产品的实现细节，实现对象创建与使用的解耦，在复杂系统设计中应用广泛。本文将从核心结构、多语言实现、优缺点、使用场景及总结五个维度，全面拆解抽象工厂模式，助力开发者快速掌握其设计思想与落地技巧。 一、核心结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="抽象工厂模式">
+<meta property="og:url" content="http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/3.%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="抽象工厂模式是GoF 23种经典创建型设计模式的核心成员，作为工厂方法模式的进阶版本，它专为解决多等级、多系列产品的创建问题而生。其核心价值在于为客户端提供一套创建“产品族”的统一接口，屏蔽具体产品的实现细节，实现对象创建与使用的解耦，在复杂系统设计中应用广泛。本文将从核心结构、多语言实现、优缺点、使用场景及总结五个维度，全面拆解抽象工厂模式，助力开发者快速掌握其设计思想与落地技巧。 一、核心结构">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.426Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="抽象工厂">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/3.%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/3.%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/","path":"2019/11/04/学习笔记/设计模式/3.抽象工厂模式/","title":"抽象工厂模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>抽象工厂模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3"><span class="nav-number">1.</span> <span class="nav-text">一、核心结构与设计思想</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%A0%B8%E5%BF%83%E8%A7%92%E8%89%B2%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 核心角色定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E8%BE%A8%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心概念辨析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%9A%E8%AF%AD%E8%A8%80%E8%90%BD%E5%9C%B0%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%9F%E4%B8%80%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%94%B5%E5%99%A8%E4%BA%A7%E5%93%81%E6%97%8F%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、多语言落地实现（统一场景：电器产品族）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8A%BD%E8%B1%A1%E7%B1%BB-%E7%BB%A7%E6%89%BF%EF%BC%8C%E7%BB%8F%E5%85%B8%E8%90%BD%E5%9C%B0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 C# 实现（抽象类+继承，经典落地）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Python-%E5%AE%9E%E7%8E%B0%EF%BC%88abc%E6%A8%A1%E5%9D%97-%E5%8A%A8%E6%80%81%E7%89%B9%E6%80%A7%EF%BC%8C%E7%AE%80%E6%B4%81%E7%81%B5%E6%B4%BB%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Python 实现（abc模块+动态特性，简洁灵活）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Golang-%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8E%A5%E5%8F%A3-%E7%BB%93%E6%9E%84%E4%BD%93%EF%BC%8C%E9%9D%A2%E5%90%91%E6%8E%A5%E5%8F%A3%E7%BC%96%E7%A8%8B%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Golang 实现（接口+结构体，面向接口编程）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-C-%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BA%AF%E8%99%9A%E5%87%BD%E6%95%B0-%E7%BB%A7%E6%89%BF%EF%BC%8C%E9%AB%98%E6%80%A7%E8%83%BD%E8%90%BD%E5%9C%B0%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 C++ 实现（纯虚函数+继承，高性能落地）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%BA%AFC%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%BB%93%E6%9E%84%E4%BD%93-%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%EF%BC%8C%E6%A8%A1%E6%8B%9F%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 纯C语言实现（结构体+函数指针，模拟面向对象）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">三、抽象工厂模式的优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 核心优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E8%A6%81%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主要缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/3.%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="抽象工厂模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          抽象工厂模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-04 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-04T00:00:00+08:00">2019-11-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>抽象工厂模式是GoF 23种经典创建型设计模式的核心成员，作为工厂方法模式的进阶版本，它专为解决多等级、多系列产品的创建问题而生。其核心价值在于为客户端提供一套创建“产品族”的统一接口，屏蔽具体产品的实现细节，实现对象创建与使用的解耦，在复杂系统设计中应用广泛。本文将从核心结构、多语言实现、优缺点、使用场景及总结五个维度，全面拆解抽象工厂模式，助力开发者快速掌握其设计思想与落地技巧。</p>
+<h2 id="一、核心结构与设计思想"><a href="#一、核心结构与设计思想" class="headerlink" title="一、核心结构与设计思想"></a>一、核心结构与设计思想</h2><p>抽象工厂模式在工厂方法模式的基础上，进一步强化了对“产品族”的管理能力，核心围绕4个角色构建，各角色职责清晰、协同工作，其设计核心是“分离产品族的抽象定义与具体实现”。</p>
+<h3 id="1-1-核心角色定义"><a href="#1-1-核心角色定义" class="headerlink" title="1.1 核心角色定义"></a>1.1 核心角色定义</h3><ul>
+<li><p><strong>抽象工厂（Abstract Factory）</strong>：定义创建多等级产品的抽象接口，包含多个创建不同类型产品的方法，通常通过抽象类或接口实现，是整个模式的核心契约。</p>
+</li>
+<li><p><strong>具体工厂（Concrete Factory）</strong>：实现抽象工厂的所有抽象方法，负责创建某一特定产品族下的全部具体产品，确保同一工厂生产的产品具备兼容性和关联性。</p>
+</li>
+<li><p><strong>抽象产品（Abstract Product）</strong>：定义某一等级产品的通用规范，描述产品的核心行为与特性，抽象工厂模式中会存在多个不同等级的抽象产品（如“电视机”“空调”）。</p>
+</li>
+<li><p><strong>具体产品（Concrete Product）</strong>：实现对应抽象产品的接口，是抽象工厂模式的最终实例化对象，由特定具体工厂创建，与具体工厂形成“一对多”的关联关系。</p>
+</li>
+</ul>
+<h3 id="1-2-核心概念辨析"><a href="#1-2-核心概念辨析" class="headerlink" title="1.2 核心概念辨析"></a>1.2 核心概念辨析</h3><p>理解抽象工厂模式的关键，是区分两个核心概念：</p>
+<ul>
+<li><p><strong>产品族</strong>：由同一具体工厂生产、属于不同产品等级的一组关联产品（如海尔工厂生产的电视机+空调，同属海尔品牌，具备协同适配特性）。</p>
+</li>
+<li><p><strong>产品等级</strong>：同一类产品的不同实现（如所有品牌的电视机，均属于“电视机”这一产品等级）。</p>
+</li>
+</ul>
+<p>抽象工厂模式的核心目标，就是对产品族的创建进行标准化管理，让客户端无需关注产品的具体品牌和实现细节，仅通过抽象接口即可获取所需的一组关联产品。</p>
+<h2 id="二、多语言落地实现（统一场景：电器产品族）"><a href="#二、多语言落地实现（统一场景：电器产品族）" class="headerlink" title="二、多语言落地实现（统一场景：电器产品族）"></a>二、多语言落地实现（统一场景：电器产品族）</h2><p>为便于跨语言对比理解，本文以“电器生产”为统一场景：定义两个产品族（海尔、TCL），两个产品等级（电视机、空调），分别通过C#、Python、Golang、C++及纯C语言实现抽象工厂模式，贴合各语言的语法特性与最佳实践。</p>
+<h3 id="2-1-C-实现（抽象类-继承，经典落地）"><a href="#2-1-C-实现（抽象类-继承，经典落地）" class="headerlink" title="2.1 C# 实现（抽象类+继承，经典落地）"></a>2.1 C# 实现（抽象类+继承，经典落地）</h3><p>C#作为强类型面向对象语言，天然支持抽象类与接口，完美契合抽象工厂模式的经典设计，代码可读性高、类型安全，适合企业级系统开发。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品1：电视机（定义电视机的通用行为）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">TV</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">ShowInfo</span>()</span>; <span class="comment">// 展示产品信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品2：空调（定义空调的通用行为）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">AirConditioner</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">ShowInfo</span>()</span>; <span class="comment">// 展示产品信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-1：海尔电视机（实现电视机抽象接口）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HaierTV</span> : <span class="title">TV</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">ShowInfo</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;【海尔电视机】- 智能4K，节能护眼&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-2：海尔空调（实现空调抽象接口）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HaierAirConditioner</span> : <span class="title">AirConditioner</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">ShowInfo</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;【海尔空调】- 一级能效，静音节能&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-1：TCL电视机（实现电视机抽象接口）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TCLTV</span> : <span class="title">TV</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">ShowInfo</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;【TCL电视机】- 量子点屏幕，高刷清晰&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-2：TCL空调（实现空调抽象接口）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TCLAirConditioner</span> : <span class="title">AirConditioner</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">ShowInfo</span>()</span> =&gt; Console.WriteLine(<span class="string">&quot;【TCL空调】- 快速制冷，智能控温&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象工厂：电器工厂（定义产品族的创建接口）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">ElectricApplianceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> TV <span class="title">CreateTV</span>()</span>; <span class="comment">// 创建电视机</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> AirConditioner <span class="title">CreateAirConditioner</span>()</span>; <span class="comment">// 创建空调</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂1：海尔工厂（生产海尔产品族）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HaierFactory</span> : <span class="title">ElectricApplianceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> TV <span class="title">CreateTV</span>()</span> =&gt; <span class="keyword">new</span> HaierTV();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> AirConditioner <span class="title">CreateAirConditioner</span>()</span> =&gt; <span class="keyword">new</span> HaierAirConditioner();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂2：TCL工厂（生产TCL产品族）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TCLFactory</span> : <span class="title">ElectricApplianceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> TV <span class="title">CreateTV</span>()</span> =&gt; <span class="keyword">new</span> TCLTV();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> AirConditioner <span class="title">CreateAirConditioner</span>()</span> =&gt; <span class="keyword">new</span> TCLAirConditioner();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用（面向抽象编程，屏蔽具体实现）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">Client</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 1. 使用海尔工厂，获取海尔产品族</span></span><br><span class="line">        ElectricApplianceFactory haierFactory = <span class="keyword">new</span> HaierFactory();</span><br><span class="line">        haierFactory.CreateTV().ShowInfo();</span><br><span class="line">        haierFactory.CreateAirConditioner().ShowInfo();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 切换为TCL工厂，获取TCL产品族（无需修改其他代码）</span></span><br><span class="line">        ElectricApplianceFactory tclFactory = <span class="keyword">new</span> TCLFactory();</span><br><span class="line">        tclFactory.CreateTV().ShowInfo();</span><br><span class="line">        tclFactory.CreateAirConditioner().ShowInfo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-Python-实现（abc模块-动态特性，简洁灵活）"><a href="#2-2-Python-实现（abc模块-动态特性，简洁灵活）" class="headerlink" title="2.2 Python 实现（abc模块+动态特性，简洁灵活）"></a>2.2 Python 实现（abc模块+动态特性，简洁灵活）</h3><p>Python无严格的抽象类语法，通过abc模块实现抽象接口，结合动态语言的灵活性，无需繁琐的类型声明，代码简洁易读，适合快速开发场景。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 抽象产品1：电视机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TV</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">show_info</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：展示产品信息&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 抽象产品2：空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AirConditioner</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">show_info</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：展示产品信息&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体产品1-1：海尔电视机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HaierTV</span>(<span class="title class_ inherited__">TV</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">show_info</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;【海尔电视机】- 智能4K，节能护眼&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体产品1-2：海尔空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HaierAirConditioner</span>(<span class="title class_ inherited__">AirConditioner</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">show_info</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;【海尔空调】- 一级能效，静音节能&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体产品2-1：TCL电视机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TCLTV</span>(<span class="title class_ inherited__">TV</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">show_info</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;【TCL电视机】- 量子点屏幕，高刷清晰&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体产品2-2：TCL空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TCLAirConditioner</span>(<span class="title class_ inherited__">AirConditioner</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">show_info</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;【TCL空调】- 快速制冷，智能控温&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 抽象工厂：电器工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElectricApplianceFactory</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_tv</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：创建电视机&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_air_conditioner</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;抽象方法：创建空调&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体工厂1：海尔工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HaierFactory</span>(<span class="title class_ inherited__">ElectricApplianceFactory</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_tv</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> HaierTV()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_air_conditioner</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> HaierAirConditioner()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体工厂2：TCL工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TCLFactory</span>(<span class="title class_ inherited__">ElectricApplianceFactory</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_tv</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> TCLTV()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_air_conditioner</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> TCLAirConditioner()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端调用</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 获取海尔产品族</span></span><br><span class="line">    haier_factory = HaierFactory()</span><br><span class="line">    haier_factory.create_tv().show_info()</span><br><span class="line">    haier_factory.create_air_conditioner().show_info()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 切换为TCL产品族</span></span><br><span class="line">    tcl_factory = TCLFactory()</span><br><span class="line">    tcl_factory.create_tv().show_info()</span><br><span class="line">    tcl_factory.create_air_conditioner().show_info()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Golang-实现（接口-结构体，面向接口编程）"><a href="#2-3-Golang-实现（接口-结构体，面向接口编程）" class="headerlink" title="2.3 Golang 实现（接口+结构体，面向接口编程）"></a>2.3 Golang 实现（接口+结构体，面向接口编程）</h3><p>Golang无类和继承特性，核心是“面向接口编程”，通过接口模拟抽象工厂与抽象产品，结构体实现接口方法，贴合Go语言的极简设计理念，代码高效、无冗余。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品1：电视机接口（定义电视机的行为规范）</span></span><br><span class="line"><span class="keyword">type</span> TV <span class="keyword">interface</span> &#123;</span><br><span class="line">  howInfo() <span class="comment">// 展示产品信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品2：空调接口（定义空调的行为规范）</span></span><br><span class="line"><span class="keyword">type</span> AirConditioner <span class="keyword">interface</span> &#123;</span><br><span class="line">      nfo() <span class="comment">// 展示产品信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-1：海尔电视机（实现TV接口）</span></span><br><span class="line"><span class="keyword">type</span> HaierTV <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *HaierTV)</span></span> ShowInfo() &#123;</span><br><span class="line">  mt.Println(<span class="string">&quot;【海尔电视机】- 智能4K，节能护眼&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-2：海尔空调（实现AirConditioner接口）</span></span><br><span class="line"><span class="keyword">type</span> HaierAirConditioner <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *HaierAirConditioner)</span></span> ShowInfo() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;【海尔空调】- 一级能效，静音节能&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-1：TCL电视机（实现TV接口）</span></span><br><span class="line"><span class="keyword">type</span> TCLTV <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TCLTV)</span></span> ShowInfo() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;【TCL电视机】- 量子点屏幕，高刷清晰&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-2：TCL空调（实现AirConditioner接口）</span></span><br><span class="line"><span class="keyword">type</span> TCLAirConditioner <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TCLAirConditioner)</span></span> ShowInfo() &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;【TCL空调】- 快速制冷，智能控温&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象工厂：电器工厂接口（定义产品族创建规范）</span></span><br><span class="line"><span class="keyword">type</span> ElectricApplianceFactory <span class="keyword">interface</span> &#123;</span><br><span class="line">  reateTV() TV <span class="comment">// 创建电视机</span></span><br><span class="line">  reateAirConditioner() AirConditioner <span class="comment">// 创建空调</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂1：海尔工厂（实现电器工厂接口）</span></span><br><span class="line"><span class="keyword">type</span> HaierFactory <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *HaierFactory)</span></span> CreateTV() TV &#123;</span><br><span class="line"> <span class="keyword">return</span> &amp;HaierTV&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *HaierFactory)</span></span> CreateAirConditioner() AirConditioner &#123;</span><br><span class="line">  eturn &amp;HaierAirConditioner&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂2：TCL工厂（实现电器工厂接口）</span></span><br><span class="line"><span class="keyword">type</span> TCLFactory <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TCLFactory)</span></span> CreateTV() TV &#123;</span><br><span class="line"> <span class="keyword">return</span> &amp;TCLTV&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TCLFactory)</span></span> CreateAirConditioner() AirConditioner &#123;</span><br><span class="line">   turn &amp;TCLAirConditioner&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用（依赖接口，不依赖具体实现）</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    使用海尔工厂</span><br><span class="line">   r haierFactory ElectricApplianceFactory = &amp;HaierFactory&#123;&#125;</span><br><span class="line"> haierFactory.CreateTV().ShowInfo()</span><br><span class="line">  aierFactory.CreateAirConditioner().ShowInfo()</span><br><span class="line"></span><br><span class="line">    切换为TCL工厂</span><br><span class="line">     tclFactory ElectricApplianceFactory = &amp;TCLFactory&#123;&#125;</span><br><span class="line">    Factory.CreateTV().ShowInfo()</span><br><span class="line">      ctory.CreateAirConditioner().ShowInfo()</span><br><span class="line">&#125;</span><br><span class="line">  tclFa    tcl    <span class="keyword">var</span>    <span class="comment">//       h            va     //     re             r             C      C                           f  ShowI      S</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-C-实现（纯虚函数-继承，高性能落地）"><a href="#2-4-C-实现（纯虚函数-继承，高性能落地）" class="headerlink" title="2.4 C++ 实现（纯虚函数+继承，高性能落地）"></a>2.4 C++ 实现（纯虚函数+继承，高性能落地）</h3><p>C++通过纯虚函数定义抽象类（抽象工厂&#x2F;抽象产品），子类继承并实现具体逻辑，需注意定义虚析构函数避免内存泄漏，适合高性能、底层开发场景，是抽象工厂模式的经典落地方式。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品1：电视机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TV</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">ShowInfo</span><span class="params">()</span> </span>= <span class="number">0</span>; <span class="comment">// 纯虚函数，定义抽象接口</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">TV</span>() = <span class="keyword">default</span>; <span class="comment">// 虚析构函数，避免内存泄漏</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品2：空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AirConditioner</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">ShowInfo</span><span class="params">()</span> </span>= <span class="number">0</span>; <span class="comment">// 纯虚函数，定义抽象接口</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">AirConditioner</span>() = <span class="keyword">default</span>; <span class="comment">// 虚析构函数</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-1：海尔电视机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HaierTV</span> : <span class="keyword">public</span> TV &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">ShowInfo</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;【海尔电视机】- 智能4K，节能护眼&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-2：海尔空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HaierAirConditioner</span> : <span class="keyword">public</span> AirConditioner &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">ShowInfo</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;【海尔空调】- 一级能效，静音节能&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-1：TCL电视机</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TCLTV</span> : <span class="keyword">public</span> TV &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">ShowInfo</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;【TCL电视机】- 量子点屏幕，高刷清晰&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-2：TCL空调</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TCLAirConditioner</span> : <span class="keyword">public</span> AirConditioner &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">ShowInfo</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;【TCL空调】- 快速制冷，智能控温&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象工厂：电器工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElectricApplianceFactory</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> TV* <span class="title">CreateTV</span><span class="params">()</span> </span>= <span class="number">0</span>; <span class="comment">// 抽象创建方法</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> AirConditioner* <span class="title">CreateAirConditioner</span><span class="params">()</span> </span>= <span class="number">0</span>; <span class="comment">// 抽象创建方法</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">ElectricApplianceFactory</span>() = <span class="keyword">default</span>; <span class="comment">// 虚析构函数</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂1：海尔工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HaierFactory</span> : <span class="keyword">public</span> ElectricApplianceFactory &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">TV* <span class="title">CreateTV</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">HaierTV</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">AirConditioner* <span class="title">CreateAirConditioner</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">HaierAirConditioner</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂2：TCL工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TCLFactory</span> : <span class="keyword">public</span> ElectricApplianceFactory &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">TV* <span class="title">CreateTV</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">TCLTV</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">AirConditioner* <span class="title">CreateAirConditioner</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">TCLAirConditioner</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. 使用海尔工厂</span></span><br><span class="line">    ElectricApplianceFactory* haierFactory = <span class="keyword">new</span> <span class="built_in">HaierFactory</span>();</span><br><span class="line">    haierFactory-&gt;<span class="built_in">CreateTV</span>()-&gt;<span class="built_in">ShowInfo</span>();</span><br><span class="line">    haierFactory-&gt;<span class="built_in">CreateAirConditioner</span>()-&gt;<span class="built_in">ShowInfo</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 切换为TCL工厂</span></span><br><span class="line">    ElectricApplianceFactory* tclFactory = <span class="keyword">new</span> <span class="built_in">TCLFactory</span>();</span><br><span class="line">    tclFactory-&gt;<span class="built_in">CreateTV</span>()-&gt;<span class="built_in">ShowInfo</span>();</span><br><span class="line">    tclFactory-&gt;<span class="built_in">CreateAirConditioner</span>()-&gt;<span class="built_in">ShowInfo</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存，避免泄漏</span></span><br><span class="line">    <span class="keyword">delete</span> haierFactory;</span><br><span class="line">    <span class="keyword">delete</span> tclFactory;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-纯C语言实现（结构体-函数指针，模拟面向对象）"><a href="#2-5-纯C语言实现（结构体-函数指针，模拟面向对象）" class="headerlink" title="2.5 纯C语言实现（结构体+函数指针，模拟面向对象）"></a>2.5 纯C语言实现（结构体+函数指针，模拟面向对象）</h3><p>纯C语言无面向对象特性，通过“结构体嵌套+函数指针”模拟抽象接口与继承，将产品行为和工厂创建逻辑封装为函数指针，实现类似多态的效果，适合底层嵌入式开发场景。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品1：电视机（结构体+函数指针模拟抽象接口）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">TV</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*ShowInfo)(<span class="keyword">struct</span> TV*); <span class="comment">// 展示产品信息的函数指针</span></span><br><span class="line">&#125; TV;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象产品2：空调（结构体+函数指针模拟抽象接口）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">AirConditioner</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*ShowInfo)(<span class="keyword">struct</span> AirConditioner*); <span class="comment">// 展示产品信息的函数指针</span></span><br><span class="line">&#125; AirConditioner;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-1：海尔电视机（嵌套TV结构体，模拟继承）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">HaierTV</span> &#123;</span></span><br><span class="line">    TV tv;</span><br><span class="line">&#125; HaierTV;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 海尔电视机的具体实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">HaierTV_ShowInfo</span><span class="params">(TV* tv)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;【海尔电视机】- 智能4K，节能护眼\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品1-2：海尔空调（嵌套AirConditioner结构体，模拟继承）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">HaierAirConditioner</span> &#123;</span></span><br><span class="line">    AirConditioner ac;</span><br><span class="line">&#125; HaierAirConditioner;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 海尔空调的具体实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">HaierAirConditioner_ShowInfo</span><span class="params">(AirConditioner* ac)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;【海尔空调】- 一级能效，静音节能\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-1：TCL电视机（嵌套TV结构体，模拟继承）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">TCLTV</span> &#123;</span></span><br><span class="line">    TV tv;</span><br><span class="line">&#125; TCLTV;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TCL电视机的具体实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">TCLTV_ShowInfo</span><span class="params">(TV* tv)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;【TCL电视机】- 量子点屏幕，高刷清晰\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体产品2-2：TCL空调（嵌套AirConditioner结构体，模拟继承）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">TCLAirConditioner</span> &#123;</span></span><br><span class="line">    AirConditioner ac;</span><br><span class="line">&#125; TCLAirConditioner;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TCL空调的具体实现</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">TCLAirConditioner_ShowInfo</span><span class="params">(AirConditioner* ac)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;【TCL空调】- 快速制冷，智能控温\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象工厂：电器工厂（结构体+函数指针模拟抽象接口）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ElectricApplianceFactory</span> &#123;</span></span><br><span class="line">    TV* (*CreateTV)(<span class="keyword">struct</span> ElectricApplianceFactory*); <span class="comment">// 创建电视机</span></span><br><span class="line">    AirConditioner* (*CreateAirConditioner)(<span class="keyword">struct</span> ElectricApplianceFactory*); <span class="comment">// 创建空调</span></span><br><span class="line">&#125; ElectricApplianceFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂1：海尔工厂（嵌套电器工厂结构体，模拟继承）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">HaierFactory</span> &#123;</span></span><br><span class="line">    ElectricApplianceFactory factory;</span><br><span class="line">&#125; HaierFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 海尔工厂创建电视机</span></span><br><span class="line">TV* <span class="title function_">HaierFactory_CreateTV</span><span class="params">(ElectricApplianceFactory* factory)</span> &#123;</span><br><span class="line">    HaierTV* haierTV = (HaierTV*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(HaierTV));</span><br><span class="line">    haierTV-&gt;tv.ShowInfo = HaierTV_ShowInfo; <span class="comment">// 绑定函数指针</span></span><br><span class="line">    <span class="keyword">return</span> (TV*)haierTV;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 海尔工厂创建空调</span></span><br><span class="line">AirConditioner* <span class="title function_">HaierFactory_CreateAirConditioner</span><span class="params">(ElectricApplianceFactory* factory)</span> &#123;</span><br><span class="line">    HaierAirConditioner* haierAC = (HaierAirConditioner*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(HaierAirConditioner));</span><br><span class="line">    haierAC-&gt;ac.ShowInfo = HaierAirConditioner_ShowInfo; <span class="comment">// 绑定函数指针</span></span><br><span class="line">    <span class="keyword">return</span> (AirConditioner*)haierAC;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体工厂2：TCL工厂（嵌套电器工厂结构体，模拟继承）</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">TCLFactory</span> &#123;</span></span><br><span class="line">    ElectricApplianceFactory factory;</span><br><span class="line">&#125; TCLFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TCL工厂创建电视机</span></span><br><span class="line">TV* <span class="title function_">TCLFactory_CreateTV</span><span class="params">(ElectricApplianceFactory* factory)</span> &#123;</span><br><span class="line">    TCLTV* tclTV = (TCLTV*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(TCLTV));</span><br><span class="line">    tclTV-&gt;tv.ShowInfo = TCLTV_ShowInfo; <span class="comment">// 绑定函数指针</span></span><br><span class="line">    <span class="keyword">return</span> (TV*)tclTV;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TCL工厂创建空调</span></span><br><span class="line">AirConditioner* <span class="title function_">TCLFactory_CreateAirConditioner</span><span class="params">(ElectricApplianceFactory* factory)</span> &#123;</span><br><span class="line">    TCLAirConditioner* tclAC = (TCLAirConditioner*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(TCLAirConditioner));</span><br><span class="line">    tclAC-&gt;ac.ShowInfo = TCLAirConditioner_ShowInfo; <span class="comment">// 绑定函数指针</span></span><br><span class="line">    <span class="keyword">return</span> (AirConditioner*)tclAC;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 初始化海尔工厂，获取海尔产品族</span></span><br><span class="line">    HaierFactory haierFactory;</span><br><span class="line">    haierFactory.factory.CreateTV = HaierFactory_CreateTV;</span><br><span class="line">    haierFactory.factory.CreateAirConditioner = HaierFactory_CreateAirConditioner;</span><br><span class="line">    </span><br><span class="line">    TV* haierTV = haierFactory.factory.CreateTV((ElectricApplianceFactory*)&amp;haierFactory);</span><br><span class="line">    haierTV-&gt;ShowInfo(haierTV);</span><br><span class="line">    AirConditioner* haierAC = haierFactory.factory.CreateAirConditioner((ElectricApplianceFactory*)&amp;haierFactory);</span><br><span class="line">    haierAC-&gt;ShowInfo(haierAC);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 初始化TCL工厂，获取TCL产品族</span></span><br><span class="line">    TCLFactory tclFactory;</span><br><span class="line">    tclFactory.factory.CreateTV = TCLFactory_CreateTV;</span><br><span class="line">    tclFactory.factory.CreateAirConditioner = TCLFactory_CreateAirConditioner;</span><br><span class="line">    </span><br><span class="line">    TV* tclTV = tclFactory.factory.CreateTV((ElectricApplianceFactory*)&amp;tclFactory);</span><br><span class="line">    tclTV-&gt;ShowInfo(tclTV);</span><br><span class="line">    AirConditioner* tclAC = tclFactory.factory.CreateAirConditioner((ElectricApplianceFactory*)&amp;tclFactory);</span><br><span class="line">    tclAC-&gt;ShowInfo(tclAC);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存，避免泄漏</span></span><br><span class="line">    <span class="built_in">free</span>(haierTV);</span><br><span class="line">    <span class="built_in">free</span>(haierAC);</span><br><span class="line">    <span class="built_in">free</span>(tclTV);</span><br><span class="line">    <span class="built_in">free</span>(tclAC);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、抽象工厂模式的优缺点"><a href="#三、抽象工厂模式的优缺点" class="headerlink" title="三、抽象工厂模式的优缺点"></a>三、抽象工厂模式的优缺点</h2><p>抽象工厂模式是为复杂产品族场景设计的，其优势与劣势均源于“产品族的标准化管理”，需结合实际场景权衡使用。</p>
+<h3 id="3-1-核心优点"><a href="#3-1-核心优点" class="headerlink" title="3.1 核心优点"></a>3.1 核心优点</h3><ul>
+<li><p><strong>解耦创建与使用</strong>：客户端仅面向抽象接口编程，无需关注具体产品的创建逻辑、实现细节，降低代码耦合度，提升系统可维护性。</p>
+</li>
+<li><p><strong>统一管理产品族</strong>：同一具体工厂负责生产一组关联产品，确保产品间的兼容性，避免客户端因误用不同产品族的产品而出现问题。</p>
+</li>
+<li><p><strong>支持产品族扩展</strong>：新增产品族时，仅需新增具体工厂和对应具体产品，无需修改原有抽象工厂、已有工厂及客户端代码，完美契合开闭原则。</p>
+</li>
+<li><p><strong>切换产品族便捷</strong>：客户端切换产品族时，仅需替换具体工厂实例，无需修改其他业务逻辑，提升系统的灵活性和适配性。</p>
+</li>
+</ul>
+<h3 id="3-2-主要缺点"><a href="#3-2-主要缺点" class="headerlink" title="3.2 主要缺点"></a>3.2 主要缺点</h3><ul>
+<li><p><strong>产品等级扩展困难</strong>：新增产品等级（如在电视机、空调外新增冰箱）时，需修改抽象工厂和所有具体工厂的接口，违反开闭原则，扩展成本高。</p>
+</li>
+<li><p><strong>系统复杂度提升</strong>：多产品族、多产品等级场景下，会产生大量的工厂类和产品类，增加代码量和维护成本，降低系统可读性。</p>
+</li>
+<li><p><strong>产品族约束严格</strong>：系统默认“一次仅消费一个产品族”，若需同时使用多个产品族的产品，需额外处理，灵活性受限。</p>
+</li>
+</ul>
+<h2 id="四、使用场景"><a href="#四、使用场景" class="headerlink" title="四、使用场景"></a>四、使用场景</h2><p>抽象工厂模式适合“多产品族、多产品等级，且产品族需统一管理”的场景，具体应用如下：</p>
+<ul>
+<li><p><strong>跨环境&#x2F;跨平台组件开发</strong>：如跨操作系统的UI组件（Windows&#x2F;Linux&#x2F;macOS下的按钮、输入框、弹窗），每个操作系统对应一个产品族，同一组件对应一个产品等级，通过抽象工厂统一创建，确保组件在不同环境下的兼容性。</p>
+</li>
+<li><p><strong>品牌化产品系列管理</strong>：如电器、汽车等品牌化产品，每个品牌对应一个产品族，每个产品类型（如电视机、空调）对应一个产品等级，通过抽象工厂实现品牌产品的标准化生产。</p>
+</li>
+<li><p><strong>数据源&#x2F;框架切换场景</strong>：如数据库访问框架（SQL Server&#x2F;MySQL&#x2F;Oracle），每种数据库对应一个产品族，数据库连接、命令、适配器对应不同产品等级，切换数据源时仅需替换具体工厂。</p>
+</li>
+<li><p><strong>复杂产品关联场景</strong>：当系统中的产品存在强关联关系，需确保同一产品族的产品协同工作（如分布式系统中的服务注册、配置中心、日志组件），抽象工厂可统一管理这些关联产品的创建。</p>
+</li>
+</ul>
+<p>注意：若仅需创建单等级产品，优先使用工厂方法模式；若产品等级频繁变化，不建议使用抽象工厂模式；若产品族固定、产品等级稳定，抽象工厂模式是最优选择。</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>抽象工厂模式的核心是“对产品族的抽象与封装”，它在工厂方法模式的基础上，进一步解决了多等级产品的创建与管理问题，其设计思想是“面向抽象编程，屏蔽具体实现”，最终实现系统的解耦与扩展。</p>
+<p>从多语言实现来看，尽管各语言的语法特性差异显著，但核心逻辑高度一致：</p>
+<ul>
+<li><p>面向对象语言（C#、Python、Golang、C++）：通过接口&#x2F;抽象类定义规范，结合继承&#x2F;结构体实现具体逻辑，利用多态特性实现产品族的灵活切换，贴合模式的经典设计。</p>
+</li>
+<li><p>纯C语言：通过结构体嵌套+函数指针模拟面向对象的继承与多态，核心是封装行为与创建逻辑，满足底层开发的无面向对象特性限制的需求。</p>
+</li>
+</ul>
+<p>在实际开发中，选择抽象工厂模式的关键的是“判断系统是否存在稳定的产品族和产品等级”。其核心价值在于提升系统的可扩展性和可维护性，但需避免过度设计——若系统产品结构简单、无需扩展产品族，工厂方法模式或简单工厂模式更简洁高效。只有当系统需要管理多组关联产品、且产品族需灵活扩展时，抽象工厂模式才能发挥其最大价值。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/" rel="tag"># 抽象工厂</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" rel="prev" title="简单工厂模式">
+                  <i class="fa fa-angle-left"></i> 简单工厂模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/04/%E6%9C%AA%E5%88%86%E7%B1%BB/Prometheus%E7%9B%91%E6%8E%A7%E4%BA%A4%E6%8D%A2%E6%9C%BA/" rel="next" title="Prometheus监控交换机">
+                  Prometheus监控交换机 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

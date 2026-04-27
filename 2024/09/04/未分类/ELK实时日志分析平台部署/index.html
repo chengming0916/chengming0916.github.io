@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、 核心概念与架构1. 什么是ELK？ELK是三个开源软件的缩写，构成一套完整的日志集中管理、搜索分析和可视化解决方案：  Elasticsearch：分布式搜索和分析引擎，负责存储和索引日志数据。 Logstash：数据收集、处理和转发管道，负责从各种来源采集日志，进行过滤、解析，然后输出到存储（如ES）。 Kibana：数据可视化平台，为存储在Elasticsearch中的数据提供Web界面">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ELK实时日志分析平台环境部署">
+<meta property="og:url" content="http://chengming0916.github.io/2024/09/04/%E6%9C%AA%E5%88%86%E7%B1%BB/ELK%E5%AE%9E%E6%97%B6%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、 核心概念与架构1. 什么是ELK？ELK是三个开源软件的缩写，构成一套完整的日志集中管理、搜索分析和可视化解决方案：  Elasticsearch：分布式搜索和分析引擎，负责存储和索引日志数据。 Logstash：数据收集、处理和转发管道，负责从各种来源采集日志，进行过滤、解析，然后输出到存储（如ES）。 Kibana：数据可视化平台，为存储在Elasticsearch中的数据提供Web界面">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-04T02:28:14.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.479Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="日志分析">
+<meta property="article:tag" content="ELK">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/09/04/%E6%9C%AA%E5%88%86%E7%B1%BB/ELK%E5%AE%9E%E6%97%B6%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/09/04/%E6%9C%AA%E5%88%86%E7%B1%BB/ELK%E5%AE%9E%E6%97%B6%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2/","path":"2024/09/04/未分类/ELK实时日志分析平台部署/","title":"ELK实时日志分析平台环境部署"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ELK实时日志分析平台环境部署 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">一、 核心概念与架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">二、 环境部署详细步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E9%85%8D%E7%BD%AE%E8%A6%81%E7%82%B9%E4%B8%8E%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">3.</span> <span class="nav-text">三、 配置要点与问题排查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/09/04/%E6%9C%AA%E5%88%86%E7%B1%BB/ELK%E5%AE%9E%E6%97%B6%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ELK实时日志分析平台环境部署 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ELK实时日志分析平台环境部署
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-04 10:28:14" itemprop="dateCreated datePublished" datetime="2024-09-04T10:28:14+08:00">2024-09-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="一、-核心概念与架构"><a href="#一、-核心概念与架构" class="headerlink" title="一、 核心概念与架构"></a><strong>一、 核心概念与架构</strong></h4><p><strong>1. 什么是ELK？</strong><br>ELK是三个开源软件的缩写，构成一套完整的日志集中管理、搜索分析和可视化解决方案：</p>
+<ul>
+<li><strong>Elasticsearch</strong>：分布式搜索和分析引擎，负责存储和索引日志数据。</li>
+<li><strong>Logstash</strong>：数据收集、处理和转发管道，负责从各种来源采集日志，进行过滤、解析，然后输出到存储（如ES）。</li>
+<li><strong>Kibana</strong>：数据可视化平台，为存储在Elasticsearch中的数据提供Web界面，用于搜索、分析和图表展示。</li>
+</ul>
+<p><strong>2. 为什么需要ELK？</strong><br>解决传统日志分析（如 <code>grep</code>, <code>awk</code>）在分布式、大规模环境下的痛点：</p>
+<ul>
+<li>日志分散，难以集中管理。</li>
+<li>海量日志下，文本搜索效率低下。</li>
+<li>缺乏多维度查询和实时分析能力。</li>
+<li>无法进行直观的数据可视化。</li>
+</ul>
+<p><strong>3. ELK 工作原理</strong></p>
+<ul>
+<li><strong>数据流</strong>：应用&#x2F;系统产生日志 -&gt; <strong>Logstash (Shipper)</strong> 收集 -&gt; <strong>消息队列 (如Redis)</strong> 缓冲 -&gt; <strong>Logstash (Indexer)</strong> 处理 -&gt; <strong>Elasticsearch</strong> 存储&#x2F;索引 -&gt; <strong>Kibana</strong> 查询&#x2F;展示。</li>
+<li><strong>Logstash 处理三阶段</strong>：<ul>
+<li><strong>Input</strong>：从文件、Syslog、Redis、Beats等来源读取数据。</li>
+<li><strong>Filter</strong>：使用 <code>grok</code>（解析文本）、<code>mutate</code>（修改字段）、<code>geoip</code>（添加地理位置）等插件对数据进行清洗、解析和丰富。</li>
+<li><strong>Output</strong>：将处理后的数据写入Elasticsearch、文件或其它系统。</li>
+</ul>
+</li>
+</ul>
+<h4 id="二、-环境部署详细步骤"><a href="#二、-环境部署详细步骤" class="headerlink" title="二、 环境部署详细步骤"></a><strong>二、 环境部署详细步骤</strong></h4><p><strong>1. 基础环境准备</strong></p>
+<ul>
+<li><strong>系统</strong>：CentOS 7.1</li>
+<li><strong>节点</strong>：<ul>
+<li><code>elk-node1</code> (192.168.1.160)：Master节点，部署全套ELK及Redis。</li>
+<li><code>elk-node2</code> (192.168.1.161)：Slave节点，部署Elasticsearch作为数据&#x2F;候选主节点。</li>
+</ul>
+</li>
+<li><strong>前置操作</strong>：关闭防火墙、SELinux。</li>
+</ul>
+<p><strong>2. Elasticsearch 集群部署</strong></p>
+<ul>
+<li><strong>安装</strong>：通过配置Yum源安装。</li>
+<li><strong>关键配置</strong> (<code>/etc/elasticsearch/elasticsearch.yml</code>)：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">huanqiu</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">elk-node1</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/es-data</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9200</span></span><br><span class="line"><span class="comment"># 集群发现配置 (node2上需要添加)</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;192.168.1.160&quot;</span>, <span class="string">&quot;192.168.1.161&quot;</span>]</span><br></pre></td></tr></table></figure></li>
+<li><strong>插件安装</strong>：<ul>
+<li><strong>Head插件</strong>：用于集群管理和数据浏览。</li>
+<li><strong>Kopf插件</strong>：用于集群监控。</li>
+</ul>
+</li>
+<li><strong>启动与验证</strong>：<code>systemctl start elasticsearch</code>，访问 <code>http://&lt;ip&gt;:9200</code> 或通过插件界面查看。</li>
+</ul>
+<p><strong>3. Logstash 部署与配置</strong></p>
+<ul>
+<li><strong>安装</strong>：通过Yum源安装。</li>
+<li><strong>核心概念</strong>：编写 <code>.conf</code> 配置文件，定义 <code>input</code>, <code>filter</code>, <code>output</code> 部分。</li>
+<li><strong>配置示例</strong>：<ul>
+<li><strong>收集系统日志</strong>：从 <code>/var/log/messages</code> 读取，输出到ES。</li>
+<li><strong>收集Nginx JSON日志</strong>：配置Nginx输出JSON格式日志，Logstash使用 <code>json</code> codec直接解析。</li>
+<li><strong>使用 <code>multiline</code> 处理多行日志</strong>（如Java异常堆栈）。</li>
+<li><strong>使用 <code>grok</code> 过滤器解析非结构化日志</strong>。</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. Kibana 部署</strong></p>
+<ul>
+<li><strong>安装</strong>：下载解压包，配置 <code>/usr/local/kibana/config/kibana.yml</code>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server.port:</span> <span class="number">5601</span></span><br><span class="line"><span class="attr">server.host:</span> <span class="string">&quot;0.0.0.0&quot;</span></span><br><span class="line"><span class="attr">elasticsearch.url:</span> <span class="string">&quot;http://192.168.1.160:9200&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>启动</strong>：通过 <code>screen</code> 会话在后台运行 <code>/usr/local/kibana/bin/kibana</code>。</li>
+<li><strong>使用</strong>：访问Web界面，在 <strong>Management -&gt; Index Patterns</strong> 中创建索引模式（如 <code>system-*</code>），即可在 <strong>Discover</strong> 页面查询日志。</li>
+</ul>
+<p><strong>5. 引入Redis作为缓冲队列（生产环境推荐）</strong></p>
+<ul>
+<li><strong>目的</strong>：解耦日志收集与处理，提高可靠性，防止ES故障导致数据丢失，并缓冲流量压力。</li>
+<li><strong>架构</strong>：<ol>
+<li><strong>Shipper端</strong>：各应用服务器的Logstash将日志推送到Redis队列。</li>
+<li><strong>Indexer端</strong>：中心服务器的Logstash从Redis队列拉取日志，处理后写入Elasticsearch。</li>
+</ol>
+</li>
+<li><strong>配置关键</strong>：<ul>
+<li><strong>输出到Redis (Shipper)</strong>:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">output &#123;</span><br><span class="line">  redis &#123;</span><br><span class="line">    host =&gt; &quot;192.168.1.160&quot;</span><br><span class="line">    data_type =&gt; &quot;list&quot;</span><br><span class="line">    key =&gt; &quot;logstash:nginx&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>从Redis输入 (Indexer)</strong>:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">  redis &#123;</span><br><span class="line">    host =&gt; &quot;192.168.1.160&quot;</span><br><span class="line">    data_type =&gt; &quot;list&quot;</span><br><span class="line">    key =&gt; &quot;logstash:nginx&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h4 id="三、-配置要点与问题排查"><a href="#三、-配置要点与问题排查" class="headerlink" title="三、 配置要点与问题排查"></a><strong>三、 配置要点与问题排查</strong></h4><ol>
+<li><p><strong>Elasticsearch 集群优化</strong>：</p>
+<ul>
+<li>设置 <code>discovery.zen.minimum_master_nodes</code> 防止脑裂（通常为 <code>(master节点数/2) + 1</code>）。</li>
+<li>调整 <code>ES_HEAP_SIZE</code>（建议不超过物理内存一半，且小于32GB）。</li>
+<li>规划好索引分片（shard）数量和生命周期（按天&#x2F;月分割）。</li>
+</ul>
+</li>
+<li><p><strong>Logstash 使用技巧</strong>：</p>
+<ul>
+<li>使用 <code>--configtest</code> 参数测试配置文件语法。</li>
+<li>利用 <code>type</code> 字段区分不同日志源，便于后续分流处理。</li>
+<li>善用 <strong>Grok Debugger</strong> 在线工具调试 <code>grok</code> 匹配模式。</li>
+</ul>
+</li>
+<li><p><strong>Kibana 常见问题</strong>：</p>
+<ul>
+<li><strong>查询超时</strong>：在 <code>kibana.yml</code> 中调整 <code>elasticsearch.requestTimeout</code> 设置。</li>
+<li><strong>字段被分词导致聚合不准</strong>：对字符串字段进行聚合时，使用 <code>.raw</code> 字段（未分析版本）。</li>
+</ul>
+</li>
+<li><p><strong>Java环境问题</strong>：如果系统Java版本与Logstash要求（通常需要Java 8+）冲突，可在 <code>/etc/sysconfig/logstash</code> 和启动脚本中单独为Logstash指定JAVA_HOME。</p>
+</li>
+</ol>
+<h4 id="四、-总结"><a href="#四、-总结" class="headerlink" title="四、 总结"></a><strong>四、 总结</strong></h4><p>这份文档完整地展示了从零开始搭建一个具备生产级可靠性的ELK日志平台的过程，涵盖了：</p>
+<ul>
+<li><strong>理论</strong>：ELK组件角色、架构设计（含缓冲队列）。</li>
+<li><strong>实践</strong>：逐步安装、配置、集成各个组件。</li>
+<li><strong>进阶</strong>：多种日志源的收集配置（系统日志、Nginx、Java应用、MySQL慢查询等）、使用Redis解耦、集群配置和基础调优。</li>
+</ul>
+<p>通过此部署，可以实现日志的<strong>集中采集、实时处理、快速检索和可视化分析</strong>，极大提升运维排障效率和系统可观测性。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/" rel="tag"># 日志分析</a>
+              <a href="/tags/ELK/" rel="tag"># ELK</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E6%9C%AA%E5%88%86%E7%B1%BB/%E8%B1%A1%E6%A3%8BAI%E7%AE%97%E6%B3%95/" rel="prev" title="象棋AI算法">
+                  <i class="fa fa-angle-left"></i> 象棋AI算法
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/04/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%A0%86%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95CSharp%E5%AE%9E%E7%8E%B0/" rel="next" title="堆排序算法CSharp实现">
+                  堆排序算法CSharp实现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

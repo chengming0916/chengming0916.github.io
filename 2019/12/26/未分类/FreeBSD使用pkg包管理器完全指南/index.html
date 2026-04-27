@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、 核心概念：Ports 与 PackagesFreeBSD 提供了两种安装第三方软件的方式：    方式 描述 特点    Ports Collection 从源代码编译安装。 高度可定制（可启用&#x2F;禁用功能），但编译耗时。   Packages (pkg) 安装预编译的二进制包。 快速、便捷，是管理附加软件的首选方式。   关键路径差异：通过 pkg 安装的软件，其二进制文件和大多数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeBSD使用pkg包管理器完全指南">
+<meta property="og:url" content="http://chengming0916.github.io/2019/12/26/%E6%9C%AA%E5%88%86%E7%B1%BB/FreeBSD%E4%BD%BF%E7%94%A8pkg%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、 核心概念：Ports 与 PackagesFreeBSD 提供了两种安装第三方软件的方式：    方式 描述 特点    Ports Collection 从源代码编译安装。 高度可定制（可启用&#x2F;禁用功能），但编译耗时。   Packages (pkg) 安装预编译的二进制包。 快速、便捷，是管理附加软件的首选方式。   关键路径差异：通过 pkg 安装的软件，其二进制文件和大多数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-12-26T11:30:51.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.479Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="FreeBSD">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2019/12/26/%E6%9C%AA%E5%88%86%E7%B1%BB/FreeBSD%E4%BD%BF%E7%94%A8pkg%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2019/12/26/%E6%9C%AA%E5%88%86%E7%B1%BB/FreeBSD%E4%BD%BF%E7%94%A8pkg%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/","path":"2019/12/26/未分类/FreeBSD使用pkg包管理器完全指南/","title":"FreeBSD使用pkg包管理器完全指南"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>FreeBSD使用pkg包管理器完全指南 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%EF%BC%9APorts-%E4%B8%8E-Packages"><span class="nav-number">1.</span> <span class="nav-text">一、 核心概念：Ports 与 Packages</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">二、 安装与初始配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85-pkg-%E5%B7%A5%E5%85%B7"><span class="nav-number">2.1.</span> <span class="nav-text">1. 安装 pkg 工具</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-usr-local-etc-pkg-conf"><span class="nav-number">2.2.</span> <span class="nav-text">2. 配置文件 (&#x2F;usr&#x2F;local&#x2F;etc&#x2F;pkg.conf)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E6%97%A5%E5%B8%B8%E5%8C%85%E7%AE%A1%E7%90%86%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">三、 日常包管理操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E6%90%9C%E7%B4%A2%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">3.1.</span> <span class="nav-text">1. 搜索软件包</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%8D%B8%E8%BD%BD"><span class="nav-number">3.2.</span> <span class="nav-text">2. 安装与卸载</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E6%9F%A5%E8%AF%A2%E5%B7%B2%E5%AE%89%E8%A3%85%E7%9A%84%E5%8C%85"><span class="nav-number">3.3.</span> <span class="nav-text">3. 查询已安装的包</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%9B%B4%E6%96%B0%E4%B8%8E%E5%8D%87%E7%BA%A7"><span class="nav-number">3.4.</span> <span class="nav-text">4. 更新与升级</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E9%AB%98%E7%BA%A7%E7%AE%A1%E7%90%86%E4%B8%8E%E7%BB%B4%E6%8A%A4"><span class="nav-number">4.</span> <span class="nav-text">四、 高级管理与维护</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%8C%85%E7%BC%93%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">1. 包缓存管理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E9%94%81%E5%AE%9A%E4%B8%8E%E8%A7%A3%E9%94%81%E5%8C%85"><span class="nav-number">4.2.</span> <span class="nav-text">2. 锁定与解锁包</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E4%BE%9D%E8%B5%96%E4%B8%8E%E8%87%AA%E5%8A%A8%E6%B8%85%E7%90%86"><span class="nav-number">4.3.</span> <span class="nav-text">3. 依赖与自动清理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E5%AE%89%E5%85%A8%E6%A3%80%E6%9F%A5%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="nav-number">4.4.</span> <span class="nav-text">4. 安全检查与验证</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E5%8C%85%E4%BB%93%E5%BA%93%EF%BC%88Repository%EF%BC%89%E9%85%8D%E7%BD%AE"><span class="nav-number">5.</span> <span class="nav-text">五、 包仓库（Repository）配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%AD%E3%80%81-%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E4%B8%8E%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">六、 命令速查与参考</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%83%E3%80%81-%E9%87%8D%E8%A6%81%E6%96%87%E4%BB%B6%E4%B8%8E%E7%9B%AE%E5%BD%95"><span class="nav-number">7.</span> <span class="nav-text">七、 重要文件与目录</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2019/12/26/%E6%9C%AA%E5%88%86%E7%B1%BB/FreeBSD%E4%BD%BF%E7%94%A8pkg%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="FreeBSD使用pkg包管理器完全指南 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FreeBSD使用pkg包管理器完全指南
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-12-26 19:30:51" itemprop="dateCreated datePublished" datetime="2019-12-26T19:30:51+08:00">2019-12-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="一、-核心概念：Ports-与-Packages"><a href="#一、-核心概念：Ports-与-Packages" class="headerlink" title="一、 核心概念：Ports 与 Packages"></a>一、 核心概念：Ports 与 Packages</h4><p>FreeBSD 提供了两种安装第三方软件的方式：</p>
+<table>
+<thead>
+<tr>
+<th align="left">方式</th>
+<th align="left">描述</th>
+<th align="left">特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Ports Collection</strong></td>
+<td align="left">从源代码编译安装。</td>
+<td align="left">高度可定制（可启用&#x2F;禁用功能），但编译耗时。</td>
+</tr>
+<tr>
+<td align="left"><strong>Packages (pkg)</strong></td>
+<td align="left">安装预编译的二进制包。</td>
+<td align="left"><strong>快速、便捷</strong>，是管理附加软件的首选方式。</td>
+</tr>
+</tbody></table>
+<p><strong>关键路径差异</strong>：通过 <code>pkg</code> 安装的软件，其二进制文件和大多数配置文件位于 <code>/usr/local/</code> 目录下（例如 <code>/usr/local/bin</code>, <code>/usr/local/etc</code>），这与 Linux 发行版常见的 <code>/usr/</code> 和 <code>/etc</code> 不同。</p>
+<h4 id="二、-安装与初始配置"><a href="#二、-安装与初始配置" class="headerlink" title="二、 安装与初始配置"></a>二、 安装与初始配置</h4><h5 id="1-安装-pkg-工具"><a href="#1-安装-pkg-工具" class="headerlink" title="1. 安装 pkg 工具"></a>1. 安装 <code>pkg</code> 工具</h5><p>在全新的 FreeBSD 系统上，<code>pkg</code> 工具本身并未预装。首次使用任何 <code>pkg</code> 命令（如 <code>pkg install</code>）时，系统会提示你安装它：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pkg install wget</span><br><span class="line"><span class="comment"># 输出：The package management tool is not yet installed...</span></span><br><span class="line"><span class="comment"># 输入 `y` 确认安装。</span></span><br></pre></td></tr></table></figure>
+<p>也可以直接运行以下命令来引导安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg bootstrap</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-配置文件-usr-local-etc-pkg-conf"><a href="#2-配置文件-usr-local-etc-pkg-conf" class="headerlink" title="2. 配置文件 (/usr/local/etc/pkg.conf)"></a>2. 配置文件 (<code>/usr/local/etc/pkg.conf</code>)</h5><p><code>pkg</code> 的行为可通过此文件进行全局定制。文件采用 UCL 格式，包含大量注释说明。</p>
+<ul>
+<li><strong>常用配置项</strong>：<ul>
+<li><code>ASSUME_ALWAYS_YES: true</code>：默认对所有确认提示回答“是”，适用于脚本。</li>
+<li><code>AUTOCLEAN: true</code>：安装&#x2F;升级后自动清理过时的缓存包。</li>
+</ul>
+</li>
+<li><strong>定义命令别名</strong>：在文件底部的 <code>ALIAS</code> 部分，可以为常用命令组合创建快捷方式。</li>
+<li><strong>查看手册</strong>：<code>man pkg.conf</code></li>
+</ul>
+<h4 id="三、-日常包管理操作"><a href="#三、-日常包管理操作" class="headerlink" title="三、 日常包管理操作"></a>三、 日常包管理操作</h4><h5 id="1-搜索软件包"><a href="#1-搜索软件包" class="headerlink" title="1. 搜索软件包"></a>1. 搜索软件包</h5><p>在安装前，需要确定软件包的正确名称。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基本搜索（在包名和描述中查找）</span></span><br><span class="line">pkg search apache</span><br><span class="line"></span><br><span class="line"><span class="comment"># 精确搜索并显示详细信息</span></span><br><span class="line">pkg search -R apache24</span><br><span class="line"><span class="comment"># 输出包括：包名、版本、维护者、描述、依赖等。</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-安装与卸载"><a href="#2-安装与卸载" class="headerlink" title="2. 安装与卸载"></a>2. 安装与卸载</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装软件包（及其依赖）</span></span><br><span class="line">pkg install apache24</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装时不询问确认（适用于脚本）</span></span><br><span class="line">pkg install -y nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载软件包</span></span><br><span class="line">pkg delete nginx</span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line">pkg remove nginx</span><br></pre></td></tr></table></figure>
+<p><strong>注意</strong>：卸载一个被其他包依赖的包时，依赖包也会被一同卸载。</p>
+<h5 id="3-查询已安装的包"><a href="#3-查询已安装的包" class="headerlink" title="3. 查询已安装的包"></a>3. 查询已安装的包</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 列出所有已安装的包</span></span><br><span class="line">pkg info</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定包的详细信息</span></span><br><span class="line">pkg info nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出特定包安装的文件</span></span><br><span class="line">pkg info -l nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询某个文件由哪个包提供</span></span><br><span class="line">pkg <span class="built_in">which</span> /usr/local/bin/curl</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-更新与升级"><a href="#4-更新与升级" class="headerlink" title="4. 更新与升级"></a>4. 更新与升级</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 更新本地包仓库目录（非升级软件）</span></span><br><span class="line">pkg update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 升级所有已安装的包到最新版本</span></span><br><span class="line">pkg upgrade</span><br><span class="line"></span><br><span class="line"><span class="comment"># 升级特定包</span></span><br><span class="line">pkg upgrade nginx</span><br></pre></td></tr></table></figure>
+
+<h4 id="四、-高级管理与维护"><a href="#四、-高级管理与维护" class="headerlink" title="四、 高级管理与维护"></a>四、 高级管理与维护</h4><h5 id="1-包缓存管理"><a href="#1-包缓存管理" class="headerlink" title="1. 包缓存管理"></a>1. 包缓存管理</h5><p><code>pkg</code> 会将下载的包文件缓存到 <code>/var/cache/pkg</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 仅下载包而不安装（可用于离线安装）</span></span><br><span class="line">pkg fetch nginx</span><br><span class="line"><span class="comment"># 下载包及其所有依赖</span></span><br><span class="line">pkg fetch -d nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理已被新版替换的旧缓存包</span></span><br><span class="line">pkg clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理所有缓存包</span></span><br><span class="line">pkg clean -a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出缓存内容</span></span><br><span class="line"><span class="built_in">ls</span> /var/cache/pkg</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-锁定与解锁包"><a href="#2-锁定与解锁包" class="headerlink" title="2. 锁定与解锁包"></a>2. 锁定与解锁包</h5><p>防止特定包被意外升级或删除。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 锁定一个包</span></span><br><span class="line">pkg lock openssl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有被锁定的包</span></span><br><span class="line">pkg lock -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解锁一个包</span></span><br><span class="line">pkg unlock openssl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 锁定/解锁所有包</span></span><br><span class="line">pkg lock -a</span><br><span class="line">pkg unlock -a</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-依赖与自动清理"><a href="#3-依赖与自动清理" class="headerlink" title="3. 依赖与自动清理"></a>3. 依赖与自动清理</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 移除不再被任何包依赖的“孤儿”包（自动包）</span></span><br><span class="line">pkg autoremove</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看哪些包是手动安装的（非自动依赖）</span></span><br><span class="line">pkg prime-list</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-安全检查与验证"><a href="#4-安全检查与验证" class="headerlink" title="4. 安全检查与验证"></a>4. 安全检查与验证</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查所有已安装包是否有已知安全漏洞</span></span><br><span class="line">pkg audit -F</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证所有包的完整性</span></span><br><span class="line">pkg check -saq</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证特定包的文件是否被修改</span></span><br><span class="line">pkg check -s nginx</span><br></pre></td></tr></table></figure>
+
+<h4 id="五、-包仓库（Repository）配置"><a href="#五、-包仓库（Repository）配置" class="headerlink" title="五、 包仓库（Repository）配置"></a>五、 包仓库（Repository）配置</h4><p>FreeBSD 的官方包仓库配置在 <code>/etc/pkg/FreeBSD.conf</code>。默认使用 <code>quarterly</code> 分支，更稳定。</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FreeBSD: &#123;</span><br><span class="line">  url: &quot;pkg+http://pkg.FreeBSD.org/$&#123;ABI&#125;/quarterly&quot;,</span><br><span class="line">  enabled: <span class="attribute">yes</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>切换分支</strong>：将 <code>url</code> 中的 <code>quarterly</code> 改为 <code>latest</code> 可获取最新的软件包（可能包含测试版）。</li>
+<li><strong>添加第三方仓库</strong>：在 <code>/usr/local/etc/pkg/repos/</code> 目录下创建 <code>.conf</code> 文件。需确保 <code>pkg.conf</code> 中 <code>REPO_DIRS</code> 包含该路径。</li>
+</ul>
+<h4 id="六、-命令速查与参考"><a href="#六、-命令速查与参考" class="headerlink" title="六、 命令速查与参考"></a>六、 命令速查与参考</h4><table>
+<thead>
+<tr>
+<th align="left">任务</th>
+<th align="left">命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>安装</strong></td>
+<td align="left"><code>pkg install &lt;包名&gt;</code></td>
+</tr>
+<tr>
+<td align="left"><strong>卸载</strong></td>
+<td align="left"><code>pkg delete &lt;包名&gt;</code></td>
+</tr>
+<tr>
+<td align="left"><strong>搜索</strong></td>
+<td align="left"><code>pkg search &lt;关键词&gt;</code></td>
+</tr>
+<tr>
+<td align="left"><strong>列表</strong></td>
+<td align="left"><code>pkg info</code></td>
+</tr>
+<tr>
+<td align="left"><strong>更新仓库</strong></td>
+<td align="left"><code>pkg update</code></td>
+</tr>
+<tr>
+<td align="left"><strong>升级系统</strong></td>
+<td align="left"><code>pkg upgrade</code></td>
+</tr>
+<tr>
+<td align="left"><strong>清理缓存</strong></td>
+<td align="left"><code>pkg clean</code></td>
+</tr>
+<tr>
+<td align="left"><strong>自动移除孤儿包</strong></td>
+<td align="left"><code>pkg autoremove</code></td>
+</tr>
+<tr>
+<td align="left"><strong>安全检查</strong></td>
+<td align="left"><code>pkg audit -F</code></td>
+</tr>
+<tr>
+<td align="left"><strong>锁定包</strong></td>
+<td align="left"><code>pkg lock &lt;包名&gt;</code></td>
+</tr>
+<tr>
+<td align="left"><strong>获取帮助</strong></td>
+<td align="left"><code>pkg help &lt;子命令&gt;</code></td>
+</tr>
+</tbody></table>
+<h4 id="七、-重要文件与目录"><a href="#七、-重要文件与目录" class="headerlink" title="七、 重要文件与目录"></a>七、 重要文件与目录</h4><table>
+<thead>
+<tr>
+<th align="left">路径</th>
+<th align="left">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>/usr/local/etc/pkg.conf</code></td>
+<td align="left"><code>pkg</code> 主配置文件</td>
+</tr>
+<tr>
+<td align="left"><code>/etc/pkg/FreeBSD.conf</code></td>
+<td align="left">官方 FreeBSD 包仓库配置</td>
+</tr>
+<tr>
+<td align="left"><code>/usr/local/etc/pkg/repos/</code></td>
+<td align="left">自定义第三方仓库配置目录</td>
+</tr>
+<tr>
+<td align="left"><code>/var/cache/pkg/</code></td>
+<td align="left">下载的包文件缓存目录</td>
+</tr>
+<tr>
+<td align="left"><code>/var/db/pkg/local.sqlite</code></td>
+<td align="left">已安装包的注册数据库（<strong>切勿删除</strong>）</td>
+</tr>
+<tr>
+<td align="left"><code>/usr/local/</code></td>
+<td align="left">通过 <code>pkg</code> 安装的软件根目录</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>总结</strong>：对于绝大多数 FreeBSD 系统管理任务，<code>pkg</code> 是管理第三方软件最有效、最推荐的工具。除非你需要特定的编译选项或软件尚未被打包，否则应优先使用 <code>pkg</code> 而非 Ports。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/FreeBSD/" rel="tag"># FreeBSD</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/30/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/8%E7%A7%8D%E4%B8%BB%E8%A6%81%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E7%9A%84C%E5%AE%9E%E7%8E%B0/" rel="prev" title="8种主要排序算法的CSharp实现">
+                  <i class="fa fa-angle-left"></i> 8种主要排序算法的CSharp实现
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/12/31/Linux/Linux%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/" rel="next" title="Linux内核模块加载与卸载">
+                  Linux内核模块加载与卸载 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="译自：Long Names Are Long，作者：Bob Nystrom  引言：来自 Code Review 的观察Google 最明智的规定之一，是严格执行代码审查（Code Review）。每个改动上线前，都需要经过两种审查：  功能审查：确保代码完成了既定功能。 可读性审查：确保代码易于理解、维护，并符合语言惯例和文档规范。  作为 Dart 语言的设计者，我有幸参与了大量此类审查。这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何给变量取个简短且无歧义的名字">
+<meta property="og:url" content="http://chengming0916.github.io/2016/07/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E7%BB%99%E5%8F%98%E9%87%8F%E5%8F%96%E4%B8%AA%E7%AE%80%E7%9F%AD%E4%B8%94%E6%97%A0%E6%AD%A7%E4%B9%89%E7%9A%84%E5%90%8D%E5%AD%97/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="译自：Long Names Are Long，作者：Bob Nystrom  引言：来自 Code Review 的观察Google 最明智的规定之一，是严格执行代码审查（Code Review）。每个改动上线前，都需要经过两种审查：  功能审查：确保代码完成了既定功能。 可读性审查：确保代码易于理解、维护，并符合语言惯例和文档规范。  作为 Dart 语言的设计者，我有幸参与了大量此类审查。这">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-07-29T06:53:52.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.495Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2016/07/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E7%BB%99%E5%8F%98%E9%87%8F%E5%8F%96%E4%B8%AA%E7%AE%80%E7%9F%AD%E4%B8%94%E6%97%A0%E6%AD%A7%E4%B9%89%E7%9A%84%E5%90%8D%E5%AD%97/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2016/07/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E7%BB%99%E5%8F%98%E9%87%8F%E5%8F%96%E4%B8%AA%E7%AE%80%E7%9F%AD%E4%B8%94%E6%97%A0%E6%AD%A7%E4%B9%89%E7%9A%84%E5%90%8D%E5%AD%97/","path":"2016/07/29/未分类/如何给变量取个简短且无歧义的名字/","title":"如何给变量取个简短且无歧义的名字"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何给变量取个简短且无歧义的名字 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E6%9D%A5%E8%87%AA-Code-Review-%E7%9A%84%E8%A7%82%E5%AF%9F"><span class="nav-number">1.</span> <span class="nav-text">引言：来自 Code Review 的观察</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%95%BF%E5%91%BD%E5%90%8D%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">长命名的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E7%9A%84%E6%A0%B8%E5%BF%83%E7%9B%AE%E6%A0%87%E4%B8%8E%E5%8E%9F%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">命名的核心目标与原则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%88%99%E4%B8%80%EF%BC%9A%E7%9C%81%E7%95%A5%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF"><span class="nav-number">3.1.</span> <span class="nav-text">原则一：省略类型信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%88%99%E4%BA%8C%EF%BC%9A%E7%9C%81%E7%95%A5%E6%97%A0%E5%8A%A9%E4%BA%8E%E6%B6%88%E9%99%A4%E6%AD%A7%E4%B9%89%E7%9A%84%E8%AF%8D"><span class="nav-number">3.2.</span> <span class="nav-text">原则二：省略无助于消除歧义的词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%88%99%E4%B8%89%EF%BC%9A%E7%9C%81%E7%95%A5%E5%8F%AF%E4%BB%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%AD%E6%8E%A8%E6%96%AD%E7%9A%84%E8%AF%8D"><span class="nav-number">3.3.</span> <span class="nav-text">原则三：省略可从上下文中推断的词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%88%99%E5%9B%9B%EF%BC%9A%E7%9C%81%E7%95%A5%E6%97%A0%E5%AE%9E%E9%99%85%E6%84%8F%E4%B9%89%E7%9A%84%E2%80%9C%E7%A9%BA%E6%B3%9B%E8%AF%8D%E2%80%9D"><span class="nav-number">3.4.</span> <span class="nav-text">原则四：省略无实际意义的“空泛词”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E6%BC%94%E7%BB%83%EF%BC%9A%E9%87%8D%E6%9E%84%E2%80%9C%E5%8D%8E%E5%A4%AB%E9%A5%BC%E2%80%9D%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">实战演练：重构“华夫饼”代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2016/07/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E7%BB%99%E5%8F%98%E9%87%8F%E5%8F%96%E4%B8%AA%E7%AE%80%E7%9F%AD%E4%B8%94%E6%97%A0%E6%AD%A7%E4%B9%89%E7%9A%84%E5%90%8D%E5%AD%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何给变量取个简短且无歧义的名字 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何给变量取个简短且无歧义的名字
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2016-07-29 14:53:52" itemprop="dateCreated datePublished" datetime="2016-07-29T14:53:52+08:00">2016-07-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>译自：<a target="_blank" rel="noopener" href="http://journal.stuffwithstuff.com/2016/06/16/long-names-are-long">Long Names Are Long</a>，作者：Bob Nystrom</p>
+</blockquote>
+<h2 id="引言：来自-Code-Review-的观察"><a href="#引言：来自-Code-Review-的观察" class="headerlink" title="引言：来自 Code Review 的观察"></a>引言：来自 Code Review 的观察</h2><p>Google 最明智的规定之一，是严格执行代码审查（Code Review）。每个改动上线前，都需要经过两种审查：</p>
+<ol>
+<li><strong>功能审查</strong>：确保代码完成了既定功能。</li>
+<li><strong>可读性审查</strong>：确保代码易于理解、维护，并符合语言惯例和文档规范。</li>
+</ol>
+<p>作为 Dart 语言的设计者，我有幸参与了大量此类审查。这让我能像人类学家一样，观察开发者如何使用这门语言，并发现一些普遍的模式。其中最令我困扰的模式之一，就是<strong>过长的变量和函数命名</strong>。</p>
+<h2 id="长命名的问题"><a href="#长命名的问题" class="headerlink" title="长命名的问题"></a>长命名的问题</h2><p>在早期编程时代，外部标识符可能只靠前六个字符区分，且没有自动补全，长命名确实是个负担。但如今，我们似乎走向了另一个极端——命名变得过于冗长。</p>
+<p>过长的命名会带来以下问题：</p>
+<ul>
+<li><strong>损害代码清晰度</strong>：命名过于臃肿，反而让核心意图变得模糊。</li>
+<li><strong>破坏代码结构</strong>：长命名常导致不必要的换行，破坏代码的视觉流。</li>
+<li><strong>增加使用负担</strong>：长的类名使变量声明变得繁琐；长的方法名使其调用变得晦涩；长的变量名导致方法链过长。</li>
+</ul>
+<p>我曾见过超过60个字符的命名，这足以写一首短诗。那么，如何解决这个问题呢？</p>
+<h2 id="命名的核心目标与原则"><a href="#命名的核心目标与原则" class="headerlink" title="命名的核心目标与原则"></a>命名的核心目标与原则</h2><p>一个好的命名应达成两个目标：</p>
+<ol>
+<li><strong>清晰</strong>：能让人立刻知道它关联的是什么。</li>
+<li><strong>精确</strong>：能让人知道它<strong>不</strong>关联的是什么。</li>
+</ol>
+<p>一旦达成这两个目标，多余的字符就是噪音。以下是一些实用的命名原则。</p>
+<h3 id="原则一：省略类型信息"><a href="#原则一：省略类型信息" class="headerlink" title="原则一：省略类型信息"></a>原则一：省略类型信息</h3><p>在静态类型语言中，类型声明已经提供了足够的信息，无需在命名中重复。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不佳的命名</span></span><br><span class="line"><span class="built_in">String</span> nameString;</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">DateTime</span>&gt; holidayDateList;</span><br><span class="line"><span class="built_in">Map</span>&lt;Employee, Role&gt; employeeRoleHashMap;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 改进的命名</span></span><br><span class="line"><span class="built_in">String</span> name;</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">DateTime</span>&gt; holidays;</span><br><span class="line"><span class="built_in">Map</span>&lt;Employee, Role&gt; employeeRoles;</span><br></pre></td></tr></table></figure>
+
+<p>对于集合，使用<strong>复数名词</strong>来描述其内容，比使用“List”、“Map”等类型词汇更直观。方法名同样无需描述参数类型。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不佳的命名</span></span><br><span class="line">mergeTableCells(<span class="built_in">List</span>&lt;TableCell&gt; cells)</span><br><span class="line">sortEventsUsingComparator(<span class="built_in">List</span>&lt;Event&gt; events, Comparator&lt;Event&gt; comparator)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 改进的命名</span></span><br><span class="line">merge(<span class="built_in">List</span>&lt;TableCell&gt; cells)</span><br><span class="line">sort(<span class="built_in">List</span>&lt;Event&gt; events, Comparator&lt;Event&gt; comparator)</span><br></pre></td></tr></table></figure>
+
+<h3 id="原则二：省略无助于消除歧义的词"><a href="#原则二：省略无助于消除歧义的词" class="headerlink" title="原则二：省略无助于消除歧义的词"></a>原则二：省略无助于消除歧义的词</h3><p>命名是一个标识符，用于定位定义，而非承载对象的所有细节。不要将你知道的所有信息都塞进命名里。</p>
+<p>例如，看到一个名为 <code>recentlyUpdatedAnnualSalesBid</code> 的变量，读者会困惑：</p>
+<ul>
+<li>是否存在“非最近更新”的年度销售投标？</li>
+<li>是否存在“非年度”的销售投标？</li>
+<li>如果答案都是“否”，那么 <code>recentlyUpdated</code> 和 <code>Annual</code> 就是冗余信息。</li>
+</ul>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不佳的命名</span></span><br><span class="line">finalBattleMostDangerousBossMonster;</span><br><span class="line">weaklingFirstEncounterMonster;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 改进的命名</span></span><br><span class="line">boss;</span><br><span class="line">firstMonster;</span><br></pre></td></tr></table></figure>
+
+<p><strong>大胆地从简洁的命名开始</strong>。如果后续发现它会引起歧义，再添加修饰词也不迟。反之，一个冗长的命名很难再被简化。</p>
+<h3 id="原则三：省略可从上下文中推断的词"><a href="#原则三：省略可从上下文中推断的词" class="headerlink" title="原则三：省略可从上下文中推断的词"></a>原则三：省略可从上下文中推断的词</h3><p>类中的方法和属性、方法中的局部变量，都存在于一个明确的上下文中，无需重复上下文信息。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不佳的命名</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AnnualHolidaySale</span> </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _annualSaleRebate;</span><br><span class="line">  <span class="keyword">void</span> promoteHolidaySale() &#123; ... &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 改进的命名</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AnnualHolidaySale</span> </span>&#123;</span><br><span class="line">  <span class="built_in">int</span> _rebate;</span><br><span class="line">  <span class="keyword">void</span> promote() &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一般来说，<strong>变量的作用域越小，其命名就可以越短</strong>。</p>
+<h3 id="原则四：省略无实际意义的“空泛词”"><a href="#原则四：省略无实际意义的“空泛词”" class="headerlink" title="原则四：省略无实际意义的“空泛词”"></a>原则四：省略无实际意义的“空泛词”</h3><p>有些词如 <code>data</code>、<code>state</code>、<code>manager</code>、<code>engine</code>、<code>object</code>、<code>entity</code> 等，本身不传达具体信息，只是让命名听起来更“正式”或“重要”，应尽量避免。</p>
+<p>一个好的命名能在读者脑海中勾勒出一幅画面。<code>manager</code> 这个词能让你想到什么？是做绩效评估还是管理预算？它什么具体画面都没提供。</p>
+<h2 id="实战演练：重构“华夫饼”代码"><a href="#实战演练：重构“华夫饼”代码" class="headerlink" title="实战演练：重构“华夫饼”代码"></a>实战演练：重构“华夫饼”代码</h2><p>让我们通过一个违反所有原则的例子，看看如何应用上述规则进行重构。</p>
+<p><strong>原始代码（问题重重）：</strong></p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DeliciousBelgianWaffleObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">void</span> garnishDeliciousBelgianWaffleWithStrawberryList(</span><br><span class="line">      <span class="built_in">List</span>&lt;Strawberry&gt; strawberryList) &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第一步：去掉参数类型信息</strong><br>方法参数已经声明了 <code>List&lt;Strawberry&gt;</code>，方法名中无需重复。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DeliciousBelgianWaffleObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">void</span> garnishDeliciousBelgianWaffle(<span class="built_in">List</span>&lt;Strawberry&gt; strawberries) &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步：去掉无助于消除歧义的形容词</strong><br>除非系统中存在“难吃的比利时华夫饼”或“法国华夫饼”，否则 <code>Delicious</code> 和 <code>Belgian</code> 是多余的。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaffleObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">void</span> garnishWaffle(<span class="built_in">List</span>&lt;Strawberry&gt; strawberries) &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步：去掉可从上下文推断的词</strong><br><code>garnishWaffle</code> 是 <code>WaffleObject</code> 类的方法，因此 <code>Waffle</code> 是多余的。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaffleObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">void</span> garnish(<span class="built_in">List</span>&lt;Strawberry&gt; strawberries) &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第四步：去掉无意义的“空泛词”</strong><br>在面向对象语言中，所有类都是对象，<code>Object</code> 这个词没有提供任何额外信息。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Waffle</span> </span>&#123;</span><br><span class="line">  <span class="keyword">void</span> garnish(<span class="built_in">List</span>&lt;Strawberry&gt; strawberries) &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>最终结果</strong>：清晰、简洁、意图明确。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>命名是编程中最基础也最重要的任务之一。追求清晰的命名，并非鼓励使用晦涩的缩写，而是倡导<strong>在提供足够信息的前提下力求简洁</strong>。记住命名的两个核心目标：清晰与精确。让你的代码像海明威的小说一样简洁有力，而不是像法律条文一样冗长繁琐。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/12/27/%E6%9C%AA%E5%88%86%E7%B1%BB/%E4%BD%BF%E7%94%A8%E6%9C%89%E5%BA%8FGUID%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E9%94%AE%E6%80%A7%E8%83%BD/" rel="prev" title="使用有序GUID提升数据库主键性能">
+                  <i class="fa fa-angle-left"></i> 使用有序GUID提升数据库主键性能
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017/01/07/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%88%86%E5%B8%83%E5%BC%8FID%E7%94%9F%E6%88%90%E6%96%B9%E6%B3%95%E7%94%9F%E6%88%90%E6%BC%94%E5%8F%98/" rel="next" title="分布式ID生成方法生成演变">
+                  分布式ID生成方法生成演变 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

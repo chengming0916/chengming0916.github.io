@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、SWAP 空间基础概念1.1 什么是 SWAP？当 Linux 系统的物理内存（RAM）耗尽时，内核会将内存中不活跃的“页面”移动到硬盘上的一个预配置区域，这个区域就是 SWAP 空间。物理内存与 SWAP 空间的总和称为虚拟内存。 1.2 SWAP 的两种形式 SWAP 分区：硬盘上一个独立的、专门用于交换的分区。 SWAP 文件：文件系统中的一个特殊文件，功能与分区相同。  注意：在虚拟机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu管理SWAP空间">
+<meta property="og:url" content="http://chengming0916.github.io/2025/08/21/Linux/Ubuntu%E7%AE%A1%E7%90%86SWAP%E7%A9%BA%E9%97%B4/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、SWAP 空间基础概念1.1 什么是 SWAP？当 Linux 系统的物理内存（RAM）耗尽时，内核会将内存中不活跃的“页面”移动到硬盘上的一个预配置区域，这个区域就是 SWAP 空间。物理内存与 SWAP 空间的总和称为虚拟内存。 1.2 SWAP 的两种形式 SWAP 分区：硬盘上一个独立的、专门用于交换的分区。 SWAP 文件：文件系统中的一个特殊文件，功能与分区相同。  注意：在虚拟机">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-21T08:18:10.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.636Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="SWAP">
+<meta property="article:tag" content="Ubuntu">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/08/21/Linux/Ubuntu%E7%AE%A1%E7%90%86SWAP%E7%A9%BA%E9%97%B4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/08/21/Linux/Ubuntu%E7%AE%A1%E7%90%86SWAP%E7%A9%BA%E9%97%B4/","path":"2025/08/21/Linux/Ubuntu管理SWAP空间/","title":"Ubuntu管理SWAP空间"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Ubuntu管理SWAP空间 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81SWAP-%E7%A9%BA%E9%97%B4%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、SWAP 空间基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-SWAP%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是 SWAP？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-SWAP-%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 SWAP 的两种形式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-SWAP%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 为什么需要 SWAP？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-SWAP-%E7%9A%84%E6%BD%9C%E5%9C%A8%E7%BC%BA%E7%82%B9"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 SWAP 的潜在缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A3%80%E6%9F%A5%E7%8E%B0%E6%9C%89-SWAP-%E7%A9%BA%E9%97%B4"><span class="nav-number">2.</span> <span class="nav-text">二、检查现有 SWAP 空间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E6%B4%BB%E5%8A%A8%E7%9A%84-SWAP-%E7%A9%BA%E9%97%B4"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 查看所有活动的 SWAP 空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98%E4%B8%8E-SWAP-%E4%BD%BF%E7%94%A8%E6%A6%82%E5%86%B5"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 查看内存与 SWAP 使用概况</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%88%9B%E5%BB%BA-SWAP-%E6%96%87%E4%BB%B6%EF%BC%88%E6%8E%A8%E8%8D%90%E6%96%B9%E6%B3%95%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、创建 SWAP 文件（推荐方法）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%AD%A5%E9%AA%A4-1%EF%BC%9A%E5%88%9B%E5%BB%BA%E7%A9%BA%E7%99%BD%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 步骤 1：创建空白文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%AD%A5%E9%AA%A4-2%EF%BC%9A%E8%AE%BE%E7%BD%AE%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 步骤 2：设置正确的文件权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%AD%A5%E9%AA%A4-3%EF%BC%9A%E5%B0%86%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%BA-SWAP-%E7%A9%BA%E9%97%B4"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 步骤 3：将文件格式化为 SWAP 空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E6%AD%A5%E9%AA%A4-4%EF%BC%9A%E6%BF%80%E6%B4%BB-SWAP-%E6%96%87%E4%BB%B6"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 步骤 4：激活 SWAP 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E6%AD%A5%E9%AA%A4-5%EF%BC%9A%E9%85%8D%E7%BD%AE%E6%B0%B8%E4%B9%85%E7%94%9F%E6%95%88%EF%BC%88%E5%BC%80%E6%9C%BA%E8%87%AA%E5%8A%A8%E5%90%AF%E7%94%A8%EF%BC%89"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 步骤 5：配置永久生效（开机自动启用）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E6%AD%A5%E9%AA%A4-6%EF%BC%9A%E9%AA%8C%E8%AF%81%E5%88%9B%E5%BB%BA%E7%BB%93%E6%9E%9C"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 步骤 6：验证创建结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BC%98%E5%8C%96-SWAP-%E4%BD%BF%E7%94%A8%E8%A1%8C%E4%B8%BA%EF%BC%9A%E8%B0%83%E6%95%B4-Swappiness"><span class="nav-number">4.</span> <span class="nav-text">四、优化 SWAP 使用行为：调整 Swappiness</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%BB%80%E4%B9%88%E6%98%AF-Swappiness%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 什么是 Swappiness？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D-Swappiness-%E5%80%BC"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 查看当前 Swappiness 值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%B8%B4%E6%97%B6%E8%B0%83%E6%95%B4-Swappiness-%E5%80%BC"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 临时调整 Swappiness 值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E6%B0%B8%E4%B9%85%E8%B0%83%E6%95%B4-Swappiness-%E5%80%BC"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 永久调整 Swappiness 值</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%88%A0%E9%99%A4-SWAP-%E6%96%87%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">五、删除 SWAP 文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%AD%A5%E9%AA%A4-1%EF%BC%9A%E5%81%9C%E7%94%A8-SWAP-%E6%96%87%E4%BB%B6"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 步骤 1：停用 SWAP 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E6%AD%A5%E9%AA%A4-2%EF%BC%9A%E4%BB%8E-etc-fstab-%E4%B8%AD%E7%A7%BB%E9%99%A4%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 步骤 2：从 &#x2F;etc&#x2F;fstab 中移除配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%AD%A5%E9%AA%A4-3%EF%BC%9A%E5%88%A0%E9%99%A4%E7%89%A9%E7%90%86%E6%96%87%E4%BB%B6"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 步骤 3：删除物理文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E8%B0%83%E6%95%B4-SWAP-%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F"><span class="nav-number">6.</span> <span class="nav-text">六、调整 SWAP 空间大小</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E8%B0%83%E6%95%B4-SWAP-%E5%88%86%E5%8C%BA%E5%A4%A7%E5%B0%8F%EF%BC%88%E5%A4%8D%E6%9D%82%EF%BC%89"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 调整 SWAP 分区大小（复杂）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E8%B0%83%E6%95%B4-SWAP-%E6%96%87%E4%BB%B6%E5%A4%A7%E5%B0%8F%EF%BC%88%E7%AE%80%E5%8D%95%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 调整 SWAP 文件大小（简单推荐）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81SWAP-%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F%E8%A7%84%E5%88%92%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">七、SWAP 空间大小规划建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">8.</span> <span class="nav-text">八、总结与最佳实践</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/08/21/Linux/Ubuntu%E7%AE%A1%E7%90%86SWAP%E7%A9%BA%E9%97%B4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Ubuntu管理SWAP空间 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu管理SWAP空间
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-08-21 16:18:10" itemprop="dateCreated datePublished" datetime="2025-08-21T16:18:10+08:00">2025-08-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、SWAP-空间基础概念"><a href="#一、SWAP-空间基础概念" class="headerlink" title="一、SWAP 空间基础概念"></a>一、SWAP 空间基础概念</h2><h3 id="1-1-什么是-SWAP？"><a href="#1-1-什么是-SWAP？" class="headerlink" title="1.1 什么是 SWAP？"></a>1.1 什么是 SWAP？</h3><p>当 Linux 系统的物理内存（RAM）耗尽时，内核会将内存中不活跃的“页面”移动到硬盘上的一个预配置区域，这个区域就是 <strong>SWAP 空间</strong>。物理内存与 SWAP 空间的总和称为<strong>虚拟内存</strong>。</p>
+<h3 id="1-2-SWAP-的两种形式"><a href="#1-2-SWAP-的两种形式" class="headerlink" title="1.2 SWAP 的两种形式"></a>1.2 SWAP 的两种形式</h3><ul>
+<li><strong>SWAP 分区</strong>：硬盘上一个独立的、专门用于交换的分区。</li>
+<li><strong>SWAP 文件</strong>：文件系统中的一个特殊文件，功能与分区相同。</li>
+</ul>
+<p><strong>注意</strong>：在虚拟机中安装 Ubuntu 时，系统通常<strong>不会自动创建 SWAP 空间</strong>，需要手动配置。</p>
+<h3 id="1-3-为什么需要-SWAP？"><a href="#1-3-为什么需要-SWAP？" class="headerlink" title="1.3 为什么需要 SWAP？"></a>1.3 为什么需要 SWAP？</h3><ul>
+<li><strong>内存溢出保护</strong>：当 RAM 完全占满时，系统可将非关键数据移至 SWAP，防止系统崩溃（对小内存系统尤其重要）。</li>
+<li><strong>释放物理内存</strong>：将启动后很少使用的程序“页面”交换出去，为更活跃的程序腾出 RAM。</li>
+<li><strong>休眠支持</strong>：系统休眠（Hibernate）功能需要 SWAP 空间来保存内存状态。</li>
+</ul>
+<h3 id="1-4-SWAP-的潜在缺点"><a href="#1-4-SWAP-的潜在缺点" class="headerlink" title="1.4 SWAP 的潜在缺点"></a>1.4 SWAP 的潜在缺点</h3><ul>
+<li><strong>速度差异</strong>：RAM 的访问速度是<strong>纳秒级</strong>，而硬盘（即使是 SSD）是<strong>毫秒级</strong>，速度相差数个数量级。</li>
+<li><strong>系统变慢</strong>：频繁的交换操作（称为“Thrashing”）会导致系统响应迟缓。</li>
+</ul>
+<hr>
+<h2 id="二、检查现有-SWAP-空间"><a href="#二、检查现有-SWAP-空间" class="headerlink" title="二、检查现有 SWAP 空间"></a>二、检查现有 SWAP 空间</h2><p>在开始操作前，首先检查系统当前的 SWAP 配置。</p>
+<h3 id="2-1-查看所有活动的-SWAP-空间"><a href="#2-1-查看所有活动的-SWAP-空间" class="headerlink" title="2.1 查看所有活动的 SWAP 空间"></a>2.1 查看所有活动的 SWAP 空间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapon --show</span><br></pre></td></tr></table></figure>
+<p>如果输出为空，则表示系统<strong>未启用任何 SWAP 空间</strong>。</p>
+<h3 id="2-2-查看内存与-SWAP-使用概况"><a href="#2-2-查看内存与-SWAP-使用概况" class="headerlink" title="2.2 查看内存与 SWAP 使用概况"></a>2.2 查看内存与 SWAP 使用概况</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> free -h</span><br></pre></td></tr></table></figure>
+<p>该命令会显示物理内存和 SWAP 的总量、已用量及空闲量。</p>
+<hr>
+<h2 id="三、创建-SWAP-文件（推荐方法）"><a href="#三、创建-SWAP-文件（推荐方法）" class="headerlink" title="三、创建 SWAP 文件（推荐方法）"></a>三、创建 SWAP 文件（推荐方法）</h2><p>与分区相比，SWAP 文件更灵活，可以轻松调整大小，且不涉及磁盘分区操作。以下是创建 2GB SWAP 文件的完整步骤。</p>
+<h3 id="3-1-步骤-1：创建空白文件"><a href="#3-1-步骤-1：创建空白文件" class="headerlink" title="3.1 步骤 1：创建空白文件"></a>3.1 步骤 1：创建空白文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=/swapfile bs=1M count=2048</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>if=/dev/zero</code>：输入源，一个输出全零字节的特殊设备。</li>
+<li><code>of=/swapfile</code>：输出文件路径。</li>
+<li><code>bs=1M</code>：块大小为 1MB。</li>
+<li><code>count=2048</code>：块数量。计算：1MB × 2048 &#x3D; <strong>2GB</strong>。<blockquote>
+<p><strong>提示</strong>：要创建不同大小的文件，只需修改 <code>count</code> 值（例如 <code>count=1024</code> 为 1GB）。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="3-2-步骤-2：设置正确的文件权限"><a href="#3-2-步骤-2：设置正确的文件权限" class="headerlink" title="3.2 步骤 2：设置正确的文件权限"></a>3.2 步骤 2：设置正确的文件权限</h3><p>SWAP 文件必须严格限制访问权限，防止被普通用户读取。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 600 /swapfile</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-步骤-3：将文件格式化为-SWAP-空间"><a href="#3-3-步骤-3：将文件格式化为-SWAP-空间" class="headerlink" title="3.3 步骤 3：将文件格式化为 SWAP 空间"></a>3.3 步骤 3：将文件格式化为 SWAP 空间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mkswap /swapfile</span><br></pre></td></tr></table></figure>
+<p>此命令会在文件上设置特殊的 SWAP 签名。</p>
+<h3 id="3-4-步骤-4：激活-SWAP-文件"><a href="#3-4-步骤-4：激活-SWAP-文件" class="headerlink" title="3.4 步骤 4：激活 SWAP 文件"></a>3.4 步骤 4：激活 SWAP 文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapon /swapfile</span><br></pre></td></tr></table></figure>
+<p>现在，SWAP 文件已加入系统交换池并立即生效。</p>
+<h3 id="3-5-步骤-5：配置永久生效（开机自动启用）"><a href="#3-5-步骤-5：配置永久生效（开机自动启用）" class="headerlink" title="3.5 步骤 5：配置永久生效（开机自动启用）"></a>3.5 步骤 5：配置永久生效（开机自动启用）</h3><p>编辑 <code>/etc/fstab</code> 文件，在末尾添加一行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/fstab</span><br></pre></td></tr></table></figure>
+<p>添加以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/swapfile swap swap defaults 0 0</span><br></pre></td></tr></table></figure>
+<p>保存并退出（<code>Ctrl+X</code>，然后按 <code>Y</code> 确认）。</p>
+<h3 id="3-6-步骤-6：验证创建结果"><a href="#3-6-步骤-6：验证创建结果" class="headerlink" title="3.6 步骤 6：验证创建结果"></a>3.6 步骤 6：验证创建结果</h3><p>再次运行检查命令，确认 SWAP 文件已成功激活：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapon --show</span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line"><span class="built_in">sudo</span> free -h</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、优化-SWAP-使用行为：调整-Swappiness"><a href="#四、优化-SWAP-使用行为：调整-Swappiness" class="headerlink" title="四、优化 SWAP 使用行为：调整 Swappiness"></a>四、优化 SWAP 使用行为：调整 Swappiness</h2><h3 id="4-1-什么是-Swappiness？"><a href="#4-1-什么是-Swappiness？" class="headerlink" title="4.1 什么是 Swappiness？"></a>4.1 什么是 Swappiness？</h3><p><code>swappiness</code> 是一个内核参数（范围 0-100），用于控制内核使用 SWAP 空间的<strong>积极程度</strong>。</p>
+<ul>
+<li><strong>值越低（如 10）</strong>：内核尽量<strong>避免</strong>使用 SWAP，除非绝对必要。</li>
+<li><strong>值越高（如 80）</strong>：内核更<strong>积极</strong>地将内存页面交换出去。</li>
+<li><strong>Ubuntu 默认值</strong>：<code>60</code></li>
+</ul>
+<h3 id="4-2-查看当前-Swappiness-值"><a href="#4-2-查看当前-Swappiness-值" class="headerlink" title="4.2 查看当前 Swappiness 值"></a>4.2 查看当前 Swappiness 值</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/sys/vm/swappiness</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-临时调整-Swappiness-值"><a href="#4-3-临时调整-Swappiness-值" class="headerlink" title="4.3 临时调整 Swappiness 值"></a>4.3 临时调整 Swappiness 值</h3><p>例如，设置为 <code>40</code>（对服务器更友好）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sysctl vm.swappiness=40</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-永久调整-Swappiness-值"><a href="#4-4-永久调整-Swappiness-值" class="headerlink" title="4.4 永久调整 Swappiness 值"></a>4.4 永久调整 Swappiness 值</h3><p>编辑 <code>/etc/sysctl.conf</code> 文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/sysctl.conf</span><br></pre></td></tr></table></figure>
+<p>在文件末尾添加或修改以下行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vm.swappiness=40</span><br></pre></td></tr></table></figure>
+<p>保存后，运行以下命令使更改立即生效：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sysctl -p</span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践建议</strong>：</p>
+<ul>
+<li><strong>桌面系统</strong>：<code>30-60</code>（平衡响应性与内存使用）。</li>
+<li><strong>服务器&#x2F;数据库</strong>：<code>10-30</code>（减少慢速交换，优先使用 RAM）。</li>
+<li><strong>高性能计算&#x2F;内存充足时</strong>：<code>1-10</code>（几乎禁用交换，除非紧急）。</li>
+</ul>
+<hr>
+<h2 id="五、删除-SWAP-文件"><a href="#五、删除-SWAP-文件" class="headerlink" title="五、删除 SWAP 文件"></a>五、删除 SWAP 文件</h2><p>如果您不再需要某个 SWAP 文件，请按以下步骤安全移除。</p>
+<h3 id="5-1-步骤-1：停用-SWAP-文件"><a href="#5-1-步骤-1：停用-SWAP-文件" class="headerlink" title="5.1 步骤 1：停用 SWAP 文件"></a>5.1 步骤 1：停用 SWAP 文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapoff -v /swapfile</span><br></pre></td></tr></table></figure>
+<p><code>-v</code> 参数显示详细过程。</p>
+<h3 id="5-2-步骤-2：从-etc-fstab-中移除配置"><a href="#5-2-步骤-2：从-etc-fstab-中移除配置" class="headerlink" title="5.2 步骤 2：从 /etc/fstab 中移除配置"></a>5.2 步骤 2：从 <code>/etc/fstab</code> 中移除配置</h3><p>编辑 <code>/etc/fstab</code> 文件，删除或注释掉之前添加的 <code>/swapfile</code> 那一行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/fstab</span><br><span class="line"><span class="comment"># 在行首添加 # 号注释掉，例如：</span></span><br><span class="line"><span class="comment"># /swapfile swap swap defaults 0 0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-步骤-3：删除物理文件"><a href="#5-3-步骤-3：删除物理文件" class="headerlink" title="5.3 步骤 3：删除物理文件"></a>5.3 步骤 3：删除物理文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /swapfile</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、调整-SWAP-空间大小"><a href="#六、调整-SWAP-空间大小" class="headerlink" title="六、调整 SWAP 空间大小"></a>六、调整 SWAP 空间大小</h2><h3 id="6-1-调整-SWAP-分区大小（复杂）"><a href="#6-1-调整-SWAP-分区大小（复杂）" class="headerlink" title="6.1 调整 SWAP 分区大小（复杂）"></a>6.1 调整 SWAP 分区大小（复杂）</h3><p>调整分区大小通常需要：</p>
+<ol>
+<li>使用 <code>swapoff</code> 停用分区。</li>
+<li>使用 <code>GParted</code> 等图形化分区工具或 <code>parted</code> 命令行工具调整分区边界。</li>
+<li>使用 <code>mkswap</code> 重新格式化。</li>
+<li>使用 <code>swapon</code> 重新激活。<blockquote>
+<p><strong>注意</strong>：此操作有风险，且需要分区后方有未分配的连续空间。</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="6-2-调整-SWAP-文件大小（简单推荐）"><a href="#6-2-调整-SWAP-文件大小（简单推荐）" class="headerlink" title="6.2 调整 SWAP 文件大小（简单推荐）"></a>6.2 调整 SWAP 文件大小（简单推荐）</h3><p>这是 SWAP 文件的最大优势。例如，将现有的 2GB 文件扩容到 4GB：</p>
+<p><strong>步骤 1：停用当前 SWAP 文件</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapoff /swapfile</span><br></pre></td></tr></table></figure>
+
+<p><strong>步骤 2：调整文件大小</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方法A：使用 dd 追加 2GB（总大小变为 4GB）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=/swapfile bs=1G count=2 oflag=append conv=notrunc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法B：直接创建指定大小的新文件（会覆盖旧文件）</span></span><br><span class="line"><span class="comment"># sudo dd if=/dev/zero of=/swapfile bs=1G count=4</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>步骤 3：重新设置权限并格式化</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 600 /swapfile</span><br><span class="line"><span class="built_in">sudo</span> mkswap /swapfile</span><br></pre></td></tr></table></figure>
+
+<p><strong>步骤 4：重新激活 SWAP 文件</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapon /swapfile</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 5：验证新大小</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> swapon --show</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、SWAP-空间大小规划建议"><a href="#七、SWAP-空间大小规划建议" class="headerlink" title="七、SWAP 空间大小规划建议"></a>七、SWAP 空间大小规划建议</h2><table>
+<thead>
+<tr>
+<th align="left">系统物理内存 (RAM)</th>
+<th align="left">推荐 SWAP 大小</th>
+<th align="left">休眠支持所需 SWAP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>≤ 2 GB</strong></td>
+<td align="left">RAM 的 <strong>2 倍</strong></td>
+<td align="left">RAM 的 <strong>2-3 倍</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>2 - 8 GB</strong></td>
+<td align="left">等于 RAM 大小</td>
+<td align="left">RAM 的 <strong>1.5 倍</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>8 - 64 GB</strong></td>
+<td align="left">至少 <strong>4 GB</strong></td>
+<td align="left">RAM 的 <strong>1 倍</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>&gt; 64 GB</strong></td>
+<td align="left">至少 <strong>4 GB</strong>（主要用于休眠）</td>
+<td align="left">RAM 的 <strong>0.5 倍</strong></td>
+</tr>
+</tbody></table>
+<p><strong>说明</strong>：</p>
+<ul>
+<li>对于现代拥有大容量 RAM（如 16GB+）的系统，SWAP 的主要作用已从“内存溢出缓冲”转变为<strong>支持系统休眠</strong>。</li>
+<li>如果<strong>完全不需要休眠功能</strong>，且内存充足，可以设置一个较小的 SWAP（如 1-2GB）作为安全缓冲。</li>
+</ul>
+<hr>
+<h2 id="八、总结与最佳实践"><a href="#八、总结与最佳实践" class="headerlink" title="八、总结与最佳实践"></a>八、总结与最佳实践</h2><ol>
+<li><strong>检查先行</strong>：操作前务必使用 <code>swapon --show</code> 和 <code>free -h</code> 了解当前状态。</li>
+<li><strong>首选文件</strong>：对于大多数用户，创建 <strong>SWAP 文件</strong> 比调整分区更安全、灵活。</li>
+<li><strong>合理规划大小</strong>：根据你的 RAM 大小和用途（是否休眠）参考上表。</li>
+<li><strong>优化 Swappiness</strong>：为你的工作负载（桌面&#x2F;服务器）设置合适的值，以平衡性能。</li>
+<li><strong>持久化配置</strong>：任何更改都要记得更新 <code>/etc/fstab</code> 和 <code>/etc/sysctl.conf</code>。</li>
+<li><strong>监控使用</strong>：定期使用 <code>free -h</code> 或 <code>htop</code> 监控 SWAP 使用率。如果 SWAP 被频繁使用（&gt;20%），应考虑增加物理内存。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/SWAP/" rel="tag"># SWAP</a>
+              <a href="/tags/Ubuntu/" rel="tag"># Ubuntu</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/16/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Qt/Linux%E4%B8%8BQt%E6%89%93%E5%8C%85%E5%8F%91%E5%B8%83/" rel="prev" title="Linux下Qt打包发布">
+                  <i class="fa fa-angle-left"></i> Linux下Qt打包发布
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/08/26/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/YOLO%20%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E4%B8%AD%E4%B8%89%E4%B8%AA%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0/" rel="next" title="YOLO 目标检测中三个关键参数">
+                  YOLO 目标检测中三个关键参数 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

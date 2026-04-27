@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、前言YOLOv8作为Ultralytics推出的新一代目标检测模型，凭借高精度、高效率的核心优势，广泛应用于各类计算机视觉任务。本文将从环境前置检查、驱动适配、依赖安装，到数据集制作、模型选型、训练调参，完整拆解Ubuntu系统下YOLOv8训练环境的搭建全流程，兼顾新手友好性与实操性，帮助开发者快速搭建稳定、高效的训练环境，顺利开展目标检测任务。 二、环境前置检查与显卡驱动适配2.1 查看显">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu下搭建YOLOv8训练环境">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、前言YOLOv8作为Ultralytics推出的新一代目标检测模型，凭借高精度、高效率的核心优势，广泛应用于各类计算机视觉任务。本文将从环境前置检查、驱动适配、依赖安装，到数据集制作、模型选型、训练调参，完整拆解Ubuntu系统下YOLOv8训练环境的搭建全流程，兼顾新手友好性与实操性，帮助开发者快速搭建稳定、高效的训练环境，顺利开展目标检测任务。 二、环境前置检查与显卡驱动适配2.1 查看显">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110350916.png">
+<meta property="og:image" content="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110434151.png">
+<meta property="og:image" content="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110511916.png">
+<meta property="article:published_time" content="2026-03-02T02:51:14.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.635Z">
+<meta property="article:author" content="Chemmy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110350916.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/","path":"2026/03/02/Linux/Ubuntu下搭建YOLOv8训练环境/","title":"Ubuntu下搭建YOLOv8训练环境"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Ubuntu下搭建YOLOv8训练环境 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E5%89%8D%E7%BD%AE%E6%A3%80%E6%9F%A5%E4%B8%8E%E6%98%BE%E5%8D%A1%E9%A9%B1%E5%8A%A8%E9%80%82%E9%85%8D"><span class="nav-number">2.</span> <span class="nav-text">二、环境前置检查与显卡驱动适配</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E6%9F%A5%E7%9C%8B%E6%98%BE%E5%8D%A1%E4%BF%A1%E6%81%AF%E4%B8%8ECUDA%E7%89%88%E6%9C%AC%E5%85%BC%E5%AE%B9%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 查看显卡信息与CUDA版本兼容性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E5%AE%89%E8%A3%85-%E6%9B%B4%E6%96%B0%E6%98%BE%E5%8D%A1%E9%A9%B1%E5%8A%A8%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 安装&#x2F;更新显卡驱动（可选）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E4%BA%8EConda%E6%90%AD%E5%BB%BAYOLOv8%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83"><span class="nav-number">3.</span> <span class="nav-text">三、基于Conda搭建YOLOv8基础环境</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E5%AE%89%E8%A3%85Anaconda-Miniconda"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 安装Anaconda&#x2F;Miniconda</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E5%88%9B%E5%BB%BA%E5%B9%B6%E6%BF%80%E6%B4%BBConda%E7%8E%AF%E5%A2%83"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 创建并激活Conda环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E5%AE%89%E8%A3%85PyTorch%EF%BC%88%E9%80%82%E9%85%8DCUDA%E7%89%88%E6%9C%AC%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 安装PyTorch（适配CUDA版本）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-1-%E9%85%8D%E7%BD%AE%E6%B8%85%E5%8D%8E%E6%BA%90%EF%BC%88%E4%B8%B4%E6%97%B6%E5%8A%A0%E9%80%9F%EF%BC%8C%E6%97%A0%E9%9C%80%E6%B0%B8%E4%B9%85%E4%BF%AE%E6%94%B9%EF%BC%89"><span class="nav-number">3.3.1.</span> <span class="nav-text">3.3.1 配置清华源（临时加速，无需永久修改）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-2-%E5%AE%89%E8%A3%85%E5%AF%B9%E5%BA%94CUDA%E7%89%88%E6%9C%AC%E7%9A%84PyTorch"><span class="nav-number">3.3.2.</span> <span class="nav-text">3.3.2 安装对应CUDA版本的PyTorch</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-%E5%AE%89%E8%A3%85YOLOv8%E6%A0%B8%E5%BF%83%E4%BE%9D%E8%B5%96"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 安装YOLOv8核心依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-%E7%8E%AF%E5%A2%83%E9%AA%8C%E8%AF%81"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 环境验证</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E6%95%B0%E6%8D%AE%E9%9B%86%E5%88%B6%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">四、自定义目标检测数据集制作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%EF%BC%88YOLO%E6%A0%BC%E5%BC%8F%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 数据集目录结构（YOLO格式）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E5%AE%89%E8%A3%85LabelImg%E6%A0%87%E6%B3%A8%E5%B7%A5%E5%85%B7"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 安装LabelImg标注工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-%E6%A0%87%E6%B3%A8%E6%B5%81%E7%A8%8B%EF%BC%88%E6%96%B0%E6%89%8B%E5%8F%8B%E5%A5%BD%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 标注流程（新手友好）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-%E5%88%92%E5%88%86%E8%AE%AD%E7%BB%83%E9%9B%86-%E9%AA%8C%E8%AF%81%E9%9B%86"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 划分训练集&#x2F;验证集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-5-%E7%BC%96%E5%86%99%E6%95%B0%E6%8D%AE%E9%9B%86%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%88-yaml%EF%BC%89"><span class="nav-number">4.5.</span> <span class="nav-text">4.5 编写数据集配置文件（.yaml）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81YOLOv8%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="nav-number">5.</span> <span class="nav-text">五、YOLOv8模型选型与性能对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD%E3%80%81YOLOv8%E6%A0%B8%E5%BF%83%E8%AE%AD%E7%BB%83-%E9%A2%84%E6%B5%8B%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="nav-number">6.</span> <span class="nav-text">六、YOLOv8核心训练&#x2F;预测参数配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-%E8%AE%AD%E7%BB%83%E5%8F%82%E6%95%B0%EF%BC%88train%EF%BC%89"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 训练参数（train）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-%E9%A2%84%E6%B5%8B%E5%8F%82%E6%95%B0%EF%BC%88predict%EF%BC%89"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 预测参数（predict）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-%E8%AE%AD%E7%BB%83%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B%EF%BC%88%E7%9B%B4%E6%8E%A5%E5%A4%8D%E5%88%B6%E5%8F%AF%E7%94%A8%EF%BC%89"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 训练命令示例（直接复制可用）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">七、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Ubuntu下搭建YOLOv8训练环境 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu下搭建YOLOv8训练环境
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-02 10:51:14" itemprop="dateCreated datePublished" datetime="2026-03-02T10:51:14+08:00">2026-03-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>YOLOv8作为Ultralytics推出的新一代目标检测模型，凭借高精度、高效率的核心优势，广泛应用于各类计算机视觉任务。本文将从环境前置检查、驱动适配、依赖安装，到数据集制作、模型选型、训练调参，完整拆解Ubuntu系统下YOLOv8训练环境的搭建全流程，兼顾新手友好性与实操性，帮助开发者快速搭建稳定、高效的训练环境，顺利开展目标检测任务。</p>
+<h1 id="二、环境前置检查与显卡驱动适配"><a href="#二、环境前置检查与显卡驱动适配" class="headerlink" title="二、环境前置检查与显卡驱动适配"></a>二、环境前置检查与显卡驱动适配</h1><h2 id="2-1-查看显卡信息与CUDA版本兼容性"><a href="#2-1-查看显卡信息与CUDA版本兼容性" class="headerlink" title="2.1 查看显卡信息与CUDA版本兼容性"></a>2.1 查看显卡信息与CUDA版本兼容性</h2><p>在Ubuntu终端中执行以下命令，可快速查看显卡型号、当前驱动版本及显卡支持的最高CUDA版本，为后续环境配置提供依据：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110350916.png"></p>
+<p>输出结果需重点关注两个核心信息：</p>
+<ul>
+<li><p><strong>Driver Version</strong>：显卡驱动版本，直接决定可安装的CUDA Toolkit版本，驱动版本过低会导致CUDA无法正常运行；</p>
+</li>
+<li><p><strong>CUDA Version</strong>：此处显示的是显卡原生支持的最高CUDA版本（非已安装版本），后续安装的CUDA版本不得超过该数值。</p>
+</li>
+</ul>
+<p><strong>版本对应规则</strong>：</p>
+<p><img src="/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110434151.png"></p>
+<p><img src="/2026/03/02/Linux/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BAYOLOv8%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83/IMG-20260312110511916.png"></p>
+<p>参考NVIDIA官方文档（<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html%EF%BC%89%EF%BC%8C%E6%98%BE%E5%8D%A1%E9%A9%B1%E5%8A%A8%E4%B8%8ECUDA">https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html），显卡驱动与CUDA</a> Toolkit需严格匹配，以下为常用适配组合（供参考）：</p>
+<ul>
+<li><p>Driver Version ≥ 530.30.02 可支持 CUDA 12.1；</p>
+</li>
+<li><p>Driver Version ≥ 450.80.02 可支持 CUDA 11.0。</p>
+</li>
+</ul>
+<h2 id="2-2-安装-更新显卡驱动（可选）"><a href="#2-2-安装-更新显卡驱动（可选）" class="headerlink" title="2.2 安装&#x2F;更新显卡驱动（可选）"></a>2.2 安装&#x2F;更新显卡驱动（可选）</h2><p>若通过上述命令查询到驱动版本过低，无法满足目标CUDA版本需求，可通过以下步骤安装NVIDIA官方驱动，确保环境兼容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加NVIDIA官方驱动源</span></span><br><span class="line"><span class="built_in">sudo</span> add-apt-repository ppa:graphics-drivers/ppa</span><br><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看系统推荐的驱动版本（优先选择推荐版本）</span></span><br><span class="line">ubuntu-drivers devices</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装推荐驱动（将535替换为实际推荐版本号）</span></span><br><span class="line"><span class="built_in">sudo</span> apt install nvidia-driver-535</span><br><span class="line"><span class="comment"># 重启系统使驱动生效</span></span><br><span class="line"><span class="built_in">sudo</span> reboot</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启后验证驱动安装是否成功</span></span><br><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、基于Conda搭建YOLOv8基础环境"><a href="#三、基于Conda搭建YOLOv8基础环境" class="headerlink" title="三、基于Conda搭建YOLOv8基础环境"></a>三、基于Conda搭建YOLOv8基础环境</h1><h2 id="3-1-安装Anaconda-Miniconda"><a href="#3-1-安装Anaconda-Miniconda" class="headerlink" title="3.1 安装Anaconda&#x2F;Miniconda"></a>3.1 安装Anaconda&#x2F;Miniconda</h2><p>为避免环境冲突，推荐使用Miniconda（轻量版Anaconda）管理虚拟环境，下载及安装步骤如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载Miniconda安装包（Linux x86_64架构）</span></span><br><span class="line">wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh</span><br><span class="line"><span class="comment"># 执行安装脚本，按提示完成安装（全程默认回车即可，最后一步输入yes确认）</span></span><br><span class="line">bash Miniconda3-latest-Linux-x86_64.sh</span><br><span class="line"><span class="comment"># 重启终端，使conda命令生效</span></span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-创建并激活Conda环境"><a href="#3-2-创建并激活Conda环境" class="headerlink" title="3.2 创建并激活Conda环境"></a>3.2 创建并激活Conda环境</h2><p>创建专门用于YOLOv8训练的虚拟环境，隔离依赖包，避免与系统环境冲突：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建python3.12虚拟环境（建议Python版本≥3.8，适配YOLOv8最新版本）</span></span><br><span class="line">conda create -n yolov8_env python=3.12 -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 激活虚拟环境（后续所有操作均需在该环境下执行）</span></span><br><span class="line">conda activate yolov8_env</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-安装PyTorch（适配CUDA版本）"><a href="#3-3-安装PyTorch（适配CUDA版本）" class="headerlink" title="3.3 安装PyTorch（适配CUDA版本）"></a>3.3 安装PyTorch（适配CUDA版本）</h2><p>PyTorch是YOLOv8的核心依赖，需根据前文确认的CUDA版本选择对应安装命令。为解决官方源下载速度慢、易中断的问题，优先使用清华源加速，具体步骤如下：</p>
+<h3 id="3-3-1-配置清华源（临时加速，无需永久修改）"><a href="#3-3-1-配置清华源（临时加速，无需永久修改）" class="headerlink" title="3.3.1 配置清华源（临时加速，无需永久修改）"></a>3.3.1 配置清华源（临时加速，无需永久修改）</h3><p>在当前终端临时配置清华源，仅对本次PyTorch及依赖包安装生效，不影响后续环境配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置清华源作为临时下载源，加速依赖包下载</span></span><br><span class="line">pip3 install torch torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple --extra-index-url https://download.pytorch.org/whl/cu121</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-2-安装对应CUDA版本的PyTorch"><a href="#3-3-2-安装对应CUDA版本的PyTorch" class="headerlink" title="3.3.2 安装对应CUDA版本的PyTorch"></a>3.3.2 安装对应CUDA版本的PyTorch</h3><p>以CUDA 12.1为例（最常用版本，适配多数显卡），执行以下命令安装，已适配清华源，下载速度大幅提升：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121</span><br></pre></td></tr></table></figure>
+
+<p>若仅用于调试，无需GPU加速（不推荐用于实际训练，速度极慢），执行以下CPU版本安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu</span><br></pre></td></tr></table></figure>
+
+<p>说明：清华源主要加速PyTorch的依赖包（如numpy、pillow等）下载，PyTorch主程序仍从官方whl源获取，既保证下载速度，又能确保版本与CUDA完美适配，避免出现兼容性问题。</p>
+<h2 id="3-4-安装YOLOv8核心依赖"><a href="#3-4-安装YOLOv8核心依赖" class="headerlink" title="3.4 安装YOLOv8核心依赖"></a>3.4 安装YOLOv8核心依赖</h2><p>安装YOLOv8运行所需的核心依赖包，确保模型训练、预测功能正常：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装opencv-python（用于图像处理、视频读取等功能）</span></span><br><span class="line">pip install opencv-python</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装ultralytics（YOLOv8核心库，包含所有模型及训练工具）</span></span><br><span class="line">pip install ultralytics</span><br><span class="line">pip install yolo</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-5-环境验证"><a href="#3-5-环境验证" class="headerlink" title="3.5 环境验证"></a>3.5 环境验证</h2><p>环境搭建完成后，执行以下命令验证是否正常可用，快速排查配置问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yolo predict model=weights/yolov8n.pt <span class="built_in">source</span>=<span class="string">&quot;https://ultralytics.com/images/bus.jpg&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>若终端输出以下信息，且在当前目录下的<code>runs/detect/predict</code>文件夹中生成标注后的<code>bus.jpg</code>图片，说明环境搭建成功，可正常开展后续训练任务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ultralytics YOLOv8.2.58 🚀 Python-3.12.4 torch-2.3.1+cu121 CUDA:0 (NVIDIA GeForce GTX 1060 3GB, 3072MiB)</span><br><span class="line">YOLOv8n summary (fused): 168 layers, 3,151,904 parameters, 0 gradients, 8.7 GFLOPs</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、自定义目标检测数据集制作"><a href="#四、自定义目标检测数据集制作" class="headerlink" title="四、自定义目标检测数据集制作"></a>四、自定义目标检测数据集制作</h1><h2 id="4-1-数据集目录结构（YOLO格式）"><a href="#4-1-数据集目录结构（YOLO格式）" class="headerlink" title="4.1 数据集目录结构（YOLO格式）"></a>4.1 数据集目录结构（YOLO格式）</h2><p>YOLOv8训练需严格遵循指定的数据集目录结构，否则会导致模型无法读取数据，推荐结构如下（清晰易维护）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">|-- datasets</span><br><span class="line">|   |-- custom_dataset          <span class="comment"># 自定义数据集根目录（可修改为自己的数据集名称）</span></span><br><span class="line">|   |   |-- images              <span class="comment"># 图片存放目录（所有训练、验证图片均在此文件夹下）</span></span><br><span class="line">|   |   |   |-- train           <span class="comment"># 训练集图片（占比80%左右）</span></span><br><span class="line">|   |   |   |-- val             <span class="comment"># 验证集图片（占比20%左右）</span></span><br><span class="line">|   |   |-- labels              <span class="comment"># 标签存放目录（与images目录结构完全对应）</span></span><br><span class="line">|   |   |   |-- train           <span class="comment"># 训练集标签（.txt格式，与训练图片一一对应）</span></span><br><span class="line">|   |   |   |-- val             <span class="comment"># 验证集标签（.txt格式，与验证图片一一对应）</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-安装LabelImg标注工具"><a href="#4-2-安装LabelImg标注工具" class="headerlink" title="4.2 安装LabelImg标注工具"></a>4.2 安装LabelImg标注工具</h2><p>使用LabelImg工具进行目标标注，操作简单、支持YOLO格式，安装命令如下（沿用清华源加速，快速完成安装）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装LabelImg标注工具（清华源加速，避免下载超时）</span></span><br><span class="line">pip install labelimg -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动LabelImg工具，开始标注</span></span><br><span class="line">labelimg</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-3-标注流程（新手友好）"><a href="#4-3-标注流程（新手友好）" class="headerlink" title="4.3 标注流程（新手友好）"></a>4.3 标注流程（新手友好）</h2><ol>
+<li><p>打开LabelImg后，点击左上角「Open Dir」，选择待标注图片所在的文件夹（如custom_dataset&#x2F;images&#x2F;train）；</p>
+</li>
+<li><p>点击左上角「Change Save Dir」，选择标签保存路径（需与图片路径对应，如custom_dataset&#x2F;labels&#x2F;train）；</p>
+</li>
+<li><p>点击左侧工具栏「Create Box」（快捷键W），拖动鼠标绘制目标边界框，输入目标类别名称（如cat、dog）；</p>
+</li>
+<li><p>标注完成后，点击「Save」（快捷键Ctrl+S），每张图片会自动生成对应的.txt标签文件，同时在标签目录下生成<code>classes.txt</code>，记录所有标注类别及顺序（不可随意修改）。</p>
+</li>
+</ol>
+<h2 id="4-4-划分训练集-验证集"><a href="#4-4-划分训练集-验证集" class="headerlink" title="4.4 划分训练集&#x2F;验证集"></a>4.4 划分训练集&#x2F;验证集</h2><p>若标注完成后未划分训练集与验证集，可通过以下Python脚本随机划分（按8:2比例，适配多数场景），脚本以VOC格式为例，直接运行即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># voc_split_train_val.py</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置路径（需根据自己的数据集路径修改）</span></span><br><span class="line">img_dir = Path(<span class="string">&quot;datasets/custom_dataset/images&quot;</span>)</span><br><span class="line">train_txt = Path(<span class="string">&quot;datasets/custom_dataset/train.txt&quot;</span>)</span><br><span class="line">val_txt = Path(<span class="string">&quot;datasets/custom_dataset/val.txt&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取所有图片文件（仅读取.jpg格式，若为其他格式可修改后缀）</span></span><br><span class="line">imgs = [f.stem <span class="keyword">for</span> f <span class="keyword">in</span> img_dir.glob(<span class="string">&quot;*.jpg&quot;</span>)]</span><br><span class="line">random.shuffle(imgs)  <span class="comment"># 随机打乱图片顺序，确保划分均匀</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 划分比例：训练集80%，验证集20%（可根据数据集大小调整）</span></span><br><span class="line">train_num = <span class="built_in">int</span>(<span class="built_in">len</span>(imgs)*<span class="number">0.8</span>)</span><br><span class="line">train_imgs = imgs[:train_num]</span><br><span class="line">val_imgs = imgs[train_num:]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将划分结果写入txt文件，供模型读取</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(train_txt, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(<span class="string">&quot;\n&quot;</span>.join(train_imgs))</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(val_txt, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(<span class="string">&quot;\n&quot;</span>.join(val_imgs))</span><br></pre></td></tr></table></figure>
+
+<p>执行脚本，完成训练集与验证集划分：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python voc_split_train_val.py</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-5-编写数据集配置文件（-yaml）"><a href="#4-5-编写数据集配置文件（-yaml）" class="headerlink" title="4.5 编写数据集配置文件（.yaml）"></a>4.5 编写数据集配置文件（.yaml）</h2><p>YOLOv8训练需通过.yaml配置文件读取数据集信息，在<code>datasets</code>目录下创建<code>custom_dataset.yaml</code>，内容如下（需根据自己的数据集修改）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 类别数量（根据自己的标注类别修改，示例为2类）</span></span><br><span class="line"><span class="attr">nc:</span> <span class="number">2</span>  <span class="comment"># 示例：检测cat（猫）、dog（狗）两类目标</span></span><br><span class="line"><span class="comment"># 数据集根目录（建议使用绝对路径，避免路径错误，替换为自己的数据集路径）</span></span><br><span class="line"><span class="attr">path:</span> <span class="string">/home/user/datasets/custom_dataset</span></span><br><span class="line"><span class="comment"># 训练集、验证集图片路径（相对path的路径，无需修改，与前文目录结构对应）</span></span><br><span class="line"><span class="attr">train:</span> <span class="string">images/train</span></span><br><span class="line"><span class="attr">val:</span> <span class="string">images/val</span></span><br><span class="line"><span class="comment"># 类别名称（与classes.txt中的类别顺序一致，不可乱序）</span></span><br><span class="line"><span class="attr">names:</span></span><br><span class="line">  <span class="attr">0:</span> <span class="string">cat</span></span><br><span class="line">  <span class="attr">1:</span> <span class="string">dog</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="五、YOLOv8模型选型与性能对比"><a href="#五、YOLOv8模型选型与性能对比" class="headerlink" title="五、YOLOv8模型选型与性能对比"></a>五、YOLOv8模型选型与性能对比</h1><p>YOLOv8提供5种不同尺寸的模型，分别适配不同算力场景（从入门边缘设备到高端GPU），核心性能参数对比及选型建议如下，方便开发者根据自身硬件条件和精度需求选择：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Model</td>
+<td>输入尺寸(pixels)</td>
+<td>Top1准确率</td>
+<td>Top5准确率</td>
+<td>CPU推理速度(ms)</td>
+<td>A100 TensorRT速度(ms)</td>
+<td>参数量(M)</td>
+<td>FLOPs(B)@640</td>
+</tr>
+<tr>
+<td>YOLOv8n-cls</td>
+<td>224</td>
+<td>66.6</td>
+<td>87.0</td>
+<td>12.9</td>
+<td>0.31</td>
+<td>2.7</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>YOLOv8s-cls</td>
+<td>224</td>
+<td>72.3</td>
+<td>91.1</td>
+<td>23.4</td>
+<td>0.35</td>
+<td>6.4</td>
+<td>13.5</td>
+</tr>
+<tr>
+<td>YOLOv8m-cls</td>
+<td>224</td>
+<td>76.4</td>
+<td>93.2</td>
+<td>85.4</td>
+<td>0.62</td>
+<td>17.0</td>
+<td>42.7</td>
+</tr>
+<tr>
+<td>YOLOv8l-cls</td>
+<td>224</td>
+<td>78.0</td>
+<td>94.1</td>
+<td>163.0</td>
+<td>0.87</td>
+<td>37.5</td>
+<td>99.7</td>
+</tr>
+<tr>
+<td>YOLOv8x-cls</td>
+<td>224</td>
+<td>78.4</td>
+<td>94.3</td>
+<td>232.0</td>
+<td>1.01</td>
+<td>57.4</td>
+<td>154.8</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议（贴合实际应用场景）</strong>：</p>
+<ul>
+<li><p>入门学习&#x2F;边缘设备（如树莓派、低端笔记本）：优先选择YOLOv8n，参数最少、速度最快，满足基础检测需求；</p>
+</li>
+<li><p>日常项目&#x2F;平衡需求（如普通PC、中端GPU）：选择YOLOv8s&#x2F;YOLOv8m，兼顾检测精度与速度，适配多数场景；</p>
+</li>
+<li><p>高性能需求&#x2F;精准检测（如服务器、高端GPU）：选择YOLOv8l&#x2F;YOLOv8x，精度最高，适合对检测效果要求严格的任务（需充足显存支持）。</p>
+</li>
+</ul>
+<h1 id="六、YOLOv8核心训练-预测参数配置"><a href="#六、YOLOv8核心训练-预测参数配置" class="headerlink" title="六、YOLOv8核心训练&#x2F;预测参数配置"></a>六、YOLOv8核心训练&#x2F;预测参数配置</h1><p>YOLOv8训练和预测的核心参数可通过命令行直接调整，以下详细说明各参数的默认值、核心作用及调参建议，帮助开发者快速优化模型性能，避免踩坑。</p>
+<h2 id="6-1-训练参数（train）"><a href="#6-1-训练参数（train）" class="headerlink" title="6.1 训练参数（train）"></a>6.1 训练参数（train）</h2><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>参数</td>
+<td>默认值</td>
+<td>核心说明</td>
+<td>调参建议</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td><code>None</code></td>
+<td>指定预训练模型路径（如yolov8m.pt），用于迁移学习</td>
+<td>小数据集优先用小模型（如yolov8n.pt），减少过拟合；大数据集可选用大模型</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td><code>None</code></td>
+<td>指定数据集配置文件路径（如custom_dataset.yaml）</td>
+<td>必须指定，建议使用绝对路径，避免路径错误导致训练失败</td>
+</tr>
+<tr>
+<td><code>epochs</code></td>
+<td><code>100</code></td>
+<td>训练周期，即模型遍历整个数据集的次数</td>
+<td>小数据集（&lt;1k张）设20-50，大数据集设100-300；结合patience参数防止过拟合</td>
+</tr>
+<tr>
+<td><code>batch</code></td>
+<td><code>16</code></td>
+<td>每批训练的图像数量（-1为自动适配GPU显存）</td>
+<td>根据GPU显存调整：1060(3G)设4-8，3090(24G)设32-64；显存不足时减小批次</td>
+</tr>
+<tr>
+<td><code>imgsz</code></td>
+<td><code>640</code></td>
+<td>输入模型的图像尺寸（需为32的倍数）</td>
+<td>建议与数据集图片尺寸接近，最大不超过GPU显存限制；尺寸越大，精度越高但速度越慢</td>
+</tr>
+<tr>
+<td><code>device</code></td>
+<td><code>None</code></td>
+<td>指定训练设备（0为第1块GPU，cpu为CPU）</td>
+<td>优先使用GPU训练，CPU仅用于调试；多GPU可指定0,1,2</td>
+</tr>
+<tr>
+<td><code>lr0</code></td>
+<td><code>0.01</code></td>
+<td>初始学习率，决定模型收敛速度</td>
+<td>小数据集可降低至0.001，防止过拟合；学习率过高会导致不收敛</td>
+</tr>
+<tr>
+<td><code>weight_decay</code></td>
+<td><code>0.0005</code></td>
+<td>权重衰减，用于正则化，防止模型过拟合</td>
+<td>过拟合时增大至0.001，欠拟合时减小至0.0001；避免设置过大导致欠拟合</td>
+</tr>
+<tr>
+<td><code>patience</code></td>
+<td><code>50</code></td>
+<td>提前停止训练的等待周期（验证集性能无提升时）</td>
+<td>建议设为20-30，加速训练收敛，避免无效训练占用资源</td>
+</tr>
+<tr>
+<td><code>label_smoothing</code></td>
+<td><code>0.0</code></td>
+<td>标签平滑，减少标签标注误差带来的过拟合</td>
+<td>多类别任务设0.1，单类别任务设0；标注误差大时可适当增大</td>
+</tr>
+</tbody></table>
+<h2 id="6-2-预测参数（predict）"><a href="#6-2-预测参数（predict）" class="headerlink" title="6.2 预测参数（predict）"></a>6.2 预测参数（predict）</h2><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>参数</td>
+<td>默认值</td>
+<td>核心说明</td>
+<td>调参建议</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td><code>ultralytics/assets</code></td>
+<td>指定预测数据源（图片、视频、文件夹路径）</td>
+<td>需指定绝对路径，避免路径错误；支持网络图片、本地文件</td>
+</tr>
+<tr>
+<td><code>conf</code></td>
+<td><code>0.25</code></td>
+<td>置信度阈值，仅保留置信度高于该值的检测框</td>
+<td>高精准需求（如检测关键目标）设0.5-0.7；全覆盖需求（如人群检测）设0.1-0.2</td>
+</tr>
+<tr>
+<td><code>iou</code></td>
+<td><code>0.7</code></td>
+<td>NMS交并比阈值，用于去除重叠检测框</td>
+<td>重叠目标多（如人群、密集车辆）设0.3-0.5；稀疏目标设0.7-0.9</td>
+</tr>
+<tr>
+<td><code>max_det</code></td>
+<td><code>300</code></td>
+<td>单张图片的最大检测目标数量</td>
+<td>按实际场景调整：检测车辆设50，检测人群设200，避免遗漏目标</td>
+</tr>
+<tr>
+<td><code>save_txt</code></td>
+<td><code>False</code></td>
+<td>是否将检测结果保存为.txt标签文件（与训练标签格式一致）</td>
+<td>需要后续分析检测结果、二次标注时设为True</td>
+</tr>
+</tbody></table>
+<h2 id="6-3-训练命令示例（直接复制可用）"><a href="#6-3-训练命令示例（直接复制可用）" class="headerlink" title="6.3 训练命令示例（直接复制可用）"></a>6.3 训练命令示例（直接复制可用）</h2><p>结合上述参数，提供两种常用训练命令示例，适配不同场景需求：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基础训练命令（适合新手，参数保守，适配多数场景）</span></span><br><span class="line">yolo train model=yolov8s.pt data=custom_dataset.yaml epochs=50 batch=8 imgsz=640 device=0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进阶训练命令（调整学习率+提前停止，避免过拟合，适合大数据集）</span></span><br><span class="line">yolo train model=yolov8m.pt data=custom_dataset.yaml epochs=100 batch=16 lr0=0.005 patience=30</span><br></pre></td></tr></table></figure>
+
+<h1 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h1><p>本文完整覆盖了Ubuntu系统下YOLOv8训练环境的搭建全流程，从环境前置检查、显卡驱动与CUDA适配，到基于Conda的虚拟环境搭建、自定义数据集制作，再到模型选型、核心参数调优，每一步均兼顾实操性与新手友好性，帮助开发者避开常见坑点，快速搭建稳定高效的训练环境。</p>
+<p>核心要点总结：</p>
+<ol>
+<li><p>环境适配是基础：务必确保显卡驱动、CUDA、PyTorch版本严格匹配，这是模型正常训练的前提；</p>
+</li>
+<li><p>数据集是关键：严格遵循YOLO格式的目录结构，标注准确、类别清晰，避免因数据集问题导致训练失败；</p>
+</li>
+<li><p>调参是核心：根据数据集大小、GPU显存条件，合理调整batch、epochs、lr0等参数，平衡模型精度与训练速度；</p>
+</li>
+<li><p>模型选型按需而定：无需盲目追求大模型，结合自身硬件条件和检测需求，选择最适配的模型尺寸。</p>
+</li>
+</ol>
+<p>通过本文所述步骤，开发者可快速完成YOLOv8训练环境搭建，并顺利开展自定义目标检测任务，后续可根据实际检测效果进一步优化参数，提升模型性能。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/02/05/Linux/%E9%BA%92%E9%BA%9FV10%E6%8C%82%E8%BD%BDISO%E9%95%9C%E5%83%8F%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0YUM%E6%BA%90/" rel="prev" title="麒麟V10挂载ISO镜像配置本地YUM源">
+                  <i class="fa fa-angle-left"></i> 麒麟V10挂载ISO镜像配置本地YUM源
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/03/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/%E5%9F%BA%E4%BA%8ERedis%E5%AE%9E%E7%8E%B0Device%20Twin%E5%AD%98%E5%82%A8/" rel="next" title="基于Redis实现Device Twin存储">
+                  基于Redis实现Device Twin存储 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

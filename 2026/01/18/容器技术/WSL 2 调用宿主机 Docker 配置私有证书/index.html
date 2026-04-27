@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在 Windows 开发环境中，WSL 2（Windows Subsystem for Linux 2）与 Docker Desktop 的组合已成为开发者的主流选择——既可以享受 Linux 终端的便捷性，又能依托宿主机 Docker 服务实现容器化开发。但在实际使用中，当需要访问私有镜像仓库或启用宿主机 Docker TLS 验证时，常出现 tls: failed to verify cert">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WSL 2 调用宿主机 Docker 配置私有证书">
+<meta property="og:url" content="http://chengming0916.github.io/2026/01/18/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/WSL%202%20%E8%B0%83%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%20Docker%20%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89%E8%AF%81%E4%B9%A6/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在 Windows 开发环境中，WSL 2（Windows Subsystem for Linux 2）与 Docker Desktop 的组合已成为开发者的主流选择——既可以享受 Linux 终端的便捷性，又能依托宿主机 Docker 服务实现容器化开发。但在实际使用中，当需要访问私有镜像仓库或启用宿主机 Docker TLS 验证时，常出现 tls: failed to verify cert">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-18T12:07:39.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.472Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="WSL">
+<meta property="article:tag" content="私有证书">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/01/18/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/WSL%202%20%E8%B0%83%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%20Docker%20%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89%E8%AF%81%E4%B9%A6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/01/18/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/WSL%202%20%E8%B0%83%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%20Docker%20%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89%E8%AF%81%E4%B9%A6/","path":"2026/01/18/容器技术/WSL 2 调用宿主机 Docker 配置私有证书/","title":"WSL 2 调用宿主机 Docker 配置私有证书"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>WSL 2 调用宿主机 Docker 配置私有证书 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%EF%BC%9A%E7%A1%AE%E4%BF%9D-WSL-2-%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA-Docker-%E6%AD%A3%E5%B8%B8%E8%BF%9E%E9%80%9A"><span class="nav-number">1.</span> <span class="nav-text">一、前置条件：确保 WSL 2 与宿主机 Docker 正常连通</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E5%9C%BA%E6%99%AF%EF%BC%9AWSL-%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89%E8%AF%81%E4%B9%A6%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%B8%B8%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text">二、核心场景：WSL 配置私有证书的两种常用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9AWSL-%E4%BF%A1%E4%BB%BB%E5%AE%BF%E4%B8%BB%E6%9C%BA-Docker-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%81%E4%B9%A6%EF%BC%88mTLS-%E5%8F%8C%E5%90%91%E8%AE%A4%E8%AF%81%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">场景一：WSL 信任宿主机 Docker 服务端证书（mTLS 双向认证）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-1%EF%BC%9A%E8%8E%B7%E5%8F%96%E5%AE%BF%E4%B8%BB%E6%9C%BA-Docker-TLS-%E8%AF%81%E4%B9%A6"><span class="nav-number">2.1.1.</span> <span class="nav-text">步骤 1：获取宿主机 Docker TLS 证书</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-2%EF%BC%9A%E5%9C%A8-WSL-%E4%B8%AD%E5%88%9B%E5%BB%BA%E8%AF%81%E4%B9%A6%E7%9B%AE%E5%BD%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">步骤 2：在 WSL 中创建证书目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-3%EF%BC%9A%E6%8B%B7%E8%B4%9D%E5%AE%BF%E4%B8%BB%E6%9C%BA%E8%AF%81%E4%B9%A6%E5%88%B0-WSL-%E7%9B%AE%E5%BD%95"><span class="nav-number">2.1.3.</span> <span class="nav-text">步骤 3：拷贝宿主机证书到 WSL 目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-4%EF%BC%9A%E9%85%8D%E7%BD%AE-WSL-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%88%E6%B0%B8%E4%B9%85%E7%94%9F%E6%95%88%EF%BC%89"><span class="nav-number">2.1.4.</span> <span class="nav-text">步骤 4：配置 WSL 环境变量（永久生效）</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E7%94%A8-TLS-%E9%AA%8C%E8%AF%81"><span class="nav-number"></span> <span class="nav-text">启用 TLS 验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%87%E5%90%91-WSL-%E6%9C%AC%E5%9C%B0%E8%AF%81%E4%B9%A6%E7%9B%AE%E5%BD%95"><span class="nav-number"></span> <span class="nav-text">指向 WSL 本地证书目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-5%EF%BC%9A%E9%AA%8C%E8%AF%81%E9%85%8D%E7%BD%AE"><span class="nav-number">0.0.1.</span> <span class="nav-text">步骤 5：验证配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9AWSL-%E4%BF%A1%E4%BB%BB%E7%A7%81%E6%9C%89%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%AF%81%E4%B9%A6"><span class="nav-number">0.1.</span> <span class="nav-text">场景二：WSL 信任私有镜像仓库证书</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-1%EF%BC%9A%E8%8E%B7%E5%8F%96%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93-CA-%E8%AF%81%E4%B9%A6"><span class="nav-number">0.1.1.</span> <span class="nav-text">步骤 1：获取私有仓库 CA 证书</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-2%EF%BC%9A%E5%9C%A8-WSL-%E4%B8%AD%E5%88%9B%E5%BB%BA%E4%BB%93%E5%BA%93%E8%AF%81%E4%B9%A6%E7%9B%AE%E5%BD%95"><span class="nav-number">0.1.2.</span> <span class="nav-text">步骤 2：在 WSL 中创建仓库证书目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-3%EF%BC%9A%E6%8B%B7%E8%B4%9D-CA-%E8%AF%81%E4%B9%A6%E5%88%B0-WSL-%E7%9B%AE%E5%BD%95"><span class="nav-number">0.1.3.</span> <span class="nav-text">步骤 3：拷贝 CA 证书到 WSL 目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4-4%EF%BC%9A%E9%AA%8C%E8%AF%81%E9%85%8D%E7%BD%AE"><span class="nav-number">0.1.4.</span> <span class="nav-text">步骤 4：验证配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E5%BF%AB%E9%80%9F%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88"><span class="nav-number">1.</span> <span class="nav-text">三、常见问题与快速修复方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-1%EF%BC%9A%E9%85%8D%E7%BD%AE%E5%90%8E%E4%BB%8D%E6%8A%A5-x509-certificate-signed-by-unknown-authority"><span class="nav-number">1.1.</span> <span class="nav-text">问题 1：配置后仍报 x509: certificate signed by unknown authority</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-2%EF%BC%9AWSL-%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E5%AE%BF%E4%B8%BB%E6%9C%BA%E8%AF%81%E4%B9%A6%E8%B7%AF%E5%BE%84%EF%BC%88%E6%9D%83%E9%99%90%E4%B8%8D%E8%B6%B3%E6%88%96%E8%B7%AF%E5%BE%84%E9%94%99%E8%AF%AF%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">问题 2：WSL 无法访问宿主机证书路径（权限不足或路径错误）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-3%EF%BC%9ADocker-Desktop-%E8%AF%81%E4%B9%A6%E8%87%AA%E5%8A%A8%E5%90%8C%E6%AD%A5%E5%90%8E%E4%BB%8D%E6%97%A0%E6%B3%95%E7%94%9F%E6%95%88"><span class="nav-number">1.3.</span> <span class="nav-text">问题 3：Docker Desktop 证书自动同步后仍无法生效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-4%EF%BC%9AWSL-%E6%89%A7%E8%A1%8C-docker-%E5%91%BD%E4%BB%A4%E6%8F%90%E7%A4%BA-connection-refused"><span class="nav-number">1.4.</span> <span class="nav-text">问题 4：WSL 执行 docker 命令提示 connection refused</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">2.</span> <span class="nav-text">四、总结与最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="nav-number">2.1.</span> <span class="nav-text">最佳实践建议</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/01/18/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/WSL%202%20%E8%B0%83%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%20Docker%20%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89%E8%AF%81%E4%B9%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="WSL 2 调用宿主机 Docker 配置私有证书 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          WSL 2 调用宿主机 Docker 配置私有证书
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-01-18 20:07:39" itemprop="dateCreated datePublished" datetime="2026-01-18T20:07:39+08:00">2026-01-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 Windows 开发环境中，WSL 2（Windows Subsystem for Linux 2）与 Docker Desktop 的组合已成为开发者的主流选择——既可以享受 Linux 终端的便捷性，又能依托宿主机 Docker 服务实现容器化开发。但在实际使用中，当需要访问私有镜像仓库或启用宿主机 Docker TLS 验证时，常出现 <code>tls: failed to verify certificate: x509: certificate signed by unknown authority</code> 证书信任错误。本文将详细讲解如何在 WSL 2 中配置私有证书，让 WSL 客户端顺利信任宿主机 Docker 服务端或私有镜像仓库，彻底解决证书验证问题。</p>
+<h2 id="一、前置条件：确保-WSL-2-与宿主机-Docker-正常连通"><a href="#一、前置条件：确保-WSL-2-与宿主机-Docker-正常连通" class="headerlink" title="一、前置条件：确保 WSL 2 与宿主机 Docker 正常连通"></a>一、前置条件：确保 WSL 2 与宿主机 Docker 正常连通</h2><p>在配置私有证书前，需先确认 WSL 2 能正常调用宿主机 Docker 服务，这是后续证书配置的基础，步骤如下：</p>
+<ol>
+<li><p>验证 WSL 版本：在 Windows 终端执行 <code>wsl -l -v</code>，确保目标 Linux 发行版（如 Ubuntu）的 VERSION 为 2；若为 1，需执行 <code>wsl --set-version &lt;发行版名称&gt; 2</code> 升级。</p>
+</li>
+<li><p>启用 Docker Desktop WSL 集成：打开宿主机 Docker Desktop，进入 Settings → General，勾选 <strong>Use the WSL 2 based engine</strong>；再进入 Settings → Resources → WSL Integration，启用目标 WSL 发行版的集成功能，点击 Apply &amp; Restart 重启 Docker。</p>
+</li>
+<li><p>WSL 端安装 Docker 客户端：进入 WSL 终端，执行 <code>sudo apt update &amp;&amp; sudo apt install docker.io -y</code>，无需单独启动 Docker 守护进程（daemon），因为 WSL 会复用宿主机 Docker 服务。</p>
+</li>
+<li><p>测试连通性：在 WSL 终端执行 <code>docker -H tcp://localhost:2375 ps</code>，若能正常返回宿主机 Docker 容器列表，说明 WSL 与宿主机 Docker 已连通；若提示连接失败，需检查 Docker Desktop 集成配置或 Windows 防火墙是否放行 2375 端口。</p>
+</li>
+</ol>
+<p>注意：WSL 2 访问宿主机文件系统时，推荐使用路径 <code>/run/desktop/mnt/host/c/</code>（替代传统 <code>/mnt/c/</code>），可避免路径访问权限或同步问题，这也是后续证书拷贝的关键路径格式。</p>
+<h2 id="二、核心场景：WSL-配置私有证书的两种常用场景"><a href="#二、核心场景：WSL-配置私有证书的两种常用场景" class="headerlink" title="二、核心场景：WSL 配置私有证书的两种常用场景"></a>二、核心场景：WSL 配置私有证书的两种常用场景</h2><p>WSL 中调用宿主机 Docker 时，证书信任需求主要分为两种场景：一是信任宿主机 Docker 服务端的 TLS 证书（双向认证场景），二是信任私有镜像仓库（如 Harbor、GitLab Registry）的私有 CA 证书。以下分别给出详细配置步骤，覆盖大多数开发场景。</p>
+<h3 id="场景一：WSL-信任宿主机-Docker-服务端证书（mTLS-双向认证）"><a href="#场景一：WSL-信任宿主机-Docker-服务端证书（mTLS-双向认证）" class="headerlink" title="场景一：WSL 信任宿主机 Docker 服务端证书（mTLS 双向认证）"></a>场景一：WSL 信任宿主机 Docker 服务端证书（mTLS 双向认证）</h3><p>若宿主机 Docker 启用了 TLS 验证（即通过 <code>--tlsverify</code> 参数启动），WSL 客户端需配置对应的 CA 证书、客户端证书及密钥，才能通过双向认证（mTLS）与宿主机 Docker 服务端通信。</p>
+<h4 id="步骤-1：获取宿主机-Docker-TLS-证书"><a href="#步骤-1：获取宿主机-Docker-TLS-证书" class="headerlink" title="步骤 1：获取宿主机 Docker TLS 证书"></a>步骤 1：获取宿主机 Docker TLS 证书</h4><p>宿主机 Docker 的 TLS 证书默认存储在 <code>C:\Users\&lt;你的 Windows 用户名&gt;\.docker\</code> 目录下，核心文件包括：</p>
+<ul>
+<li><p><code>ca.pem</code>：根 CA 证书（用于验证服务端证书合法性）；</p>
+</li>
+<li><p><code>cert.pem</code>、<code>key.pem</code>：宿主机 Docker 服务端证书及密钥；</p>
+</li>
+<li><p><code>client-cert.pem</code>、<code>client-key.pem</code>：客户端证书及密钥（双向认证必需）。</p>
+</li>
+</ul>
+<p>若该目录下无相关证书，需先在宿主机配置 Docker TLS 验证，生成对应证书文件（可参考 Docker 官方文档或联系运维人员获取）。</p>
+<h4 id="步骤-2：在-WSL-中创建证书目录"><a href="#步骤-2：在-WSL-中创建证书目录" class="headerlink" title="步骤 2：在 WSL 中创建证书目录"></a>步骤 2：在 WSL 中创建证书目录</h4><p>WSL 中 Docker 客户端会从 <code>~/.docker/certs.d/&lt;宿主机 Docker 地址&gt;:&lt;端口&gt;/</code> 目录读取证书，需先创建该目录，格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 示例：宿主机 Docker 地址为 192.168.1.100，TLS 端口为 2376（默认 TLS 端口）</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/.docker/certs.d/192.168.1.100:2376</span><br></pre></td></tr></table></figure>
+
+<p>说明：宿主机 Docker 启用 TLS 后，默认端口为 2376，而非非 TLS 模式的 2375，需确认端口对应正确。</p>
+<h4 id="步骤-3：拷贝宿主机证书到-WSL-目录"><a href="#步骤-3：拷贝宿主机证书到-WSL-目录" class="headerlink" title="步骤 3：拷贝宿主机证书到 WSL 目录"></a>步骤 3：拷贝宿主机证书到 WSL 目录</h4><p>通过 WSL 访问宿主机证书目录，将所需证书拷贝到上述创建的 WSL 证书目录中，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拷贝根 CA 证书（必选）</span></span><br><span class="line"><span class="built_in">cp</span> /run/desktop/mnt/host/c/Users/&lt;Windows用户名&gt;/.docker/ca.pem ~/.docker/certs.d/192.168.1.100:2376/ca.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拷贝客户端证书与密钥（双向认证必选）</span></span><br><span class="line"><span class="built_in">cp</span> /run/desktop/mnt/host/c/Users/&lt;Windows用户名&gt;/.docker/client-cert.pem ~/.docker/certs.d/192.168.1.100:2376/client.crt</span><br><span class="line"><span class="built_in">cp</span> /run/desktop/mnt/host/c/Users/&lt;Windows用户名&gt;/.docker/client-key.pem ~/.docker/certs.d/192.168.1.100:2376/client.key</span><br></pre></td></tr></table></figure>
+
+<p>注意：将命令中的 <code>&lt;Windows用户名&gt;</code> 和宿主机 Docker 地址、端口替换为实际信息，若路径错误会导致证书无法被识别。</p>
+<h4 id="步骤-4：配置-WSL-环境变量（永久生效）"><a href="#步骤-4：配置-WSL-环境变量（永久生效）" class="headerlink" title="步骤 4：配置 WSL 环境变量（永久生效）"></a>步骤 4：配置 WSL 环境变量（永久生效）</h4><p>需在 WSL 中配置环境变量，指定宿主机 Docker 地址、启用 TLS 验证，并指向证书目录，确保每次启动 WSL 终端都能生效。</p>
+<ol>
+<li><p>编辑环境变量配置文件（根据所使用的 Shell 选择，如 bash 对应 <code>~/.bashrc</code>，zsh 对应 <code>~/.zshrc</code>）：<br> <code>vim ~/.bashrc</code></p>
+</li>
+<li><p>在文件末尾添加以下配置：<br> &#96;# 指向宿主机 Docker 服务地址（TLS 端口 2376）</p>
+</li>
+</ol>
+<p>export DOCKER_HOST&#x3D;tcp:&#x2F;&#x2F;192.168.1.100:2376</p>
+<h1 id="启用-TLS-验证"><a href="#启用-TLS-验证" class="headerlink" title="启用 TLS 验证"></a>启用 TLS 验证</h1><p>export DOCKER_TLS_VERIFY&#x3D;1</p>
+<h1 id="指向-WSL-本地证书目录"><a href="#指向-WSL-本地证书目录" class="headerlink" title="指向 WSL 本地证书目录"></a>指向 WSL 本地证书目录</h1><p>export DOCKER_CERT_PATH&#x3D;~&#x2F;.docker&#x2F;certs.d&#x2F;192.168.1.100:2376&#96;</p>
+<ol start="3">
+<li>使配置生效：<br> <code>source ~/.bashrc</code></li>
+</ol>
+<h4 id="步骤-5：验证配置"><a href="#步骤-5：验证配置" class="headerlink" title="步骤 5：验证配置"></a>步骤 5：验证配置</h4><p>在 WSL 终端执行 <code>docker ps</code>，若能正常返回宿主机 Docker 容器列表，无证书验证错误，说明配置成功；若仍报错，需检查证书路径、环境变量或宿主机 Docker TLS 配置是否正确。</p>
+<h3 id="场景二：WSL-信任私有镜像仓库证书"><a href="#场景二：WSL-信任私有镜像仓库证书" class="headerlink" title="场景二：WSL 信任私有镜像仓库证书"></a>场景二：WSL 信任私有镜像仓库证书</h3><p>若仅需在 WSL 中通过宿主机 Docker 访问私有镜像仓库（如公司内网 Harbor、自建 GitLab Registry），无需配置宿主机 Docker TLS 验证，只需让 WSL  Docker 客户端信任私有仓库的 CA 证书即可，该场景更常见于日常开发。</p>
+<h4 id="步骤-1：获取私有仓库-CA-证书"><a href="#步骤-1：获取私有仓库-CA-证书" class="headerlink" title="步骤 1：获取私有仓库 CA 证书"></a>步骤 1：获取私有仓库 CA 证书</h4><p>私有仓库的 CA 证书（通常为 <code>ca.crt</code> 或 <code>ca.pem</code>）可从宿主机获取——宿主机 Docker 若已配置信任该私有仓库，证书通常存储在 <code>C:\Users\&lt;Windows用户名&gt;\.docker\certs.d\&lt;仓库域名&gt;:&lt;端口&gt;/</code> 目录下；若未配置，需联系运维人员获取私有仓库的 CA 证书。</p>
+<h4 id="步骤-2：在-WSL-中创建仓库证书目录"><a href="#步骤-2：在-WSL-中创建仓库证书目录" class="headerlink" title="步骤 2：在 WSL 中创建仓库证书目录"></a>步骤 2：在 WSL 中创建仓库证书目录</h4><p>与场景一类似，WSL  Docker 客户端会根据私有仓库的域名和端口查找证书，需创建对应目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 示例：私有仓库地址为 registry.example.com，端口为 443（默认 HTTPS 端口）</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/.docker/certs.d/registry.example.com:443</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-3：拷贝-CA-证书到-WSL-目录"><a href="#步骤-3：拷贝-CA-证书到-WSL-目录" class="headerlink" title="步骤 3：拷贝 CA 证书到 WSL 目录"></a>步骤 3：拷贝 CA 证书到 WSL 目录</h4><p>将宿主机的私有仓库 CA 证书拷贝到 WSL 对应的证书目录中，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /run/desktop/mnt/host/c/Users/&lt;Windows用户名&gt;/.docker/certs.d/registry.example.com:443/ca.crt ~/.docker/certs.d/registry.example.com:443/</span><br></pre></td></tr></table></figure>
+
+<p>补充：若私有仓库使用自签名证书，且宿主机未配置，可直接将自签名证书拷贝到上述目录，无需额外配置。</p>
+<h4 id="步骤-4：验证配置"><a href="#步骤-4：验证配置" class="headerlink" title="步骤 4：验证配置"></a>步骤 4：验证配置</h4><p>在 WSL 终端执行 <code>docker login registry.example.com</code>，输入私有仓库的账号密码，若能成功登录，说明证书配置生效；登录成功后，即可正常拉取、推送私有镜像，不再出现 x509 证书错误。</p>
+<h2 id="三、常见问题与快速修复方案"><a href="#三、常见问题与快速修复方案" class="headerlink" title="三、常见问题与快速修复方案"></a>三、常见问题与快速修复方案</h2><p>配置过程中，可能会遇到证书识别失败、连接超时等问题，以下是高频问题及解决方案，覆盖大部分异常场景：</p>
+<h3 id="问题-1：配置后仍报-x509-certificate-signed-by-unknown-authority"><a href="#问题-1：配置后仍报-x509-certificate-signed-by-unknown-authority" class="headerlink" title="问题 1：配置后仍报 x509: certificate signed by unknown authority"></a>问题 1：配置后仍报 x509: certificate signed by unknown authority</h3><p>核心原因：证书路径错误、证书文件损坏，或 WSL 系统未信任该 CA 证书。</p>
+<p>解决方案：</p>
+<ul>
+<li><p>检查证书路径是否正确，确保 <code>ca.crt</code> 位于 <code>~/.docker/certs.d/&lt;地址:端口&gt;/</code> 目录下，且文件名正确（必须为 <code>ca.crt</code>）；</p>
+</li>
+<li><p>重启 WSL 终端，或执行 <code>wsl --shutdown</code> 关闭 WSL 后重新进入，刷新证书缓存；</p>
+</li>
+<li><p>手动更新 WSL 系统证书（可选）：<br><code>sudo cp ~/.docker/certs.d/**/ca.crt /usr/local/share/ca-certificates/ sudo update-ca-certificates</code><br>  执行后会提示证书更新信息，忽略“ca-certificates.crt does not contain exactly one certificate”警告，不影响生效。</p>
+</li>
+</ul>
+<h3 id="问题-2：WSL-无法访问宿主机证书路径（权限不足或路径错误）"><a href="#问题-2：WSL-无法访问宿主机证书路径（权限不足或路径错误）" class="headerlink" title="问题 2：WSL 无法访问宿主机证书路径（权限不足或路径错误）"></a>问题 2：WSL 无法访问宿主机证书路径（权限不足或路径错误）</h3><p>核心原因：使用了错误的宿主机路径，或 WSL 对宿主机文件系统访问权限不足。</p>
+<p>解决方案：</p>
+<ul>
+<li><p>优先使用 <code>/run/desktop/mnt/host/c/</code> 路径访问 Windows C 盘，替代 <code>/mnt/c/</code>，避免 WSL 2 路径挂载异常；</p>
+</li>
+<li><p>若提示权限不足，执行 <code>sudo chmod 755 ~/.docker/certs.d/</code>，赋予证书目录可读权限；</p>
+</li>
+<li><p>确认宿主机证书文件未被隐藏，且 Windows 文件夹共享权限已开启。</p>
+</li>
+</ul>
+<h3 id="问题-3：Docker-Desktop-证书自动同步后仍无法生效"><a href="#问题-3：Docker-Desktop-证书自动同步后仍无法生效" class="headerlink" title="问题 3：Docker Desktop 证书自动同步后仍无法生效"></a>问题 3：Docker Desktop 证书自动同步后仍无法生效</h3><p>核心原因：Docker Desktop 会自动将 Windows <code>~/.docker/certs.d</code> 同步到 WSL 的 <code>/etc/docker/certs.d</code>，但可能存在同步延迟或权限问题。</p>
+<p>解决方案：手动拷贝证书到 WSL 的 <code>~/.docker/certs.d</code> 目录（按本文场景步骤操作），而非依赖自动同步；同步后重启 Docker Desktop 和 WSL，确保证书生效。</p>
+<h3 id="问题-4：WSL-执行-docker-命令提示-connection-refused"><a href="#问题-4：WSL-执行-docker-命令提示-connection-refused" class="headerlink" title="问题 4：WSL 执行 docker 命令提示 connection refused"></a>问题 4：WSL 执行 docker 命令提示 connection refused</h3><p>核心原因：宿主机 Docker 未启动、WSL 集成未启用，或环境变量配置错误。</p>
+<p>解决方案：</p>
+<ul>
+<li><p>确认宿主机 Docker Desktop 已启动，且 WSL 集成功能已启用；</p>
+</li>
+<li><p>检查<code>DOCKER_HOST</code> 环境变量，确保地址和端口与宿主机 Docker 一致；</p>
+</li>
+<li><p>执行 <code>unset DOCKER_HOST</code> 清除错误环境变量，重新配置后生效。</p>
+</li>
+</ul>
+<h2 id="四、总结与最佳实践"><a href="#四、总结与最佳实践" class="headerlink" title="四、总结与最佳实践"></a>四、总结与最佳实践</h2><p>WSL 2 调用宿主机 Docker 配置私有证书，核心是让 WSL  Docker 客户端能够识别并信任 CA 证书，不同场景对应不同的配置逻辑，可总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>应用场景</th>
+<th>核心操作</th>
+<th>关键文件&#x2F;环境变量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>信任宿主机 Docker 服务端（mTLS）</td>
+<td>配置客户端证书目录 + 环境变量，启用 TLS 验证</td>
+<td>DOCKER_HOST、DOCKER_TLS_VERIFY、DOCKER_CERT_PATH；ca.crt、client.crt、client.key</td>
+</tr>
+<tr>
+<td>信任私有镜像仓库</td>
+<td>将仓库 CA 证书放入对应域名&#x2F;端口的证书目录</td>
+<td>仓库域名专属目录下的 ca.crt</td>
+</tr>
+</tbody></table>
+<h3 id="最佳实践建议"><a href="#最佳实践建议" class="headerlink" title="最佳实践建议"></a>最佳实践建议</h3><ol>
+<li><p>开发环境优先使用“场景二”配置：若无需宿主机 Docker TLS 验证，仅配置私有仓库证书即可，操作更简洁，避免不必要的复杂配置；</p>
+</li>
+<li><p>生产环境推荐“场景一”配置：启用 TLS 双向认证，提升宿主机 Docker 服务的安全性，防止未授权访问；</p>
+</li>
+<li><p>证书管理：将私有证书统一存储在宿主机固定目录，WSL 按需拷贝，避免重复创建证书，便于后续维护和更新；</p>
+</li>
+<li><p>异常排查：遇到证书问题时，优先检查证书路径、文件名和环境变量，再尝试重启 WSL 和 Docker Desktop，大部分问题可快速解决。</p>
+</li>
+</ol>
+<p>通过本文的配置步骤，可彻底解决 WSL 2 调用宿主机 Docker 时的私有证书信任问题，实现 WSL 与宿主机 Docker 的无缝协同，提升容器化开发效率。若遇到特殊场景（如多仓库证书配置、代理环境下的证书问题），可根据实际需求调整证书目录和配置参数。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/WSL/" rel="tag"># WSL</a>
+              <a href="/tags/%E7%A7%81%E6%9C%89%E8%AF%81%E4%B9%A6/" rel="tag"># 私有证书</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/01/15/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Qt/%E5%9F%BA%E4%BA%8EMSYS2%E6%90%AD%E5%BB%BAQt4.8.7-armv7%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/" rel="prev" title="基于MSYS2搭建Qt4.8.7-armv7交叉编译环境">
+                  <i class="fa fa-angle-left"></i> 基于MSYS2搭建Qt4.8.7-armv7交叉编译环境
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/01/23/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/Docker%E4%BB%A3%E7%90%86%E9%85%8D%E7%BD%AE/" rel="next" title="Docker代理配置">
+                  Docker代理配置 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

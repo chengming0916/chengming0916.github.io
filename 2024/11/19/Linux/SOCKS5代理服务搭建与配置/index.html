@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文档整合了多种SOCKS5代理服务器的搭建方法，包括SS5、Dante、Squid和Microsocks，旨在为不同需求和场景提供选择。 一、 方案概览与选择   方案 特点 适用场景 复杂度    SS5 经典SOCKS5服务器，功能全面，支持用户认证。 需要稳定、功能完整的SOCKS5代理。 中等   Dante 轻量级、高性能的SOCKS4&#x2F;5服务器，配置灵活。 对性能和资源占用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SOCKS5代理服务搭建与配置">
+<meta property="og:url" content="http://chengming0916.github.io/2024/11/19/Linux/SOCKS5%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="本文档整合了多种SOCKS5代理服务器的搭建方法，包括SS5、Dante、Squid和Microsocks，旨在为不同需求和场景提供选择。 一、 方案概览与选择   方案 特点 适用场景 复杂度    SS5 经典SOCKS5服务器，功能全面，支持用户认证。 需要稳定、功能完整的SOCKS5代理。 中等   Dante 轻量级、高性能的SOCKS4&#x2F;5服务器，配置灵活。 对性能和资源占用">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-11-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.634Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="SOCKS5">
+<meta property="article:tag" content="代理">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/11/19/Linux/SOCKS5%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/11/19/Linux/SOCKS5%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/","path":"2024/11/19/Linux/SOCKS5代理服务搭建与配置/","title":"SOCKS5代理服务搭建与配置"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SOCKS5代理服务搭建与配置 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E6%96%B9%E6%A1%88%E6%A6%82%E8%A7%88%E4%B8%8E%E9%80%89%E6%8B%A9"><span class="nav-number">1.</span> <span class="nav-text">一、 方案概览与选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-SS5-%E6%90%AD%E5%BB%BA%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">二、 SS5 搭建方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-Dante-%E6%90%AD%E5%BB%BA%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">三、 Dante 搭建方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-Squid-%E6%90%AD%E5%BB%BA%E6%96%B9%E6%A1%88-%E6%94%AF%E6%8C%81%E6%AD%A3%E5%90%91-%E9%80%8F%E6%98%8E%E4%BB%A3%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">四、 Squid 搭建方案 (支持正向&#x2F;透明代理)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E3%80%81-Microsocks-%E6%90%AD%E5%BB%BA%E6%96%B9%E6%A1%88-%E6%9E%81%E8%87%B4%E8%BD%BB%E9%87%8F"><span class="nav-number">5.</span> <span class="nav-text">五、 Microsocks 搭建方案 (极致轻量)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%AD%E3%80%81-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BF%9E%E6%8E%A5%E4%B8%8E%E6%B5%8B%E8%AF%95"><span class="nav-number">6.</span> <span class="nav-text">六、 客户端连接与测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%83%E3%80%81-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5"><span class="nav-number">7.</span> <span class="nav-text">七、 故障排查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%AB%E3%80%81-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%BB%BA%E8%AE%AE"><span class="nav-number">8.</span> <span class="nav-text">八、 总结与建议</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/11/19/Linux/SOCKS5%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SOCKS5代理服务搭建与配置 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SOCKS5代理服务搭建与配置
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-11-19 00:00:00" itemprop="dateCreated datePublished" datetime="2024-11-19T00:00:00+08:00">2024-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文档整合了多种SOCKS5代理服务器的搭建方法，包括<strong>SS5</strong>、<strong>Dante</strong>、<strong>Squid</strong>和<strong>Microsocks</strong>，旨在为不同需求和场景提供选择。</p>
+<h4 id="一、-方案概览与选择"><a href="#一、-方案概览与选择" class="headerlink" title="一、 方案概览与选择"></a><strong>一、 方案概览与选择</strong></h4><table>
+<thead>
+<tr>
+<th align="left">方案</th>
+<th align="left">特点</th>
+<th align="left">适用场景</th>
+<th align="left">复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>SS5</strong></td>
+<td align="left">经典SOCKS5服务器，功能全面，支持用户认证。</td>
+<td align="left">需要稳定、功能完整的SOCKS5代理。</td>
+<td align="left">中等</td>
+</tr>
+<tr>
+<td align="left"><strong>Dante</strong></td>
+<td align="left">轻量级、高性能的SOCKS4&#x2F;5服务器，配置灵活。</td>
+<td align="left">对性能和资源占用有要求的生产环境。</td>
+<td align="left">中等</td>
+</tr>
+<tr>
+<td align="left"><strong>Squid</strong></td>
+<td align="left">功能强大的HTTP&#x2F;HTTPS缓存代理，也支持SOCKS。</td>
+<td align="left">主要需求为Web缓存，同时需要SOCKS功能。</td>
+<td align="left">较高</td>
+</tr>
+<tr>
+<td align="left"><strong>Microsocks</strong></td>
+<td align="left">极致轻量、内存占用极小的SOCKS5服务器。</td>
+<td align="left">资源受限的VPS、临时或简单代理需求。</td>
+<td align="left">低</td>
+</tr>
+</tbody></table>
+<p><strong>环境建议</strong>：CentOS 7.x, Debian 7+, Ubuntu 14.04+。<strong>避免使用CentOS 8.x</strong>（兼容性问题）。确保服务器防火墙&#x2F;安全组已开放代理端口。</p>
+<hr>
+<h4 id="二、-SS5-搭建方案"><a href="#二、-SS5-搭建方案" class="headerlink" title="二、 SS5 搭建方案"></a><strong>二、 SS5 搭建方案</strong></h4><p>SS5是一个功能完整的SOCKS5代理服务器。</p>
+<p><strong>1. 安装依赖与源码</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc gcc-c++ automake make pam-devel openldap-devel cyrus-sasl-devel openssl openssl-devel</span><br><span class="line">wget http://nchc.dl.sourceforge.net/project/ss5/ss5/3.8.9-8/ss5-3.8.9-8.tar.gz</span><br><span class="line">tar -zxvf ss5-3.8.9-8.tar.gz</span><br><span class="line"><span class="built_in">cd</span> ss5-3.8.9/</span><br><span class="line">./configure</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 服务注册与自启</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x /etc/init.d/ss5</span><br><span class="line">chkconfig --add ss5</span><br><span class="line">chkconfig ss5 on</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 核心配置</strong></p>
+<ul>
+<li><strong>认证配置</strong> (<code>/etc/opt/ss5/ss5.conf</code>)：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">auth    0.0.0.0/0       -       u</span><br><span class="line">permit u        0.0.0.0/0       -       0.0.0.0/0       -       -       -       -       -</span><br></pre></td></tr></table></figure></li>
+<li><strong>用户密码</strong> (<code>/etc/opt/ss5/ss5.passwd</code>)：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username password</span><br></pre></td></tr></table></figure></li>
+<li><strong>修改端口</strong> (<code>/etc/sysconfig/ss5</code>)：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SS5_OPTS=<span class="string">&quot; -u root -b 0.0.0.0:8899&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>4. 启动与测试</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service ss5 start  <span class="comment"># 或 restart</span></span><br></pre></td></tr></table></figure>
+<p>使用Proxifier等客户端工具，配置代理服务器地址和端口进行连接测试。</p>
+<hr>
+<h4 id="三、-Dante-搭建方案"><a href="#三、-Dante-搭建方案" class="headerlink" title="三、 Dante 搭建方案"></a><strong>三、 Dante 搭建方案</strong></h4><p>Dante是一个高效、配置灵活的SOCKS服务器。</p>
+<p><strong>1. 安装 (CentOS 7)</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpm -Uvh http://mirror.ghettoforge.org/distributions/gf/gf-release-latest.gf.el7.noarch.rpm</span><br><span class="line">yum --enablerepo=gf-plus install dante-server -y</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 基础配置 (<code>/etc/sockd.conf</code>)</strong><br>以下是一个允许所有连接（无认证）的简单配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">errorlog: /var/log/sockd.errlog</span><br><span class="line">logoutput: /var/log/sockd.log</span><br><span class="line"></span><br><span class="line">internal: eth0 port = 1080  <span class="comment"># 监听端口</span></span><br><span class="line">external: eth0</span><br><span class="line"></span><br><span class="line">method: none  <span class="comment"># 无认证</span></span><br><span class="line"></span><br><span class="line">client pass &#123;</span><br><span class="line">    from: 0.0.0.0/0 to: 0.0.0.0/0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">socks pass &#123;</span><br><span class="line">    from: 0.0.0.0/0 to: 0.0.0.0/0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>注意</strong>：需创建日志目录 <code>mkdir /var/run/sockd</code>。</p>
+<p><strong>3. 启动与管理</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start sockd</span><br><span class="line">systemctl <span class="built_in">enable</span> sockd</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 高级配置</strong></p>
+<ul>
+<li><strong>用户认证</strong>：将 <code>method: none</code> 改为 <code>method: username</code>，并使用系统用户登录。</li>
+<li><strong>访问控制</strong>：在 <code>client pass</code> 和 <code>socks pass</code> 块中，通过 <code>from:</code> &#x2F; <code>to:</code> 字段精细控制源IP和目标地址。</li>
+</ul>
+<hr>
+<h4 id="四、-Squid-搭建方案-支持正向-透明代理"><a href="#四、-Squid-搭建方案-支持正向-透明代理" class="headerlink" title="四、 Squid 搭建方案 (支持正向&#x2F;透明代理)"></a><strong>四、 Squid 搭建方案 (支持正向&#x2F;透明代理)</strong></h4><p>Squid主要用作HTTP代理，但也可配置为SOCKS代理，并支持强大的访问控制。</p>
+<p><strong>1. 安装</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install squid -y  <span class="comment"># Ubuntu/Debian</span></span><br><span class="line"><span class="comment"># 或安装支持SSL的版本以启用HTTPS透明代理</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get install squid-openssl -y</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 基础正向代理配置</strong></p>
+<ul>
+<li>编辑 <code>/etc/squid/squid.conf</code>，添加允许的客户端网段：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acl localnet src 172.28.0.0/16</span><br></pre></td></tr></table></figure></li>
+<li>在 <code>/etc/squid/conf.d/debian.conf</code> 中取消注释：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http_access allow localnet</span><br></pre></td></tr></table></figure></li>
+<li>重启服务：<code>sudo service squid restart</code></li>
+<li>客户端在浏览器或系统设置中配置HTTP代理为Squid服务器IP:3128。</li>
+</ul>
+<p><strong>3. 强大的访问控制示例 (在<code>squid.conf</code>中配置)</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 禁止特定IP</span></span><br><span class="line">acl badhost src 172.28.18.7</span><br><span class="line">http_access deny badhost</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 禁止特定时间段</span></span><br><span class="line">acl worktime <span class="keyword">time</span> MTWHF 17:00-18:00</span><br><span class="line">http_access deny worktime</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 禁止特定域名</span></span><br><span class="line">acl baddomain dstdomain .taobao.com .pinduoduo.com</span><br><span class="line">http_access deny baddomain</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 禁止访问所有IP地址（防域名绕过）</span></span><br><span class="line">acl ipurl url_regex ^http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/</span><br><span class="line">http_access deny ipurl</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 透明代理配置 (需双网卡)</strong></p>
+<ul>
+<li><strong>配置Squid</strong>：在 <code>squid.conf</code> 中添加拦截端口。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http_port 3129 intercept  <span class="comment"># HTTP透明代理</span></span><br><span class="line">https_port 3130 ssl-bump cert=/etc/squid/certs/myCA.pem transparent <span class="comment"># HTTPS透明代理</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>生成自签名CA证书</strong> (用于HTTPS解密)：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -newkey rsa:4096 -sha256 -days 3650 -nodes -x509 -keyout myCA.pem -out myCA.pem</span><br></pre></td></tr></table></figure></li>
+<li><strong>配置iptables规则</strong>，将客户端的80&#x2F;443流量重定向到Squid。</li>
+<li><strong>客户端</strong>需将网关和DNS指向Squid服务器内网IP，并导入生成的CA证书。</li>
+</ul>
+<hr>
+<h4 id="五、-Microsocks-搭建方案-极致轻量"><a href="#五、-Microsocks-搭建方案-极致轻量" class="headerlink" title="五、 Microsocks 搭建方案 (极致轻量)"></a><strong>五、 Microsocks 搭建方案 (极致轻量)</strong></h4><p>适用于内存资源紧张的VPS。</p>
+<p><strong>1. 安装</strong></p>
+<ul>
+<li><strong>Debian&#x2F;Ubuntu新版本</strong>：<code>sudo apt install microsocks</code></li>
+<li><strong>旧版本或从源码安装</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget http://ftp.barfooze.de/pub/sabotage/tarballs/microsocks-1.0.4.tar.xz</span><br><span class="line">tar -Jxf microsocks-1.0.4.tar.xz</span><br><span class="line"><span class="built_in">cd</span> microsocks-*/</span><br><span class="line">make &amp;&amp; <span class="built_in">sudo</span> make install</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2. 直接运行</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">microsocks -1 -u USERNAME -P PASSWORD</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>-1</code>: 认证一次后IP加入白名单。</li>
+<li><code>-u</code> &#x2F; <code>-P</code>: 用户名和密码。</li>
+<li>默认监听 <code>0.0.0.0:1080</code>。</li>
+</ul>
+<p><strong>3. 配置为Systemd服务 (推荐)</strong></p>
+<ul>
+<li>创建服务文件 <code>/etc/systemd/system/microsocks.service</code>。</li>
+<li>创建配置文件 <code>/etc/microsocks.conf</code>，定义 <code>MICROSOCKS_LOGIN</code> 和 <code>MICROSOCKS_PASSW</code>。</li>
+<li>启用服务：<code>sudo systemctl enable --now microsocks</code></li>
+</ul>
+<hr>
+<h4 id="六、-客户端连接与测试"><a href="#六、-客户端连接与测试" class="headerlink" title="六、 客户端连接与测试"></a><strong>六、 客户端连接与测试</strong></h4><ol>
+<li>**命令行测试 (Linux&#x2F;Mac)**：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --socks5 USER:PASS@SERVER_IP:PORT https://www.google.com/</span><br></pre></td></tr></table></figure></li>
+<li><strong>浏览器设置</strong>：在网络设置中手动配置SOCKS5代理。</li>
+<li><strong>专业工具</strong>：使用 <strong>Proxifier</strong> (Windows&#x2F;macOS) 或 <strong>Proxy SwitchyOmega</strong> (浏览器插件) 进行全局或按规则代理。</li>
+<li>**环境变量 (Linux)**：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=socks5://SERVER_IP:PORT</span><br><span class="line"><span class="built_in">export</span> https_proxy=socks5://SERVER_IP:PORT</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h4 id="七、-故障排查"><a href="#七、-故障排查" class="headerlink" title="七、 故障排查"></a><strong>七、 故障排查</strong></h4><ol>
+<li><strong>连接失败</strong>：<ul>
+<li>检查服务器防火墙&#x2F;安全组规则是否放行代理端口。</li>
+<li>确认代理服务正在运行 (<code>systemctl status xxx</code>)。</li>
+<li>查看服务日志 (<code>journalctl -xe</code>, <code>/var/log/xxx.log</code>)。</li>
+</ul>
+</li>
+<li><strong>认证失败</strong>：检查配置文件的用户名&#x2F;密码部分，确保无拼写错误。</li>
+<li><strong>Squid HTTPS代理失败</strong>：确保使用了 <code>squid-openssl</code>，正确生成并配置了CA证书，且客户端已导入该证书。</li>
+</ol>
+<hr>
+<h4 id="八、-总结与建议"><a href="#八、-总结与建议" class="headerlink" title="八、 总结与建议"></a><strong>八、 总结与建议</strong></h4><ul>
+<li><strong>追求轻量与简单</strong>：首选 <strong>Microsocks</strong>。</li>
+<li><strong>需要稳定完整的SOCKS5服务</strong>：选择 <strong>SS5</strong> 或 <strong>Dante</strong>。</li>
+<li><strong>主要需求是Web缓存和复杂的内容过滤</strong>：选择 <strong>Squid</strong>。</li>
+<li><strong>生产环境</strong>：务必配置<strong>用户认证</strong>和基于IP的**访问控制列表(ACL)**，并定期检查日志。</li>
+</ul>
+<p>请根据您的具体需求（性能、功能、易用性、资源占用）选择最合适的方案进行部署。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/SOCKS5/" rel="tag"># SOCKS5</a>
+              <a href="/tags/%E4%BB%A3%E7%90%86/" rel="tag"># 代理</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/11/18/%E6%9C%AA%E5%88%86%E7%B1%BB/%E6%95%B4%E5%90%88Podman%E4%B8%8EVisual%20Studio%20Container%20Tools/" rel="prev" title="整合Podman与Visual Studio Container Tools">
+                  <i class="fa fa-angle-left"></i> 整合Podman与Visual Studio Container Tools
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/11/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/OpenCV%E8%BF%9B%E8%A1%8CRTSP%E6%8E%A8%E6%B5%81/" rel="next" title="OpenCV进行RTSP推流">
+                  OpenCV进行RTSP推流 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

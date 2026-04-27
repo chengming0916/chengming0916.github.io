@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在国产化替代加速推进的当下，越来越多政企单位开始部署搭载麒麟V10操作系统的服务器，涵盖arm64、x86_64两种主流架构。这类服务器常应用于涉密项目、内部研发等无外网访问权限的场景，如何在完全隔离的内网环境中，快速、稳定地部署Docker及验证环境（本文以Redis为例），成为很多运维人员面临的难题。 常规外网环境中，docker pull redis 即可轻松获取镜像并部署，但不同架构的麒麟">
+<meta property="og:type" content="article">
+<meta property="og:title" content="麒麟V10离线安装Docker">
+<meta property="og:url" content="http://chengming0916.github.io/2026/03/15/Linux/%E9%BA%92%E9%BA%9FV10%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Docker/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在国产化替代加速推进的当下，越来越多政企单位开始部署搭载麒麟V10操作系统的服务器，涵盖arm64、x86_64两种主流架构。这类服务器常应用于涉密项目、内部研发等无外网访问权限的场景，如何在完全隔离的内网环境中，快速、稳定地部署Docker及验证环境（本文以Redis为例），成为很多运维人员面临的难题。 常规外网环境中，docker pull redis 即可轻松获取镜像并部署，但不同架构的麒麟">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-15T07:59:41.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:37.641Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="麒麟V10">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/03/15/Linux/%E9%BA%92%E9%BA%9FV10%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Docker/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/03/15/Linux/%E9%BA%92%E9%BA%9FV10%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Docker/","path":"2026/03/15/Linux/麒麟V10离线安装Docker/","title":"麒麟V10离线安装Docker"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>麒麟V10离线安装Docker | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E7%BD%AE%E8%AF%B4%E6%98%8E%EF%BC%9A%E7%8E%AF%E5%A2%83%E4%B8%8E%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="nav-number">1.</span> <span class="nav-text">一、前置说明：环境与核心思路</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E7%8E%AF%E5%A2%83%E7%A1%AE%E8%AE%A4"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 环境确认</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 核心思路</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%A4%96%E7%BD%91%E5%87%86%E5%A4%87%E2%80%94%E2%80%94%E4%B8%8B%E8%BD%BDDocker%E7%A6%BB%E7%BA%BF%E5%8C%85%E4%B8%8ERedis%E9%95%9C%E5%83%8F%EF%BC%88%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、第一步：外网准备——下载Docker离线包与Redis镜像（分架构）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E4%B8%8B%E8%BD%BD%E9%BA%92%E9%BA%9FV10%EF%BC%88%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89Docker%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85%E5%8C%85"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 下载麒麟V10（分架构）Docker离线安装包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E4%B8%8B%E8%BD%BD%E5%B9%B6%E6%89%93%E5%8C%85Redis%E5%AF%B9%E5%BA%94%E6%9E%B6%E6%9E%84Docker%E9%95%9C%E5%83%8F"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 下载并打包Redis对应架构Docker镜像</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%86%85%E7%BD%91%E9%83%A8%E7%BD%B2%E2%80%94%E2%80%94%E9%BA%92%E9%BA%9FV10%E5%AE%89%E8%A3%85Docker%EF%BC%88%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、第二步：内网部署——麒麟V10安装Docker（分架构）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E8%A7%A3%E5%8E%8BDocker%E7%A6%BB%E7%BA%BF%E5%8C%85%EF%BC%88%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 解压Docker离线包（分架构）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Docker%E4%BE%9D%E8%B5%96%E4%B8%8E%E6%A0%B8%E5%BF%83%E5%8C%85%EF%BC%88%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 离线安装Docker依赖与核心包（分架构）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E5%90%AF%E5%8A%A8Docker%E5%B9%B6%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 启动Docker并设置开机自启</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%86%85%E7%BD%91%E9%83%A8%E7%BD%B2%E2%80%94%E2%80%94Docker%E5%8A%A0%E8%BD%BD%E5%B9%B6%E8%BF%90%E8%A1%8CRedis%EF%BC%88%E7%8E%AF%E5%A2%83%E9%AA%8C%E8%AF%81%EF%BC%8C%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">第三步：内网部署——Docker加载并运行Redis（环境验证，分架构）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E5%AF%BC%E5%85%A5Redis%E9%95%9C%E5%83%8F%EF%BC%88%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 导入Redis镜像（分架构）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E9%85%8D%E7%BD%AERedis%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%8C%E9%AA%8C%E8%AF%81%E7%8E%AF%E5%A2%83%E5%8F%AF%E7%9C%81%E7%95%A5%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 配置Redis数据持久化（可选，验证环境可省略）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E5%90%AF%E5%8A%A8Redis%E5%AE%B9%E5%99%A8%EF%BC%88%E7%8E%AF%E5%A2%83%E9%AA%8C%E8%AF%81%E7%89%88%EF%BC%8C%E5%88%86%E6%9E%B6%E6%9E%84%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 启动Redis容器（环境验证版，分架构）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E7%8E%AF%E5%A2%83%E9%AA%8C%E8%AF%81%E2%80%94%E2%80%94Redis%E8%BF%9E%E6%8E%A5%E6%B5%8B%E8%AF%95%EF%BC%88%E6%A0%B8%E5%BF%83%EF%BC%8C%E7%A1%AE%E8%AE%A4%E7%8E%AF%E5%A2%83%E5%8F%AF%E7%94%A8%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">四、第四步：环境验证——Redis连接测试（核心，确认环境可用）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-%E5%AE%B9%E5%99%A8%E5%86%85%E8%BF%9E%E6%8E%A5Redis%E6%B5%8B%E8%AF%95"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 容器内连接Redis测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E5%AE%BF%E4%B8%BB%E6%9C%BA%E8%BF%9E%E6%8E%A5Redis%E6%B5%8B%E8%AF%95%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 宿主机连接Redis测试（可选）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-%E5%B8%B8%E8%A7%81%E9%AA%8C%E8%AF%81%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 常见验证失败排查</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B8%85%E7%90%86%EF%BC%88%E9%AA%8C%E8%AF%81%E7%8E%AF%E5%A2%83%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">五、安全加固与环境清理（验证环境可选）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-%E7%8E%AF%E5%A2%83%E6%B8%85%E7%90%86%EF%BC%88%E4%B8%B4%E6%97%B6%E9%AA%8C%E8%AF%81%E7%94%A8%EF%BC%89"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 环境清理（临时验证用）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-%E7%AE%80%E5%8D%95%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%EF%BC%88%E9%95%BF%E6%9C%9F%E4%BF%9D%E7%95%99%E7%94%A8%EF%BC%89"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 简单安全加固（长期保留用）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/15/Linux/%E9%BA%92%E9%BA%9FV10%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="麒麟V10离线安装Docker | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          麒麟V10离线安装Docker
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-15 15:59:41" itemprop="dateCreated datePublished" datetime="2026-03-15T15:59:41+08:00">2026-03-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在国产化替代加速推进的当下，越来越多政企单位开始部署搭载麒麟V10操作系统的服务器，涵盖arm64、x86_64两种主流架构。这类服务器常应用于涉密项目、内部研发等无外网访问权限的场景，如何在完全隔离的内网环境中，快速、稳定地部署Docker及验证环境（本文以Redis为例），成为很多运维人员面临的难题。</p>
+<p>常规外网环境中，<code>docker pull redis</code> 即可轻松获取镜像并部署，但不同架构的麒麟V10服务器无法直接拉取非对应架构的默认镜像，且内网环境无法在线下载依赖和镜像，导致部署过程坑点重重。本文将从Docker离线安装入手，兼顾arm64、x86_64两种架构，手把手带你完成麒麟V10环境下Docker离线部署、Redis镜像离线获取与加载、容器启动与环境验证的全流程，兼顾实用性与安全性，确保新手也能跟着操作落地，Redis仅作为Docker环境部署完成后的验证工具，无需复杂配置。</p>
+<h1 id="一、前置说明：环境与核心思路"><a href="#一、前置说明：环境与核心思路" class="headerlink" title="一、前置说明：环境与核心思路"></a>一、前置说明：环境与核心思路</h1><h2 id="1-1-环境确认"><a href="#1-1-环境确认" class="headerlink" title="1.1 环境确认"></a>1.1 环境确认</h2><p>本次操作针对 <strong>麒麟V10操作系统（含arm64&#x2F;x86_64两种架构，arm64即aarch64，x86_64即x86）</strong>，目标服务器为无外网访问权限的内网服务器。操作前需准备两台机器，且中转站机器架构建议与目标服务器一致（避免镜像架构不兼容）：</p>
+<ul>
+<li><p>目标服务器：内网麒麟V10（arm64或x86_64），用于最终部署Docker和Redis（环境验证）；</p>
+</li>
+<li><p>中转站机器：能访问外网的Linux机器（优先与目标服务器同架构，arm64可选麒麟V10、华为云鲲鹏实例，x86_64可选普通Linux服务器、虚拟机；若架构不同，需额外注意镜像架构指定）。</p>
+</li>
+</ul>
+<h2 id="1-2-核心思路"><a href="#1-2-核心思路" class="headerlink" title="1.2 核心思路"></a>1.2 核心思路</h2><p>离线部署的核心是“外网准备、内网部署、环境验证”，整体流程可概括为3步，兼顾两种架构适配：</p>
+<ol>
+<li><p>外网中转站：根据目标服务器架构，下载对应版本的Docker离线安装包、Redis Docker镜像，并打包保存；</p>
+</li>
+<li><p>内网传输：将离线安装包、镜像包通过U盘、内部文件服务器等介质，传输到麒麟V10目标服务器；</p>
+</li>
+<li><p>内网部署：依次完成Docker离线安装、Redis镜像加载、容器启动，通过简单命令验证Docker与Redis环境正常运行。</p>
+</li>
+</ol>
+<h1 id="二、第一步：外网准备——下载Docker离线包与Redis镜像（分架构）"><a href="#二、第一步：外网准备——下载Docker离线包与Redis镜像（分架构）" class="headerlink" title="二、第一步：外网准备——下载Docker离线包与Redis镜像（分架构）"></a>二、第一步：外网准备——下载Docker离线包与Redis镜像（分架构）</h1><p>此步骤在能访问外网的中转站机器上操作，核心是根据目标服务器架构（arm64&#x2F;x86_64），获取适配麒麟V10的Docker安装包和Redis镜像，避免架构不兼容问题。Redis仅作为环境验证，选择官方稳定版（本文以Redis 6.2.6为例，适配两种架构）。</p>
+<h2 id="2-1-下载麒麟V10（分架构）Docker离线安装包"><a href="#2-1-下载麒麟V10（分架构）Docker离线安装包" class="headerlink" title="2.1 下载麒麟V10（分架构）Docker离线安装包"></a>2.1 下载麒麟V10（分架构）Docker离线安装包</h2><p>麒麟V10系统基于CentOS&#x2F;RHEL架构，Docker离线安装需依赖rpm包，优先选择适配对应架构的官方稳定版本（本文以Docker 20.10.24为例，分arm64、x86_64两个版本）。</p>
+<p>操作步骤（分架构执行）：</p>
+<ol>
+<li><p>根据目标服务器架构，访问对应Docker官方rpm仓库，下载以下3个核心rpm包（后缀对应架构）：</p>
+<ol>
+<li><p>arm64架构：访问 <a target="_blank" rel="noopener" href="https://download.docker.com/linux/centos/8/aarch64/stable/Packages/%EF%BC%8C%E4%B8%8B%E8%BD%BD">https://download.docker.com/linux/centos/8/aarch64/stable/Packages/，下载</a> aarch64 后缀的包：</p>
+<ul>
+<li><p>containerd.io-xxx.aarch64.rpm（容器运行时依赖）；</p>
+</li>
+<li><p>docker-ce-xxx.aarch64.rpm（Docker核心包）；</p>
+</li>
+<li><p>docker-ce-cli-xxx.aarch64.rpm（Docker命令行工具）。</p>
+</li>
+</ul>
+</li>
+<li><p>x86_64架构：访问 <a target="_blank" rel="noopener" href="https://download.docker.com/linux/centos/8/x86_64/stable/Packages/%EF%BC%8C%E4%B8%8B%E8%BD%BD">https://download.docker.com/linux/centos/8/x86_64/stable/Packages/，下载</a> x86_64 后缀的包：</p>
+<ul>
+<li><p>containerd.io-xxx.x86_64.rpm（容器运行时依赖）；</p>
+</li>
+<li><p>docker-ce-xxx.x86_64.rpm（Docker核心包）；</p>
+</li>
+<li><p>docker-ce-cli-xxx.x86_64.rpm（Docker命令行工具）。</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>将下载的3个rpm包放在同一目录（如 &#x2F;home&#x2F;docker_offline），并打包为tar压缩包（标注架构，方便后续区分），方便后续传输：</p>
+<ol>
+<li><p>arm64架构：<code>tar -czvf docker_arm64_20.10.24.tar.gz /home/docker_offline/*.rpm</code></p>
+</li>
+<li><p>x86_64架构：<code>tar -czvf docker_x86_64_20.10.24.tar.gz /home/docker_offline/*.rpm</code></p>
+</li>
+</ol>
+</li>
+</ol>
+<p>注意：务必确认rpm包后缀与目标服务器架构一致（arm64对应aarch64，x86_64对应x86_64），否则无法在麒麟V10上安装。</p>
+<h2 id="2-2-下载并打包Redis对应架构Docker镜像"><a href="#2-2-下载并打包Redis对应架构Docker镜像" class="headerlink" title="2.2 下载并打包Redis对应架构Docker镜像"></a>2.2 下载并打包Redis对应架构Docker镜像</h2><p>Redis官方镜像包含多个架构版本，需根据目标服务器架构（arm64&#x2F;x86_64），精准获取对应版本，避免下载错误架构导致无法运行。本文以Redis 6.2.6（长期支持版，稳定可靠，适配两种架构）为例，仅作为Docker环境验证工具，无需复杂配置。</p>
+<p>操作步骤（分架构执行）：</p>
+<ol>
+<li><p>拉取正确架构的Redis镜像：</p>
+<ol>
+<li><p>若中转站机器与目标服务器同架构（arm64&#x2F;x86_64），直接拉取，Docker会自动匹配架构：<code>docker pull redis:6.2.6</code></p>
+</li>
+<li><p>若中转站机器与目标服务器架构不同，必须指定对应平台，否则会拉取错误架构版本：</p>
+<ul>
+<li><p>目标服务器为arm64：<code>docker pull --platform linux/arm64 redis:6.2.6</code></p>
+</li>
+<li><p>目标服务器为x86_64：<code>docker pull --platform linux/amd64 redis:6.2.6</code></p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>验证镜像架构（确保与目标服务器一致）： <code>docker inspect redis:6.2.6 | grep Architecture</code>输出结果：arm64架构对应 “Architecture”: “aarch64”，x86_64架构对应 “Architecture”: “amd64”，确认镜像正确。</p>
+</li>
+<li><p>打包镜像为tar文件（标注架构），便于内网传输：</p>
+<ol>
+<li><p>arm64架构： <code># 查看镜像ID（假设为 abcdef123456）</code> <code>docker images | grep redis</code> <code># 打包镜像</code> <code>docker save abcdef123456 -o /home/redis_arm64_6.2.6.tar</code></p>
+</li>
+<li><p>x86_64架构： <code># 查看镜像ID（假设为 abcdef123456）</code> <code>docker images | grep redis</code> <code># 打包镜像</code> <code>docker save abcdef123456 -o /home/redis_x86_64_6.2.6.tar</code></p>
+</li>
+</ol>
+</li>
+<li><p>（可选）校验文件完整性：计算tar包的哈希值，后续传输到内网后核对，避免文件损坏：</p>
+<ol>
+<li><p>arm64架构：<code>sha256sum /home/redis_arm64_6.2.6.tar &gt; redis_sha256.txt</code></p>
+</li>
+<li><p>x86_64架构：<code>sha256sum /home/redis_x86_64_6.2.6.tar &gt; redis_sha256.txt</code></p>
+</li>
+</ol>
+</li>
+</ol>
+<p>至此，外网准备工作完成。根据目标服务器架构，将对应的Docker离线包、Redis镜像包（及redis_sha256.txt）通过安全介质，传输到内网麒麟V10目标服务器的 &#x2F;home 目录下。</p>
+<h1 id="三、第二步：内网部署——麒麟V10安装Docker（分架构）"><a href="#三、第二步：内网部署——麒麟V10安装Docker（分架构）" class="headerlink" title="三、第二步：内网部署——麒麟V10安装Docker（分架构）"></a>三、第二步：内网部署——麒麟V10安装Docker（分架构）</h1><p>目标服务器为无外网权限的麒麟V10（arm64&#x2F;x86_64），需根据架构，通过对应离线rpm包安装Docker，步骤如下（分架构执行）：</p>
+<h2 id="3-1-解压Docker离线包（分架构）"><a href="#3-1-解压Docker离线包（分架构）" class="headerlink" title="3.1 解压Docker离线包（分架构）"></a>3.1 解压Docker离线包（分架构）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home</span><br><span class="line"><span class="comment"># 分架构解压，释放rpm文件</span></span><br><span class="line"><span class="comment"># arm64架构</span></span><br><span class="line">tar -xzvf docker_arm64_20.10.24.tar.gz</span><br><span class="line"><span class="comment"># x86_64架构</span></span><br><span class="line">tar -xzvf docker_x86_64_20.10.24.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-离线安装Docker依赖与核心包（分架构）"><a href="#3-2-离线安装Docker依赖与核心包（分架构）" class="headerlink" title="3.2 离线安装Docker依赖与核心包（分架构）"></a>3.2 离线安装Docker依赖与核心包（分架构）</h2><p>进入解压后的rpm包目录，执行安装命令（需root权限，若提示依赖缺失，需提前准备对应离线依赖包，依赖包架构需与目标服务器一致）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home/docker_offline</span><br><span class="line"><span class="comment"># 安装3个rpm包（顺序无关，--nodeps可忽略依赖检查，若有依赖需提前安装）</span></span><br><span class="line"><span class="comment"># arm64架构</span></span><br><span class="line">rpm -ivh --nodeps containerd.io-xxx.aarch64.rpm docker-ce-cli-xxx.aarch64.rpm docker-ce-xxx.aarch64.rpm</span><br><span class="line"><span class="comment"># x86_64架构</span></span><br><span class="line">rpm -ivh --nodeps containerd.io-xxx.x86_64.rpm docker-ce-cli-xxx.x86_64.rpm docker-ce-xxx.x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-启动Docker并设置开机自启"><a href="#3-3-启动Docker并设置开机自启" class="headerlink" title="3.3 启动Docker并设置开机自启"></a>3.3 启动Docker并设置开机自启</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动Docker服务</span></span><br><span class="line">systemctl start docker</span><br><span class="line"><span class="comment"># 设置开机自启（关键，避免服务器重启后Docker失效）</span></span><br><span class="line">systemctl <span class="built_in">enable</span> docker</span><br><span class="line"><span class="comment"># 验证Docker安装成功</span></span><br><span class="line">docker --version</span><br><span class="line"><span class="comment"># 查看Docker运行状态（Active: active (running) 即为正常）</span></span><br><span class="line">systemctl status docker | grep Active</span><br></pre></td></tr></table></figure>
+
+<p>若启动失败，大概率是依赖缺失或rpm包架构错误。可执行 <code>systemctl status docker</code> 查看错误日志，补充对应依赖或重新下载正确架构的rpm包。</p>
+<h1 id="第三步：内网部署——Docker加载并运行Redis（环境验证，分架构）"><a href="#第三步：内网部署——Docker加载并运行Redis（环境验证，分架构）" class="headerlink" title="第三步：内网部署——Docker加载并运行Redis（环境验证，分架构）"></a>第三步：内网部署——Docker加载并运行Redis（环境验证，分架构）</h1><p>Docker安装完成后，即可加载提前传输的对应架构Redis镜像，启动容器并完成简单验证，确认Docker环境正常可用（Redis仅作为验证工具，无需复杂配置）。</p>
+<h2 id="3-1-导入Redis镜像（分架构）"><a href="#3-1-导入Redis镜像（分架构）" class="headerlink" title="3.1 导入Redis镜像（分架构）"></a>3.1 导入Redis镜像（分架构）</h2><p>将传输到 &#x2F;home 目录的对应架构Redis镜像包导入Docker本地仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home</span><br><span class="line"><span class="comment"># 分架构导入镜像</span></span><br><span class="line"><span class="comment"># arm64架构</span></span><br><span class="line">docker load -i redis_arm64_6.2.6.tar</span><br><span class="line"><span class="comment"># x86_64架构</span></span><br><span class="line">docker load -i redis_x86_64_6.2.6.tar</span><br><span class="line"><span class="comment"># （可选）核对文件完整性，确保传输未损坏</span></span><br><span class="line"><span class="built_in">sha256sum</span> -c redis_sha256.txt</span><br></pre></td></tr></table></figure>
+
+<p>导入成功后，执行 <code>docker images</code> 会看到一个无标签（REPOSITORY和TAG为 <none>）的镜像，需为其打上易识别的标签（标注架构），方便后续管理：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看镜像ID（假设为 1234567890ab）</span></span><br><span class="line">docker images</span><br><span class="line"><span class="comment"># 分架构打标签（格式：镜像名:版本-架构）</span></span><br><span class="line"><span class="comment"># arm64架构</span></span><br><span class="line">docker tag 1234567890ab redis:6.2.6-arm64</span><br><span class="line"><span class="comment"># x86_64架构</span></span><br><span class="line">docker tag 1234567890ab redis:6.2.6-x86_64</span><br><span class="line"><span class="comment"># 验证标签</span></span><br><span class="line">docker images | grep redis</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-配置Redis数据持久化（可选，验证环境可省略）"><a href="#3-2-配置Redis数据持久化（可选，验证环境可省略）" class="headerlink" title="3.2 配置Redis数据持久化（可选，验证环境可省略）"></a>3.2 配置Redis数据持久化（可选，验证环境可省略）</h2><p>若仅作为环境验证，可省略数据持久化；若需简单留存数据，可将Redis数据目录挂载到宿主机（生产环境建议配置，验证环境可跳过）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建宿主机数据目录（验证环境可省略）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /data/redis/data</span><br><span class="line"><span class="comment"># 赋予目录读写权限</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 755 /data/redis</span><br><span class="line"><span class="comment"># 进阶：修改目录所属用户（匹配容器内默认用户，避免权限报错）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> -R 999:999 /data/redis/data</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-启动Redis容器（环境验证版，分架构）"><a href="#3-3-启动Redis容器（环境验证版，分架构）" class="headerlink" title="3.3 启动Redis容器（环境验证版，分架构）"></a>3.3 启动Redis容器（环境验证版，分架构）</h2><p>使用 <code>docker run</code> 命令启动容器，配置端口映射、自启等基础参数，确保容器正常运行，用于验证Docker环境可用（无需复杂配置，仅开启基础服务）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分架构启动容器，验证环境无需复杂配置</span></span><br><span class="line"><span class="comment"># arm64架构</span></span><br><span class="line">docker run -d \</span><br><span class="line">  --name redis-server \ <span class="comment"># 容器名称，便于管理</span></span><br><span class="line">  --restart=always \ <span class="comment"># 容器随Docker自启，保障可用性</span></span><br><span class="line">  -p 6379:6379 \ <span class="comment"># 端口映射：宿主机6379端口映射到容器6379端口（Redis默认端口）</span></span><br><span class="line">  <span class="comment"># 验证环境可省略数据挂载，如需挂载添加以下一行</span></span><br><span class="line">  <span class="comment"># -v /data/redis/data:/data \</span></span><br><span class="line">  redis:6.2.6-arm64 \ <span class="comment"># 镜像标签（arm64架构）</span></span><br><span class="line">  --requirepass <span class="string">&quot;RedisTest123!&quot;</span> <span class="comment"># 简单设置密码，避免未授权访问（验证环境可选）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># x86_64架构</span></span><br><span class="line">docker run -d \</span><br><span class="line">  --name redis-server \ <span class="comment"># 容器名称，便于管理</span></span><br><span class="line">  --restart=always \ <span class="comment"># 容器随Docker自启，保障可用性</span></span><br><span class="line">  -p 6379:6379 \ <span class="comment"># 端口映射：宿主机6379端口映射到容器6379端口（Redis默认端口）</span></span><br><span class="line">  <span class="comment"># 验证环境可省略数据挂载，如需挂载添加以下一行</span></span><br><span class="line">  <span class="comment"># -v /data/redis/data:/data \</span></span><br><span class="line">  redis:6.2.6-x86_64 \ <span class="comment"># 镜像标签（x86_64架构）</span></span><br><span class="line">  --requirepass <span class="string">&quot;RedisTest123!&quot;</span> <span class="comment"># 简单设置密码，避免未授权访问（验证环境可选）</span></span><br></pre></td></tr></table></figure>
+
+<p>参数说明（验证环境重点）：</p>
+<ul>
+<li><p>-d：后台运行容器，不占用终端；</p>
+</li>
+<li><p>–restart&#x3D;always：服务器重启、Docker重启后，容器自动启动，便于长期验证；</p>
+</li>
+<li><p>-p 6379:6379：Redis默认端口映射，便于后续连接验证；</p>
+</li>
+<li><p>–requirepass：简单设置密码，避免内网未授权访问（验证环境可选，提升安全性）。</p>
+</li>
+</ul>
+<p>启动后，验证容器状态（确认Docker环境正常）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker ps | grep redis-server</span><br></pre></td></tr></table></figure>
+
+<p>若 STATUS 为 Up，说明Redis容器已成功运行，Docker环境部署正常，达到环境验证目的。</p>
+<h1 id="四、第四步：环境验证——Redis连接测试（核心，确认环境可用）"><a href="#四、第四步：环境验证——Redis连接测试（核心，确认环境可用）" class="headerlink" title="四、第四步：环境验证——Redis连接测试（核心，确认环境可用）"></a>四、第四步：环境验证——Redis连接测试（核心，确认环境可用）</h1><p>Redis容器启动后，通过简单的连接命令，验证Docker容器运行正常、Redis服务可用，完成整个环境验证流程。</p>
+<h2 id="4-1-容器内连接Redis测试"><a href="#4-1-容器内连接Redis测试" class="headerlink" title="4.1 容器内连接Redis测试"></a>4.1 容器内连接Redis测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入Redis容器内部</span></span><br><span class="line">docker <span class="built_in">exec</span> -it redis-server /bin/bash</span><br><span class="line"><span class="comment"># 连接Redis（若设置了密码，需输入密码）</span></span><br><span class="line">redis-cli</span><br><span class="line"><span class="comment"># 输入密码（若设置了--requirepass参数）</span></span><br><span class="line">auth RedisTest123!</span><br><span class="line"><span class="comment"># 执行简单命令，验证服务可用</span></span><br><span class="line">ping</span><br></pre></td></tr></table></figure>
+
+<p>若输出 <code>PONG</code>，说明Redis服务正常运行，Docker容器部署无误，环境验证通过。</p>
+<h2 id="4-2-宿主机连接Redis测试（可选）"><a href="#4-2-宿主机连接Redis测试（可选）" class="headerlink" title="4.2 宿主机连接Redis测试（可选）"></a>4.2 宿主机连接Redis测试（可选）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 宿主机直接连接Redis（需确保宿主机安装了redis-cli，或使用Docker命令间接连接）</span></span><br><span class="line"><span class="comment"># 方法1：使用Docker命令间接连接</span></span><br><span class="line">docker <span class="built_in">exec</span> -it redis-server redis-cli -a RedisTest123! ping</span><br><span class="line"><span class="comment"># 方法2：宿主机安装redis-cli后直接连接</span></span><br><span class="line">redis-cli -h 127.0.0.1 -p 6379 -a RedisTest123! ping</span><br></pre></td></tr></table></figure>
+
+<p>若输出 <code>PONG</code>，说明宿主机与容器通信正常，整个Docker+Redis环境验证完成。</p>
+<h2 id="4-3-常见验证失败排查"><a href="#4-3-常见验证失败排查" class="headerlink" title="4.3 常见验证失败排查"></a>4.3 常见验证失败排查</h2><ul>
+<li><p>容器启动失败：检查镜像架构是否与目标服务器一致，执行 <code>docker logs redis-server</code> 查看错误日志；</p>
+</li>
+<li><p>ping命令无响应：检查容器是否正常运行（docker ps），密码是否输入正确，防火墙是否开放6379端口；</p>
+</li>
+<li><p>防火墙开放端口（若无法连接）：<code>sudo firewall-cmd --zone=public --add-port=6379/tcp --permanent</code> <code>sudo firewall-cmd --reload</code></p>
+</li>
+</ul>
+<h1 id="五、安全加固与环境清理（验证环境可选）"><a href="#五、安全加固与环境清理（验证环境可选）" class="headerlink" title="五、安全加固与环境清理（验证环境可选）"></a>五、安全加固与环境清理（验证环境可选）</h1><p>若仅作为临时环境验证，使用完成后可清理容器和镜像，释放服务器资源；若需长期保留，可进行简单安全加固。</p>
+<h2 id="5-1-环境清理（临时验证用）"><a href="#5-1-环境清理（临时验证用）" class="headerlink" title="5.1 环境清理（临时验证用）"></a>5.1 环境清理（临时验证用）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 停止Redis容器</span></span><br><span class="line">docker stop redis-server</span><br><span class="line"><span class="comment"># 删除Redis容器</span></span><br><span class="line">docker <span class="built_in">rm</span> redis-server</span><br><span class="line"><span class="comment"># 删除Redis镜像（按需执行）</span></span><br><span class="line"><span class="comment"># arm64架构：docker rmi redis:6.2.6-arm64</span></span><br><span class="line"><span class="comment"># x86_64架构：docker rmi redis:6.2.6-x86_64</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-2-简单安全加固（长期保留用）"><a href="#5-2-简单安全加固（长期保留用）" class="headerlink" title="5.2 简单安全加固（长期保留用）"></a>5.2 简单安全加固（长期保留用）</h2><ul>
+<li><p>端口限制：通过防火墙限制仅允许内部指定IP访问6379端口，避免内网未授权访问；</p>
+</li>
+<li><p>密码加固：设置复杂密码，避免简单密码泄露；</p>
+</li>
+<li><p>容器资源限制：若长期保留，可限制容器内存和CPU使用，避免占用过多服务器资源： <code># 启动容器时添加资源限制参数（以arm64为例，x86_64替换镜像标签即可）</code> <code>docker run -d \</code> <code>--name redis-server \</code> <code>--restart=always \</code> <code>-p 6379:6379 \</code> <code>--memory=&quot;1g&quot; \ # 限制容器最大使用1GB内存</code> <code>--cpus=&quot;1.0&quot; \ # 限制容器最大使用1个CPU核心</code> <code>redis:6.2.6-arm64 --requirepass &quot;RedisTest123!&quot;</code></p>
+</li>
+</ul>
+<h1 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h1><p>本文完整覆盖了麒麟V10（arm64&#x2F;x86_64两种架构）内网环境下，Docker离线安装、Redis（环境验证版）离线部署与测试的全流程，核心要点是“架构匹配”和“环境验证”——确保Docker安装包、Redis镜像均与目标服务器架构一致，提前在外网完成资源准备，内网仅需执行安装、加载、启动和简单测试，即可完成Docker环境验证。</p>
+<p>整个流程避开了源码编译、依赖冲突等坑点，通过Docker容器化方式，保证了环境一致性和部署便捷性，适用于政企单位、涉密项目等无外网场景的Docker环境验证。Redis仅作为验证工具，配置简单、操作便捷，能快速确认Docker环境部署成功；若需部署其他Docker应用，可参考本文“外网准备-内网部署”的思路，替换对应镜像即可。</p>
+<p>若实际操作中遇到问题，优先查看容器日志和系统日志，大部分错误均可通过日志定位并解决；两种架构的核心操作一致，仅需注意安装包和镜像的架构区分，新手也能轻松落地。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E9%BA%92%E9%BA%9FV10/" rel="tag"># 麒麟V10</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/03/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/%E5%9F%BA%E4%BA%8EDocker%E9%83%A8%E7%BD%B2Label%20Studio%E7%A7%81%E6%9C%89%E6%A0%87%E6%B3%A8%E5%B9%B3%E5%8F%B0/" rel="prev" title="基于Docker部署Label Studio私有标注平台">
+                  <i class="fa fa-angle-left"></i> 基于Docker部署Label Studio私有标注平台
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/03/15/Linux/SSH%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D/" rel="next" title="SSH连接失败排查与修复">
+                  SSH连接失败排查与修复 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

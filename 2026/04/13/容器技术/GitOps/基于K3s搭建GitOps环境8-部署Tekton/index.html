@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、核心定位本文作为GitOps环境搭建系列的第八篇，聚焦Tekton CI&#x2F;CD流水线的部署与配置。Tekton是云原生CI&#x2F;CD框架，专为Kubernetes环境设计，提供声明式的流水线定义和任务执行能力。 在GitOps环境中，Tekton扮演”持续集成引擎”角色，作为GitOps流程的构建和测试环节，实现从代码提交到镜像构建的自动化。Tekton与Gitea、Harbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于K3s搭建GitOps环境8-部署Tekton">
+<meta property="og:url" content="http://chengming0916.github.io/2026/04/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%838-%E9%83%A8%E7%BD%B2Tekton/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、核心定位本文作为GitOps环境搭建系列的第八篇，聚焦Tekton CI&#x2F;CD流水线的部署与配置。Tekton是云原生CI&#x2F;CD框架，专为Kubernetes环境设计，提供声明式的流水线定义和任务执行能力。 在GitOps环境中，Tekton扮演”持续集成引擎”角色，作为GitOps流程的构建和测试环节，实现从代码提交到镜像构建的自动化。Tekton与Gitea、Harbo">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-13T05:43:57.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.471Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="GitOps">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="CI&#x2F;CD">
+<meta property="article:tag" content="Tekton">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/04/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%838-%E9%83%A8%E7%BD%B2Tekton/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/04/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%838-%E9%83%A8%E7%BD%B2Tekton/","path":"2026/04/13/容器技术/GitOps/基于K3s搭建GitOps环境8-部署Tekton/","title":"基于K3s搭建GitOps环境8-部署Tekton"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于K3s搭建GitOps环境8-部署Tekton | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%BD%8D"><span class="nav-number">1.</span> <span class="nav-text">一、核心定位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2%E5%89%8D%E7%BD%AE%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">二、部署前置检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E4%BA%8EArgoCD%E9%83%A8%E7%BD%B2Tekton"><span class="nav-number">3.</span> <span class="nav-text">三、基于ArgoCD部署Tekton</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%87%86%E5%A4%87Git%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 准备Git仓库配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%88%9B%E5%BB%BAArgoCD%E5%BA%94%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 创建ArgoCD应用配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%88%9B%E5%BB%BATekton%E6%A0%B8%E5%BF%83%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 创建Tekton核心部署配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E6%8F%90%E4%BA%A4%E9%85%8D%E7%BD%AE%E5%88%B0Git%E4%BB%93%E5%BA%93"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 提交配置到Git仓库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%85%8D%E7%BD%AEHTTPS%E8%AE%BF%E9%97%AE"><span class="nav-number">4.</span> <span class="nav-text">四、配置HTTPS访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%88%9B%E5%BB%BATekton%E8%AF%81%E4%B9%A6"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 创建Tekton证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E9%85%8D%E7%BD%AEIngressRoute"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 配置IngressRoute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%BA%94%E7%94%A8ArgoCD%E9%85%8D%E7%BD%AE"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 应用ArgoCD配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%BB%93%E6%9E%9C"><span class="nav-number">5.</span> <span class="nav-text">五、验证部署结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E9%AA%8C%E8%AF%81ArgoCD%E5%90%8C%E6%AD%A5%E7%8A%B6%E6%80%81"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 验证ArgoCD同步状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E9%AA%8C%E8%AF%81Tekton%E7%BB%84%E4%BB%B6%E7%8A%B6%E6%80%81"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 验证Tekton组件状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE%E5%8A%9F%E8%83%BD"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 测试访问功能</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-number">6.</span> <span class="nav-text">六、配置示例流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%88%9B%E5%BB%BATekton-Pipeline%E8%B5%84%E6%BA%90"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 创建Tekton Pipeline资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%88%9B%E5%BB%BATekton-Task%E8%B5%84%E6%BA%90"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 创建Tekton Task资源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">七、服务访问方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E9%9B%86%E7%BE%A4%E5%86%85%E8%AE%BF%E9%97%AE"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 集群内访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E9%9B%86%E7%BE%A4%E5%A4%96%E8%AE%BF%E9%97%AE"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 集群外访问</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">8.</span> <span class="nav-text">八、日常运维命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%BF%AE%E5%A4%8D"><span class="nav-number">9.</span> <span class="nav-text">九、常见问题修复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E9%85%8D%E7%BD%AE%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">十、配置参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">11.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/04/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%838-%E9%83%A8%E7%BD%B2Tekton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于K3s搭建GitOps环境8-部署Tekton | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于K3s搭建GitOps环境8-部署Tekton
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-13 13:43:57" itemprop="dateCreated datePublished" datetime="2026-04-13T13:43:57+08:00">2026-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、核心定位"><a href="#一、核心定位" class="headerlink" title="一、核心定位"></a>一、核心定位</h2><p>本文作为GitOps环境搭建系列的第八篇，聚焦Tekton CI&#x2F;CD流水线的部署与配置。Tekton是云原生CI&#x2F;CD框架，专为Kubernetes环境设计，提供声明式的流水线定义和任务执行能力。</p>
+<p>在GitOps环境中，Tekton扮演”持续集成引擎”角色，作为GitOps流程的构建和测试环节，实现从代码提交到镜像构建的自动化。Tekton与Gitea、Harbor、ArgoCD协同工作，形成完整的”代码→构建→镜像→部署”自动化流水线。</p>
+<h2 id="二、部署前置检查"><a href="#二、部署前置检查" class="headerlink" title="二、部署前置检查"></a>二、部署前置检查</h2><p>部署前需验证K3s集群状态及前序组件运行情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 验证K3s集群状态</span></span><br><span class="line">kubectl get nodes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 验证ArgoCD运行状态</span></span><br><span class="line">kubectl get pods -n argocd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证cert-manager运行状态</span></span><br><span class="line">kubectl get pods -n cert-manager</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 验证Traefik运行状态</span></span><br><span class="line">kubectl get pods -n kube-system -l app=traefik</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 验证Gitea运行状态</span></span><br><span class="line">kubectl get pods -n gitea</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 验证域名解析</span></span><br><span class="line">nslookup tekton.example.io</span><br></pre></td></tr></table></figure>
+
+<p><strong>前置条件检查清单：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> K3s集群运行正常</li>
+<li><input disabled="" type="checkbox"> ArgoCD GitOps核心可用</li>
+<li><input disabled="" type="checkbox"> cert-manager证书管理可用</li>
+<li><input disabled="" type="checkbox"> Traefik反向代理可用</li>
+<li><input disabled="" type="checkbox"> Gitea代码仓库可用</li>
+<li><input disabled="" type="checkbox"> 域名<code>tekton.example.io</code>已解析至K3s节点IP</li>
+<li><input disabled="" type="checkbox"> Git仓库<code>https://gitea.example.io/gitea_admin/devops-deploy.git</code>已创建并包含Tekton配置</li>
+</ul>
+<h2 id="三、基于ArgoCD部署Tekton"><a href="#三、基于ArgoCD部署Tekton" class="headerlink" title="三、基于ArgoCD部署Tekton"></a>三、基于ArgoCD部署Tekton</h2><h3 id="3-1-准备Git仓库配置"><a href="#3-1-准备Git仓库配置" class="headerlink" title="3.1 准备Git仓库配置"></a>3.1 准备Git仓库配置</h3><p>在Gitea仓库<code>devops-deploy.git</code>中创建Tekton配置目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 克隆仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://gitea.example.io/gitea_admin/devops-deploy.git</span><br><span class="line"><span class="built_in">cd</span> devops-deploy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建Tekton配置目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p tekton</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-创建ArgoCD应用配置"><a href="#3-2-创建ArgoCD应用配置" class="headerlink" title="3.2 创建ArgoCD应用配置"></a>3.2 创建ArgoCD应用配置</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tekton/argocd-application.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">argoproj.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Application</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tekton</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">argocd</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">project:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">source:</span></span><br><span class="line">    <span class="attr">repoURL:</span> <span class="string">https://gitea.example.io/gitea_admin/devops-deploy.git</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">tekton</span></span><br><span class="line">    <span class="attr">targetRevision:</span> <span class="string">HEAD</span></span><br><span class="line">  <span class="attr">destination:</span></span><br><span class="line">    <span class="attr">server:</span> <span class="string">https://kubernetes.default.svc</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line">  <span class="attr">syncPolicy:</span></span><br><span class="line">    <span class="attr">automated:</span></span><br><span class="line">      <span class="attr">prune:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">selfHeal:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">syncOptions:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">CreateNamespace=true</span></span><br><span class="line">    <span class="attr">retry:</span></span><br><span class="line">      <span class="attr">limit:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">backoff:</span></span><br><span class="line">        <span class="attr">duration:</span> <span class="string">5s</span></span><br><span class="line">        <span class="attr">factor:</span> <span class="number">2</span></span><br><span class="line">        <span class="attr">maxDuration:</span> <span class="string">3m</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-创建Tekton核心部署配置"><a href="#3-3-创建Tekton核心部署配置" class="headerlink" title="3.3 创建Tekton核心部署配置"></a>3.3 创建Tekton核心部署配置</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tekton/tekton-core.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Namespace</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tekton-dashboard</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">tekton-dashboard</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">tekton-dashboard</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">dashboard</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">gcr.io/tekton-releases/github.com/tektoncd/dashboard/cmd/dashboard:v0.45.0</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">9097</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PORT</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;9097&quot;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">CLUSTER_NAME</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;k3s-gitops&quot;</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">requests:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">&quot;128Mi&quot;</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">&quot;100m&quot;</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">&quot;200m&quot;</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tekton-dashboard</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">tekton-dashboard</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">9097</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">9097</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-提交配置到Git仓库"><a href="#3-4-提交配置到Git仓库" class="headerlink" title="3.4 提交配置到Git仓库"></a>3.4 提交配置到Git仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加配置文件</span></span><br><span class="line">git add tekton/</span><br><span class="line">git commit -m <span class="string">&quot;feat: add Tekton deployment configuration&quot;</span></span><br><span class="line">git push origin main</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、配置HTTPS访问"><a href="#四、配置HTTPS访问" class="headerlink" title="四、配置HTTPS访问"></a>四、配置HTTPS访问</h2><h3 id="4-1-创建Tekton证书"><a href="#4-1-创建Tekton证书" class="headerlink" title="4.1 创建Tekton证书"></a>4.1 创建Tekton证书</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tekton/tekton-certificate.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">cert-manager.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Certificate</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tekton-cert</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">secretName:</span> <span class="string">tekton-tls-secret</span></span><br><span class="line">  <span class="attr">issuerRef:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">selfsigned-cluster-issuer</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">ClusterIssuer</span></span><br><span class="line">  <span class="attr">commonName:</span> <span class="string">tekton.example.io</span></span><br><span class="line">  <span class="attr">dnsNames:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">tekton.example.io</span></span><br><span class="line">  <span class="attr">duration:</span> <span class="string">2160h</span></span><br><span class="line">  <span class="attr">renewBefore:</span> <span class="string">360h</span></span><br><span class="line">  <span class="attr">privateKey:</span></span><br><span class="line">    <span class="attr">algorithm:</span> <span class="string">RSA</span></span><br><span class="line">    <span class="attr">size:</span> <span class="number">2048</span></span><br><span class="line">  <span class="attr">usages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">server</span> <span class="string">auth</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-配置IngressRoute"><a href="#4-2-配置IngressRoute" class="headerlink" title="4.2 配置IngressRoute"></a>4.2 配置IngressRoute</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tekton/tekton-ingressroute.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">traefik.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">IngressRoute</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tekton-websecure</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">entryPoints:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">websecure</span></span><br><span class="line">  <span class="attr">routes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">match:</span> <span class="string">Host(`tekton.example.io`)</span> <span class="string">&amp;&amp;</span> <span class="string">PathPrefix(`/`)</span></span><br><span class="line">      <span class="attr">kind:</span> <span class="string">Rule</span></span><br><span class="line">      <span class="attr">services:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">tekton-dashboard</span></span><br><span class="line">          <span class="attr">passHostHeader:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">port:</span> <span class="number">9097</span></span><br><span class="line">  <span class="attr">tls:</span></span><br><span class="line">    <span class="attr">secretName:</span> <span class="string">tekton-tls-secret</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-应用ArgoCD配置"><a href="#4-3-应用ArgoCD配置" class="headerlink" title="4.3 应用ArgoCD配置"></a>4.3 应用ArgoCD配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用ArgoCD Application配置</span></span><br><span class="line">kubectl apply -f tekton/argocd-application.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或直接创建Application</span></span><br><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">EOF | kubectl apply -f -</span></span><br><span class="line"><span class="string">apiVersion: argoproj.io/v1alpha1</span></span><br><span class="line"><span class="string">kind: Application</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: tekton</span></span><br><span class="line"><span class="string">  namespace: argocd</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  project: default</span></span><br><span class="line"><span class="string">  source:</span></span><br><span class="line"><span class="string">    repoURL: https://gitea.example.io/gitea_admin/devops-deploy.git</span></span><br><span class="line"><span class="string">    path: tekton</span></span><br><span class="line"><span class="string">    targetRevision: HEAD</span></span><br><span class="line"><span class="string">  destination:</span></span><br><span class="line"><span class="string">    server: https://kubernetes.default.svc</span></span><br><span class="line"><span class="string">    namespace: tekton-pipelines</span></span><br><span class="line"><span class="string">  syncPolicy:</span></span><br><span class="line"><span class="string">    automated:</span></span><br><span class="line"><span class="string">      prune: true</span></span><br><span class="line"><span class="string">      selfHeal: true</span></span><br><span class="line"><span class="string">    syncOptions:</span></span><br><span class="line"><span class="string">      - CreateNamespace=true</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="五、验证部署结果"><a href="#五、验证部署结果" class="headerlink" title="五、验证部署结果"></a>五、验证部署结果</h2><h3 id="5-1-验证ArgoCD同步状态"><a href="#5-1-验证ArgoCD同步状态" class="headerlink" title="5.1 验证ArgoCD同步状态"></a>5.1 验证ArgoCD同步状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看ArgoCD应用状态</span></span><br><span class="line">argocd app get tekton</span><br><span class="line">argocd app <span class="built_in">sync</span> tekton  <span class="comment"># 手动触发同步</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看同步历史</span></span><br><span class="line">argocd app <span class="built_in">history</span> tekton</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看应用资源</span></span><br><span class="line">argocd app resources tekton</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-验证Tekton组件状态"><a href="#5-2-验证Tekton组件状态" class="headerlink" title="5.2 验证Tekton组件状态"></a>5.2 验证Tekton组件状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看Tekton命名空间资源</span></span><br><span class="line">kubectl get all -n tekton-pipelines</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Dashboard Pod状态</span></span><br><span class="line">kubectl get pods -n tekton-pipelines -l app=tekton-dashboard</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Service状态</span></span><br><span class="line">kubectl get svc -n tekton-pipelines tekton-dashboard</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看证书状态</span></span><br><span class="line">kubectl get certificate -n tekton-pipelines</span><br><span class="line">kubectl describe certificate tekton-cert -n tekton-pipelines</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看IngressRoute状态</span></span><br><span class="line">kubectl get ingressroute -n tekton-pipelines</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-测试访问功能"><a href="#5-3-测试访问功能" class="headerlink" title="5.3 测试访问功能"></a>5.3 测试访问功能</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试HTTPS访问</span></span><br><span class="line">curl -k https://tekton.example.io</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Dashboard日志</span></span><br><span class="line">kubectl logs -n tekton-pipelines -l app=tekton-dashboard --<span class="built_in">tail</span>=50</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器检查状态</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it $(kubectl get pod -n tekton-pipelines -l app=tekton-dashboard -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) -n tekton-pipelines -- /bin/sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、配置示例流水线"><a href="#六、配置示例流水线" class="headerlink" title="六、配置示例流水线"></a>六、配置示例流水线</h2><h3 id="6-1-创建Tekton-Pipeline资源"><a href="#6-1-创建Tekton-Pipeline资源" class="headerlink" title="6.1 创建Tekton Pipeline资源"></a>6.1 创建Tekton Pipeline资源</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tekton/example-pipeline.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">tekton.dev/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pipeline</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">build-and-deploy</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">params:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">git-url</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Git</span> <span class="string">repository</span> <span class="string">URL</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">image-name</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Docker</span> <span class="string">image</span> <span class="string">name</span></span><br><span class="line">  <span class="attr">tasks:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">fetch-source</span></span><br><span class="line">    <span class="attr">taskRef:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">git-clone</span></span><br><span class="line">    <span class="attr">params:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">url</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">$(params.git-url)</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">revision</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">main</span></span><br><span class="line">    <span class="attr">workspaces:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">output</span></span><br><span class="line">      <span class="attr">workspace:</span> <span class="string">source</span></span><br><span class="line">      </span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">build-image</span></span><br><span class="line">    <span class="attr">runAfter:</span> [<span class="string">fetch-source</span>]</span><br><span class="line">    <span class="attr">taskRef:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">kaniko</span></span><br><span class="line">    <span class="attr">params:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">IMAGE</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">$(params.image-name)</span></span><br><span class="line">    <span class="attr">workspaces:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">source</span></span><br><span class="line">      <span class="attr">workspace:</span> <span class="string">source</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">dockerconfig</span></span><br><span class="line">      <span class="attr">workspace:</span> <span class="string">docker-config</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-创建Tekton-Task资源"><a href="#6-2-创建Tekton-Task资源" class="headerlink" title="6.2 创建Tekton Task资源"></a>6.2 创建Tekton Task资源</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tekton/tasks.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">tekton.dev/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Task</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">git-clone</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">workspaces:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">output</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Git</span> <span class="string">repository</span> <span class="string">will</span> <span class="string">be</span> <span class="string">cloned</span> <span class="string">here</span></span><br><span class="line">  <span class="attr">params:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">url</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Git</span> <span class="string">repository</span> <span class="string">URL</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">revision</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Git</span> <span class="string">revision</span> <span class="string">to</span> <span class="string">clone</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">    <span class="attr">default:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">steps:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">clone</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">alpine/git</span></span><br><span class="line">    <span class="attr">script:</span> <span class="string">|</span></span><br><span class="line"><span class="string">      git clone $(params.url) $(workspaces.output.path)</span></span><br><span class="line"><span class="string">      cd $(workspaces.output.path)</span></span><br><span class="line"><span class="string">      git checkout $(params.revision)</span></span><br><span class="line"><span class="string"></span><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">tekton.dev/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Task</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">kaniko</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">tekton-pipelines</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">workspaces:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">source</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Source</span> <span class="string">code</span> <span class="string">workspace</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">dockerconfig</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Docker</span> <span class="string">config.json</span> <span class="string">workspace</span></span><br><span class="line">  <span class="attr">params:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">IMAGE</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">Docker</span> <span class="string">image</span> <span class="string">name</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">  <span class="attr">steps:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">build-and-push</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">gcr.io/kaniko-project/executor:v1.9.0</span></span><br><span class="line">    <span class="attr">env:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">DOCKER_CONFIG</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">/workspace/dockerconfig</span></span><br><span class="line">    <span class="attr">command:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">/kaniko/executor</span></span><br><span class="line">    <span class="attr">args:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--dockerfile=$(workspaces.source.path)/Dockerfile</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--destination=$(params.IMAGE)</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--context=$(workspaces.source.path)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="七、服务访问方式"><a href="#七、服务访问方式" class="headerlink" title="七、服务访问方式"></a>七、服务访问方式</h2><h3 id="7-1-集群内访问"><a href="#7-1-集群内访问" class="headerlink" title="7.1 集群内访问"></a>7.1 集群内访问</h3><ul>
+<li><strong>Dashboard Web界面</strong>：<code>tekton-dashboard.tekton-pipelines.svc.cluster.local:9097</code></li>
+<li><strong>API访问</strong>：通过Service直接访问Tekton组件</li>
+</ul>
+<h3 id="7-2-集群外访问"><a href="#7-2-集群外访问" class="headerlink" title="7.2 集群外访问"></a>7.2 集群外访问</h3><ul>
+<li><strong>Dashboard Web界面</strong>：<code>https://tekton.example.io</code></li>
+<li><strong>Git Webhook配置</strong>：<code>https://tekton.example.io</code>（用于接收Gitea webhook）</li>
+</ul>
+<h2 id="八、日常运维命令"><a href="#八、日常运维命令" class="headerlink" title="八、日常运维命令"></a>八、日常运维命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看Tekton资源</span></span><br><span class="line">kubectl get pipelines.tekton.dev -n tekton-pipelines</span><br><span class="line">kubectl get tasks.tekton.dev -n tekton-pipelines</span><br><span class="line">kubectl get pipelineruns.tekton.dev -n tekton-pipelines</span><br><span class="line">kubectl get taskruns.tekton.dev -n tekton-pipelines</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Dashboard日志</span></span><br><span class="line">kubectl logs -f deployment/tekton-dashboard -n tekton-pipelines</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启Dashboard</span></span><br><span class="line">kubectl rollout restart deployment tekton-dashboard -n tekton-pipelines</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看资源使用情况</span></span><br><span class="line">kubectl top pods -n tekton-pipelines</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理完成的PipelineRun</span></span><br><span class="line">kubectl delete pipelineruns.tekton.dev --all -n tekton-pipelines --field-selector=status.conditions[0].status=True</span><br></pre></td></tr></table></figure>
+
+<h2 id="九、常见问题修复"><a href="#九、常见问题修复" class="headerlink" title="九、常见问题修复"></a>九、常见问题修复</h2><table>
+<thead>
+<tr>
+<th>问题现象</th>
+<th>排查方向</th>
+<th>修复方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ArgoCD同步失败</td>
+<td>Git仓库访问权限</td>
+<td>检查ArgoCD Repository配置，添加访问凭证</td>
+</tr>
+<tr>
+<td>Dashboard无法访问</td>
+<td>IngressRoute&#x2F;证书</td>
+<td>检查IngressRoute配置，验证证书Secret是否存在</td>
+</tr>
+<tr>
+<td>Pipeline执行失败</td>
+<td>任务配置&#x2F;资源权限</td>
+<td>检查Task定义，验证ServiceAccount权限</td>
+</tr>
+<tr>
+<td>镜像构建失败</td>
+<td>Docker配置&#x2F;网络</td>
+<td>检查kaniko配置，验证网络连通性</td>
+</tr>
+<tr>
+<td>Webhook不触发</td>
+<td>Webhook配置&#x2F;网络</td>
+<td>检查Gitea webhook配置，验证网络可达性</td>
+</tr>
+<tr>
+<td>资源占用过高</td>
+<td>资源限制&#x2F;并发数</td>
+<td>调整资源限制，限制并发PipelineRun数量</td>
+</tr>
+</tbody></table>
+<h2 id="十、配置参考"><a href="#十、配置参考" class="headerlink" title="十、配置参考"></a>十、配置参考</h2><p>所有Tekton配置文件和部署脚本请参考：<br><strong><a target="_blank" rel="noopener" href="https://gitee.com/Chemmy/kube-template/tree/master/devops/Tekton">https://gitee.com/Chemmy/kube-template/tree/master/devops/Tekton</a></strong></p>
+<p>该目录包含：</p>
+<ul>
+<li>Tekton核心部署配置</li>
+<li>示例Pipeline和Task定义</li>
+<li>Webhook集成配置</li>
+<li>生产环境优化配置</li>
+<li>监控和日志配置</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文完成了Tekton在K3s集群中的标准化部署，基于ArgoCD实现了GitOps方式的CI&#x2F;CD流水线管理。Tekton作为GitOps环境的持续集成引擎，为自动化构建和测试提供了强大的能力。</p>
+<p>部署完成后，建议创建示例流水线验证构建功能，配置Gitea webhook实现自动触发，并设置适当的资源限制。下一篇文章将部署Harbor镜像仓库，为GitOps环境提供镜像存储和分发能力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/GitOps/" rel="tag"># GitOps</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/CI-CD/" rel="tag"># CI/CD</a>
+              <a href="/tags/Tekton/" rel="tag"># Tekton</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/10/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%837-%E9%83%A8%E7%BD%B2ArgoCD/" rel="prev" title="基于K3s搭建GitOps环境7-部署ArgoCD">
+                  <i class="fa fa-angle-left"></i> 基于K3s搭建GitOps环境7-部署ArgoCD
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/04/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%839-%E9%83%A8%E7%BD%B2Harbor/" rel="next" title="基于K3s搭建GitOps环境9-部署Harbor">
+                  基于K3s搭建GitOps环境9-部署Harbor <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、 背景与机遇：为什么需要热更新？热更新指在不重新发布客户端安装包（APK&#x2F;IPA）的情况下，通过下发补丁或脚本，在线修复Bug或更新部分功能。 核心驱动力：  快速迭代与修复：传统应用商店审核周期长（早期App Store可达2周），无法满足紧急Bug修复、节日活动等快速上线需求。 提升用户体验：避免强制用户下载完整的安装包，降低更新成本，提高版本覆盖率。 业务灵活性：支持A&amp;#x2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="移动端热更新技术方案解析">
+<meta property="og:url" content="http://chengming0916.github.io/2025/01/03/%E6%9C%AA%E5%88%86%E7%B1%BB/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E7%83%AD%E6%9B%B4%E6%96%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、 背景与机遇：为什么需要热更新？热更新指在不重新发布客户端安装包（APK&#x2F;IPA）的情况下，通过下发补丁或脚本，在线修复Bug或更新部分功能。 核心驱动力：  快速迭代与修复：传统应用商店审核周期长（早期App Store可达2周），无法满足紧急Bug修复、节日活动等快速上线需求。 提升用户体验：避免强制用户下载完整的安装包，降低更新成本，提高版本覆盖率。 业务灵活性：支持A&amp;#x2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/3689421-c1961de454e321a3.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/3689421-0728371c17f212a7.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+<meta property="article:published_time" content="2025-01-03T11:00:57.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.496Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="热更新">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/3689421-c1961de454e321a3.png?imageMogr2/auto-orient/strip%7CimageView2/2">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2025/01/03/%E6%9C%AA%E5%88%86%E7%B1%BB/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E7%83%AD%E6%9B%B4%E6%96%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88%E8%A7%A3%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2025/01/03/%E6%9C%AA%E5%88%86%E7%B1%BB/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E7%83%AD%E6%9B%B4%E6%96%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88%E8%A7%A3%E6%9E%90/","path":"2025/01/03/未分类/移动端热更新技术方案解析/","title":"移动端热更新技术方案解析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>移动端热更新技术方案解析 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81-%E8%83%8C%E6%99%AF%E4%B8%8E%E6%9C%BA%E9%81%87%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%83%AD%E6%9B%B4%E6%96%B0%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、 背景与机遇：为什么需要热更新？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-iOS%E5%B9%B3%E5%8F%B0%E7%83%AD%E6%9B%B4%E6%96%B0%E6%96%B9%E6%A1%88%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">二、 iOS平台热更新方案详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%9F%BA%E4%BA%8EJavaScriptCore%E7%9A%84%E8%BD%BB%E9%87%8F%E7%BA%A7%E6%96%B9%E6%A1%88%EF%BC%88%E9%9D%9E%E8%B7%A8%E5%B9%B3%E5%8F%B0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">1. 基于JavaScriptCore的轻量级方案（非跨平台）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E8%B7%A8%E5%B9%B3%E5%8F%B0%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E6%96%B9%E6%A1%88"><span class="nav-number">2.2.</span> <span class="nav-text">2. 跨平台应用开发方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E5%85%B6%E4%BB%96%E6%96%B9%E6%A1%88"><span class="nav-number">2.3.</span> <span class="nav-text">3. 其他方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%8A%80%E6%9C%AF%E8%83%8C%E6%99%AF%EF%BC%9AGCC%E3%80%81LLVM%E4%B8%8EClang"><span class="nav-number">2.4.</span> <span class="nav-text">4. 技术背景：GCC、LLVM与Clang</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81-Android%E5%B9%B3%E5%8F%B0%E7%83%AD%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">三、 Android平台热修复方案详解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E3%80%81-%E6%80%BB%E7%BB%93%E4%B8%8E%E6%96%B9%E6%A1%88%E9%80%89%E5%9E%8B%E5%BF%AB%E9%80%9F%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">四、 总结与方案选型快速参考</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%94%E3%80%81-%E6%8B%93%E5%B1%95%E8%B5%84%E6%BA%90"><span class="nav-number">5.</span> <span class="nav-text">五、 拓展资源</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/01/03/%E6%9C%AA%E5%88%86%E7%B1%BB/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E7%83%AD%E6%9B%B4%E6%96%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="移动端热更新技术方案解析 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          移动端热更新技术方案解析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-03 19:00:57" itemprop="dateCreated datePublished" datetime="2025-01-03T19:00:57+08:00">2025-01-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h4 id="一、-背景与机遇：为什么需要热更新？"><a href="#一、-背景与机遇：为什么需要热更新？" class="headerlink" title="一、 背景与机遇：为什么需要热更新？"></a>一、 背景与机遇：为什么需要热更新？</h4><p>热更新指在不重新发布客户端安装包（APK&#x2F;IPA）的情况下，通过下发补丁或脚本，在线修复Bug或更新部分功能。</p>
+<p><strong>核心驱动力</strong>：</p>
+<ol>
+<li><strong>快速迭代与修复</strong>：传统应用商店审核周期长（早期App Store可达2周），无法满足紧急Bug修复、节日活动等快速上线需求。</li>
+<li><strong>提升用户体验</strong>：避免强制用户下载完整的安装包，降低更新成本，提高版本覆盖率。</li>
+<li><strong>业务灵活性</strong>：支持A&#x2F;B测试、功能灰度发布等动态化运营策略。</li>
+</ol>
+<p><strong>技术机遇（iOS侧）</strong>：2013年iOS 7引入的 <strong><code>JavaScriptCore</code></strong> 框架是关键转折点。它使得原生Objective-C与JavaScript之间的高效、无缝通信成为可能，为基于JS脚本的热更新方案（如JSPatch）铺平了道路。随着Swift的发布和iOS 7+用户成为主流，热更新技术开始爆发。</p>
+<h4 id="二、-iOS平台热更新方案详解"><a href="#二、-iOS平台热更新方案详解" class="headerlink" title="二、 iOS平台热更新方案详解"></a>二、 iOS平台热更新方案详解</h4><h5 id="1-基于JavaScriptCore的轻量级方案（非跨平台）"><a href="#1-基于JavaScriptCore的轻量级方案（非跨平台）" class="headerlink" title="1. 基于JavaScriptCore的轻量级方案（非跨平台）"></a>1. 基于JavaScriptCore的轻量级方案（非跨平台）</h5><p>这类方案适合小范围Bug修复和逻辑更新，通过JS脚本调用&#x2F;替换原生方法。</p>
+<table>
+<thead>
+<tr>
+<th align="left">方案</th>
+<th align="left">脚本语言</th>
+<th align="left">特点</th>
+<th align="left">现状</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Rollout.io</strong></td>
+<td align="left">JavaScript</td>
+<td align="left">支持OC和Swift，已平台化，有商业化产品使用。</td>
+<td align="left">成熟，持续维护。</td>
+</tr>
+<tr>
+<td align="left"><strong>JSPatch</strong></td>
+<td align="left">JavaScript</td>
+<td align="left">仅支持OC，在国内广泛使用（腾讯系等），平台化成熟。</td>
+<td align="left">成熟，但苹果审核政策收紧后使用需谨慎。</td>
+</tr>
+<tr>
+<td align="left"><strong>DynamicCocoa</strong></td>
+<td align="left">OC -&gt; JS</td>
+<td align="left">滴滴内部方案。<strong>最大亮点</strong>：提供工具将OC代码转译为JS，无需手写JS；支持xib&#x2F;storyboard、图片资源更新。</td>
+<td align="left">曾计划开源，需关注其后续动态。</td>
+</tr>
+</tbody></table>
+<p><strong>共同原理</strong>：利用 <code>JavaScriptCore</code> 建立JS与OC的桥接，通过运行时（Runtime）动态替换方法实现（<code>method swizzling</code>）。</p>
+<h5 id="2-跨平台应用开发方案"><a href="#2-跨平台应用开发方案" class="headerlink" title="2. 跨平台应用开发方案"></a>2. 跨平台应用开发方案</h5><p>这类方案旨在用一套代码开发iOS、Android（及Web）应用，天然支持热更新。</p>
+<table>
+<thead>
+<tr>
+<th align="left">方案</th>
+<th align="left">发起方</th>
+<th align="left">核心特点</th>
+<th align="left">性能与生态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>React Native (RN)</strong></td>
+<td align="left">Facebook</td>
+<td align="left">使用React语法和JSX，重视各平台原生体验。</td>
+<td align="left">性能持续优化，生态庞大（Facebook、腾讯、京东等大量应用使用）。早期性能有槽点，现已大幅改善。</td>
+</tr>
+<tr>
+<td align="left"><strong>Weex</strong></td>
+<td align="left">阿里巴巴</td>
+<td align="left"><strong>目标</strong>：一次编写，生成iOS、Android、Web三端代码。采用Vue.js语法。</td>
+<td align="left">经阿里系产品（如2016年双11）大规模验证。旨在解决RN代码复用率、性能优化被动等问题。</td>
+</tr>
+</tbody></table>
+<p><strong>选型提示</strong>：<code>Weex</code> 在代码复用和跨平台一致性上追求更极致；<code>RN</code> 则更强调遵循各平台原生设计规范，生态更成熟。</p>
+<h5 id="3-其他方案"><a href="#3-其他方案" class="headerlink" title="3. 其他方案"></a>3. 其他方案</h5><ul>
+<li><strong>Wax</strong>：使用Lua作为脚本语言，性能优于JS。代表作《愤怒的小鸟》。后期由阿里接手维护，但支付宝后期转向了JSPatch。</li>
+<li><strong>Hybrid App</strong>：基于WebView（如PhoneGap）。<strong>缺点</strong>：性能较差，体验不及原生。随着RN&#x2F;Weex的成熟，已不再是高性能App的首选。</li>
+</ul>
+<p><strong>关于脚本语言的思考</strong>：</p>
+<ul>
+<li><strong>Lua</strong>：性能高，但在应用开发生态（类库、文档）上不如JS成熟，多用于游戏热更（Cocos2d-X, Unity3D）。</li>
+<li><strong>JavaScript</strong>：生态极其丰富，性能足以满足大部分应用开发场景，是应用端热更的主流选择。</li>
+</ul>
+<h5 id="4-技术背景：GCC、LLVM与Clang"><a href="#4-技术背景：GCC、LLVM与Clang" class="headerlink" title="4. 技术背景：GCC、LLVM与Clang"></a>4. 技术背景：GCC、LLVM与Clang</h5><ul>
+<li><strong>GCC</strong>：传统的编译器集合，早期OC的编译器。</li>
+<li><strong>LLVM&#x2F;Clang</strong>：Apple主导，旨在取代GCC。<code>Clang</code> 是LLVM的前端，负责将OC代码编译成抽象语法树（AST）。</li>
+<li><strong>关联</strong>：<code>DynamicCocoa</code> 的高明之处在于直接利用 <code>Clang</code> 生成的AST进行解析和转译，从而实现了“用OC写补丁”的体验。</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/3689421-c1961de454e321a3.png?imageMogr2/auto-orient/strip%7CimageView2/2" alt="iOS热更新方案对比图"></p>
+<h4 id="三、-Android平台热修复方案详解"><a href="#三、-Android平台热修复方案详解" class="headerlink" title="三、 Android平台热修复方案详解"></a>三、 Android平台热修复方案详解</h4><p>Android方案主要围绕DEX补丁的生成、下发和加载展开。</p>
+<table>
+<thead>
+<tr>
+<th align="left">方案</th>
+<th align="left">出品方</th>
+<th align="left">核心原理</th>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>百川Hotfix</strong></td>
+<td align="left">阿里巴巴</td>
+<td align="left">融合热部署(AndFix)与冷部署，支持类、资源、SO文件修复。</td>
+<td align="left">功能全面，可视化打补丁，接入简单。</td>
+<td align="left">-</td>
+</tr>
+<tr>
+<td align="left"><strong>Robust</strong></td>
+<td align="left">美团</td>
+<td align="left">为每个方法插入“跳转”逻辑，通过改变跳转目标实现修复。</td>
+<td align="left"><strong>实时生效</strong>，兼容性高，稳定性好。</td>
+<td align="left">侵入打包流程，增加包体积和方法数。</td>
+</tr>
+<tr>
+<td align="left"><strong>Tinker</strong></td>
+<td align="left">微信</td>
+<td align="left">全量替换DEX。通过自研DexDiff算法生成极小差量包。</td>
+<td align="left">补丁包小，功能强大（支持类、资源、SO）。</td>
+<td align="left"><strong>不实时生效</strong>，需重启。合并DEX时消耗内存&#x2F;磁盘，可能失败。</td>
+</tr>
+<tr>
+<td align="left"><strong>QFix (类)</strong></td>
+<td align="left">手机QQ空间</td>
+<td align="left">类似Google Multidex，将补丁作为新的DEX加载。</td>
+<td align="left">兼容性高，稳定性好。</td>
+<td align="left"><strong>不实时生效</strong>。Dalvik下性能问题；Art下补丁包大；需侵入打包。</td>
+</tr>
+</tbody></table>
+<p><img src="https://upload-images.jianshu.io/upload_images/3689421-0728371c17f212a7.png?imageMogr2/auto-orient/strip%7CimageView2/2" alt="Android热修复方案对比图"></p>
+<p><strong>关键概念</strong>：</p>
+<ul>
+<li><strong>实时生效</strong>：补丁应用后立即起作用，无需重启App（如Robust、AndFix）。</li>
+<li><strong>冷启动生效</strong>：补丁在下次App启动时生效（如Tinker、QFix）。</li>
+<li><strong>侵入式打包</strong>：需要在正常打包流程中插入特定步骤，可能影响CI&#x2F;CD流水线。</li>
+</ul>
+<h4 id="四、-总结与方案选型快速参考"><a href="#四、-总结与方案选型快速参考" class="headerlink" title="四、 总结与方案选型快速参考"></a>四、 总结与方案选型快速参考</h4><table>
+<thead>
+<tr>
+<th align="left">平台</th>
+<th align="left">需求场景</th>
+<th align="left">推荐方案</th>
+<th align="left">关键考量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>iOS</strong></td>
+<td align="left">紧急Bug修复，小功能更新</td>
+<td align="left"><strong>JSPatch</strong> (需注意审核风险) 或评估 <strong>Rollout</strong></td>
+<td align="left">苹果官方对热更新审核政策严格，需谨慎使用。</td>
+</tr>
+<tr>
+<td align="left"><strong>iOS</strong></td>
+<td align="left">新功能模块，跨平台需求</td>
+<td align="left"><strong>React Native</strong> 或 <strong>Weex</strong></td>
+<td align="left">RN生态更成熟；Weex追求更高代码复用。</td>
+</tr>
+<tr>
+<td align="left"><strong>Android</strong></td>
+<td align="left">紧急Bug修复，要求实时生效</td>
+<td align="left"><strong>Robust</strong></td>
+<td align="left">平衡了实时性、兼容性和稳定性。</td>
+</tr>
+<tr>
+<td align="left"><strong>Android</strong></td>
+<td align="left">常规版本更新，修复范围大</td>
+<td align="left"><strong>Tinker</strong></td>
+<td align="left">补丁包小，功能全面，社区活跃。</td>
+</tr>
+<tr>
+<td align="left"><strong>Android</strong></td>
+<td align="left">追求简单接入，功能全面</td>
+<td align="left"><strong>百川Hotfix</strong></td>
+<td align="left">阿里系产品，提供平台化支持。</td>
+</tr>
+</tbody></table>
+<p><strong>核心建议</strong>：</p>
+<ol>
+<li><strong>明确需求</strong>：是修复致命Bug，还是实现功能动态化？是否需要跨平台？</li>
+<li><strong>评估成本</strong>：接入复杂度、包体积影响、对现有构建流程的侵入程度。</li>
+<li><strong>关注生态与合规</strong>：特别是iOS方案，需密切关注苹果的审核政策动向。</li>
+<li><strong>混合使用</strong>：大型App常采用混合策略，如基础模块用原生，高动态业务模块用RN&#x2F;Weex。</li>
+</ol>
+<h4 id="五、-拓展资源"><a href="#五、-拓展资源" class="headerlink" title="五、 拓展资源"></a>五、 拓展资源</h4><ul>
+<li><strong>本文参考PPT</strong>：<a target="_blank" rel="noopener" href="https://github.com/qiyer/Share/blob/master/%E7%83%AD%E6%9B%B4%E6%96%B0%E5%88%86%E4%BA%ABPPT.pptx">热更新分享PPT.pptx</a></li>
+<li><strong>iOS深入原理</strong>：<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/bang590/JSPatch/wiki/JSPatch-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3">JSPatch 实现原理详解</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.cnbang.net/tech/2698/">bang’s blog - JSPatch</a></li>
+</ul>
+</li>
+<li><strong>Android方案对比</strong>：<ul>
+<li><a target="_blank" rel="noopener" href="https://yq.aliyun.com/articles/67136">各大热补丁方案分析和比较</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/" rel="tag"># 热更新</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/12/29/%E6%9C%AA%E5%88%86%E7%B1%BB/%E6%97%A5%E5%BF%97%E6%90%9C%E9%9B%86%E7%B3%BB%E7%BB%9F%E4%BB%8EELK%E5%88%B0EFK/" rel="prev" title="日志搜集系统从ELK到EFK">
+                  <i class="fa fa-angle-left"></i> 日志搜集系统从ELK到EFK
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/02/11/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/WPF%E4%B8%ADBinding%E4%BD%BF%E7%94%A8StringFormat%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="next" title="WPF中Binding使用StringFormat格式化字符串">
+                  WPF中Binding使用StringFormat格式化字符串 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

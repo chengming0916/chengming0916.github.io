@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、核心定位本文作为GitOps环境搭建系列的第九篇，聚焦容器镜像仓库Harbor的部署与配置。Harbor是由CNCF孵化而成的企业级开源Registry项目，提供完整的镜像存储、签名、扫描和分发能力。 在GitOps环境中，Harbor扮演”镜像存储中枢”角色，作为GitOps流程的镜像仓库环节，接收来自Tekton构建的镜像，并为ArgoCD提供可信的镜像源。Harbor与Gitea、Tek">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于K3s搭建GitOps环境9-部署Harbor">
+<meta property="og:url" content="http://chengming0916.github.io/2026/04/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%839-%E9%83%A8%E7%BD%B2Harbor/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、核心定位本文作为GitOps环境搭建系列的第九篇，聚焦容器镜像仓库Harbor的部署与配置。Harbor是由CNCF孵化而成的企业级开源Registry项目，提供完整的镜像存储、签名、扫描和分发能力。 在GitOps环境中，Harbor扮演”镜像存储中枢”角色，作为GitOps流程的镜像仓库环节，接收来自Tekton构建的镜像，并为ArgoCD提供可信的镜像源。Harbor与Gitea、Tek">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-14T10:35:50.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.471Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="GitOps">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="私有镜像仓库">
+<meta property="article:tag" content="Harbor">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/04/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%839-%E9%83%A8%E7%BD%B2Harbor/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/04/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%839-%E9%83%A8%E7%BD%B2Harbor/","path":"2026/04/14/容器技术/GitOps/基于K3s搭建GitOps环境9-部署Harbor/","title":"基于K3s搭建GitOps环境9-部署Harbor"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于K3s搭建GitOps环境9-部署Harbor | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%BD%8D"><span class="nav-number">1.</span> <span class="nav-text">一、核心定位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2%E5%89%8D%E7%BD%AE%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">二、部署前置检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%87%86%E5%A4%87Harbor%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">三、准备Harbor数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%88%9B%E5%BB%BAHarbor%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 创建Harbor数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%88%9B%E5%BB%BAHarbor%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 创建Harbor命名空间</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%85%8D%E7%BD%AEHarbor%E8%AF%81%E4%B9%A6"><span class="nav-number">4.</span> <span class="nav-text">四、配置Harbor证书</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%88%9B%E5%BB%BAHarbor%E8%AF%81%E4%B9%A6"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 创建Harbor证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%BA%94%E7%94%A8%E8%AF%81%E4%B9%A6%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 应用证书配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%A0%87%E5%87%86%E5%8C%96%E9%83%A8%E7%BD%B2Harbor"><span class="nav-number">5.</span> <span class="nav-text">五、标准化部署Harbor</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%B7%BB%E5%8A%A0Helm%E4%BB%93%E5%BA%93"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 添加Helm仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%88%9B%E5%BB%BAHarbor%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 创建Harbor配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E9%83%A8%E7%BD%B2Harbor"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 部署Harbor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%AA%8C%E8%AF%81%E9%83%A8%E7%BD%B2%E7%BB%93%E6%9E%9C"><span class="nav-number">6.</span> <span class="nav-text">六、验证部署结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%AA%8C%E8%AF%81%E7%BB%84%E4%BB%B6%E7%8A%B6%E6%80%81"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 验证组件状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE%E5%8A%9F%E8%83%BD"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 测试访问功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E5%88%9D%E5%A7%8B%E5%8C%96Harbor"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 初始化Harbor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E9%85%8D%E7%BD%AE%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E8%AE%BF%E9%97%AE"><span class="nav-number">7.</span> <span class="nav-text">七、配置容器运行时访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-Docker%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 Docker客户端配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-Containerd%E9%85%8D%E7%BD%AE%EF%BC%88K3s%E8%8A%82%E7%82%B9%EF%BC%89"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 Containerd配置（K3s节点）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E6%B5%8B%E8%AF%95%E9%95%9C%E5%83%8F%E6%8E%A8%E9%80%81"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 测试镜像推送</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81Harbor%E4%B8%8EGitOps%E5%85%A8%E9%93%BE%E8%B7%AF%E9%9B%86%E6%88%90"><span class="nav-number">8.</span> <span class="nav-text">八、Harbor与GitOps全链路集成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E5%85%A8%E9%93%BE%E8%B7%AF%E7%BB%84%E4%BB%B6%E7%9F%A9%E9%98%B5"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 全链路组件矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E5%AE%8C%E6%95%B4%E6%B5%81%E6%B0%B4%E7%BA%BF%E8%81%94%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 完整流水线联动流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-Harbor%E4%B8%8EGitea%E3%80%81Tekton%E3%80%81ArgoCD%E8%81%94%E5%8A%A8"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 Harbor与Gitea、Tekton、ArgoCD联动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Harbor-Gitea%EF%BC%88%E8%AE%A4%E8%AF%81%E9%9B%86%E6%88%90%EF%BC%89"><span class="nav-number">8.3.1.</span> <span class="nav-text">Harbor + Gitea（认证集成）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Harbor-Tekton%EF%BC%88%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E6%8E%A8%E9%80%81%EF%BC%89"><span class="nav-number">8.3.2.</span> <span class="nav-text">Harbor + Tekton（镜像构建推送）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Harbor-ArgoCD%EF%BC%88%E9%95%9C%E5%83%8F%E9%A9%B1%E5%8A%A8%E9%83%A8%E7%BD%B2%EF%BC%89"><span class="nav-number">8.3.3.</span> <span class="nav-text">Harbor + ArgoCD（镜像驱动部署）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-4-%E5%AE%89%E5%85%A8%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9"><span class="nav-number">8.4.</span> <span class="nav-text">8.4 安全集成要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F"><span class="nav-number">9.</span> <span class="nav-text">九、服务访问方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-%E9%9B%86%E7%BE%A4%E5%86%85%E8%AE%BF%E9%97%AE"><span class="nav-number">9.1.</span> <span class="nav-text">9.1 集群内访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E9%9B%86%E7%BE%A4%E5%A4%96%E8%AE%BF%E9%97%AE"><span class="nav-number">9.2.</span> <span class="nav-text">9.2 集群外访问</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">10.</span> <span class="nav-text">十、日常运维命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%BF%AE%E5%A4%8D"><span class="nav-number">11.</span> <span class="nav-text">十一、常见问题修复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE%E5%8F%82%E8%80%83"><span class="nav-number">12.</span> <span class="nav-text">十二、配置参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">13.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/04/14/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%839-%E9%83%A8%E7%BD%B2Harbor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于K3s搭建GitOps环境9-部署Harbor | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于K3s搭建GitOps环境9-部署Harbor
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-04-14 18:35:50" itemprop="dateCreated datePublished" datetime="2026-04-14T18:35:50+08:00">2026-04-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、核心定位"><a href="#一、核心定位" class="headerlink" title="一、核心定位"></a>一、核心定位</h2><p>本文作为GitOps环境搭建系列的第九篇，聚焦容器镜像仓库Harbor的部署与配置。Harbor是由CNCF孵化而成的企业级开源Registry项目，提供完整的镜像存储、签名、扫描和分发能力。</p>
+<p>在GitOps环境中，Harbor扮演”镜像存储中枢”角色，作为GitOps流程的镜像仓库环节，接收来自Tekton构建的镜像，并为ArgoCD提供可信的镜像源。Harbor与Gitea、Tekton、ArgoCD协同工作，形成完整的”代码→构建→镜像→部署”自动化流水线。</p>
+<h2 id="二、部署前置检查"><a href="#二、部署前置检查" class="headerlink" title="二、部署前置检查"></a>二、部署前置检查</h2><p>部署前需验证K3s集群状态及前序组件运行情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 验证K3s集群状态</span></span><br><span class="line">kubectl get nodes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 验证PostgreSQL运行状态</span></span><br><span class="line">kubectl get pods -n postgres</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证Redis运行状态</span></span><br><span class="line">kubectl get pods -n redis</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 验证Traefik运行状态</span></span><br><span class="line">kubectl get pods -n kube-system -l app=traefik</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 验证cert-manager运行状态</span></span><br><span class="line">kubectl get pods -n cert-manager</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 验证域名解析</span></span><br><span class="line">nslookup harbor.example.io</span><br><span class="line">nslookup notary.example.io</span><br></pre></td></tr></table></figure>
+
+<p><strong>前置条件检查清单：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> K3s集群运行正常</li>
+<li><input disabled="" type="checkbox"> PostgreSQL数据库可用（用于存储Harbor元数据）</li>
+<li><input disabled="" type="checkbox"> Redis缓存服务可用（用于Harbor会话缓存）</li>
+<li><input disabled="" type="checkbox"> Traefik反向代理可用</li>
+<li><input disabled="" type="checkbox"> cert-manager证书管理可用</li>
+<li><input disabled="" type="checkbox"> 域名<code>harbor.example.io</code>和<code>notary.example.io</code>已解析至K3s节点IP</li>
+<li><input disabled="" type="checkbox"> 已创建Harbor数据库和用户（如未创建，见下文步骤）</li>
+</ul>
+<h2 id="三、准备Harbor数据库"><a href="#三、准备Harbor数据库" class="headerlink" title="三、准备Harbor数据库"></a>三、准备Harbor数据库</h2><h3 id="3-1-创建Harbor数据库"><a href="#3-1-创建Harbor数据库" class="headerlink" title="3.1 创建Harbor数据库"></a>3.1 创建Harbor数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在PostgreSQL中创建Harbor数据库</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it postgres-0 -n postgres -- psql -U postgres -c <span class="string">&quot;CREATE DATABASE harbor;&quot;</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it postgres-0 -n postgres -- psql -U postgres -c <span class="string">&quot;CREATE USER harbor WITH PASSWORD &#x27;harbor123&#x27;;&quot;</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it postgres-0 -n postgres -- psql -U postgres -c <span class="string">&quot;GRANT ALL PRIVILEGES ON DATABASE harbor TO harbor;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-创建Harbor命名空间"><a href="#3-2-创建Harbor命名空间" class="headerlink" title="3.2 创建Harbor命名空间"></a>3.2 创建Harbor命名空间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建Harbor专属命名空间</span></span><br><span class="line">kubectl create namespace harbor</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、配置Harbor证书"><a href="#四、配置Harbor证书" class="headerlink" title="四、配置Harbor证书"></a>四、配置Harbor证书</h2><h3 id="4-1-创建Harbor证书"><a href="#4-1-创建Harbor证书" class="headerlink" title="4.1 创建Harbor证书"></a>4.1 创建Harbor证书</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># harbor-certificate.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">cert-manager.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Certificate</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">harbor-cert</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">harbor</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">secretName:</span> <span class="string">harbor-tls-secret</span></span><br><span class="line">  <span class="attr">issuerRef:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">selfsigned-cluster-issuer</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">ClusterIssuer</span></span><br><span class="line">  <span class="attr">commonName:</span> <span class="string">harbor.example.io</span></span><br><span class="line">  <span class="attr">dnsNames:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">harbor.example.io</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">notary.example.io</span></span><br><span class="line">  <span class="attr">duration:</span> <span class="string">2160h</span></span><br><span class="line">  <span class="attr">renewBefore:</span> <span class="string">360h</span></span><br><span class="line">  <span class="attr">privateKey:</span></span><br><span class="line">    <span class="attr">algorithm:</span> <span class="string">RSA</span></span><br><span class="line">    <span class="attr">size:</span> <span class="number">2048</span></span><br><span class="line">  <span class="attr">usages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">server</span> <span class="string">auth</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-应用证书配置"><a href="#4-2-应用证书配置" class="headerlink" title="4.2 应用证书配置"></a>4.2 应用证书配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用证书配置</span></span><br><span class="line">kubectl apply -f harbor-certificate.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证证书状态</span></span><br><span class="line">kubectl get certificate -n harbor</span><br><span class="line">kubectl describe certificate harbor-cert -n harbor</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、标准化部署Harbor"><a href="#五、标准化部署Harbor" class="headerlink" title="五、标准化部署Harbor"></a>五、标准化部署Harbor</h2><h3 id="5-1-添加Helm仓库"><a href="#5-1-添加Helm仓库" class="headerlink" title="5.1 添加Helm仓库"></a>5.1 添加Helm仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加Harbor官方Helm仓库</span></span><br><span class="line">helm repo add harbor https://helm.goharbor.io --force-update</span><br><span class="line">helm repo update</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-创建Harbor配置"><a href="#5-2-创建Harbor配置" class="headerlink" title="5.2 创建Harbor配置"></a>5.2 创建Harbor配置</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># harbor-values.yaml</span></span><br><span class="line"><span class="comment"># 参考：https://gitee.com/Chemmy/kube-template/blob/master/devops/Harbor/harbor-values.yaml</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 全局配置</span></span><br><span class="line"><span class="attr">expose:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ingress</span></span><br><span class="line">  <span class="attr">tls:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">certSource:</span> <span class="string">secret</span></span><br><span class="line">    <span class="attr">secret:</span></span><br><span class="line">      <span class="attr">secretName:</span> <span class="string">&quot;harbor-tls-secret&quot;</span></span><br><span class="line">      <span class="attr">notarySecretName:</span> <span class="string">&quot;harbor-tls-secret&quot;</span></span><br><span class="line">  <span class="attr">ingress:</span></span><br><span class="line">    <span class="attr">hosts:</span></span><br><span class="line">      <span class="attr">core:</span> <span class="string">harbor.example.io</span></span><br><span class="line">      <span class="attr">notary:</span> <span class="string">notary.example.io</span></span><br><span class="line">    <span class="attr">annotations:</span></span><br><span class="line">      <span class="attr">kubernetes.io/ingress.class:</span> <span class="string">&quot;traefik&quot;</span></span><br><span class="line">      <span class="attr">traefik.ingress.kubernetes.io/router.tls:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">      <span class="attr">traefik.ingress.kubernetes.io/router.entrypoints:</span> <span class="string">websecure</span></span><br><span class="line"></span><br><span class="line"><span class="attr">externalURL:</span> <span class="string">https://harbor.example.io</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 管理员密码</span></span><br><span class="line"><span class="attr">harborAdminPassword:</span> <span class="string">&quot;HarborAdmin123!&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 持久化存储</span></span><br><span class="line"><span class="attr">persistence:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">resourcePolicy:</span> <span class="string">&quot;keep&quot;</span></span><br><span class="line">  <span class="attr">persistentVolumeClaim:</span></span><br><span class="line">    <span class="attr">registry:</span></span><br><span class="line">      <span class="attr">storageClass:</span> <span class="string">&quot;local-path&quot;</span></span><br><span class="line">      <span class="attr">accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line">      <span class="attr">size:</span> <span class="string">100Gi</span></span><br><span class="line">    <span class="attr">chartmuseum:</span></span><br><span class="line">      <span class="attr">storageClass:</span> <span class="string">&quot;local-path&quot;</span></span><br><span class="line">      <span class="attr">accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line">      <span class="attr">size:</span> <span class="string">5Gi</span></span><br><span class="line">    <span class="attr">jobservice:</span></span><br><span class="line">      <span class="attr">storageClass:</span> <span class="string">&quot;local-path&quot;</span></span><br><span class="line">      <span class="attr">accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line">      <span class="attr">size:</span> <span class="string">5Gi</span></span><br><span class="line">    <span class="attr">trivy:</span></span><br><span class="line">      <span class="attr">storageClass:</span> <span class="string">&quot;local-path&quot;</span></span><br><span class="line">      <span class="attr">accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line">      <span class="attr">size:</span> <span class="string">5Gi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 外部数据库配置（使用前序部署的PostgreSQL）</span></span><br><span class="line"><span class="attr">database:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">external</span></span><br><span class="line">  <span class="attr">external:</span></span><br><span class="line">    <span class="attr">host:</span> <span class="string">&quot;postgres.postgres.svc.cluster.local&quot;</span></span><br><span class="line">    <span class="attr">port:</span> <span class="string">&quot;5432&quot;</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">&quot;harbor&quot;</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">&quot;harbor123&quot;</span></span><br><span class="line">    <span class="attr">coreDatabase:</span> <span class="string">&quot;harbor&quot;</span></span><br><span class="line">    <span class="attr">clairDatabase:</span> <span class="string">&quot;harbor_clair&quot;</span></span><br><span class="line">    <span class="attr">notaryServerDatabase:</span> <span class="string">&quot;harbor_notary_server&quot;</span></span><br><span class="line">    <span class="attr">notarySignerDatabase:</span> <span class="string">&quot;harbor_notary_signer&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 外部Redis配置</span></span><br><span class="line"><span class="attr">redis:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">external</span></span><br><span class="line">  <span class="attr">external:</span></span><br><span class="line">    <span class="attr">addr:</span> <span class="string">&quot;redis.redis.svc.cluster.local:6379&quot;</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">&quot;redis123456&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用ChartMuseum</span></span><br><span class="line"><span class="attr">chartmuseum:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用Trivy漏洞扫描</span></span><br><span class="line"><span class="attr">trivy:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;1Gi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 资源限制</span></span><br><span class="line"><span class="attr">nginx:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;128Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;100m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;200m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">portal:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;128Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;100m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;200m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">core:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobservice:</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">    <span class="attr">limits:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">registry:</span></span><br><span class="line">  <span class="attr">registry:</span></span><br><span class="line">    <span class="attr">resources:</span></span><br><span class="line">      <span class="attr">requests:</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">&quot;250m&quot;</span></span><br><span class="line">      <span class="attr">limits:</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">&quot;512Mi&quot;</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">&quot;500m&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">notary:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">server:</span></span><br><span class="line">    <span class="attr">resources:</span></span><br><span class="line">      <span class="attr">requests:</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">&quot;128Mi&quot;</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">&quot;100m&quot;</span></span><br><span class="line">      <span class="attr">limits:</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">      <span class="attr">cpu:</span> <span class="string">&quot;200m&quot;</span></span><br><span class="line">  <span class="attr">signer:</span></span><br><span class="line">    <span class="attr">resources:</span></span><br><span class="line">      <span class="attr">requests:</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">&quot;128Mi&quot;</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">&quot;100m&quot;</span></span><br><span class="line">      <span class="attr">limits:</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">&quot;256Mi&quot;</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">&quot;200m&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-部署Harbor"><a href="#5-3-部署Harbor" class="headerlink" title="5.3 部署Harbor"></a>5.3 部署Harbor</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署Harbor</span></span><br><span class="line">helm install harbor harbor/harbor \</span><br><span class="line">  --namespace harbor \</span><br><span class="line">  --version 1.13.2 \</span><br><span class="line">  -f harbor-values.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用在线配置</span></span><br><span class="line">helm install harbor harbor/harbor \</span><br><span class="line">  --namespace harbor \</span><br><span class="line">  --version 1.13.2 \</span><br><span class="line">  --<span class="built_in">set</span> expose.type=ingress \</span><br><span class="line">  --<span class="built_in">set</span> expose.tls.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> expose.tls.secret.secretName=harbor-tls-secret \</span><br><span class="line">  --<span class="built_in">set</span> expose.ingress.hosts.core=harbor.example.io \</span><br><span class="line">  --<span class="built_in">set</span> expose.ingress.hosts.notary=notary.example.io \</span><br><span class="line">  --<span class="built_in">set</span> externalURL=https://harbor.example.io \</span><br><span class="line">  --<span class="built_in">set</span> harborAdminPassword=HarborAdmin123! \</span><br><span class="line">  --<span class="built_in">set</span> persistence.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> persistence.persistentVolumeClaim.registry.storageClass=local-path \</span><br><span class="line">  --<span class="built_in">set</span> persistence.persistentVolumeClaim.registry.size=100Gi \</span><br><span class="line">  --<span class="built_in">set</span> database.type=external \</span><br><span class="line">  --<span class="built_in">set</span> database.external.host=postgres.postgres.svc.cluster.local \</span><br><span class="line">  --<span class="built_in">set</span> database.external.port=5432 \</span><br><span class="line">  --<span class="built_in">set</span> database.external.username=harbor \</span><br><span class="line">  --<span class="built_in">set</span> database.external.password=harbor123 \</span><br><span class="line">  --<span class="built_in">set</span> redis.type=external \</span><br><span class="line">  --<span class="built_in">set</span> redis.external.addr=redis.redis.svc.cluster.local:6379 \</span><br><span class="line">  --<span class="built_in">set</span> redis.external.password=redis123456 \</span><br><span class="line">  --<span class="built_in">set</span> chartmuseum.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> trivy.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> notary.enabled=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="六、验证部署结果"><a href="#六、验证部署结果" class="headerlink" title="六、验证部署结果"></a>六、验证部署结果</h2><h3 id="6-1-验证组件状态"><a href="#6-1-验证组件状态" class="headerlink" title="6.1 验证组件状态"></a>6.1 验证组件状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看Harbor Pod状态（首次启动需要2-3分钟）</span></span><br><span class="line">kubectl get pods -n harbor -w</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Service状态</span></span><br><span class="line">kubectl get svc -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Ingress状态</span></span><br><span class="line">kubectl get ingress -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看证书状态</span></span><br><span class="line">kubectl get certificate -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看PVC状态</span></span><br><span class="line">kubectl get pvc -n harbor</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-测试访问功能"><a href="#6-2-测试访问功能" class="headerlink" title="6.2 测试访问功能"></a>6.2 测试访问功能</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 等待Harbor完全启动</span></span><br><span class="line"><span class="built_in">sleep</span> 120</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试HTTPS访问</span></span><br><span class="line">curl -k https://harbor.example.io</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Harbor日志</span></span><br><span class="line">kubectl logs -n harbor -l app=harbor --<span class="built_in">tail</span>=50</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试Notary访问</span></span><br><span class="line">curl -k https://notary.example.io</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-初始化Harbor"><a href="#6-3-初始化Harbor" class="headerlink" title="6.3 初始化Harbor"></a>6.3 初始化Harbor</h3><ol>
+<li>浏览器访问：<code>https://harbor.example.io</code></li>
+<li>用户名：<code>admin</code></li>
+<li>密码：<code>HarborAdmin123!</code></li>
+<li>首次登录后立即修改密码</li>
+<li>创建项目（如<code>gitops-demo</code>）</li>
+</ol>
+<h2 id="七、配置容器运行时访问"><a href="#七、配置容器运行时访问" class="headerlink" title="七、配置容器运行时访问"></a>七、配置容器运行时访问</h2><h3 id="7-1-Docker客户端配置"><a href="#7-1-Docker客户端配置" class="headerlink" title="7.1 Docker客户端配置"></a>7.1 Docker客户端配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取Harbor CA证书</span></span><br><span class="line">kubectl get secret harbor-tls-secret -n harbor -o jsonpath=<span class="string">&#x27;&#123;.data.ca\.crt&#125;&#x27;</span> | <span class="built_in">base64</span> --decode &gt; harbor-ca.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置Docker信任Harbor证书</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/docker/certs.d/harbor.example.io</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> harbor-ca.crt /etc/docker/certs.d/harbor.example.io/ca.crt</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登录Harbor</span></span><br><span class="line">docker login harbor.example.io -u admin -p HarborAdmin123!</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-Containerd配置（K3s节点）"><a href="#7-2-Containerd配置（K3s节点）" class="headerlink" title="7.2 Containerd配置（K3s节点）"></a>7.2 Containerd配置（K3s节点）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置Containerd信任Harbor证书</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/containerd/certs.d/harbor.example.io</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> harbor-ca.crt /etc/containerd/certs.d/harbor.example.io/ca.crt</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-测试镜像推送"><a href="#7-3-测试镜像推送" class="headerlink" title="7.3 测试镜像推送"></a>7.3 测试镜像推送</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取测试镜像</span></span><br><span class="line">docker pull alpine:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打标签</span></span><br><span class="line">docker tag alpine:latest harbor.example.io/gitops-demo/alpine:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 推送镜像</span></span><br><span class="line">docker push harbor.example.io/gitops-demo/alpine:latest</span><br></pre></td></tr></table></figure>
+
+<h2 id="八、Harbor与GitOps全链路集成"><a href="#八、Harbor与GitOps全链路集成" class="headerlink" title="八、Harbor与GitOps全链路集成"></a>八、Harbor与GitOps全链路集成</h2><p>完成Harbor部署后，GitOps环境搭建系列已具备完整的端到端交付能力。以下阐述Harbor与系列中其他核心组件的联动关系。</p>
+<h3 id="8-1-全链路组件矩阵"><a href="#8-1-全链路组件矩阵" class="headerlink" title="8.1 全链路组件矩阵"></a>8.1 全链路组件矩阵</h3><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+<th>在GitOps链路中的角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Gitea</strong></td>
+<td>代码托管与版本控制</td>
+<td>开发者推送代码的单一可信数据源</td>
+</tr>
+<tr>
+<td><strong>Tekton</strong></td>
+<td>云原生CI&#x2F;CD流水线引擎</td>
+<td>监听代码变更，构建镜像并推送至Harbor</td>
+</tr>
+<tr>
+<td><strong>Harbor</strong></td>
+<td>容器镜像仓库与安全扫描</td>
+<td>存储签名镜像，提供可信镜像分发</td>
+</tr>
+<tr>
+<td><strong>ArgoCD</strong></td>
+<td>GitOps持续部署控制平面</td>
+<td>监听Harbor镜像Tag变化，自动同步至K3s</td>
+</tr>
+</tbody></table>
+<h3 id="8-2-完整流水线联动流程"><a href="#8-2-完整流水线联动流程" class="headerlink" title="8.2 完整流水线联动流程"></a>8.2 完整流水线联动流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                     GitOps 完整链路                               │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ① 开发者 ──push──▶ Gitea (Git仓库)                              │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ② Tekton Pipeline ──webhook触发──▶ 克隆代码                     │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ③ Tekton Pipeline ──构建──▶ Docker镜像                         │</span><br><span class="line">│           │                                                        │</span><br><span class="line">│           │ docker push                                           │</span><br><span class="line">│           ▼                                                        │</span><br><span class="line">│  ④ Harbor (镜像仓库) ◀── 推送镜像                                 │</span><br><span class="line">│      │  • 存储镜像bits                                            │</span><br><span class="line">│      │  • Trivy CVE扫描                                          │</span><br><span class="line">│      │  • Notary镜像签名（可选）                                   │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ⑤ ArgoCD Application ──监听镜像Tag变化──▶ 检测到新镜像          │</span><br><span class="line">│           │                                                        │</span><br><span class="line">│           │ 更新Deployment镜像Tag                                  │</span><br><span class="line">│           ▼                                                        │</span><br><span class="line">│  ⑥ K3s集群 ──kubectl apply──▶ 新Pod以新镜像启动                  │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-3-Harbor与Gitea、Tekton、ArgoCD联动"><a href="#8-3-Harbor与Gitea、Tekton、ArgoCD联动" class="headerlink" title="8.3 Harbor与Gitea、Tekton、ArgoCD联动"></a>8.3 Harbor与Gitea、Tekton、ArgoCD联动</h3><h4 id="Harbor-Gitea（认证集成）"><a href="#Harbor-Gitea（认证集成）" class="headerlink" title="Harbor + Gitea（认证集成）"></a>Harbor + Gitea（认证集成）</h4><p>Harbor与Gitea可共用外部认证源（如LDAP&#x2F;OIDC），实现统一身份管理：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Harbor配置外部认证</span></span><br><span class="line"><span class="attr">harbor-core:</span></span><br><span class="line">  <span class="attr">config:</span></span><br><span class="line">    <span class="attr">auth_mode:</span> <span class="string">&quot;oidc_auth&quot;</span></span><br><span class="line">    <span class="attr">oidc_name:</span> <span class="string">&quot;Gitea OIDC&quot;</span></span><br><span class="line">    <span class="attr">oidc_endpoint:</span> <span class="string">&quot;https://gitea.example.io/oauth&quot;</span></span><br><span class="line">    <span class="attr">oidc_client_id:</span> <span class="string">&quot;harbor-client&quot;</span></span><br><span class="line">    <span class="attr">oidc_secret:</span> <span class="string">&quot;harbor-oidc-secret&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Harbor-Tekton（镜像构建推送）"><a href="#Harbor-Tekton（镜像构建推送）" class="headerlink" title="Harbor + Tekton（镜像构建推送）"></a>Harbor + Tekton（镜像构建推送）</h4><p>Tekton Pipeline执行构建并将镜像推送至Harbor：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Tekton Task: 构建并推送镜像至Harbor</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">steps:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">git-clone</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">alpine/git</span></span><br><span class="line">      <span class="attr">script:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        git clone $(params.REPO_URL) $(params.REPO_DIR)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">build-image</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">docker:latest</span></span><br><span class="line">      <span class="attr">script:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        docker build -t $(params.IMAGE):$(params.TAG) $(params.REPO_DIR)</span></span><br><span class="line"><span class="string">        docker tag $(params.IMAGE):$(params.TAG) \</span></span><br><span class="line"><span class="string">          harbor.example.io/gitops-demo/$(params.IMAGE):$(params.TAG)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">push-image</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">docker:latest</span></span><br><span class="line">      <span class="attr">script:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        docker login harbor.example.io -u $(params.HARBOR_USER) -p $(params.HARBOR_PASS)</span></span><br><span class="line"><span class="string">        docker push harbor.example.io/gitops-demo/$(params.IMAGE):$(params.TAG)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Harbor-ArgoCD（镜像驱动部署）"><a href="#Harbor-ArgoCD（镜像驱动部署）" class="headerlink" title="Harbor + ArgoCD（镜像驱动部署）"></a>Harbor + ArgoCD（镜像驱动部署）</h4><p>ArgoCD Image Updater自动轮询Harbor镜像仓库，发现新Tag后更新配置并触发同步：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ArgoCD Application（Image Updater注解）</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">argoproj.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Application</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">gitops-demo-app</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">argocd-image-updater.argoproj.io/image-list:</span> <span class="string">|</span></span><br><span class="line"><span class="string">      demo=harbor.example.io/gitops-demo/demo-image</span></span><br><span class="line"><span class="string"></span>    <span class="attr">argocd-image-updater.argoproj.io/demo.update-strategy:</span> <span class="string">latest</span></span><br><span class="line">    <span class="attr">argocd-image-updater.argoproj.io/write-back-method:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">source:</span></span><br><span class="line">    <span class="attr">repoURL:</span> <span class="string">https://github.com/your-org/gitops-configs.git</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">apps/demo-app</span></span><br><span class="line">    <span class="attr">targetRevision:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">destination:</span></span><br><span class="line">    <span class="attr">server:</span> <span class="string">https://kubernetes.default.svc</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">gitops-demo</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-4-安全集成要点"><a href="#8-4-安全集成要点" class="headerlink" title="8.4 安全集成要点"></a>8.4 安全集成要点</h3><ol>
+<li><strong>镜像签名链路</strong>：Tekton构建 → Notary签名 → 推送Harbor → 部署时验签，全链路可信；</li>
+<li><strong>漏洞扫描卡点</strong>：Harbor Trivy扫描未通过的CVE镜像（Critical&#x2F;High），可配置阻止推送；</li>
+<li><strong>认证打通</strong>：Harbor与Gitea共用OIDC认证，实现统一身份管理；</li>
+<li><strong>网络隔离</strong>：Harbor仅通过Traefik 443端口暴露，K3s节点通过内部网络拉取镜像。</li>
+</ol>
+<h2 id="九、服务访问方式"><a href="#九、服务访问方式" class="headerlink" title="九、服务访问方式"></a>九、服务访问方式</h2><h3 id="9-1-集群内访问"><a href="#9-1-集群内访问" class="headerlink" title="9.1 集群内访问"></a>9.1 集群内访问</h3><ul>
+<li><strong>Web界面</strong>：<code>harbor-core.harbor.svc.cluster.local</code></li>
+<li><strong>Registry API</strong>：<code>harbor-registry.harbor.svc.cluster.local</code></li>
+<li><strong>ChartMuseum</strong>：<code>harbor-chartmuseum.harbor.svc.cluster.local</code></li>
+</ul>
+<h3 id="9-2-集群外访问"><a href="#9-2-集群外访问" class="headerlink" title="9.2 集群外访问"></a>9.2 集群外访问</h3><ul>
+<li><strong>Web界面</strong>：<code>https://harbor.example.io</code></li>
+<li><strong>Registry</strong>：<code>harbor.example.io</code>（Docker push&#x2F;pull）</li>
+<li><strong>Notary</strong>：<code>https://notary.example.io</code></li>
+</ul>
+<h2 id="十、日常运维命令"><a href="#十、日常运维命令" class="headerlink" title="十、日常运维命令"></a>十、日常运维命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看Harbor状态</span></span><br><span class="line">kubectl get all -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line">kubectl logs -f deployment/harbor-core -n harbor</span><br><span class="line">kubectl logs -f deployment/harbor-registry -n harbor</span><br><span class="line">kubectl logs -f deployment/harbor-portal -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启组件</span></span><br><span class="line">kubectl rollout restart deployment -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 备份Harbor数据</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -n harbor $(kubectl get pod -n harbor -l component=registry -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>) -- tar czf /tmp/registry-backup.tar.gz /storage</span><br><span class="line">kubectl <span class="built_in">cp</span> harbor/$(kubectl get pod -n harbor -l component=registry -o jsonpath=<span class="string">&#x27;&#123;.items[0].metadata.name&#125;&#x27;</span>):/tmp/registry-backup.tar.gz ./registry-backup-$(<span class="built_in">date</span> +%Y%m%d).tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看资源使用情况</span></span><br><span class="line">kubectl top pods -n harbor</span><br></pre></td></tr></table></figure>
+
+<h2 id="十一、常见问题修复"><a href="#十一、常见问题修复" class="headerlink" title="十一、常见问题修复"></a>十一、常见问题修复</h2><table>
+<thead>
+<tr>
+<th>问题现象</th>
+<th>排查方向</th>
+<th>修复方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Harbor无法启动</td>
+<td>数据库连接失败</td>
+<td>检查PostgreSQL连接，验证用户名密码</td>
+</tr>
+<tr>
+<td>证书错误</td>
+<td>证书配置&#x2F;Secret</td>
+<td>检查cert-manager状态，验证证书Secret</td>
+</tr>
+<tr>
+<td>镜像推送失败</td>
+<td>认证&#x2F;网络</td>
+<td>检查Docker登录状态，验证网络连通性</td>
+</tr>
+<tr>
+<td>PVC无法绑定</td>
+<td>存储类&#x2F;磁盘空间</td>
+<td>检查local-path存储类，确认节点有足够空间</td>
+</tr>
+<tr>
+<td>Trivy扫描失败</td>
+<td>网络&#x2F;资源</td>
+<td>检查Trivy网络连通性，增加资源限制</td>
+</tr>
+<tr>
+<td>Notary服务异常</td>
+<td>证书&#x2F;配置</td>
+<td>检查Notary证书配置，验证域名解析</td>
+</tr>
+</tbody></table>
+<h2 id="十二、配置参考"><a href="#十二、配置参考" class="headerlink" title="十二、配置参考"></a>十二、配置参考</h2><p>所有Harbor配置文件和部署脚本请参考：<br><strong><a target="_blank" rel="noopener" href="https://gitee.com/Chemmy/kube-template/tree/master/devops/Harbor">https://gitee.com/Chemmy/kube-template/tree/master/devops/Harbor</a></strong></p>
+<p>该目录包含：</p>
+<ul>
+<li>Harbor Helm values配置</li>
+<li>证书和路由配置</li>
+<li>数据库初始化脚本</li>
+<li>生产环境优化配置</li>
+<li>集成配置示例</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文完成了Harbor在K3s集群中的标准化部署，实现了镜像仓库的完整功能。Harbor作为GitOps环境的镜像存储中枢，为自动化构建和部署提供了可靠的镜像管理能力。</p>
+<p>部署完成后，建议配置Tekton Pipeline实现自动镜像构建和推送，配置ArgoCD实现镜像更新自动同步。至此，GitOps环境的所有核心组件已部署完成，形成了完整的自动化流水线。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/GitOps/" rel="tag"># GitOps</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/%E7%A7%81%E6%9C%89%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93/" rel="tag"># 私有镜像仓库</a>
+              <a href="/tags/Harbor/" rel="tag"># Harbor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/13/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%838-%E9%83%A8%E7%BD%B2Tekton/" rel="prev" title="基于K3s搭建GitOps环境8-部署Tekton">
+                  <i class="fa fa-angle-left"></i> 基于K3s搭建GitOps环境8-部署Tekton
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/04/15/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%835-%E9%83%A8%E7%BD%B2%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6/" rel="next" title="基于K3s搭建GitOps环境5-部署基础组件">
+                  基于K3s搭建GitOps环境5-部署基础组件 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

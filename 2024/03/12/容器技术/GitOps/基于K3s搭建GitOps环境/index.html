@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="系列文章目录本文是基于K3s搭建GitOps环境的系列文章总览，包含完整的组件规划和部署路线图。本系列旨在帮助您在K3s轻量级Kubernetes集群上构建完整的GitOps环境，实现从代码到部署的自动化流水线。 基础环境篇 基于K3s搭建GitOps环境1-K3s安装 - K3s集群部署与基础配置 基于K3s搭建GitOps环境2-配置Traefik - Traefik反向代理配置 基于K3s搭">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于K3s搭建GitOps环境">
+<meta property="og:url" content="http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%83/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="系列文章目录本文是基于K3s搭建GitOps环境的系列文章总览，包含完整的组件规划和部署路线图。本系列旨在帮助您在K3s轻量级Kubernetes集群上构建完整的GitOps环境，实现从代码到部署的自动化流水线。 基础环境篇 基于K3s搭建GitOps环境1-K3s安装 - K3s集群部署与基础配置 基于K3s搭建GitOps环境2-配置Traefik - Traefik反向代理配置 基于K3s搭">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-27T10:12:38.471Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="GitOps">
+<meta property="article:tag" content="K3s">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%83/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%83/","path":"2024/03/12/容器技术/GitOps/基于K3s搭建GitOps环境/","title":"基于K3s搭建GitOps环境"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于K3s搭建GitOps环境 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">系列文章目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E7%AF%87"><span class="nav-number">1.1.</span> <span class="nav-text">基础环境篇</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E7%AF%87"><span class="nav-number">1.2.</span> <span class="nav-text">核心组件篇</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GitOps%E7%8E%AF%E5%A2%83%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">GitOps环境架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E8%A7%84%E5%88%92"><span class="nav-number">3.</span> <span class="nav-text">组件规划</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E6%94%BE%E7%AB%AF%E5%8F%A3"><span class="nav-number">3.1.</span> <span class="nav-text">开放端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E8%A7%84%E5%88%92%EF%BC%88%E7%BB%9F%E4%B8%80%E4%BD%BF%E7%94%A8example-io%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">域名规划（统一使用example.io）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E8%B7%AF%E7%BA%BF%E5%9B%BE"><span class="nav-number">4.</span> <span class="nav-text">部署路线图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%EF%BC%881-4%E5%A4%A9%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">第一阶段：基础环境搭建（1-4天）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E9%83%A8%E7%BD%B2%EF%BC%885-8%E5%A4%A9%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">第二阶段：核心组件部署（5-8天）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E9%9B%86%E6%88%90%E4%B8%8E%E4%BC%98%E5%8C%96%EF%BC%889-10%E5%A4%A9%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">第三阶段：集成与优化（9-10天）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="nav-number">5.</span> <span class="nav-text">环境要求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">5.1.</span> <span class="nav-text">硬件要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">5.2.</span> <span class="nav-text">软件要求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">配置参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">7.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">8.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q1-K3s%E4%B8%8E%E5%85%B6%E4%BB%96Kubernetes%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">8.1.</span> <span class="nav-text">Q1: K3s与其他Kubernetes发行版有何区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q2-GitOps%E4%B8%8E%E4%BC%A0%E7%BB%9FCI-CD%E6%9C%89%E4%BD%95%E4%B8%8D%E5%90%8C%EF%BC%9F"><span class="nav-number">8.2.</span> <span class="nav-text">Q2: GitOps与传统CI&#x2F;CD有何不同？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q3-%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%9F"><span class="nav-number">8.3.</span> <span class="nav-text">Q3: 如何选择数据库？</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2024/03/12/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于K3s搭建GitOps环境 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于K3s搭建GitOps环境
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-03-12 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-12T00:00:00+08:00">2024-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="系列文章目录"><a href="#系列文章目录" class="headerlink" title="系列文章目录"></a>系列文章目录</h2><p>本文是基于K3s搭建GitOps环境的系列文章总览，包含完整的组件规划和部署路线图。本系列旨在帮助您在K3s轻量级Kubernetes集群上构建完整的GitOps环境，实现从代码到部署的自动化流水线。</p>
+<h3 id="基础环境篇"><a href="#基础环境篇" class="headerlink" title="基础环境篇"></a>基础环境篇</h3><ol>
+<li><a href="/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%831-K3s%E5%AE%89%E8%A3%85/" title="基于K3s搭建GitOps环境1-K3s安装">基于K3s搭建GitOps环境1-K3s安装</a> - K3s集群部署与基础配置</li>
+<li><a href="/2024/06/01/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%832-%E9%85%8D%E7%BD%AETraefik/" title="基于K3s搭建GitOps环境2-配置Traefik">基于K3s搭建GitOps环境2-配置Traefik</a> - Traefik反向代理配置</li>
+<li><a href="/2024/07/20/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%833-%E9%85%8D%E7%BD%AE%E5%86%85%E7%BD%91%E5%9F%9F%E5%90%8D/" title="基于K3s搭建GitOps环境3-配置内网域名">基于K3s搭建GitOps环境3-配置内网域名</a> - CoreDNS内网域名解析</li>
+<li><a href="/2024/04/02/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%834-%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86/" title="基于K3s搭建GitOps环境4-证书管理">基于K3s搭建GitOps环境4-证书管理</a> - cert-manager证书管理</li>
+</ol>
+<h3 id="核心组件篇"><a href="#核心组件篇" class="headerlink" title="核心组件篇"></a>核心组件篇</h3><ol start="5">
+<li>[[基于K3s搭建GitOps5-部署Gitea]] - 代码仓库部署</li>
+<li>[[基于K3s搭建GitOps6-部署ArgoCD]] - GitOps核心部署</li>
+<li>[[基于K3s搭建GitOps7-部署Tekton]] - CI流水线部署</li>
+<li>[[基于K3s搭建GitOps8-部署Harbor]] - 镜像仓库部署</li>
+</ol>
+<h2 id="GitOps环境架构"><a href="#GitOps环境架构" class="headerlink" title="GitOps环境架构"></a>GitOps环境架构</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">┌─────────────────────────────────────────────────────────────────┐  </span><br><span class="line">│ GitOps 完整链路 │  </span><br><span class="line">├─────────────────────────────────────────────────────────────────┤  </span><br><span class="line">│ │  </span><br><span class="line">│ ① 开发者 ──push──▶ Gitea (Git仓库) │  </span><br><span class="line">│ │  </span><br><span class="line">│ ② Tekton Pipeline ──webhook触发──▶ 克隆代码 │  </span><br><span class="line">│ │  </span><br><span class="line">│ ③ Tekton Pipeline ──构建──▶ Docker镜像 │  </span><br><span class="line">│ │ │  </span><br><span class="line">│ │ docker push │  </span><br><span class="line">│ ▼ │  </span><br><span class="line">│ ④ Harbor (镜像仓库) ◀── 推送镜像 │  </span><br><span class="line">│ │ • 存储镜像bits │  </span><br><span class="line">│ │ • Trivy CVE扫描 │  </span><br><span class="line">│ │ • Notary镜像签名（可选） │  </span><br><span class="line">│ │  </span><br><span class="line">│ ⑤ ArgoCD Application ──监听镜像Tag变化──▶ 检测到新镜像 │  </span><br><span class="line">│ │ │  </span><br><span class="line">│ │ 更新Deployment镜像Tag │  </span><br><span class="line">│ ▼ │  </span><br><span class="line">│ ⑥ K3s集群 ──kubectl apply──▶ 新Pod以新镜像启动 │  </span><br><span class="line">│ │  </span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="组件规划"><a href="#组件规划" class="headerlink" title="组件规划"></a>组件规划</h2><h3 id="开放端口"><a href="#开放端口" class="headerlink" title="开放端口"></a>开放端口</h3><table>
+<thead>
+<tr>
+<th>端口</th>
+<th>用途</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>53</td>
+<td>CoreDNS服务</td>
+<td>内网域名解析</td>
+</tr>
+<tr>
+<td>443, 80</td>
+<td>Traefik入口</td>
+<td>HTTPS&#x2F;HTTP访问入口</td>
+</tr>
+<tr>
+<td>5432&#x2F;3306</td>
+<td>数据库服务</td>
+<td>PostgreSQL&#x2F;MySQL（二选一）</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>Redis缓存</td>
+<td>缓存服务</td>
+</tr>
+<tr>
+<td>8022</td>
+<td>SSH管理</td>
+<td>服务器管理端口</td>
+</tr>
+<tr>
+<td>22</td>
+<td>Git SSH</td>
+<td>git+ssh方式代码上传</td>
+</tr>
+</tbody></table>
+<h3 id="域名规划（统一使用example-io）"><a href="#域名规划（统一使用example-io）" class="headerlink" title="域名规划（统一使用example.io）"></a>域名规划（统一使用example.io）</h3><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>访问地址</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Traefik Dashboard</td>
+<td><a target="_blank" rel="noopener" href="https://traefik.example.io/">https://traefik.example.io</a></td>
+<td>反向代理管理界面</td>
+</tr>
+<tr>
+<td>Harbor</td>
+<td><a target="_blank" rel="noopener" href="https://harbor.example.io/">https://harbor.example.io</a></td>
+<td>私有镜像仓库，支持镜像签名与安全扫描</td>
+</tr>
+<tr>
+<td>Gitea</td>
+<td><a target="_blank" rel="noopener" href="https://gitea.example.io/">https://gitea.example.io</a></td>
+<td>轻量级代码仓库</td>
+</tr>
+<tr>
+<td>Tekton</td>
+<td><a target="_blank" rel="noopener" href="https://tekton.example.io/">https://tekton.example.io</a></td>
+<td>云原生CI流水线</td>
+</tr>
+<tr>
+<td>ArgoCD</td>
+<td><a target="_blank" rel="noopener" href="https://argocd.example.io/">https://argocd.example.io</a></td>
+<td>GitOps持续部署核心</td>
+</tr>
+<tr>
+<td>Notary</td>
+<td><a target="_blank" rel="noopener" href="https://notary.example.io/">https://notary.example.io</a></td>
+<td>镜像签名服务（Harbor集成）</td>
+</tr>
+</tbody></table>
+<h2 id="部署路线图"><a href="#部署路线图" class="headerlink" title="部署路线图"></a>部署路线图</h2><h3 id="第一阶段：基础环境搭建（1-4天）"><a href="#第一阶段：基础环境搭建（1-4天）" class="headerlink" title="第一阶段：基础环境搭建（1-4天）"></a>第一阶段：基础环境搭建（1-4天）</h3><ol>
+<li><strong>第1天</strong>：部署K3s集群，配置存储和网络</li>
+<li><strong>第2天</strong>：配置Traefik反向代理，启用Dashboard</li>
+<li><strong>第3天</strong>：配置CoreDNS内网域名解析</li>
+<li><strong>第4天</strong>：部署cert-manager，配置证书管理</li>
+</ol>
+<h3 id="第二阶段：核心组件部署（5-8天）"><a href="#第二阶段：核心组件部署（5-8天）" class="headerlink" title="第二阶段：核心组件部署（5-8天）"></a>第二阶段：核心组件部署（5-8天）</h3><ol start="5">
+<li><strong>第5天</strong>：部署Gitea代码仓库，配置数据库连接</li>
+<li><strong>第6天</strong>：部署ArgoCD，配置GitOps工作流</li>
+<li><strong>第7天</strong>：部署Tekton，配置CI流水线</li>
+<li><strong>第8天</strong>：部署Harbor，配置镜像仓库和安全扫描</li>
+</ol>
+<h3 id="第三阶段：集成与优化（9-10天）"><a href="#第三阶段：集成与优化（9-10天）" class="headerlink" title="第三阶段：集成与优化（9-10天）"></a>第三阶段：集成与优化（9-10天）</h3><ol start="9">
+<li><strong>第9天</strong>：组件间联动配置，打通完整流水线</li>
+<li><strong>第10天</strong>：生产环境优化，配置监控和告警</li>
+</ol>
+<h2 id="环境要求"><a href="#环境要求" class="headerlink" title="环境要求"></a>环境要求</h2><h3 id="硬件要求"><a href="#硬件要求" class="headerlink" title="硬件要求"></a>硬件要求</h3><ul>
+<li><strong>最低配置</strong>：2核CPU，4GB内存，50GB存储</li>
+<li><strong>推荐配置</strong>：4核CPU，8GB内存，100GB存储</li>
+<li><strong>生产环境</strong>：根据业务规模弹性扩展</li>
+</ul>
+<h3 id="软件要求"><a href="#软件要求" class="headerlink" title="软件要求"></a>软件要求</h3><ul>
+<li><strong>操作系统</strong>：Ubuntu 20.04+ &#x2F; CentOS 7+ &#x2F; RHEL 8+</li>
+<li><strong>容器运行时</strong>：Containerd（K3s默认集成）</li>
+<li><strong>网络</strong>：内网互通，可访问外网（用于拉取镜像）</li>
+</ul>
+<h2 id="配置参考"><a href="#配置参考" class="headerlink" title="配置参考"></a>配置参考</h2><p>所有组件的详细配置文件和部署脚本请参考：<a target="_blank" rel="noopener" href="https://gitee.com/Chemmy/kube-template/tree/master/devops">KubeTemplate-devops</a></p>
+<p>该仓库包含：</p>
+<ul>
+<li>K3s集群部署脚本</li>
+<li>各组件Helm Chart配置</li>
+<li>示例应用部署文件</li>
+<li>监控和日志配置</li>
+<li>生产环境优化建议</li>
+</ul>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li><strong>域名配置</strong>：所有示例域名使用<code>example.io</code>，实际部署时请替换为您的域名</li>
+<li><strong>证书管理</strong>：生产环境建议使用Let’s Encrypt证书，内网环境可使用自签名证书</li>
+<li><strong>存储配置</strong>：K3s默认使用local-path存储类，生产环境建议配置持久化存储</li>
+<li><strong>安全加固</strong>：部署完成后请及时修改默认密码，配置网络策略</li>
+<li><strong>备份策略</strong>：定期备份数据库和持久化卷数据</li>
+</ol>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="Q1-K3s与其他Kubernetes发行版有何区别？"><a href="#Q1-K3s与其他Kubernetes发行版有何区别？" class="headerlink" title="Q1: K3s与其他Kubernetes发行版有何区别？"></a>Q1: K3s与其他Kubernetes发行版有何区别？</h3><p>A: K3s是轻量级Kubernetes发行版，专为边缘计算和资源受限环境设计，相比标准K8s：</p>
+<ul>
+<li>安装包更小（约40MB）</li>
+<li>内存占用更低</li>
+<li>默认集成Containerd、Traefik、CoreDNS等组件</li>
+<li>简化了配置和管理</li>
+</ul>
+<h3 id="Q2-GitOps与传统CI-CD有何不同？"><a href="#Q2-GitOps与传统CI-CD有何不同？" class="headerlink" title="Q2: GitOps与传统CI&#x2F;CD有何不同？"></a>Q2: GitOps与传统CI&#x2F;CD有何不同？</h3><p>A: GitOps的核心思想是”Git作为单一可信源”：</p>
+<ul>
+<li><strong>声明式配置</strong>：所有环境配置存储在Git仓库中</li>
+<li><strong>自动同步</strong>：集群状态自动与Git仓库中的期望状态同步</li>
+<li><strong>可追溯性</strong>：所有变更都有Git提交记录</li>
+<li><strong>一键回滚</strong>：通过Git版本控制实现快速回滚</li>
+</ul>
+<h3 id="Q3-如何选择数据库？"><a href="#Q3-如何选择数据库？" class="headerlink" title="Q3: 如何选择数据库？"></a>Q3: 如何选择数据库？</h3><p>A: 本系列支持两种数据库方案：</p>
+<ul>
+<li><strong>PostgreSQL</strong>：功能丰富，适合复杂应用</li>
+<li><strong>MySQL</strong>：轻量快速，适合简单场景<br>您可以根据实际需求选择一种，配置方法类似。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/GitOps/" rel="tag"># GitOps</a>
+              <a href="/tags/K3s/" rel="tag"># K3s</a>
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/11/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/GitOps/%E5%9F%BA%E4%BA%8EK3s%E6%90%AD%E5%BB%BAGitOps%E7%8E%AF%E5%A2%831-K3s%E5%AE%89%E8%A3%85/" rel="prev" title="基于K3s搭建GitOps环境1-K3s安装">
+                  <i class="fa fa-angle-left"></i> 基于K3s搭建GitOps环境1-K3s安装
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/04/01/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/%E5%9B%BD%E5%86%85%E5%B8%B8%E7%94%A8%E6%BA%90%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80/" rel="next" title="国内常用源镜像地址">
+                  国内常用源镜像地址 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

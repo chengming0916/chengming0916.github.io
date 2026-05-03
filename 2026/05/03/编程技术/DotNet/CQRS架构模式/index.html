@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="概述CQRS（Command Query Responsibility Segregation）是一种将命令（写操作）和查询（读操作）职责分离的架构模式。通过分离读写模型，实现系统在性能、可扩展性和安全性方面的针对性优化。  核心思想：任何方法可分为两类：  命令（Command）：改变系统状态，无返回值 查询（Query）：返回数据，不改变系统状态    一、传统CRUD的问题1.1 主要痛点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CQRS架构模式">
+<meta property="og:url" content="http://chengming0916.github.io/2026/05/03/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/CQRS%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="概述CQRS（Command Query Responsibility Segregation）是一种将命令（写操作）和查询（读操作）职责分离的架构模式。通过分离读写模型，实现系统在性能、可扩展性和安全性方面的针对性优化。  核心思想：任何方法可分为两类：  命令（Command）：改变系统状态，无返回值 查询（Query）：返回数据，不改变系统状态    一、传统CRUD的问题1.1 主要痛点">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-03T05:40:46.413Z">
+<meta property="article:modified_time" content="2026-05-03T05:40:46.413Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="CQRS">
+<meta property="article:tag" content="DDD">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/05/03/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/CQRS%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/05/03/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/CQRS%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F/","path":"2026/05/03/编程技术/DotNet/CQRS架构模式/","title":"CQRS架构模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CQRS架构模式 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BC%A0%E7%BB%9FCRUD%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">一、传统CRUD的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%B8%BB%E8%A6%81%E7%97%9B%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 主要痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E8%AF%BB%E5%86%99%E9%A2%91%E7%8E%87%E5%A4%B1%E8%A1%A1"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 读写频率失衡</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81CQRS%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">二、CQRS核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%9F%BA%E7%A1%80%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 基础结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%85%B3%E9%94%AE%E7%BB%84%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 关键组件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">三、适用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 推荐使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%8D%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 不推荐使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%AB%98%E6%80%A7%E8%83%BD%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5"><span class="nav-number">5.</span> <span class="nav-text">四、高性能实现策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E9%81%BF%E5%85%8D%E8%B5%84%E6%BA%90%E7%AB%9E%E4%BA%89"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 避免资源竞争</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%81%9A%E5%90%88%E6%A0%B9%E4%BF%AE%E6%94%B9%E5%8E%9F%E5%88%99"><span class="nav-number">5.1.1.</span> <span class="nav-text">单聚合根修改原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E6%8E%92%E9%98%9F%E6%9C%BA%E5%88%B6"><span class="nav-number">5.1.2.</span> <span class="nav-text">命令排队机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%B9%82%E7%AD%89%E6%80%A7%E4%BF%9D%E9%9A%9C"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 幂等性保障</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%AD%98%E5%82%A8%E4%BC%98%E5%8C%96"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 存储优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-number">6.</span> <span class="nav-text">五、代码实现示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%9F%A5%E8%AF%A2%E4%BE%A7%EF%BC%88Q%E7%AB%AF%EF%BC%89"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 查询侧（Q端）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%91%BD%E4%BB%A4%E4%BE%A7%EF%BC%88C%E7%AB%AF%EF%BC%89"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 命令侧（C端）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E4%BA%8B%E4%BB%B6%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 事件持久化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81CQRS%E4%B8%8EEvent-Sourcing"><span class="nav-number">7.</span> <span class="nav-text">六、CQRS与Event Sourcing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%8D%8F%E5%90%8C%E5%85%B3%E7%B3%BB"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 协同关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 数据流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%AE%9E%E6%96%BD%E5%BB%BA%E8%AE%AE"><span class="nav-number">8.</span> <span class="nav-text">七、实施建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E6%9E%B6%E6%9E%84%E9%80%89%E6%8B%A9"><span class="nav-number">8.1.</span> <span class="nav-text">7.1 架构选择</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E6%8A%80%E6%9C%AF%E6%A0%88"><span class="nav-number">8.2.</span> <span class="nav-text">7.2 技术栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E8%BF%90%E7%BB%B4%E8%A6%81%E7%82%B9"><span class="nav-number">8.3.</span> <span class="nav-text">7.3 运维要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">305</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/05/03/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/CQRS%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CQRS架构模式 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CQRS架构模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-05-03 13:40:46" itemprop="dateCreated datePublished" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>CQRS（Command Query Responsibility Segregation）是一种将<strong>命令</strong>（写操作）和<strong>查询</strong>（读操作）职责分离的架构模式。通过分离读写模型，实现系统在性能、可扩展性和安全性方面的针对性优化。</p>
+<blockquote>
+<p><strong>核心思想</strong>：任何方法可分为两类：</p>
+<ul>
+<li><strong>命令</strong>（Command）：改变系统状态，无返回值</li>
+<li><strong>查询</strong>（Query）：返回数据，不改变系统状态</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="一、传统CRUD的问题"><a href="#一、传统CRUD的问题" class="headerlink" title="一、传统CRUD的问题"></a>一、传统CRUD的问题</h2><h3 id="1-1-主要痛点"><a href="#1-1-主要痛点" class="headerlink" title="1.1 主要痛点"></a>1.1 主要痛点</h3><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>粗粒度实体</td>
+<td>读写使用同一实体，导致不必要的字段传输</td>
+</tr>
+<tr>
+<td>资源竞争</td>
+<td>读写混合引发锁竞争，影响吞吐量</td>
+</tr>
+<tr>
+<td>性能瓶颈</td>
+<td>直接数据库交互在高并发下成为瓶颈</td>
+</tr>
+<tr>
+<td>权限复杂</td>
+<td>同一实体需处理读写不同权限</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-读写频率失衡"><a href="#1-2-读写频率失衡" class="headerlink" title="1.2 读写频率失衡"></a>1.2 读写频率失衡</h3><ul>
+<li>多数系统 <strong>读 &gt;&gt; 写</strong>（如100:1）</li>
+<li>传统架构无法针对读&#x2F;写路径独立优化</li>
+</ul>
+<hr>
+<h2 id="二、CQRS核心架构"><a href="#二、CQRS核心架构" class="headerlink" title="二、CQRS核心架构"></a>二、CQRS核心架构</h2><h3 id="2-1-基础结构"><a href="#2-1-基础结构" class="headerlink" title="2.1 基础结构"></a>2.1 基础结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[Command Side]          [Query Side]</span><br><span class="line">    │                       │</span><br><span class="line">    ▼                       ▼</span><br><span class="line">[Write Database] ←同步/异步→ [Read Database]</span><br><span class="line">    │                       │</span><br><span class="line">    ▼                       ▼</span><br><span class="line">[Domain Events] → [Event Handlers] → [Reporting DB]</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-关键组件"><a href="#2-2-关键组件" class="headerlink" title="2.2 关键组件"></a>2.2 关键组件</h3><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Command Bus</td>
+<td>路由命令到对应处理器</td>
+</tr>
+<tr>
+<td>Command Handler</td>
+<td>执行业务逻辑，产生领域事件</td>
+</tr>
+<tr>
+<td>Event Store</td>
+<td>持久化领域事件（Event Sourcing）</td>
+</tr>
+<tr>
+<td>Event Bus</td>
+<td>分发事件到处理器</td>
+</tr>
+<tr>
+<td>Read Model</td>
+<td>专为查询优化的数据模型</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="三、适用场景"><a href="#三、适用场景" class="headerlink" title="三、适用场景"></a>三、适用场景</h2><h3 id="3-1-推荐使用"><a href="#3-1-推荐使用" class="headerlink" title="3.1 推荐使用"></a>3.1 推荐使用</h3><ul>
+<li><strong>复杂业务逻辑</strong>：需要清晰分离读写模型</li>
+<li><strong>高性能需求</strong>：读写负载差异大，需独立扩展</li>
+<li><strong>任务驱动UI</strong>：基于工作流的用户交互</li>
+<li><strong>团队分工</strong>：不同团队负责读&#x2F;写模块</li>
+<li><strong>事件溯源集成</strong>：需要完整操作历史</li>
+</ul>
+<h3 id="3-2-不推荐使用"><a href="#3-2-不推荐使用" class="headerlink" title="3.2 不推荐使用"></a>3.2 不推荐使用</h3><ul>
+<li><strong>简单CRUD</strong>：业务逻辑简单，增加复杂度得不偿失</li>
+<li><strong>全系统滥用</strong>：仅特定模块适合CQRS</li>
+</ul>
+<hr>
+<h2 id="四、高性能实现策略"><a href="#四、高性能实现策略" class="headerlink" title="四、高性能实现策略"></a>四、高性能实现策略</h2><h3 id="4-1-避免资源竞争"><a href="#4-1-避免资源竞争" class="headerlink" title="4.1 避免资源竞争"></a>4.1 避免资源竞争</h3><h4 id="单聚合根修改原则"><a href="#单聚合根修改原则" class="headerlink" title="单聚合根修改原则"></a>单聚合根修改原则</h4><ul>
+<li><strong>每个Command只修改一个聚合根</strong></li>
+<li>多聚合根操作通过Saga模式实现最终一致性</li>
+</ul>
+<h4 id="命令排队机制"><a href="#命令排队机制" class="headerlink" title="命令排队机制"></a>命令排队机制</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[Command] --&gt; B&#123;路由到服务器&#125;</span><br><span class="line">B --&gt; C[内存队列]</span><br><span class="line">C --&gt; D[单线程处理]</span><br><span class="line">D --&gt; E[持久化事件]</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-幂等性保障"><a href="#4-2-幂等性保障" class="headerlink" title="4.2 幂等性保障"></a>4.2 幂等性保障</h3><table>
+<thead>
+<tr>
+<th>环节</th>
+<th>实现方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Command</td>
+<td>CommandId主键约束</td>
+</tr>
+<tr>
+<td>Event</td>
+<td>(AggregateId + Version)联合主键</td>
+</tr>
+<tr>
+<td>Event消费</td>
+<td>处理记录表 + 先查后处理</td>
+</tr>
+</tbody></table>
+<h3 id="4-3-存储优化"><a href="#4-3-存储优化" class="headerlink" title="4.3 存储优化"></a>4.3 存储优化</h3><ul>
+<li><strong>分库分表</strong>：按聚合根类型+ID哈希拆分</li>
+<li><strong>Group Commit</strong>：批量持久化事件（50-100个&#x2F;批）</li>
+<li><strong>In-Memory模式</strong>：聚合根常驻内存，异步持久化</li>
+</ul>
+<hr>
+<h2 id="五、代码实现示例"><a href="#五、代码实现示例" class="headerlink" title="五、代码实现示例"></a>五、代码实现示例</h2><h3 id="5-1-查询侧（Q端）"><a href="#5-1-查询侧（Q端）" class="headerlink" title="5.1 查询侧（Q端）"></a>5.1 查询侧（Q端）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简单DTO查询</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ActionResult <span class="title">Index</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    ViewBag.Model = ServiceLocator.ReportDatabase.GetItems();</span><br><span class="line">    <span class="keyword">return</span> View();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ReportDatabase</span> : <span class="title">IReportDatabase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> List&lt;DiaryItemDto&gt; items = <span class="keyword">new</span> List&lt;DiaryItemDto&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;DiaryItemDto&gt; <span class="title">GetItems</span>()</span> =&gt; items;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Add</span>(<span class="params">DiaryItemDto item</span>)</span> =&gt; items.Add(item);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-命令侧（C端）"><a href="#5-2-命令侧（C端）" class="headerlink" title="5.2 命令侧（C端）"></a>5.2 命令侧（C端）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Command发送</span></span><br><span class="line">[<span class="meta">HttpPost</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> ActionResult <span class="title">Add</span>(<span class="params">DiaryItemDto item</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ServiceLocator.CommandBus.Send(</span><br><span class="line">        <span class="keyword">new</span> CreateItemCommand(Guid.NewGuid(), item.Title, ...)</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">return</span> RedirectToAction(<span class="string">&quot;Index&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Command处理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CreateItemCommandHandler</span> : <span class="title">ICommandHandler</span>&lt;<span class="title">CreateItemCommand</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Execute</span>(<span class="params">CreateItemCommand command</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> aggregate = <span class="keyword">new</span> DiaryItem(command.Id, ...);</span><br><span class="line">        _repository.Save(aggregate, aggregate.Version);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 领域事件应用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DiaryItem</span> : <span class="title">AggregateRoot</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DiaryItem</span>(<span class="params">Guid id, <span class="built_in">string</span> title, ...</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        ApplyChange(<span class="keyword">new</span> ItemCreatedEvent(id, title, ...));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Handle</span>(<span class="params">ItemCreatedEvent e</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Title = e.Title;</span><br><span class="line">        Id = e.AggregateId;</span><br><span class="line">        <span class="comment">// ...其他属性赋值</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-事件持久化"><a href="#5-3-事件持久化" class="headerlink" title="5.3 事件持久化"></a>5.3 事件持久化</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">InMemoryEventStorage</span> : <span class="title">IEventStorage</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Save</span>(<span class="params">AggregateRoot aggregate</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> @event <span class="keyword">in</span> aggregate.GetUncommittedChanges())</span><br><span class="line">        &#123;</span><br><span class="line">            @event.Version = ++version;</span><br><span class="line">            _events.Add(@event); <span class="comment">// 持久化事件</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 发布事件</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> @event <span class="keyword">in</span> aggregate.GetUncommittedChanges())</span><br><span class="line">        &#123;</span><br><span class="line">            _eventBus.Publish(@event);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、CQRS与Event-Sourcing"><a href="#六、CQRS与Event-Sourcing" class="headerlink" title="六、CQRS与Event Sourcing"></a>六、CQRS与Event Sourcing</h2><h3 id="6-1-协同关系"><a href="#6-1-协同关系" class="headerlink" title="6.1 协同关系"></a>6.1 协同关系</h3><ul>
+<li><strong>CQRS</strong>：分离读写模型</li>
+<li><strong>Event Sourcing</strong>：以事件序列作为唯一数据源</li>
+<li><strong>组合优势</strong>：<ul>
+<li>完整操作审计日志</li>
+<li>时间点回溯能力</li>
+<li>简化聚合根重建</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-2-数据流"><a href="#6-2-数据流" class="headerlink" title="6.2 数据流"></a>6.2 数据流</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Command → Command Handler → Domain Events → </span><br><span class="line">    → Event Store（持久化） → Event Handlers → </span><br><span class="line">        → Update Read Models</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、实施建议"><a href="#七、实施建议" class="headerlink" title="七、实施建议"></a>七、实施建议</h2><h3 id="7-1-架构选择"><a href="#7-1-架构选择" class="headerlink" title="7.1 架构选择"></a>7.1 架构选择</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>共享数据库</td>
+<td>代码分离，数据一致</td>
+<td>中小型系统</td>
+</tr>
+<tr>
+<td>独立数据库</td>
+<td>读写完全分离</td>
+<td>高并发系统</td>
+</tr>
+</tbody></table>
+<h3 id="7-2-技术栈"><a href="#7-2-技术栈" class="headerlink" title="7.2 技术栈"></a>7.2 技术栈</h3><ul>
+<li><strong>消息队列</strong>：EQueue&#x2F;RabbitMQ&#x2F;Kafka（确保可靠投递）</li>
+<li><strong>存储</strong>：关系型DB（MySQL&#x2F;PostgreSQL）或NoSQL</li>
+<li><strong>监控</strong>：跟踪Command&#x2F;Event处理延迟</li>
+</ul>
+<h3 id="7-3-运维要点"><a href="#7-3-运维要点" class="headerlink" title="7.3 运维要点"></a>7.3 运维要点</h3><ul>
+<li><strong>最终一致性</strong>：接受Q端数据延迟（通常&lt;1s）</li>
+<li><strong>补偿机制</strong>：Saga失败时的回滚策略</li>
+<li><strong>版本兼容</strong>：事件结构的向后兼容设计</li>
+</ul>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>CQRS通过读写分离解决了传统CRUD架构的性能与复杂度问题，特别适合高并发、业务复杂的系统。实施时需权衡复杂度收益，结合Event Sourcing可获得完整的历史追溯能力。关键成功因素包括：严格的单聚合根修改、可靠的幂等处理、以及高效的事件分发机制。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
+              <a href="/tags/CQRS/" rel="tag"># CQRS</a>
+              <a href="/tags/DDD/" rel="tag"># DDD</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/05/03/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/NFS%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%E9%AB%98%E5%8F%AF%E7%94%A8%E7%8E%AF%E5%A2%83/" rel="prev" title="NFS双机热备高可用环境">
+                  <i class="fa fa-angle-left"></i> NFS双机热备高可用环境
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

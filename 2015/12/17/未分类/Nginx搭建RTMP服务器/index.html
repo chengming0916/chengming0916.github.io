@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一、环境与准备文件1.1 开发环境 开发环境：Windows 开发工具：ffmpeg、nginx 1.7.11.3 Gryphon、nginx-rtmp-module、VLC media player  1.2 官方下载地址   工具 下载地址    ffmpeg http:&#x2F;&#x2F;www.ffmpeg.org   nginx http:&#x2F;&#x2F;nginx.org&#x2F;en&#x2F;download.html   n">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx搭建RTMP服务器">
+<meta property="og:url" content="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="一、环境与准备文件1.1 开发环境 开发环境：Windows 开发工具：ffmpeg、nginx 1.7.11.3 Gryphon、nginx-rtmp-module、VLC media player  1.2 官方下载地址   工具 下载地址    ffmpeg http:&#x2F;&#x2F;www.ffmpeg.org   nginx http:&#x2F;&#x2F;nginx.org&#x2F;en&#x2F;download.html   n">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355406.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355839.png">
+<meta property="og:image" content="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193356268.png">
+<meta property="article:published_time" content="2015-12-17T08:00:22.000Z">
+<meta property="article:modified_time" content="2026-05-03T05:40:46.396Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="Nginx">
+<meta property="article:tag" content="流媒体服务器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355406.png">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/","path":"2015/12/17/未分类/Nginx搭建RTMP服务器/","title":"Nginx搭建RTMP服务器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Nginx搭建RTMP服务器 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%8E%AF%E5%A2%83%E4%B8%8E%E5%87%86%E5%A4%87%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">一、环境与准备文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 开发环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%AE%98%E6%96%B9%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 官方下载地址</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%9B%B4%E6%92%AD%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">二、直播协议概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-RTMP"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 RTMP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-HLS"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 HLS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-HTTP-FLV"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 HTTP-FLV</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85-nginx%E3%80%81ffmpeg-%E4%B8%8E%E5%90%AF%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">三、安装 nginx、ffmpeg 与启动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%AE%89%E8%A3%85%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 安装目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 配置环境变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%90%AF%E5%8A%A8-nginx"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 启动 nginx</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%A3%80%E6%9F%A5-nginx-%E6%98%AF%E5%90%A6%E5%90%AF%E5%8A%A8%E6%88%90%E5%8A%9F"><span class="nav-number">4.</span> <span class="nav-text">四、检查 nginx 是否启动成功</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 浏览器访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A3%80%E6%9F%A5"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 命令行检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E7%9B%B8%E5%85%B3%E8%AF%B4%E6%98%8E"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 相关说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%85%8D%E7%BD%AE-nginx-conf-%E6%96%87%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">五、配置 nginx.conf 文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%A0%87%E5%87%86-nginx-%E6%96%B9%E5%BC%8F%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">六、标准 nginx 方式（失败）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%94%99%E8%AF%AF%E4%BF%A1%E6%81%AF"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 错误信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%8E%9F%E5%9B%A0"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 解决方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81nginx-Gryphon-%E6%96%B9%E5%BC%8F%EF%BC%88%E6%88%90%E5%8A%9F%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">七、nginx Gryphon 方式（成功）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E4%B8%8B%E8%BD%BD-nginx-1-7-11-3-Gryphon"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 下载 nginx 1.7.11.3 Gryphon</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E4%B8%8B%E8%BD%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E7%A8%8B%E5%BA%8F"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 下载服务器状态检查程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-4-%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">7.4.</span> <span class="nav-text">7.4 启动服务器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81RTMP-%E6%8E%A8%E6%B5%81%E6%B5%8B%E8%AF%95"><span class="nav-number">8.</span> <span class="nav-text">八、RTMP 推流测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-FFmpeg-%E6%9C%AC%E5%9C%B0%E8%A7%86%E9%A2%91%E6%8E%A8%E6%B5%81"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 FFmpeg 本地视频推流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-VLC-%E6%92%AD%E6%94%BE%E5%99%A8%E6%8B%89%E6%B5%81"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 VLC 播放器拉流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E6%91%84%E5%83%8F%E5%A4%B4%E6%8E%A8%E6%B5%81%E6%B5%8B%E8%AF%95"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 摄像头推流测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E5%85%B3%E9%97%AD-nginx"><span class="nav-number">9.</span> <span class="nav-text">九、关闭 nginx</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81Linux-%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BA"><span class="nav-number">10.</span> <span class="nav-text">十、Linux 平台搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-1-%E5%AE%89%E8%A3%85-nginx%EF%BC%88%E5%B8%A6-rtmp-%E6%A8%A1%E5%9D%97%EF%BC%89"><span class="nav-number">10.1.</span> <span class="nav-text">10.1 安装 nginx（带 rtmp 模块）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-2-nginx-conf-%E9%85%8D%E7%BD%AE"><span class="nav-number">10.2.</span> <span class="nav-text">10.2 nginx.conf 配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%82%B9%E6%92%AD%E4%B8%8E%E7%9B%B4%E6%92%AD%E5%8A%9F%E8%83%BD"><span class="nav-number">11.</span> <span class="nav-text">十一、点播与直播功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-1-%E7%82%B9%E6%92%AD%E5%8A%9F%E8%83%BD"><span class="nav-number">11.1.</span> <span class="nav-text">11.1 点播功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-2-%E7%9B%B4%E6%92%AD%E5%8A%9F%E8%83%BD"><span class="nav-number">11.2.</span> <span class="nav-text">11.2 直播功能</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E7%9B%B4%E6%92%AD%E5%BD%95%E5%88%B6"><span class="nav-number">12.</span> <span class="nav-text">十二、直播录制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-1-flv-js-%E6%92%AD%E6%94%BE%E7%9B%B4%E6%92%AD%E5%BD%95%E5%88%B6%E8%A7%86%E9%A2%91"><span class="nav-number">12.1.</span> <span class="nav-text">12.1 flv.js 播放直播录制视频</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%89%E3%80%81nginx-rtmp-module-%E6%8C%87%E4%BB%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">13.</span> <span class="nav-text">十三、nginx-rtmp-module 指令详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-1-%E6%A0%B8%E5%BF%83%E6%8C%87%E4%BB%A4"><span class="nav-number">13.1.</span> <span class="nav-text">13.1 核心指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-2-%E7%9B%B4%E6%92%AD%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">13.2.</span> <span class="nav-text">13.2 直播相关指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-3-%E5%BD%95%E5%88%B6%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">13.3.</span> <span class="nav-text">13.3 录制相关指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-4-HLS-%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">13.4.</span> <span class="nav-text">13.4 HLS 相关指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-5-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="nav-number">13.5.</span> <span class="nav-text">13.5 访问控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-6-%E5%A4%96%E9%83%A8%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="nav-number">13.6.</span> <span class="nav-text">13.6 外部命令执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-7-%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0"><span class="nav-number">13.7.</span> <span class="nav-text">13.7 回调函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-8-Relay-%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">13.8.</span> <span class="nav-text">13.8 Relay 相关指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-9-%E5%85%B6%E4%BB%96%E6%8C%87%E4%BB%A4"><span class="nav-number">13.9.</span> <span class="nav-text">13.9 其他指令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">14.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">305</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Nginx搭建RTMP服务器 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Nginx搭建RTMP服务器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-12-17 16:00:22" itemprop="dateCreated datePublished" datetime="2015-12-17T16:00:22+08:00">2015-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、环境与准备文件"><a href="#一、环境与准备文件" class="headerlink" title="一、环境与准备文件"></a>一、环境与准备文件</h2><h3 id="1-1-开发环境"><a href="#1-1-开发环境" class="headerlink" title="1.1 开发环境"></a>1.1 开发环境</h3><ul>
+<li>开发环境：Windows</li>
+<li>开发工具：ffmpeg、nginx 1.7.11.3 Gryphon、nginx-rtmp-module、VLC media player</li>
+</ul>
+<h3 id="1-2-官方下载地址"><a href="#1-2-官方下载地址" class="headerlink" title="1.2 官方下载地址"></a>1.2 官方下载地址</h3><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>下载地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ffmpeg</td>
+<td><a target="_blank" rel="noopener" href="http://www.ffmpeg.org/">http://www.ffmpeg.org</a></td>
+</tr>
+<tr>
+<td>nginx</td>
+<td><a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">http://nginx.org/en/download.html</a></td>
+</tr>
+<tr>
+<td>nginx 1.7.11.3 Gryphon</td>
+<td><a target="_blank" rel="noopener" href="http://nginx-win.ecsds.eu/download/nginx">http://nginx-win.ecsds.eu/download/nginx</a></td>
+</tr>
+<tr>
+<td>nginx-rtmp-module</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></td>
+</tr>
+<tr>
+<td>VLC media player</td>
+<td><a target="_blank" rel="noopener" href="https://www.videolan.org/vlc">https://www.videolan.org/vlc</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、直播协议概述"><a href="#二、直播协议概述" class="headerlink" title="二、直播协议概述"></a>二、直播协议概述</h2><h3 id="2-1-RTMP"><a href="#2-1-RTMP" class="headerlink" title="2.1 RTMP"></a>2.1 RTMP</h3><p>实时消息传输协议（Real Time Messaging Protocol），是 Adobe Systems 公司为 Flash 播放器和服务器之间音频、视频和数据传输开发的开放协议。</p>
+<ul>
+<li>协议基于 TCP，是一个协议族，包括 RTMP 基本协议及 RTMPT&#x2F;RTMPS&#x2F;RTMPE 等多种变种</li>
+<li>实时性比较强，基本能保证延迟在 1-2s 内，是现在国内直播主要采用的方式之一</li>
+<li>需要安装 Flash，H5、iOS、Android 并不能原生支持</li>
+</ul>
+<h3 id="2-2-HLS"><a href="#2-2-HLS" class="headerlink" title="2.2 HLS"></a>2.2 HLS</h3><p>Apple 推出的直播协议，通过视频流切片成文件片段来直播。</p>
+<ul>
+<li>客户端首先会请求一个 m3u8 文件，里面会有不同码率的流，或者直接是 ts 文件列表</li>
+<li>实时性较差，但 H5、iOS、Android 都原生支持</li>
+</ul>
+<h3 id="2-3-HTTP-FLV"><a href="#2-3-HTTP-FLV" class="headerlink" title="2.3 HTTP-FLV"></a>2.3 HTTP-FLV</h3><p>对 RTMP 协议的封装，相比于 RTMP 是一个开放的协议。</p>
+<ul>
+<li>具备了 RTMP 的实时性和 RTMP 不具备的开发性</li>
+<li>flv.js 使得浏览器在不依赖 flash 的情况下播放 flv 视频，兼容移动端</li>
+</ul>
+<hr>
+<h2 id="三、安装-nginx、ffmpeg-与启动"><a href="#三、安装-nginx、ffmpeg-与启动" class="headerlink" title="三、安装 nginx、ffmpeg 与启动"></a>三、安装 nginx、ffmpeg 与启动</h2><h3 id="3-1-安装目录结构"><a href="#3-1-安装目录结构" class="headerlink" title="3.1 安装目录结构"></a>3.1 安装目录结构</h3><p>将所有组件放置在同一目录下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">E:\technology\</span><br><span class="line">├── ffmpeg-4.2.1-win64-static\</span><br><span class="line">├── nginx-1.17.9\</span><br><span class="line">├── nginx-1.7.11.3-Gryphon\</span><br><span class="line">└── nginx-rtmp-module\</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-配置环境变量"><a href="#3-2-配置环境变量" class="headerlink" title="3.2 配置环境变量"></a>3.2 配置环境变量</h3><p>右键我的电脑 &gt; 属性 &gt; 高级系统设置 &gt; 高级 &gt; 环境变量 &gt; 双击 Path，添加以下路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">E:\technology\ffmpeg-4.2.1-win64-static\bin</span><br><span class="line">E:\technology\nginx-1.17.9</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-启动-nginx"><a href="#3-3-启动-nginx" class="headerlink" title="3.3 启动 nginx"></a>3.3 启动 nginx</h3><p>（1）直接双击 nginx.exe，双击后一个黑色的弹窗一闪而过</p>
+<p>（2）打开 cmd 命令窗口，切换到 nginx 解压目录下，输入命令 <code>nginx.exe</code> 或者 <code>start nginx</code>，回车即可</p>
+<hr>
+<h2 id="四、检查-nginx-是否启动成功"><a href="#四、检查-nginx-是否启动成功" class="headerlink" title="四、检查 nginx 是否启动成功"></a>四、检查 nginx 是否启动成功</h2><h3 id="4-1-浏览器访问"><a href="#4-1-浏览器访问" class="headerlink" title="4.1 浏览器访问"></a>4.1 浏览器访问</h3><p>直接在浏览器地址栏输入网址 <code>http://127.0.0.1:80</code> 或 <code>http://localhost:80</code>，回车，出现以下页面说明启动成功：</p>
+<p><img src="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355406.png"></p>
+<h3 id="4-2-命令行检查"><a href="#4-2-命令行检查" class="headerlink" title="4.2 命令行检查"></a>4.2 命令行检查</h3><p>在 cmd 命令窗口输入命令 <code>tasklist /fi &quot;imagename eq nginx.exe&quot;</code>，出现如下结果说明启动成功：</p>
+<p><img src="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355839.png"></p>
+<h3 id="4-3-相关说明"><a href="#4-3-相关说明" class="headerlink" title="4.3 相关说明"></a>4.3 相关说明</h3><ul>
+<li>nginx 的配置文件是 conf 目录下的 nginx.conf</li>
+<li>默认配置的 nginx 监听的端口为 80，如果 80 端口被占用可以修改为未被占用的端口</li>
+<li>检查 80 端口是否被占用的命令是：<code>netstat -ano | findstr 0.0.0.0:80</code></li>
+<li>当我们修改了 nginx 的配置文件 nginx.conf 时，不需要关闭 nginx 后重新启动，只需要执行命令 <code>nginx -s reload</code> 即可让改动生效</li>
+</ul>
+<hr>
+<h2 id="五、配置-nginx-conf-文件"><a href="#五、配置-nginx-conf-文件" class="headerlink" title="五、配置 nginx.conf 文件"></a>五、配置 nginx.conf 文件</h2><p>默认的 nginx.conf 文件并没有配置 RTMP 服务器，需要我们手动添加配置。具体步骤为：在 conf 目录中，复制粘贴 nginx.conf 文件并将其重命名为 <code>nginx-win.conf</code>，修改其内容为：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">8192</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">rtmp</span> &#123;</span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span> <span class="number">1935</span>;</span><br><span class="line">        <span class="attribute">chunk_size</span> <span class="number">4000</span>;</span><br><span class="line">        <span class="attribute">application</span> live &#123;</span><br><span class="line">            <span class="attribute">live</span> <span class="literal">on</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">off</span>;</span><br><span class="line">    <span class="attribute">server_names_hash_bucket_size</span> <span class="number">128</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">client_body_timeout</span>   <span class="number">10</span>;</span><br><span class="line">    <span class="attribute">client_header_timeout</span> <span class="number">10</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span>     <span class="number">30</span>;</span><br><span class="line">    <span class="attribute">send_timeout</span>          <span class="number">10</span>;</span><br><span class="line">    <span class="attribute">keepalive_requests</span>    <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">        <span class="attribute">server_name</span>  localhost;</span><br><span class="line"></span><br><span class="line">        <span class="section">location</span> /stat &#123;</span><br><span class="line">            <span class="attribute">rtmp_stat</span> all;</span><br><span class="line">            <span class="attribute">rtmp_stat_stylesheet</span> stat.xsl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="section">location</span> /stat.xsl &#123;</span><br><span class="line">            <span class="attribute">root</span> nginx-rtmp-module/;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="section">location</span> /control &#123;</span><br><span class="line">            <span class="attribute">rtmp_control</span> all;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="section">location</span> / &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">error_page</span>   <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span>  /50x.html;</span><br><span class="line">        <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里监听端口未改动，仍然为 80，重点添加了 RTMP 服务器的相关配置，以搭建 RTMP 服务器，rtmp 协议的默认端口号是 1935。</p>
+</blockquote>
+<hr>
+<h2 id="六、标准-nginx-方式（失败）"><a href="#六、标准-nginx-方式（失败）" class="headerlink" title="六、标准 nginx 方式（失败）"></a>六、标准 nginx 方式（失败）</h2><p>按住 Windows 键 +R，输入 cmd，进入 cmd 命令窗口，进入 nginx 目录：<code>cd E:\technology\nginx-1.17.9</code>，然后启动 nginx rtmp 服务器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx.exe -c conf\nginx-win.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-1-错误信息"><a href="#6-1-错误信息" class="headerlink" title="6.1 错误信息"></a>6.1 错误信息</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx: [emerg] unknown directive &quot;rtmp&quot; in E:\technology\nginx-1.17.9/conf\nginx-win.conf:19</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-原因"><a href="#6-2-原因" class="headerlink" title="6.2 原因"></a>6.2 原因</h3><p>nginx 的 windows 版本可能在编译的时候没有对 rtmp 模块进行编译导致使用不了。</p>
+<h3 id="6-3-解决方案"><a href="#6-3-解决方案" class="headerlink" title="6.3 解决方案"></a>6.3 解决方案</h3><p><strong>方法1</strong>：下载源码重新进行编译并把 rtmp 模块进行编译进去</p>
+<p>过程较为繁琐，不推荐。有兴趣的可以参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc008d24ad82">win7下nginx-rtmp-module的编译方法</a>。</p>
+<p><strong>方法2</strong>：下载带 rtmp 模块的 nginx 版本，如 nginx 1.7.11.3 Gryphon</p>
+<p>后续亲测可用。</p>
+<hr>
+<h2 id="七、nginx-Gryphon-方式（成功）"><a href="#七、nginx-Gryphon-方式（成功）" class="headerlink" title="七、nginx Gryphon 方式（成功）"></a>七、nginx Gryphon 方式（成功）</h2><h3 id="7-1-下载-nginx-1-7-11-3-Gryphon"><a href="#7-1-下载-nginx-1-7-11-3-Gryphon" class="headerlink" title="7.1 下载 nginx 1.7.11.3 Gryphon"></a>7.1 下载 nginx 1.7.11.3 Gryphon</h3><p>下载带 rtmp 模块的 nginx 版本，下载地址为：<a target="_blank" rel="noopener" href="http://nginx-win.ecsds.eu/download/nginx">http://nginx-win.ecsds.eu/download/nginx</a></p>
+<p>下载完成后解压，将解压后的目录名 <code>nginx 1.7.11.3 Gryphon</code> 改成 <code>nginx-1.7.11.3-Gryphon</code></p>
+<h3 id="7-2-下载服务器状态检查程序"><a href="#7-2-下载服务器状态检查程序" class="headerlink" title="7.2 下载服务器状态检查程序"></a>7.2 下载服务器状态检查程序</h3><p>下载 nginx-rtmp-module，下载地址为：<a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></p>
+<p>将 nginx-rtmp-module-master.zip 解压后复制到目录 <code>nginx-1.7.11.3-Gryphon</code> 下，保证 stat.xls 的目录为：<code>nginx-1.7.11.3-Gryphon\nginx-rtmp-module\stat.xsl</code></p>
+<h3 id="7-3-配置文件"><a href="#7-3-配置文件" class="headerlink" title="7.3 配置文件"></a>7.3 配置文件</h3><p>配置文件 <code>conf\nginx-win.conf</code> 与上面第 5 节一致</p>
+<h3 id="7-4-启动服务器"><a href="#7-4-启动服务器" class="headerlink" title="7.4 启动服务器"></a>7.4 启动服务器</h3><p>按住 Windows 键 +R，输入 cmd，进入 cmd 命令窗口，进入 nginx 目录：<code>cd E:\technology\nginx-1.7.11.3-Gryphon</code>，然后启动 nginx rtmp 服务器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx.exe -c conf\nginx-win.conf</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="八、RTMP-推流测试"><a href="#八、RTMP-推流测试" class="headerlink" title="八、RTMP 推流测试"></a>八、RTMP 推流测试</h2><h3 id="8-1-FFmpeg-本地视频推流"><a href="#8-1-FFmpeg-本地视频推流" class="headerlink" title="8.1 FFmpeg 本地视频推流"></a>8.1 FFmpeg 本地视频推流</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg.exe -re -i .\test.mp4 -vcodec libx264 -acodec aac -f flv rtmp://127.0.0.1:1935/live/home</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-VLC-播放器拉流"><a href="#8-2-VLC-播放器拉流" class="headerlink" title="8.2 VLC 播放器拉流"></a>8.2 VLC 播放器拉流</h3><p>使用 VLC 播放器测试，输入网络 URL：<code>rtmp://127.0.0.1:1935/live/home</code></p>
+<p>上面 IP 地址均可换成本地 IP</p>
+<p><img src="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193356268.png"></p>
+<h3 id="8-3-摄像头推流测试"><a href="#8-3-摄像头推流测试" class="headerlink" title="8.3 摄像头推流测试"></a>8.3 摄像头推流测试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -f dshow -i video=<span class="string">&quot;FHD Camera&quot;</span> -vcodec libx264 -preset:v ultrafast -tune:v zerolatency -f flv rtmp://127.0.0.1:1935/live/home</span><br></pre></td></tr></table></figure>
+
+<p>在设备管理器的”照相机”处，获得摄像头设备名称摄像头为”FHD Camera”。更多推流命令请参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/sntetwt/p/11435564.html">Windows 搭建 nginx rtmp服务器</a></p>
+<hr>
+<h2 id="九、关闭-nginx"><a href="#九、关闭-nginx" class="headerlink" title="九、关闭 nginx"></a>九、关闭 nginx</h2><p>如果使用 cmd 命令窗口启动 nginx，关闭 cmd 窗口是不能结束 nginx 进程的，可使用两种方法关闭 nginx：</p>
+<p>（1）输入 nginx 命令：<code>nginx -s stop</code>（快速停止 nginx）或 <code>nginx -s quit</code>（完整有序的停止 nginx）</p>
+<p>（2）使用 taskkill 命令：<code>taskkill /f /t /im nginx.exe</code></p>
+<hr>
+<h2 id="十、Linux-平台搭建"><a href="#十、Linux-平台搭建" class="headerlink" title="十、Linux 平台搭建"></a>十、Linux 平台搭建</h2><h3 id="10-1-安装-nginx（带-rtmp-模块）"><a href="#10-1-安装-nginx（带-rtmp-模块）" class="headerlink" title="10.1 安装 nginx（带 rtmp 模块）"></a>10.1 安装 nginx（带 rtmp 模块）</h3><p><strong>1. 下载稳定版本的 nginx</strong></p>
+<p>下载地址：<a target="_blank" rel="noopener" href="http://nginx.org/">http://nginx.org</a></p>
+<p><strong>2. 下载 rtmp 模块</strong></p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/arut/nginx-rtmp-module.git</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 解压并编译 nginx</strong></p>
+<p>解压 nginx 的 tar 包，确保 nginx 和 rtmp 模块在同一目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx-1.12.2  nginx-1.12.2.tar.gz  nginx-rtmp-module</span><br></pre></td></tr></table></figure>
+
+<p>进入 nginx 解压目录配置编译参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/local/nginx --add-module=../nginx-rtmp-module --with-http_ssl_module</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 编译安装</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果已安装 nginx 可以在已有 nginx 上面增加模块，参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhangmingda/p/12622590.html">https://www.cnblogs.com/zhangmingda/p/12622590.html</a></p>
+</blockquote>
+<h3 id="10-2-nginx-conf-配置"><a href="#10-2-nginx-conf-配置" class="headerlink" title="10.2 nginx.conf 配置"></a>10.2 nginx.conf 配置</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">user</span> nginx;</span><br><span class="line"><span class="attribute">worker_processes</span> auto;</span><br><span class="line"><span class="attribute">error_log</span> /var/log/nginx/<span class="literal">error</span>.log;</span><br><span class="line"><span class="attribute">pid</span> /run/nginx.pid;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span> <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">log_format</span>  main  <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">access_log</span>  /var/log/nginx/access.log  main;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">sendfile</span>            <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">tcp_nopush</span>          <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">tcp_nodelay</span>         <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span>   <span class="number">65</span>;</span><br><span class="line">    <span class="attribute">types_hash_max_size</span> <span class="number">2048</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">include</span>             /etc/nginx/mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>        application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span> default_server;</span><br><span class="line">        <span class="attribute">server_name</span>  _;</span><br><span class="line">        <span class="attribute">root</span>         /usr/share/nginx/html;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># RTMP 状态页面</span></span><br><span class="line">        <span class="section">location</span> /stat &#123;</span><br><span class="line">            <span class="attribute">rtmp_stat</span> all;</span><br><span class="line">            <span class="attribute">rtmp_stat_stylesheet</span> stat.xsl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="section">location</span> /stat.xsl &#123;</span><br><span class="line">            <span class="attribute">root</span> /opt/rtmp/nginx-rtmp-module/;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># HLS 视频流</span></span><br><span class="line">        <span class="section">location</span> /hls &#123;</span><br><span class="line">            <span class="section">types</span> &#123;</span><br><span class="line">                application/vnd.apple.<span class="attribute">mpegurl</span> m3u8;</span><br><span class="line">                video/<span class="attribute">mp2t</span> ts;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="attribute">autoindex</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">alias</span> /usr/share/nginx/html/hls;</span><br><span class="line">            <span class="attribute">expires</span> -<span class="number">1</span>;</span><br><span class="line">            <span class="attribute">add_header</span> Cache-Control <span class="literal">no</span>-cache;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span> <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Credentials&#x27;</span> <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Methods&#x27;</span> <span class="string">&#x27;GET, POST, OPTIONS&#x27;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Headers&#x27;</span> <span class="string">&#x27;DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">443</span> ssl http2 default_server;</span><br><span class="line">        <span class="attribute">ssl_certificate</span> <span class="string">&quot;/etc/pki/nginx/server.crt&quot;</span>;</span><br><span class="line">        <span class="attribute">ssl_certificate_key</span> <span class="string">&quot;/etc/pki/nginx/private/server.key&quot;</span>;</span><br><span class="line">        <span class="attribute">ssl_session_cache</span> shared:SSL:<span class="number">1m</span>;</span><br><span class="line">        <span class="attribute">ssl_session_timeout</span>  <span class="number">10m</span>;</span><br><span class="line">        <span class="attribute">ssl_ciphers</span> HIGH:!aNULL:!MD5;</span><br><span class="line">        <span class="attribute">ssl_prefer_server_ciphers</span> <span class="literal">on</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># RTMP 直播配置</span></span><br><span class="line"><span class="section">rtmp</span> &#123;</span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span> <span class="number">1935</span>;</span><br><span class="line">        <span class="attribute">chunk_size</span> <span class="number">4000</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 点播</span></span><br><span class="line">        <span class="attribute">application</span> vod &#123;</span><br><span class="line">            <span class="attribute">play</span> /usr/share/nginx/html/vod/flvs/;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 直播</span></span><br><span class="line">        <span class="attribute">application</span> live &#123;</span><br><span class="line">            <span class="attribute">live</span> <span class="literal">on</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># HLS 直播</span></span><br><span class="line">        <span class="attribute">application</span> hls &#123;</span><br><span class="line">            <span class="attribute">live</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls_path</span> /usr/share/nginx/html/hls;</span><br><span class="line">            <span class="attribute">hls_fragment</span> <span class="number">5s</span>;</span><br><span class="line">            <span class="attribute">hls_playlist_length</span> <span class="number">15s</span>;</span><br><span class="line">            <span class="attribute">hls_continuous</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls_cleanup</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls_nested</span> <span class="literal">on</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十一、点播与直播功能"><a href="#十一、点播与直播功能" class="headerlink" title="十一、点播与直播功能"></a>十一、点播与直播功能</h2><h3 id="11-1-点播功能"><a href="#11-1-点播功能" class="headerlink" title="11.1 点播功能"></a>11.1 点播功能</h3><p><strong>1. 创建点播目录</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /usr/share/nginx/html/vod/flvs/</span><br></pre></td></tr></table></figure>
+
+<p>将 test.flv 视频文件存放到该目录</p>
+<p><strong>2. 使用 VLC 播放器播放</strong></p>
+<p>播放按钮可以输入 rtmp:&#x2F;&#x2F; 的连接，步骤为：播放 &gt; 播放 &gt; 网络媒体</p>
+<p><strong>3. 移动端播放</strong></p>
+<p>安卓手机万能播放器：我的 &gt; 连接播放 &gt; 输入 url 即可播放</p>
+<h3 id="11-2-直播功能"><a href="#11-2-直播功能" class="headerlink" title="11.2 直播功能"></a>11.2 直播功能</h3><p><strong>1. 推流</strong></p>
+<p>电脑端 OBS 可以输入推流地址 <code>rtmp://IP/live/test</code> 进行推流，其中 live 为配置文件中定义的直播应用，test 为自定义流名称</p>
+<p><strong>2. 拉流</strong></p>
+<p>使用 VLC 播放器输入：<code>rtmp://127.0.0.1/live/test</code></p>
+<p><strong>3. HLS 协议</strong></p>
+<ul>
+<li>推流：使用 <code>rtmp://IP/应用名/流名称</code> 进行推流</li>
+<li>拉流：支持 http 协议访问 hls 应用下流名称.m3u8 文件</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span>welcome test nginx-rtmp-module <span class="tag">&lt;<span class="name">br</span>&gt;</span><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">video</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">source</span> <span class="attr">src</span>=<span class="string">&quot;http://127.0.0.1/hls/test/index.m3u8&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">video</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十二、直播录制"><a href="#十二、直播录制" class="headerlink" title="十二、直播录制"></a>十二、直播录制</h2><h3 id="12-1-flv-js-播放直播录制视频"><a href="#12-1-flv-js-播放直播录制视频" class="headerlink" title="12.1 flv.js 播放直播录制视频"></a>12.1 flv.js 播放直播录制视频</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">content</span>=<span class="string">&quot;text/html; charset=utf-8&quot;</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Type&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>flv.js demo<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.mainContainer</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">1024px</span>; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; &#125;</span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.urlInput</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">100%</span>; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; <span class="attribute">margin-top</span>: <span class="number">8px</span>; <span class="attribute">margin-bottom</span>: <span class="number">8px</span>; &#125;</span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.centeredVideo</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">100%</span>; <span class="attribute">height</span>: <span class="number">576px</span>; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; <span class="attribute">margin-bottom</span>: auto; &#125;</span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.controls</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">100%</span>; <span class="attribute">text-align</span>: left; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;mainContainer&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">video</span> <span class="attr">id</span>=<span class="string">&quot;videoElement&quot;</span> <span class="attr">class</span>=<span class="string">&quot;centeredVideo&quot;</span> <span class="attr">controls</span> <span class="attr">autoplay</span> <span class="attr">width</span>=<span class="string">&quot;1024&quot;</span> <span class="attr">height</span>=<span class="string">&quot;576&quot;</span>&gt;</span>Your browser is too old which doesn&#x27;t support HTML5 video.<span class="tag">&lt;/<span class="name">video</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">style</span>=<span class="string">&quot;width:500px&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">placeholder</span>=<span class="string">&quot;请输入flv链接&quot;</span> <span class="attr">id</span>=<span class="string">&quot;flvUrl&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;load_flv()&quot;</span>&gt;</span>加载<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;controls&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_start()&quot;</span>&gt;</span>开始<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_pause()&quot;</span>&gt;</span>暂停<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_destroy()&quot;</span>&gt;</span>停止<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">style</span>=<span class="string">&quot;width:100px&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;seekpoint&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_seekto()&quot;</span>&gt;</span>跳转<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;flv.min.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> player = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;videoElement&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">load_flv</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">var</span> flvurl = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;flvUrl&#x27;</span>).<span class="property">value</span>;</span></span><br><span class="line"><span class="language-javascript">            <span class="variable language_">console</span>.<span class="title function_">log</span>(flvurl);</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span> (flvjs.<span class="title function_">isSupported</span>()) &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">var</span> flvPlayer = flvjs.<span class="title function_">createPlayer</span>(&#123;</span></span><br><span class="line"><span class="language-javascript">                    <span class="attr">type</span>: <span class="string">&#x27;flv&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">                    <span class="attr">url</span>: flvurl</span></span><br><span class="line"><span class="language-javascript">                &#125;);</span></span><br><span class="line"><span class="language-javascript">                flvPlayer.<span class="title function_">attachMediaElement</span>(videoElement);</span></span><br><span class="line"><span class="language-javascript">                flvPlayer.<span class="title function_">load</span>();</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_start</span>(<span class="params"></span>) &#123; player.<span class="title function_">play</span>(); &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_pause</span>(<span class="params"></span>) &#123; player.<span class="title function_">pause</span>(); &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_destroy</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">pause</span>();</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">unload</span>();</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">detachMediaElement</span>();</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">destroy</span>();</span></span><br><span class="line"><span class="language-javascript">            player = <span class="literal">null</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_seekto</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            player.<span class="property">currentTime</span> = <span class="built_in">parseFloat</span>(<span class="variable language_">document</span>.<span class="title function_">getElementsByName</span>(<span class="string">&#x27;seekpoint&#x27;</span>)[<span class="number">0</span>].<span class="property">value</span>);</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十三、nginx-rtmp-module-指令详解"><a href="#十三、nginx-rtmp-module-指令详解" class="headerlink" title="十三、nginx-rtmp-module 指令详解"></a>十三、nginx-rtmp-module 指令详解</h2><h3 id="13-1-核心指令"><a href="#13-1-核心指令" class="headerlink" title="13.1 核心指令"></a>13.1 核心指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>语法</th>
+<th>上下文</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rtmp</td>
+<td><code>rtmp &#123; ... &#125;</code></td>
+<td>根</td>
+<td>保存所有 RTMP 配置的块</td>
+</tr>
+<tr>
+<td>server</td>
+<td><code>server &#123; ... &#125;</code></td>
+<td>rtmp</td>
+<td>声明一个 RTMP 实例</td>
+</tr>
+<tr>
+<td>listen</td>
+<td><code>listen (addr[:port]|port|unix:path) [bind]</code></td>
+<td>server</td>
+<td>给 NGINX 添加一个监听端口以接收 RTMP 连接</td>
+</tr>
+<tr>
+<td>application</td>
+<td><code>application name &#123; ... &#125;</code></td>
+<td>server</td>
+<td>创建一个 RTMP 应用</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td><code>timeout value</code></td>
+<td>rtmp, server</td>
+<td>Socket 超时，默认值为 1 分钟</td>
+</tr>
+<tr>
+<td>ping</td>
+<td><code>ping value</code></td>
+<td>rtmp, server</td>
+<td>RTMP ping 间隔，默认值为一分钟</td>
+</tr>
+<tr>
+<td>chunk_size</td>
+<td><code>chunk_size value</code></td>
+<td>rtmp, server, application</td>
+<td>流整合的最大块大小，默认值为 4096</td>
+</tr>
+</tbody></table>
+<h3 id="13-2-直播相关指令"><a href="#13-2-直播相关指令" class="headerlink" title="13.2 直播相关指令"></a>13.2 直播相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>live on</code></td>
+<td>开启直播模式</td>
+</tr>
+<tr>
+<td><code>meta on/off</code></td>
+<td>切换发送元数据到客户端，默认为 on</td>
+</tr>
+<tr>
+<td><code>interleave on/off</code></td>
+<td>切换交叉模式，音频和视频数据会在同一个 RTMP chunk 流中传输</td>
+</tr>
+<tr>
+<td><code>wait_key on/off</code></td>
+<td>使视频流从一个关键帧开始</td>
+</tr>
+<tr>
+<td><code>wait_video on/off</code></td>
+<td>在第一个视频帧发送之前禁用音频</td>
+</tr>
+<tr>
+<td><code>publish_notify on/off</code></td>
+<td>发送 NetStream.Publish.Start 和 NetStream.Publish.Stop 给用户</td>
+</tr>
+<tr>
+<td><code>sync timeout</code></td>
+<td>同步音频和视频流，默认值为 300 ms</td>
+</tr>
+</tbody></table>
+<h3 id="13-3-录制相关指令"><a href="#13-3-录制相关指令" class="headerlink" title="13.3 录制相关指令"></a>13.3 录制相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>record [off|all|audio|video|keyframes|manual]</code></td>
+<td>切换录制模式</td>
+</tr>
+<tr>
+<td><code>record_path path</code></td>
+<td>指定录制的 flv 文件存放目录</td>
+</tr>
+<tr>
+<td><code>record_suffix value</code></td>
+<td>设置录制文件后缀名，默认为 ‘.flv’</td>
+</tr>
+<tr>
+<td><code>record_max_size size</code></td>
+<td>设置录制文件的最大值</td>
+</tr>
+<tr>
+<td><code>record_max_frames nframes</code></td>
+<td>设置每个录制文件的视频帧的最大数量</td>
+</tr>
+<tr>
+<td><code>record_interval time</code></td>
+<td>录制间隔</td>
+</tr>
+<tr>
+<td><code>record_notify on/off</code></td>
+<td>录制状态通知</td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">recorder</span> myrec &#123;</span><br><span class="line">    <span class="attribute">record</span> all manual;</span><br><span class="line">    <span class="attribute">record_path</span> /var/rec;</span><br><span class="line">    <span class="attribute">record_notify</span> <span class="literal">on</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-4-HLS-相关指令"><a href="#13-4-HLS-相关指令" class="headerlink" title="13.4 HLS 相关指令"></a>13.4 HLS 相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>hls on/off</code></td>
+<td>在 application 切换 HLS</td>
+</tr>
+<tr>
+<td><code>hls_path path</code></td>
+<td>设置 HLS 播放列表和分段目录</td>
+</tr>
+<tr>
+<td><code>hls_fragment time</code></td>
+<td>设置 HLS 分段长度，默认为 5 秒钟</td>
+</tr>
+<tr>
+<td><code>hls_playlist_length time</code></td>
+<td>设置 HLS 播放列表长度，默认为 30 秒钟</td>
+</tr>
+<tr>
+<td><code>hls_continuous on/off</code></td>
+<td>切换 HLS 连续模式</td>
+</tr>
+<tr>
+<td><code>hls_nested on/off</code></td>
+<td>切换 HLS 嵌套模式</td>
+</tr>
+<tr>
+<td><code>hls_cleanup on/off</code></td>
+<td>切换 HLS 清理</td>
+</tr>
+</tbody></table>
+<h3 id="13-5-访问控制"><a href="#13-5-访问控制" class="headerlink" title="13.5 访问控制"></a>13.5 访问控制</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 允许/禁止发布</span></span><br><span class="line"><span class="attribute">allow</span> publish <span class="number">127.0.0.1</span>;</span><br><span class="line"><span class="attribute">deny</span> publish all;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许/禁止播放</span></span><br><span class="line"><span class="attribute">allow</span> play <span class="number">192.168.0.0</span>/<span class="number">24</span>;</span><br><span class="line"><span class="attribute">deny</span> play all;</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-6-外部命令执行"><a href="#13-6-外部命令执行" class="headerlink" title="13.6 外部命令执行"></a>13.6 外部命令执行</h3><p>定义每个流发布时要执行的带有参数的外部命令：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">exec</span> ffmpeg -i rtmp://localhost/src/<span class="variable">$name</span> -vcodec libx264 -acodec aac -f flv rtmp://localhost/hls/<span class="variable">$name</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可用变量：</p>
+<ul>
+<li><code>$name</code> - 流的名字</li>
+<li><code>$app</code> - 应用名</li>
+<li><code>$addr</code> - 客户端地址</li>
+<li><code>$flashver</code> - 客户端 flash 版本</li>
+<li><code>$swfurl</code> - 客户端 swf url</li>
+<li><code>$tcurl</code> - 客户端 tc url</li>
+<li><code>$pageurl</code> - 客户端页面 url</li>
+</ul>
+<h3 id="13-7-回调函数"><a href="#13-7-回调函数" class="headerlink" title="13.7 回调函数"></a>13.7 回调函数</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>on_connect url</code></td>
+<td>设置 HTTP 连接回调</td>
+</tr>
+<tr>
+<td><code>on_play url</code></td>
+<td>设置 HTTP 播放回调</td>
+</tr>
+<tr>
+<td><code>on_publish url</code></td>
+<td>设置 HTTP 发布回调</td>
+</tr>
+<tr>
+<td><code>on_done url</code></td>
+<td>设置播放&#x2F;发布禁止回调</td>
+</tr>
+<tr>
+<td><code>on_record_done url</code></td>
+<td>设置录制完成回调</td>
+</tr>
+<tr>
+<td><code>on_update url</code></td>
+<td>设置 update 回调</td>
+</tr>
+</tbody></table>
+<h3 id="13-8-Relay-相关指令"><a href="#13-8-Relay-相关指令" class="headerlink" title="13.8 Relay 相关指令"></a>13.8 Relay 相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pull url [key=value]*</code></td>
+<td>创建 pull 中继，流将从远程服务器上拉下来</td>
+</tr>
+<tr>
+<td><code>push url [key=value]*</code></td>
+<td>推送发布流到远程服务器</td>
+</tr>
+<tr>
+<td><code>push_reconnect time</code></td>
+<td>push 重新连接前等待的时间，默认为 3 秒</td>
+</tr>
+<tr>
+<td><code>session_relay on/off</code></td>
+<td>切换会话 relay 模式</td>
+</tr>
+</tbody></table>
+<h3 id="13-9-其他指令"><a href="#13-9-其他指令" class="headerlink" title="13.9 其他指令"></a>13.9 其他指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>max_connections number</code></td>
+<td>为 rtmp 引擎设置最大连接数</td>
+</tr>
+<tr>
+<td><code>rtmp_auto_push on/off</code></td>
+<td>切换自动推送（多 worker 直播流）模式</td>
+</tr>
+<tr>
+<td><code>rtmp_control all</code></td>
+<td>设置 RTMP 控制程序</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sntetwt/p/11435564.html">Windows 搭建 nginx rtmp服务器</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangwangxiang/p/8481661.html">windows下nginx的安装及使用</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Contex_A17/article/details/82191050">Windows10下nginx的rtmp服务器搭建</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dong1/p/10200869.html">rtmp服务器以及rtmp推流&#x2F;拉流&#x2F;转发</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/nginx-setup-intro.html">Nginx 配置详解</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+              <a href="/tags/%E6%B5%81%E5%AA%92%E4%BD%93%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag"># 流媒体服务器</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/12/07/Linux/gcc4.8%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="prev" title="gcc4.8安装教程">
+                  <i class="fa fa-angle-left"></i> gcc4.8安装教程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/12/27/%E6%9C%AA%E5%88%86%E7%B1%BB/%E4%BD%BF%E7%94%A8%E6%9C%89%E5%BA%8FGUID%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E9%94%AE%E6%80%A7%E8%83%BD/" rel="next" title="使用有序GUID提升数据库主键性能">
+                  使用有序GUID提升数据库主键性能 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>

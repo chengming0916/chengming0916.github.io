@@ -170,7 +170,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-count">305</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -206,141 +206,6 @@
     </div>
 
     <div class="main-inner index posts-expand">
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/03/11/Linux/SSH%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/03/11/Linux/SSH%E9%85%8D%E7%BD%AE%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/" class="post-title-link" itemprop="url">SSH配置远程端口转发</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-03-11 18:22:34" itemprop="dateCreated datePublished" datetime="2026-03-11T18:22:34+08:00">2026-03-11</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h3 id="一、ssh-N-L-实现内网端口访问的原理与用法"><a href="#一、ssh-N-L-实现内网端口访问的原理与用法" class="headerlink" title="一、ssh -N -L 实现内网端口访问的原理与用法"></a>一、<code>ssh -N -L</code> 实现内网端口访问的原理与用法</h3><p><code>ssh -N -L</code> 是 SSH 本地端口转发（Local Port Forwarding）的核心命令，其核心作用是在<strong>本地机器的指定端口</strong>与<strong>远程服务器可访问的内网目标端口</strong>之间，建立一条加密传输隧道，从而实现通过访问本地端口，间接访问内网服务的目的，无需直接暴露内网地址。</p>
-<h4 id="1-命令参数解释"><a href="#1-命令参数解释" class="headerlink" title="1. 命令参数解释"></a>1. 命令参数解释</h4><p>明确各参数的具体含义，是正确使用该命令、排查问题的基础，核心参数及常用补充参数如下：</p>
-<ul>
-<li><p><code>-L</code>：本地端口转发的核心参数，格式固定为 <code>本地端口:内网目标地址:内网目标端口</code>，用于指定本地端口、内网目标的地址和端口。</p>
-</li>
-<li><p><code>-N</code>：仅建立 SSH 隧道，不执行远程服务器的任何命令，避免不必要的 shell 登录，专注于端口转发功能。</p>
-</li>
-<li><p>补充常用参数（提升使用便捷性和安全性）：</p>
-</li>
-<li><p><code>-f</code>：将 SSH 隧道后台运行，避免终端关闭后隧道断开，无需一直保持终端窗口打开。</p>
-</li>
-<li><p><code>-i</code>：指定 SSH 私钥文件路径，适用于密钥登录场景，无需手动输入密码，提升登录效率和安全性。</p>
-</li>
-</ul>
-<h4 id="2-典型场景与完整命令"><a href="#2-典型场景与完整命令" class="headerlink" title="2. 典型场景与完整命令"></a>2. 典型场景与完整命令</h4><p>结合实际网络拓扑，给出最常用的应用场景，方便读者直接参考套用：</p>
-<ul>
-<li><p>本地机器：可正常访问公网，能连接公网服务器（IP：<code>203.0.113.10</code>，默认 SSH 端口 22）。</p>
-</li>
-<li><p>公网服务器：具备内网访问权限，可连通内网目标机器（IP：<code>192.168.1.50</code>，内网 Web 服务端口 8080）。</p>
-</li>
-<li><p>核心目标：在本地机器上，访问内网 <code>192.168.1.50:8080</code> 对应的服务。</p>
-</li>
-</ul>
-<p><strong>完整命令示例</strong>（推荐后台运行，避免终端占用）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后台建立加密隧道，将本地8888端口转发至内网192.168.1.50:8080</span></span><br><span class="line">ssh -f -N -L 8888:192.168.1.50:8080 root@203.0.113.10</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-访问内网端口的步骤"><a href="#3-访问内网端口的步骤" class="headerlink" title="3. 访问内网端口的步骤"></a>3. 访问内网端口的步骤</h4><ol>
-<li><strong>执行转发命令</strong>：</li>
-</ol>
-<p>在本地终端运行上述命令后，SSH 会自动在本地监听 8888 端口，此时输入公网服务器登录密码（或通过密钥自动认证），即可完成隧道建立，无需额外操作。</p>
-<ul>
-<li>密钥登录场景（补充 <code>-i</code> 参数，替换私钥文件路径）：</li>
-</ul>
-<ol>
-<li><strong>访问内网服务</strong>：</li>
-</ol>
-<p>隧道建立成功后，无需额外配置，在本地浏览器或对应客户端中，访问 <code>http://localhost:8888</code>（或 <code>127.0.0.1:8888</code>），即可等同于直接访问内网的 <code>192.168.1.50:8080</code> 服务。</p>
-<h4 id="4-进阶场景：多层内网转发"><a href="#4-进阶场景：多层内网转发" class="headerlink" title="4. 进阶场景：多层内网转发"></a>4. 进阶场景：多层内网转发</h4><p>若公网服务器与内网目标机器之间存在多层网络（如公网服务器仅能访问内网网关 <code>192.168.1.1</code>，而网关可访问深层内网 <code>192.168.2.10:3306</code>，如 MySQL 数据库端口），命令格式无需调整，仅需修改内网目标地址即可：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地3306端口转发至深层内网192.168.2.10:3306（MySQL端口）</span></span><br><span class="line">ssh -f -N -L 3306:192.168.2.10:3306 root@203.0.113.10</span><br></pre></td></tr></table></figure>
-
-<p>此时本地连接 MySQL 数据库时，只需将连接地址设为 <code>localhost</code>，端口设为 3306，即可正常访问内网数据库。</p>
-<h4 id="5-关闭隧道（可选）"><a href="#5-关闭隧道（可选）" class="headerlink" title="5. 关闭隧道（可选）"></a>5. 关闭隧道（可选）</h4><p>若无需继续使用隧道，可通过以下命令关闭，避免占用本地端口和网络资源：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查找SSH隧道对应的进程（筛选出目标隧道进程）</span></span><br><span class="line">ps aux | grep <span class="string">&quot;ssh -f -N -L&quot;</span></span><br><span class="line"><span class="comment"># 杀死对应进程（将12345替换为实际查询到的进程PID）</span></span><br><span class="line"><span class="built_in">kill</span> -9 12345</span><br></pre></td></tr></table></figure>
-
-<h3 id="二、注意事项"><a href="#二、注意事项" class="headerlink" title="二、注意事项"></a>二、注意事项</h3><ol>
-<li><p>本地端口不可占用：若本地指定的端口（如示例中的 8888）已被其他程序占用，会提示<code>bind: Address already in use</code>，只需更换一个未被占用的本地端口（如 8889）即可。</p>
-</li>
-<li><p>公网服务器需连通内网目标：公网服务器必须能正常 ping 通内网目标地址（如 <code>192.168.1.50</code>），且内网目标端口未被防火墙拦截，否则隧道虽能建立，但无法正常访问内网服务。</p>
-</li>
-<li><p>权限需达标：SSH 登录公网服务器的用户（如示例中的 root）需具备足够的操作权限，同时内网服务需允许公网服务器的 IP 访问，否则会出现权限不足或访问被拒绝的问题。</p>
-</li>
-</ol>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
-<li><p><code>ssh -N -L</code> 命令的核心逻辑的是 <code>本地端口:内网目标地址:内网目标端口 远程服务器地址</code>，建议搭配 <code>-f</code> 参数后台运行，提升使用便捷性。</p>
-</li>
-<li><p>隧道建立后，访问<code>localhost:本地端口</code>，即可间接访问内网目标服务，无需直接接触内网环境。</p>
-</li>
-<li><p>使用该命令的关键前提：公网服务器能正常连通内网目标的地址和端口，且本地指定的转发端口未被占用。</p>
-</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
 
     
 
@@ -386,7 +251,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -582,7 +447,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -751,7 +616,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -935,7 +800,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -1064,7 +929,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -1288,7 +1153,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -1531,7 +1396,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -1706,7 +1571,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -1894,7 +1759,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
     </span>
 
   
@@ -2206,6 +2071,114 @@
 </li>
 </ol>
 <p>通过本文所述步骤，开发者可快速完成YOLOv8训练环境搭建，并顺利开展自定义目标检测任务，后续可根据实际检测效果进一步优化参数，提升模型性能。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/02/05/Linux/%E9%BA%92%E9%BA%9FV10%E6%8C%82%E8%BD%BDISO%E9%95%9C%E5%83%8F%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0YUM%E6%BA%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/02/05/Linux/%E9%BA%92%E9%BA%9FV10%E6%8C%82%E8%BD%BDISO%E9%95%9C%E5%83%8F%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0YUM%E6%BA%90/" class="post-title-link" itemprop="url">麒麟V10挂载ISO镜像配置本地YUM源</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-02-05 10:57:29" itemprop="dateCreated datePublished" datetime="2026-02-05T10:57:29+08:00">2026-02-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-03 13:40:46" itemprop="dateModified" datetime="2026-05-03T13:40:46+08:00">2026-05-03</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本文档介绍如何在麒麟V10系统中挂载ISO镜像文件，并配置本地YUM源。</p>
+<h3 id="1-挂载ISO文件"><a href="#1-挂载ISO文件" class="headerlink" title="1. 挂载ISO文件"></a>1. 挂载ISO文件</h3><p>假设ISO文件存放在 <code>/opt/iso/</code> 目录，目标挂载路径为 <code>/mnt/media/iso</code>。</p>
+<h4 id="1-1-临时挂载"><a href="#1-1-临时挂载" class="headerlink" title="1.1 临时挂载"></a>1.1 临时挂载</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t iso9660 /opt/iso/Kylin-Server-V10-SP3-2403-Release-20240426-x86_64.iso /mnt/media/iso</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-永久挂载"><a href="#1-2-永久挂载" class="headerlink" title="1.2 永久挂载"></a>1.2 永久挂载</h4><p>编辑 <code>/etc/fstab</code> 文件，在末尾添加以下行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/opt/iso/Kylin-Server-V10-SP3-2403-Release-20240426-x86_64.iso    /mnt/media/iso    iso9660    loop,ro,auto    0 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-配置YUM源"><a href="#2-配置YUM源" class="headerlink" title="2. 配置YUM源"></a>2. 配置YUM源</h3><p>在 <code>/etc/yum.repos.d/</code> 目录下创建新的源配置文件 <code>Kylin_Local.repo</code>。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[Kylin-Local]</span></span><br><span class="line"><span class="attr">name</span>=Kylin V10 Local Repository</span><br><span class="line"><span class="attr">baseurl</span>=file:///mnt/media/iso</span><br><span class="line"><span class="attr">enabled</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgcheck</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gpgkey</span>=file:///mnt/media/iso/RPM-GPG-KEY-Kylin</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置项说明</strong>：</p>
+<ul>
+<li><strong>baseurl</strong>: 指定本地ISO的挂载路径。</li>
+<li><strong>enabled</strong>: 设为 <code>1</code> 以启用此仓库。</li>
+<li><strong>gpgcheck</strong>: 设为 <code>1</code> 以启用GPG签名验证，确保软件包安全。</li>
+<li><strong>gpgkey</strong>: 指定用于验证的GPG公钥文件位置。</li>
+</ul>
+<h3 id="3-测试源配置"><a href="#3-测试源配置" class="headerlink" title="3. 测试源配置"></a>3. 测试源配置</h3><p>配置完成后，执行以下命令测试源是否正常工作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 清理旧的YUM缓存并生成新缓存</span></span><br><span class="line">dnf clean all</span><br><span class="line">dnf makecache</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出已启用的仓库，检查本地源是否在列</span></span><br><span class="line">dnf repolist</span><br><span class="line"></span><br><span class="line"><span class="comment"># 尝试搜索一个软件包，测试源功能</span></span><br><span class="line">dnf search openssh-server</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-扩展：搭建局域网共享源"><a href="#4-扩展：搭建局域网共享源" class="headerlink" title="4. 扩展：搭建局域网共享源"></a>4. 扩展：搭建局域网共享源</h3><p>若需在多台机器上使用，可在局域网内搭建一个共享源服务器。</p>
+<h4 id="4-1-在源服务器上操作"><a href="#4-1-在源服务器上操作" class="headerlink" title="4.1 在源服务器上操作"></a>4.1 在源服务器上操作</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装Nginx Web服务器</span></span><br><span class="line">dnf install -y nginx</span><br><span class="line">systemctl <span class="built_in">enable</span> --now nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 将ISO挂载到Nginx的Web目录</span></span><br><span class="line">mount -t iso9660 -o loop /opt/iso/Kylin-Server-V10-SP3-2403-Release-20240426-x86_64.iso /usr/share/nginx/html/kylin-local/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 配置防火墙，允许HTTP访问</span></span><br><span class="line">firewall-cmd --permanent --add-service=http</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-在客户端机器上配置"><a href="#4-2-在客户端机器上配置" class="headerlink" title="4.2 在客户端机器上配置"></a>4.2 在客户端机器上配置</h4><p>将客户端YUM源配置文件中的 <code>baseurl</code> 修改为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">baseurl=http://&lt;源服务器IP地址&gt;/kylin-local</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-常见问题与解决方案"><a href="#5-常见问题与解决方案" class="headerlink" title="5. 常见问题与解决方案"></a>5. 常见问题与解决方案</h3><h4 id="问题1：挂载点不存在或权限不足"><a href="#问题1：挂载点不存在或权限不足" class="headerlink" title="问题1：挂载点不存在或权限不足"></a><strong>问题1：挂载点不存在或权限不足</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录并设置权限</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /mnt/media/iso</span><br><span class="line"><span class="built_in">chmod</span> 755 /mnt/media/iso</span><br></pre></td></tr></table></figure>
+
+<h4 id="问题2：GPG密钥验证失败"><a href="#问题2：GPG密钥验证失败" class="headerlink" title="问题2：GPG密钥验证失败"></a><strong>问题2：GPG密钥验证失败</strong></h4><ul>
+<li><strong>临时解决方案（不推荐用于生产环境）</strong>：<br>在 <code>Kylin_Local.repo</code> 文件中将 <code>gpgcheck=1</code> 改为 <code>gpgcheck=0</code>。</li>
+<li><strong>正确解决方案</strong>：<br>检查GPG密钥文件路径和名称是否正确。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> -l /mnt/media/iso/RPM-GPG-KEY-Kylin</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="问题3：软件包依赖缺失"><a href="#问题3：软件包依赖缺失" class="headerlink" title="问题3：软件包依赖缺失"></a><strong>问题3：软件包依赖缺失</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看详细的安装错误信息</span></span><br><span class="line">dnf --verbose install &lt;软件包名&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果确认本地源缺少某些依赖，可以考虑配置多个YUM源（如结合官方网络源）</span></span><br></pre></td></tr></table></figure>
 
       
     </div>

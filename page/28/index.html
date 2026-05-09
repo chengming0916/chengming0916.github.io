@@ -170,7 +170,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-count">306</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -181,7 +181,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-count">295</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -206,6 +206,351 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2017/02/12/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/WPF%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/02/12/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/WPF%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C/" class="post-title-link" itemprop="url">WPF 数据校验</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-02-12 09:24:49" itemprop="dateCreated datePublished" datetime="2017-02-12T09:24:49+08:00">2017-02-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/WPF/" itemprop="url" rel="index"><span itemprop="name">WPF</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>只要是有表单存在，那么就有可能有对数据的校验需求。如：判断是否为整数、判断电子邮件格式等等。</p>
+<p>WPF采用一种全新的方式 - Binding，来实现前台显示与后台数据进行交互，当然数据校验方式也不一样了。</p>
+<p>本专题全面介绍一下WPF中4种Validate方法，帮助你了解如何在WPF中对binding的数据进行校验，并处理错误显示。</p>
+<h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>正常情况下，只要是绑定过程中出现异常或者在converter中出现异常，都会造成绑定失败。</p>
+<p>但是WPF不会出现任何异常，只会显示一片空白（当然有些Converter中的异常会造成程序崩溃）。</p>
+<p>这是因为默认情况下，Binding.ValidatesOnException为false，所以WPF忽视了这些绑定错误。</p>
+<p>但是如果我们把Binding.ValidatesOnException为true，那么WPF会对错误做出以下反应：</p>
+<ol>
+<li>设置绑定元素的附加属性 Validation.HasError为true（如TextBox，如果Text被绑定，并出现错误）。</li>
+<li>创建一个包含错误详细信息（如抛出的Exception对象）的ValidationError对象。</li>
+<li>将上面产生的对象添加到绑定对象的Validation.Errors附加属性当中。</li>
+<li>如果Binding.NotifyOnValidationError是true，那么绑定元素的附加属性中的Validation.Error附加事件将被触发。（这是一个冒泡事件）</li>
+</ol>
+<p>我们的Binding对象，维护着一个ValidationRule的集合，当设置ValidatesOnException为true时，</p>
+<p>默认会添加一个ExceptionValidationRule到这个集合当中。</p>
+<p>PS：对于绑定的校验只在Binding.Mode 为TwoWay和OneWayToSource才有效，</p>
+<p>即当需要从target控件将值传到source属性时，很容易理解，当你的值不需要被别人使用时，就很可能校验也没必要。</p>
+<h2 id="二、四种实现方法"><a href="#二、四种实现方法" class="headerlink" title="二、四种实现方法"></a>二、四种实现方法</h2><h4 id="1、在Setter方法中进行判断"><a href="#1、在Setter方法中进行判断" class="headerlink" title="1、在Setter方法中进行判断"></a>1、在Setter方法中进行判断</h4><p>直接在Setter方法中，对value进行校验，如果不符合规则，那么就抛出异常。然后修改XAML不忽视异常。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PersonValidateInSetter</span> : <span class="title">ObservableObject</span></span><br><span class="line">    &#123; <span class="keyword">private</span> <span class="built_in">string</span> name; <span class="keyword">private</span> <span class="built_in">int</span> age; <span class="keyword">public</span> <span class="built_in">string</span> Name</span><br><span class="line">        &#123; <span class="keyword">get</span>   &#123;  <span class="keyword">return</span> <span class="keyword">this</span>.name;   &#125; <span class="keyword">set</span> &#123; <span class="keyword">if</span> (<span class="built_in">string</span>.IsNullOrWhiteSpace(<span class="keyword">value</span>))</span><br><span class="line">                &#123; <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentException(<span class="string">&quot;Name cannot be empty!&quot;</span>);</span><br><span class="line">                &#125; <span class="keyword">if</span> (<span class="keyword">value</span>.Length &lt; <span class="number">4</span>)</span><br><span class="line">                &#123; <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentException(<span class="string">&quot;Name must have more than 4 char!&quot;</span>);</span><br><span class="line">                &#125; <span class="keyword">this</span>.name = <span class="keyword">value</span>; <span class="keyword">this</span>.OnPropertyChanged(() =&gt; <span class="keyword">this</span>.Name);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">public</span> <span class="built_in">int</span> Age</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> <span class="keyword">this</span>.age;  &#125; <span class="keyword">set</span> &#123; <span class="keyword">if</span> (<span class="keyword">value</span> &lt; <span class="number">18</span>)</span><br><span class="line">                &#123; <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentException(<span class="string">&quot;You must be an adult!&quot;</span>);</span><br><span class="line">                &#125; <span class="keyword">this</span>.age = <span class="keyword">value</span>; <span class="keyword">this</span>.OnPropertyChanged(() =&gt; <span class="keyword">this</span>.Age);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="string">&lt;Grid</span> <span class="string">DataContext=&quot;&#123;Binding</span> <span class="string">PersonValidateInSetter&#125;&quot;&gt;</span></span><br><span class="line">               <span class="string">&lt;Grid.RowDefinitions&gt;</span></span><br><span class="line">                   <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                   <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">               <span class="string">&lt;/Grid.RowDefinitions&gt;</span></span><br><span class="line">               <span class="string">&lt;Grid.ColumnDefinitions&gt;</span></span><br><span class="line">                   <span class="string">&lt;ColumnDefinition</span> <span class="string">Width\=&quot;Auto&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                   <span class="string">&lt;ColumnDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">               <span class="string">&lt;/Grid.ColumnDefinitions&gt;</span></span><br><span class="line">               <span class="string">&lt;TextBlock</span> <span class="string">Text=&quot;Name:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">               <span class="string">&lt;TextBox</span> <span class="string">Grid.Column=&quot;1&quot;</span> <span class="string">Margin=&quot;1&quot;</span> <span class="string">Text=&quot;&#123;Binding</span> <span class="string">Name,</span></span><br><span class="line">                                       <span class="string">ValidatesOnExceptions=True,</span></span><br><span class="line">                                       <span class="string">UpdateSourceTrigger=PropertyChanged&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">               <span class="string">&lt;TextBlock</span> <span class="string">Grid.Row=&quot;1&quot;</span> <span class="string">Text=&quot;Age:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">               <span class="string">&lt;TextBox</span> <span class="string">Grid.Row=&quot;1&quot;</span> <span class="string">Grid.Column=&quot;1&quot;</span> <span class="string">Margin=&quot;1&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">Age,</span></span><br><span class="line">                                       <span class="string">ValidatesOnExceptions=True,</span></span><br><span class="line">                                       <span class="string">UpdateSourceTrigger=PropertyChanged&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">           <span class="string">&lt;/Grid&gt;</span></span><br><span class="line">           </span><br></pre></td></tr></table></figure>
+
+<p>当输入的值，在setter方法中校验时出现错误，就会出现一个红色的错误框。</p>
+<p>关键代码：<code>ValidatesOnExceptions=True, UpdateSourceTrigger=PropertyChanged</code>。</p>
+<p><strong>注意</strong>: 这种方式有一个BUG，首次加载时不会对默认数据进行检验。</p>
+<h4 id="2、继承IDataErrorInfo接口"><a href="#2、继承IDataErrorInfo接口" class="headerlink" title="2、继承IDataErrorInfo接口"></a>2、继承IDataErrorInfo接口</h4><p>使Model对象继承IDataErrorInfo接口，并实现一个索引进行校验。如果索引返回空表示没有错误，如果返回不为空，</p>
+<p>表示有错误。另外一个Erro属性，但是在WPF中没有被用到。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PersonDerivedFromIDataErrorInfo</span> : <span class="title">ObservableObject</span>, <span class="title">IDataErrorInfo</span></span><br><span class="line">    &#123; <span class="keyword">private</span> <span class="built_in">string</span> name; <span class="keyword">private</span> <span class="built_in">int</span> age; <span class="keyword">public</span> <span class="built_in">string</span> Name</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> <span class="keyword">this</span>.name;</span><br><span class="line">            &#125; <span class="keyword">set</span> &#123; <span class="keyword">this</span>.name = <span class="keyword">value</span>; <span class="keyword">this</span>.OnPropertyChanged(() =&gt; <span class="keyword">this</span>.Name);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">public</span> <span class="built_in">int</span> Age</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> <span class="keyword">this</span>.age;</span><br><span class="line">            &#125; <span class="keyword">set</span> &#123; <span class="keyword">this</span>.age = <span class="keyword">value</span>; <span class="keyword">this</span>.OnPropertyChanged(() =&gt; <span class="keyword">this</span>.Age);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="comment">// never called by WPF</span></span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">string</span> Error</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">public</span> <span class="built_in">string</span> <span class="keyword">this</span>\[<span class="built_in">string</span> propertyName\]</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">switch</span> (propertyName)</span><br><span class="line">                &#123; <span class="keyword">case</span> <span class="string">&quot;Name&quot;</span>: <span class="keyword">if</span> (<span class="built_in">string</span>.IsNullOrWhiteSpace(<span class="keyword">this</span>.Name))</span><br><span class="line">                        &#123; <span class="keyword">return</span> <span class="string">&quot;Name cannot be empty!&quot;</span>;</span><br><span class="line">                        &#125; <span class="keyword">if</span> (<span class="keyword">this</span>.Name.Length &lt; <span class="number">4</span>)</span><br><span class="line">                        &#123; <span class="keyword">return</span> <span class="string">&quot;Name must have more than 4 char!&quot;</span>;</span><br><span class="line">                        &#125; <span class="keyword">break</span>; <span class="keyword">case</span> <span class="string">&quot;Age&quot;</span>: <span class="keyword">if</span> (<span class="keyword">this</span>.Age &lt; <span class="number">18</span>)</span><br><span class="line">                        &#123; <span class="keyword">return</span> <span class="string">&quot;You must be an adult!&quot;</span>;</span><br><span class="line">                        &#125; <span class="keyword">break</span>;</span><br><span class="line">                &#125; <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&lt;Grid</span>  <span class="string">DataContext=&quot;&#123;Binding</span> <span class="string">PersonDerivedFromIDataErrorInfo&#125;&quot;\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid.RowDefinitions\&gt;</span></span><br><span class="line">                    <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid.RowDefinitions\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid.ColumnDefinitions\&gt;</span></span><br><span class="line">                    <span class="string">&lt;ColumnDefinition</span> <span class="string">Width\=&quot;Auto&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;ColumnDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid.ColumnDefinitions\&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBlock</span> <span class="string">Text\=&quot;Name:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBox</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">Name,</span></span><br><span class="line">                                        <span class="string">NotifyOnValidationError=True,</span></span><br><span class="line">                                        <span class="string">ValidatesOnDataErrors=True,</span></span><br><span class="line">                                        <span class="string">UpdateSourceTrigger=PropertyChanged&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBlock</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Text\=&quot;Age:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBox</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">Age,</span></span><br><span class="line">                                        <span class="string">NotifyOnValidationError=True,</span></span><br><span class="line">                                        <span class="string">ValidatesOnDataErrors=True,</span></span><br><span class="line">                                        <span class="string">UpdateSourceTrigger=PropertyChanged&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>PS：这种方式，没有了第一种方法的BUG，但是相对很麻烦，既需要继承接口，又需要添加一个索引，如果遗留代码，那么这种方式就不太好。</p>
+<h4 id="3、自定义校验规则"><a href="#3、自定义校验规则" class="headerlink" title="3、自定义校验规则"></a>3、自定义校验规则</h4><p>一个数据对象或许不能包含一个应用要求的所有不同验证规则，但是通过自定义验证规则就可以解决这个问题。</p>
+<p>在需要的地方，添加我们创建的规则，并进行检测。</p>
+<p>通过继承<code>ValidationRule</code>抽象类，并实现<code>Validate</code>方法，并添加到绑定元素的<code>Binding.ValidationRules</code>中。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MinAgeValidation</span> : <span class="title">ValidationRule</span></span><br><span class="line">    &#123; <span class="keyword">public</span> <span class="built_in">int</span> MinAge &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125; <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> ValidationResult <span class="title">Validate</span>(<span class="params"><span class="built_in">object</span> <span class="keyword">value</span>, CultureInfo cultureInfo</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            ValidationResult result \= <span class="literal">null</span>; <span class="keyword">if</span> (<span class="keyword">value</span> != <span class="literal">null</span>)</span><br><span class="line">            &#123; <span class="built_in">int</span> age; <span class="keyword">if</span> (<span class="built_in">int</span>.TryParse(<span class="keyword">value</span>.ToString(), <span class="keyword">out</span> age))</span><br><span class="line">                &#123; <span class="keyword">if</span> (age &lt; <span class="keyword">this</span>.MinAge)</span><br><span class="line">                    &#123;</span><br><span class="line">                        result \= <span class="keyword">new</span> ValidationResult(<span class="literal">false</span>, <span class="string">&quot;Age must large than &quot;</span> + <span class="keyword">this</span>.MinAge.ToString(CultureInfo.InvariantCulture));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    result \= <span class="keyword">new</span> ValidationResult(<span class="literal">false</span>, <span class="string">&quot;Age must be a number!&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                result \= <span class="keyword">new</span> ValidationResult(<span class="literal">false</span>, <span class="string">&quot;Age must not be null!&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">return</span> <span class="keyword">new</span> ValidationResult(<span class="literal">true</span>, <span class="literal">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="string">&lt;Grid\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid.RowDefinitions\&gt;</span></span><br><span class="line">                    <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid.RowDefinitions\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid.ColumnDefinitions\&gt;</span></span><br><span class="line">                    <span class="string">&lt;ColumnDefinition</span> <span class="string">Width\=&quot;Auto&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;ColumnDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid.ColumnDefinitions\&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBlock</span> <span class="string">Text\=&quot;Name:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBox</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">Name&#125;&quot;\&gt;</span></span><br><span class="line">                <span class="string">&lt;/TextBox\&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBlock</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Text\=&quot;Age:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBox</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;\&gt;</span></span><br><span class="line">                    <span class="string">&lt;TextBox.Text\&gt;</span></span><br><span class="line">                        <span class="string">&lt;Binding</span> <span class="string">Path\=&quot;Age&quot;</span> <span class="string">UpdateSourceTrigger\=&quot;PropertyChanged&quot;</span> <span class="string">ValidatesOnDataErrors\=&quot;True&quot;\&gt;</span></span><br><span class="line">                            <span class="string">&lt;Binding.ValidationRules\&gt;</span></span><br><span class="line">                                <span class="string">&lt;validations:MinAgeValidation</span> <span class="string">MinAge\=&quot;18&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                            <span class="string">&lt;/Binding.ValidationRules\&gt;</span></span><br><span class="line">                        <span class="string">&lt;/Binding\&gt;</span></span><br><span class="line">                    <span class="string">&lt;/TextBox.Text\&gt;</span></span><br><span class="line">                <span class="string">&lt;/TextBox\&gt;</span></span><br><span class="line">            <span class="string">&lt;/Grid\&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这种方式，也会有第一种方法的BUG，暂时还不知道如何解决，但是这个能够灵活的实现校验，并且能传参数。</p>
+<p>效果图：<br>![[WPF数据校验&#x2F;IMG-20250804110742687.png]]</p>
+<h4 id="4、使用数据注解-特性方式"><a href="#4、使用数据注解-特性方式" class="headerlink" title="4、使用数据注解(特性方式)"></a>4、使用数据注解(特性方式)</h4><p>在System.ComponentModel.DataAnnotaions命名空间中定义了很多特性，</p>
+<p>它们可以被放置在属性前面，显示验证的具体需要。放置了这些特性之后，</p>
+<p>属性中的Setter方法就可以使用Validator静态类了，来用于验证数据。</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PersonUseDataAnnotation</span> : <span class="title">ObservableObject</span></span><br><span class="line">    &#123; <span class="keyword">private</span> <span class="built_in">int</span> age; <span class="keyword">private</span> <span class="built_in">string</span> name;</span><br><span class="line">        \[Range(<span class="number">18</span>, <span class="number">120</span>, ErrorMessage = <span class="string">&quot;Age must be a positive integer&quot;</span>)\] <span class="keyword">public</span> <span class="built_in">int</span> Age</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> <span class="keyword">this</span>.age;</span><br><span class="line">            &#125; <span class="keyword">set</span> &#123; <span class="keyword">this</span>.ValidateProperty(<span class="keyword">value</span>, <span class="string">&quot;Age&quot;</span>); <span class="keyword">this</span>.SetProperty(<span class="keyword">ref</span> <span class="keyword">this</span>.age, <span class="keyword">value</span>, () =&gt; <span class="keyword">this</span>.Age);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        \[Required(ErrorMessage \= <span class="string">&quot;A name is required&quot;</span>)\]</span><br><span class="line">        \[StringLength(<span class="number">100</span>, MinimumLength = <span class="number">3</span>, ErrorMessage = <span class="string">&quot;Name must have at least 3 characters&quot;</span>)\] <span class="keyword">public</span> <span class="built_in">string</span> Name</span><br><span class="line">        &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> <span class="keyword">this</span>.name;</span><br><span class="line">            &#125; <span class="keyword">set</span> &#123; <span class="keyword">this</span>.ValidateProperty(<span class="keyword">value</span>, <span class="string">&quot;Name&quot;</span>); <span class="keyword">this</span>.SetProperty(<span class="keyword">ref</span> <span class="keyword">this</span>.name, <span class="keyword">value</span>, () =&gt; <span class="keyword">this</span>.Name);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">ValidateProperty</span>&lt;<span class="title">T</span>&gt;(<span class="params">T <span class="keyword">value</span>, <span class="built_in">string</span> propertyName</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            Validator.ValidateProperty(<span class="keyword">value</span>,                <span class="keyword">new</span> ValidationContext(<span class="keyword">this</span>, <span class="literal">null</span>, <span class="literal">null</span>) &#123; MemberName = propertyName &#125;); &#125; ___&#125;___</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="string">&lt;Grid\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid.RowDefinitions\&gt;</span></span><br><span class="line">                    <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;RowDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid.RowDefinitions\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid.ColumnDefinitions\&gt;</span></span><br><span class="line">                    <span class="string">&lt;ColumnDefinition</span> <span class="string">Width\=&quot;Auto&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;ColumnDefinition</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid.ColumnDefinitions\&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBlock</span> <span class="string">Text\=&quot;Name:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBox</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">Name,</span></span><br><span class="line">                                        <span class="string">ValidatesOnExceptions=True,</span></span><br><span class="line">                                        <span class="string">UpdateSourceTrigger=PropertyChanged&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBlock</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Text\=&quot;Age:&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;TextBox</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">Age,</span></span><br><span class="line">                                        <span class="string">ValidatesOnExceptions=True,</span></span><br><span class="line">                                        <span class="string">UpdateSourceTrigger=PropertyChanged&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">            <span class="string">&lt;/Grid\&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用特性的方式，能够很自由的使用自定义的规则，而且在.Net4.5中新增了很多特性，可以很方便的对数据进行校验。</p>
+<p>例如：EmailAddress, Phone, and Url等。</p>
+<h2 id="三、自定义错误显示模板"><a href="#三、自定义错误显示模板" class="headerlink" title="三、自定义错误显示模板"></a>三、自定义错误显示模板</h2><p>在上面的例子中，我们可以看到当出现验证不正确时，绑定控件会被一圈红色错误线包裹住。</p>
+<p>这种方式一般不能够正确的展示出，错误的原因等信息，所以有可能需要自己的错误显示方式。</p>
+<p>前面，我们已经讲过了。当在检测过程中，出现错误时，WPF会把错误信息封装为一个ValidationError对象，</p>
+<p>并添加到Validation.Errors中，所以我们可以取出错误详细信息，并显示出来。</p>
+<h4 id="1、为控件创建ErrorTemplate"><a href="#1、为控件创建ErrorTemplate" class="headerlink" title="1、为控件创建ErrorTemplate"></a>1、为控件创建ErrorTemplate</h4><p>下面就是一个简单的例子，每次都把错误信息以红色展示在空间上面。这里的AdornedElementPlaceholder相当于</p>
+<p>控件的占位符，表示控件的真实位置。这个例子是在书上直接拿过来的，只能做基本展示用。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="string">&lt;ControlTemplate</span> <span class="string">x:Key\=&quot;ErrorTemplate&quot;\&gt;</span></span><br><span class="line">            <span class="string">&lt;Border</span> <span class="string">BorderBrush\=&quot;Red&quot;</span> <span class="string">BorderThickness\=&quot;2&quot;\&gt;</span></span><br><span class="line">                <span class="string">&lt;Grid\&gt;</span></span><br><span class="line">                    <span class="string">&lt;AdornedElementPlaceholder</span> <span class="string">x:Name\=&quot;\_el&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                    <span class="string">&lt;TextBlock</span> <span class="string">Margin\=&quot;0,0,6,0&quot;</span> <span class="string">HorizontalAlignment\=&quot;Right&quot;</span> <span class="string">VerticalAlignment\=&quot;Center&quot;</span> <span class="string">Foreground\=&quot;Red&quot;</span> <span class="string">Text\=&quot;&#123;Binding</span> <span class="string">\[0\].ErrorContent&#125;&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">                <span class="string">&lt;/Grid\&gt;</span></span><br><span class="line">            <span class="string">&lt;/Border\&gt;</span></span><br><span class="line">        <span class="string">&lt;/ControlTemplate\&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="string">&lt;TextBox</span> <span class="string">x:Name\=&quot;AgeTextBox&quot;</span> <span class="string">Grid.Row\=&quot;1&quot;</span> <span class="string">Grid.Column\=&quot;1&quot;</span> <span class="string">Margin\=&quot;1&quot;</span> <span class="string">Validation.ErrorTemplate\=&quot;&#123;StaticResource</span> <span class="string">ErrorTemplate&#125;&quot;</span> <span class="string">\&gt;</span></span><br></pre></td></tr></table></figure>
+<p>使用方式非常简单，将上面的模板作为逻辑资源加入项目中，然后像上面一样引用即可。</p>
+<p>效果图：</p>
+<p>![[WPF数据校验&#x2F;IMG-20250804110742879.png]]</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2017/01/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E6%9C%80%E5%85%A8%E7%9A%84Windows%20Azure%E5%AD%A6%E4%B9%A0%E6%95%99%E7%A8%8B%E6%B1%87%E6%80%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2017/01/14/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E6%9C%80%E5%85%A8%E7%9A%84Windows%20Azure%E5%AD%A6%E4%B9%A0%E6%95%99%E7%A8%8B%E6%B1%87%E6%80%BB/" class="post-title-link" itemprop="url">最全的Windows Azure学习教程汇总</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-01-14 00:00:00" itemprop="dateCreated datePublished" datetime="2017-01-14T00:00:00+08:00">2017-01-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Windows Azure 是微软基于云计算的操作系统，能够为开发者提供一个平台，帮助开发可运行在云服务器、数据中心、Web 和 PC 上的应用程序。</p>
+<p>Azure 是一种灵活和支持互操作的平台，能够将处于云端的开发者个人能力，同微软全球数据中心网络托管的服务，比如存储、计算和网络基础设施服务，紧密结合起来。帮助开发者在“云端”和“客户端”同时部署应用，使得企业与用户都能共享资源。</p>
+<p>本文整理了丰富的 Windows Azure 学习资源，帮助开发者能全面地学习 Windows Azure 知识，并将 Windows Azure 运用在项目和实际工作中。  </p>
+<p>通过本系列博客，先来了解一下 Windows Azure 平台的基本知识。Windows Azure，正如同桌面操作系统 Windows 和服务器操作系统 Windows Server 一样，是一个云端的操作系统。开发人员可以使用同一套技术：.NET（包括 Silverlight），或者 Win32，同时针对桌面，服务器，以及云，开发程序，而不需要针对某个平台学习专门的技术。Visual Studio 和 Expression Studio 为开发人员提供了强大的工具支持。</p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/05/windows-azure-94/">Windows Azure平台简介(一)：定位与产品结构</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/05/windows-azurewindows-azure/">Windows Azure平台简介(二)：Windows Azure</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/05/windows-azureappfabric/">Windows Azure平台简介(三)：AppFabric</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/05/windows-azuresql-azure/">Windows Azure平台简介(四)：SQL Azure以及其他服务</a></p>
+<p>在开始本教学之前，请确保你从 <a target="_blank" rel="noopener" href="http://msdn.microsoft.com/zh-cn/windowsazure/cc974146">Windows Azure 平台下载</a>下载并安装了最新的 Windows Azure 开发工具。本教学使用 Visual Studio 2010 作为开发工具。</p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/09/windows-azure-webrole/">Windows Azure入门教学系列 (一)：创建第一个WebRole程序</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/18/windows-azure-web-role/">Windows Azure入门教学系列 (二)：部署第一个Web Role程序</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/02/22/windows-azure-worker-role/">Windows Azure入门教学系列 (三)：创建第一个Worker Role程序</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/03/07/windows-azure-blob-storage/">Windows Azure入门教学系列 (四)：使用Blob Storage</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/03/08/windows-azure-queue-storage/">Windows Azure入门教学系列 (五)：使用Queue Storage</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/03/11/windows-azure-table-storage/">Windows Azure入门教学系列 (六)：使用Table Storage</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/03/19/windows-azure-rest-apistorage-service/">Windows Azure入门教学系列 (七)：使用REST API访问Storage Service</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/azchina/2010/04/12/windows-azure-windows-azure-drive/">Windows Azure入门教学系列 (八)：使用Windows Azure Drive</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/ghostbear/article/details/20532753">Azure学习笔记：Web Site（1）</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/ghostbear/article/details/20533315">Azure学习笔记：Service Bus（2）</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/ghostbear/article/details/20533339">Azure学习笔记：Storage（3）</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/ghostbear/article/details/20533419">Azure学习笔记：Cloud Service（4）</a></p>
+<p>Azure Storage 是微软 Azure 云提供的云端存储解决方案，当前支持的存储类型有 Blob、Queue、File 和 Table。</p>
+<p><img src="https://images2015.cnblogs.com/blog/139239/201611/139239-20161108110807749-165409149.png"></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/Azure_Blob_Storage.html">Azure Blob Storage 基本用法 – Azure Storage 之 Blob</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/powertoolsteam/p/Azure%20Queue%20Storage%20%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%20--%20Azure%20Storage%20%E4%B9%8B%20Queue">Azure Queue Storage 基本用法 – Azure Storage 之 Queue</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/Azure_File_Storage.html">Azure File Storage 基本用法 – Azure Storage 之 File</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/5707033.html">Azure Table storage 基本用法 – Azure Storage 之 Table</a></p>
+<p>Windows Azure Storage 支持三重冗余的。保存在 Azure Storage 的内容，会在同一个数据中心保留有3个副本。这样的好处显而易见：当数据中心发生一般性故障的时候，比如磁盘损坏，机架服务器损坏等，用户保存在 Azure Storage 的数据不会丢失。每次对于 Storage 的写操作，都会对三个副本进行同步写操作，等到在副本操作完毕之后，才会返回执行成功给客户端。</p>
+<p>Windows Azure 提供了三种不同类型的存储服务(这里的存储是非关系型数据，比如图片、文档等文件)，用来提供给 Windows Azure 上运行的应用程序存储数据使用。依据不同的存储格式会有不同的限制，因为这些存储服务都是以分散式巨量存储（Distributed Mass Storage）为核心概念所设计出来的，为了要达成快速在分散式存储空间中存储与管理数据（还包含高可用度的赘余存储管理），微软有在数据的存储上做一些限制。</p>
+<p>微软还提供了 REST API 来方便用户操作 Storage Service。</p>
+<p>（1）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/18/2325567.html">Windows Azure Storage Service存储服务</a></p>
+<p>（2）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/19/2327651.html">Windows Azure Storage Service存储服务之Blob详解(上)</a></p>
+<p>（3）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/20/2328004.html">Windows Azure Storage Service存储服务之Blob详解(中)</a></p>
+<p>（4）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/20/2553501.html">Windows Azure Storage Service存储服务之Blob Share Access Signature</a></p>
+<p>（5）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/21/2328638.html">Windows Azure Drive</a></p>
+<p>（6）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3406259.html">Windows Azure Storage之Table</a></p>
+<p>（7）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/23/2328878.html">使用工具管理Windows Azure Storage</a></p>
+<p>（8）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/06/07/2540896.html">Windows Azure 上的托管服务CDN (上)</a></p>
+<p>（9）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/06/08/2541682.html">Windows Azure 上的托管服务CDN (中) Blob Service</a></p>
+<p>（10）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/06/11/2542076.html">Windows Azure 上的托管服务CDN (下) Hosted Service</a>、</p>
+<p>（11）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/06/19/2555286.html">计算你存储的Blob的大小</a></p>
+<p>（12）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2013/05/23/3093667.html">本地冗余存储 vs 地理冗余存储 (上)</a></p>
+<p>（13）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2013/05/23/3094803.html">本地冗余存储 vs 地理冗余存储 (下)</a></p>
+<p>（14）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3211183.html">使用Azure Blob的PutBlock方法，实现文件的分块、离线上传</a></p>
+<p>（15）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3398818.html">使用WCF服务，将本地图片上传至Azure Storage (上) 服务器端代码</a></p>
+<p>（16）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3401591.html">使用WCF服务，将本地图片上传至Azure Storage (上) 客户端代码</a></p>
+<p>（17）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3778854.html">Azure Storage读取访问地域冗余(Read Access – Geo Redundant Storage, RA-GRS)</a></p>
+<p>（18）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3788615.html">使用HTML5 Portal的Azure CDN服务</a></p>
+<p>（19）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4403539.html">再谈Azure Block Blob和Page Blob</a></p>
+<p>（20）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4441388.html">使用Azure File实现共享文件夹</a></p>
+<p>（21）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4486392.html">使用AzCopy工具，加快Azure Storage传输速度</a></p>
+<p>（22）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4872080.html">Azure Storage如何支持多级目录</a></p>
+<p>（23）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5179832.html">计算Azure VHD实际使用容量</a></p>
+<p>PowerShell 是管理 Azure 的最好方式之一，通过使用 PowerShell 脚本可以把很多的工作自动化。比如对于 Azure 上的虚拟机，可以设置定时关机操作，并在适当的时间把它开机，这样就能减少虚拟机的运行时间，同时也能为节能减排做出贡献。</p>
+<p>（1）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4001540.html">PowerShell入门</a></p>
+<p>（2）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4001943.html">修改Azure订阅名称</a></p>
+<p>（3）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4001632.html">上传证书</a></p>
+<p>（4）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4001907.html">使用PowerShell管理多个订阅</a></p>
+<p>（5）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4016287.html">使用Azure PowerShell创建简单的Azure虚拟机和Linux虚拟机</a></p>
+<p>（6）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4018913.html">设置单个Virtual Machine Endpoint</a></p>
+<p>（7）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4174346.html">使用CSV文件批量设置Virtual Machine Endpoint</a></p>
+<p>（8）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4378472.html">使用PowerShell设置Azure负载均衡器规则</a></p>
+<p>（9）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4427990.html">使用PowerShell导出订阅下所有的Azure VM的Public IP和Private IP</a></p>
+<p>（10）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4802038.html">使用PowerShell导出订阅下所有的Azure VM和Cloud Service的高可用情况</a></p>
+<p>（11）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5381726.html">使用自定义虚拟机镜像模板，创建Azure虚拟机并绑定公网IP(VIP)和内网IP(DIP)</a></p>
+<p>（12）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/6000824.html">通过Azure PowerShell创建SSH登录的Linux VM</a></p>
+<p>SQL Azure 是微软基于 Microsoft SQL Server Denali，也就是 SQL Server 2012 构建的云端关系型数据库服务。SQL Azure 是 SQL Server 的一个大子集，能够实现 SQL Server 的绝大部分功能，并且将它们作为云端的服务来扩展。SQL Azure Database 提供内置的高精准、可用性、功效与其他功能。</p>
+<p>（1）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/31/2332370.html">入门</a></p>
+<p>（2）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/31/2332746.html">SQL Azure vs SQL Server</a></p>
+<p>（3）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/31/2332845.html">创建一个SQL Azure 服务器</a></p>
+<p>（4）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/31/2332859.html">创建一个SQL Azure数据库</a></p>
+<p>（5）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/01/31/2332915.html">使用SQL Server Management Studio连接SQL Azure</a></p>
+<p>（6）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/02/27/2367773.html">使用Project Houston管理SQL Azure</a></p>
+<p>（7）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/02/01/2334403.html">在SQL Azure Database中执行的T-SQL</a></p>
+<p>（8）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/02/02/2334949.html">使用Visual Studio 2010开发应用连接SQL Azure云端数据库</a></p>
+<p>（9）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/02/06/2338122.html">把本地的SQL Server数据库迁移到SQL Azure云数据库上</a></p>
+<p>（10）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/03/26/2417757.html">SQL Azure Data Sync数据同步功能(上)</a></p>
+<p>（11）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2012/03/26/2417907.html">SQL Azure Data Sync数据同步功能(下)</a></p>
+<p>（12）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/archive/2013/03/28/2986097.html">使用新Portal 创建 SQL Azure Database</a></p>
+<p>（13）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3439856.html">Azure的两种关系型数据库服务：SQL Azure与SQL Server VM的不同</a></p>
+<p>（14）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3662486.html">将云端SQL Azure中的数据库备份到本地SQL Server</a></p>
+<p>（15）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/3778087.html">SQL Azure 新的规格</a></p>
+<p>（16）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/4986231.html">创建PaaS SQL Azure V12数据库</a></p>
+<p>（17）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5481911.html">SQL Azure V12 - 跨数据中心标准地域复制(Standard Geo-Replication)</a></p>
+<p>（18）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5552502.html">使用External Table实现垮库查询</a></p>
+<p>（19）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5822962.html">Stretch Database 概览</a></p>
+<p>（20）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5824869.html">使用SQL Server 2016 Upgrade Advisor</a></p>
+<p>（21）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5826310.html">将整张表都迁移到Azure Stretch Database里</a></p>
+<p>（22）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/threestone/p/5826450.html">迁移部分数据到Azure Stretch Database</a></p>
+<p>1. 《Windows Azure 实战》全面深入，完整覆盖 Windows Azure 所有关键技术和理论，详细讲解云计算开发流程、云服务架构（可用性、可靠性和高性能）、云设备整合、系统整合，以及云计算项目的管理。<br>注重实战，68个精心策划的针对特定实际应用场景的真实案例，详细呈现案例的设计思路和完整实现步骤。</p>
+<p><img src="https://images2015.cnblogs.com/blog/139239/201611/139239-20161108134142889-1790002180.jpg"></p>
+<p>2. 《Windows Azure 从入门到精通》介绍了如何构建和管理云端的可扩展应用，一次一个知识点，同时辅之以适当的练习，可帮助读者轻松掌握基本的编程技能，掌握 Windows Azure 云计算平台的核心服务和特性，是一本理想的入门教程。</p>
+<p><strong><img src="https://images2015.cnblogs.com/blog/139239/201611/139239-20161108134407405-1273791227.jpg"></strong></p>
+<p>3. 《云计算与Azure平台实战》解决了从本地转移到基于云的应用程序时，可能面临的各种问题；展示了如何将 ASP.NET 身份验证和角色管理用应用于 Azure Web 角色；揭示了迁移到 Windows Azure 时把计算服务卸载到一个或多个 WorkerWeb 角色的益处；讲解如何为共享 Azure 表选择最合适的 PartionKey 和 RowKey 值的组合；探讨了改善 Azure 表的可扩展性和性能的方法。</p>
+<p><img src="https://images2015.cnblogs.com/blog/139239/201611/139239-20161108135006545-720283508.jpg"></p>
+<p>4. 《走进云计算:Windows Azure实战手记》介绍了你必须学会的微软云开发技术，介绍目前最火爆的云计算，深入剖析微软最新的云开发平台，涵盖 Windows Azure 环境、存储服务、SQL Azure 数据库与 App Fabric 服务平台 Step by Step 递进教学，初学者可按部就班地学习云应用的开发技术。</p>
+<p><img src="https://images2015.cnblogs.com/blog/139239/201611/139239-20161108135448327-262312994.jpg"></p>
+<p><strong>相关阅读：</strong></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/Azure_Blob_Storage.html">Azure Blob Storage 基本用法 – Azure Storage 之 Blob</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/Azure_Queue_Storage.html">Azure Queue Storage 基本用法 – Azure Storage 之 Queue</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/Azure_File_Storage.html">Azure File Storage 基本用法 – Azure Storage 之 File</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/powertoolsteam/p/5707033.html">Azure Table storage 基本用法 – Azure Storage 之 Table</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -251,7 +596,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -436,7 +781,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
 
   
@@ -574,7 +919,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
 
   
@@ -746,6 +1091,498 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="post-title-link" itemprop="url">Nginx搭建RTMP服务器</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-12-17 16:00:22" itemprop="dateCreated datePublished" datetime="2015-12-17T16:00:22+08:00">2015-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="一、环境与准备文件"><a href="#一、环境与准备文件" class="headerlink" title="一、环境与准备文件"></a>一、环境与准备文件</h2><h3 id="1-1-开发环境"><a href="#1-1-开发环境" class="headerlink" title="1.1 开发环境"></a>1.1 开发环境</h3><ul>
+<li>开发环境：Windows</li>
+<li>开发工具：ffmpeg、nginx 1.7.11.3 Gryphon、nginx-rtmp-module、VLC media player</li>
+</ul>
+<h3 id="1-2-官方下载地址"><a href="#1-2-官方下载地址" class="headerlink" title="1.2 官方下载地址"></a>1.2 官方下载地址</h3><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>下载地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ffmpeg</td>
+<td><a target="_blank" rel="noopener" href="http://www.ffmpeg.org/">http://www.ffmpeg.org</a></td>
+</tr>
+<tr>
+<td>nginx</td>
+<td><a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">http://nginx.org/en/download.html</a></td>
+</tr>
+<tr>
+<td>nginx 1.7.11.3 Gryphon</td>
+<td><a target="_blank" rel="noopener" href="http://nginx-win.ecsds.eu/download/nginx">http://nginx-win.ecsds.eu/download/nginx</a></td>
+</tr>
+<tr>
+<td>nginx-rtmp-module</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></td>
+</tr>
+<tr>
+<td>VLC media player</td>
+<td><a target="_blank" rel="noopener" href="https://www.videolan.org/vlc">https://www.videolan.org/vlc</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、直播协议概述"><a href="#二、直播协议概述" class="headerlink" title="二、直播协议概述"></a>二、直播协议概述</h2><h3 id="2-1-RTMP"><a href="#2-1-RTMP" class="headerlink" title="2.1 RTMP"></a>2.1 RTMP</h3><p>实时消息传输协议（Real Time Messaging Protocol），是 Adobe Systems 公司为 Flash 播放器和服务器之间音频、视频和数据传输开发的开放协议。</p>
+<ul>
+<li>协议基于 TCP，是一个协议族，包括 RTMP 基本协议及 RTMPT&#x2F;RTMPS&#x2F;RTMPE 等多种变种</li>
+<li>实时性比较强，基本能保证延迟在 1-2s 内，是现在国内直播主要采用的方式之一</li>
+<li>需要安装 Flash，H5、iOS、Android 并不能原生支持</li>
+</ul>
+<h3 id="2-2-HLS"><a href="#2-2-HLS" class="headerlink" title="2.2 HLS"></a>2.2 HLS</h3><p>Apple 推出的直播协议，通过视频流切片成文件片段来直播。</p>
+<ul>
+<li>客户端首先会请求一个 m3u8 文件，里面会有不同码率的流，或者直接是 ts 文件列表</li>
+<li>实时性较差，但 H5、iOS、Android 都原生支持</li>
+</ul>
+<h3 id="2-3-HTTP-FLV"><a href="#2-3-HTTP-FLV" class="headerlink" title="2.3 HTTP-FLV"></a>2.3 HTTP-FLV</h3><p>对 RTMP 协议的封装，相比于 RTMP 是一个开放的协议。</p>
+<ul>
+<li>具备了 RTMP 的实时性和 RTMP 不具备的开发性</li>
+<li>flv.js 使得浏览器在不依赖 flash 的情况下播放 flv 视频，兼容移动端</li>
+</ul>
+<hr>
+<h2 id="三、安装-nginx、ffmpeg-与启动"><a href="#三、安装-nginx、ffmpeg-与启动" class="headerlink" title="三、安装 nginx、ffmpeg 与启动"></a>三、安装 nginx、ffmpeg 与启动</h2><h3 id="3-1-安装目录结构"><a href="#3-1-安装目录结构" class="headerlink" title="3.1 安装目录结构"></a>3.1 安装目录结构</h3><p>将所有组件放置在同一目录下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">E:\technology\</span><br><span class="line">├── ffmpeg-4.2.1-win64-static\</span><br><span class="line">├── nginx-1.17.9\</span><br><span class="line">├── nginx-1.7.11.3-Gryphon\</span><br><span class="line">└── nginx-rtmp-module\</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-配置环境变量"><a href="#3-2-配置环境变量" class="headerlink" title="3.2 配置环境变量"></a>3.2 配置环境变量</h3><p>右键我的电脑 &gt; 属性 &gt; 高级系统设置 &gt; 高级 &gt; 环境变量 &gt; 双击 Path，添加以下路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">E:\technology\ffmpeg-4.2.1-win64-static\bin</span><br><span class="line">E:\technology\nginx-1.17.9</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-启动-nginx"><a href="#3-3-启动-nginx" class="headerlink" title="3.3 启动 nginx"></a>3.3 启动 nginx</h3><p>（1）直接双击 nginx.exe，双击后一个黑色的弹窗一闪而过</p>
+<p>（2）打开 cmd 命令窗口，切换到 nginx 解压目录下，输入命令 <code>nginx.exe</code> 或者 <code>start nginx</code>，回车即可</p>
+<hr>
+<h2 id="四、检查-nginx-是否启动成功"><a href="#四、检查-nginx-是否启动成功" class="headerlink" title="四、检查 nginx 是否启动成功"></a>四、检查 nginx 是否启动成功</h2><h3 id="4-1-浏览器访问"><a href="#4-1-浏览器访问" class="headerlink" title="4.1 浏览器访问"></a>4.1 浏览器访问</h3><p>直接在浏览器地址栏输入网址 <code>http://127.0.0.1:80</code> 或 <code>http://localhost:80</code>，回车，出现以下页面说明启动成功：</p>
+<p><img src="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355406.png"></p>
+<h3 id="4-2-命令行检查"><a href="#4-2-命令行检查" class="headerlink" title="4.2 命令行检查"></a>4.2 命令行检查</h3><p>在 cmd 命令窗口输入命令 <code>tasklist /fi &quot;imagename eq nginx.exe&quot;</code>，出现如下结果说明启动成功：</p>
+<p><img src="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193355839.png"></p>
+<h3 id="4-3-相关说明"><a href="#4-3-相关说明" class="headerlink" title="4.3 相关说明"></a>4.3 相关说明</h3><ul>
+<li>nginx 的配置文件是 conf 目录下的 nginx.conf</li>
+<li>默认配置的 nginx 监听的端口为 80，如果 80 端口被占用可以修改为未被占用的端口</li>
+<li>检查 80 端口是否被占用的命令是：<code>netstat -ano | findstr 0.0.0.0:80</code></li>
+<li>当我们修改了 nginx 的配置文件 nginx.conf 时，不需要关闭 nginx 后重新启动，只需要执行命令 <code>nginx -s reload</code> 即可让改动生效</li>
+</ul>
+<hr>
+<h2 id="五、配置-nginx-conf-文件"><a href="#五、配置-nginx-conf-文件" class="headerlink" title="五、配置 nginx.conf 文件"></a>五、配置 nginx.conf 文件</h2><p>默认的 nginx.conf 文件并没有配置 RTMP 服务器，需要我们手动添加配置。具体步骤为：在 conf 目录中，复制粘贴 nginx.conf 文件并将其重命名为 <code>nginx-win.conf</code>，修改其内容为：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">8192</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">rtmp</span> &#123;</span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span> <span class="number">1935</span>;</span><br><span class="line">        <span class="attribute">chunk_size</span> <span class="number">4000</span>;</span><br><span class="line">        <span class="attribute">application</span> live &#123;</span><br><span class="line">            <span class="attribute">live</span> <span class="literal">on</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">off</span>;</span><br><span class="line">    <span class="attribute">server_names_hash_bucket_size</span> <span class="number">128</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">client_body_timeout</span>   <span class="number">10</span>;</span><br><span class="line">    <span class="attribute">client_header_timeout</span> <span class="number">10</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span>     <span class="number">30</span>;</span><br><span class="line">    <span class="attribute">send_timeout</span>          <span class="number">10</span>;</span><br><span class="line">    <span class="attribute">keepalive_requests</span>    <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">        <span class="attribute">server_name</span>  localhost;</span><br><span class="line"></span><br><span class="line">        <span class="section">location</span> /stat &#123;</span><br><span class="line">            <span class="attribute">rtmp_stat</span> all;</span><br><span class="line">            <span class="attribute">rtmp_stat_stylesheet</span> stat.xsl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="section">location</span> /stat.xsl &#123;</span><br><span class="line">            <span class="attribute">root</span> nginx-rtmp-module/;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="section">location</span> /control &#123;</span><br><span class="line">            <span class="attribute">rtmp_control</span> all;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="section">location</span> / &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">error_page</span>   <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span>  /50x.html;</span><br><span class="line">        <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里监听端口未改动，仍然为 80，重点添加了 RTMP 服务器的相关配置，以搭建 RTMP 服务器，rtmp 协议的默认端口号是 1935。</p>
+</blockquote>
+<hr>
+<h2 id="六、标准-nginx-方式（失败）"><a href="#六、标准-nginx-方式（失败）" class="headerlink" title="六、标准 nginx 方式（失败）"></a>六、标准 nginx 方式（失败）</h2><p>按住 Windows 键 +R，输入 cmd，进入 cmd 命令窗口，进入 nginx 目录：<code>cd E:\technology\nginx-1.17.9</code>，然后启动 nginx rtmp 服务器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx.exe -c conf\nginx-win.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-1-错误信息"><a href="#6-1-错误信息" class="headerlink" title="6.1 错误信息"></a>6.1 错误信息</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx: [emerg] unknown directive &quot;rtmp&quot; in E:\technology\nginx-1.17.9/conf\nginx-win.conf:19</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-原因"><a href="#6-2-原因" class="headerlink" title="6.2 原因"></a>6.2 原因</h3><p>nginx 的 windows 版本可能在编译的时候没有对 rtmp 模块进行编译导致使用不了。</p>
+<h3 id="6-3-解决方案"><a href="#6-3-解决方案" class="headerlink" title="6.3 解决方案"></a>6.3 解决方案</h3><p><strong>方法1</strong>：下载源码重新进行编译并把 rtmp 模块进行编译进去</p>
+<p>过程较为繁琐，不推荐。有兴趣的可以参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc008d24ad82">win7下nginx-rtmp-module的编译方法</a>。</p>
+<p><strong>方法2</strong>：下载带 rtmp 模块的 nginx 版本，如 nginx 1.7.11.3 Gryphon</p>
+<p>后续亲测可用。</p>
+<hr>
+<h2 id="七、nginx-Gryphon-方式（成功）"><a href="#七、nginx-Gryphon-方式（成功）" class="headerlink" title="七、nginx Gryphon 方式（成功）"></a>七、nginx Gryphon 方式（成功）</h2><h3 id="7-1-下载-nginx-1-7-11-3-Gryphon"><a href="#7-1-下载-nginx-1-7-11-3-Gryphon" class="headerlink" title="7.1 下载 nginx 1.7.11.3 Gryphon"></a>7.1 下载 nginx 1.7.11.3 Gryphon</h3><p>下载带 rtmp 模块的 nginx 版本，下载地址为：<a target="_blank" rel="noopener" href="http://nginx-win.ecsds.eu/download/nginx">http://nginx-win.ecsds.eu/download/nginx</a></p>
+<p>下载完成后解压，将解压后的目录名 <code>nginx 1.7.11.3 Gryphon</code> 改成 <code>nginx-1.7.11.3-Gryphon</code></p>
+<h3 id="7-2-下载服务器状态检查程序"><a href="#7-2-下载服务器状态检查程序" class="headerlink" title="7.2 下载服务器状态检查程序"></a>7.2 下载服务器状态检查程序</h3><p>下载 nginx-rtmp-module，下载地址为：<a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></p>
+<p>将 nginx-rtmp-module-master.zip 解压后复制到目录 <code>nginx-1.7.11.3-Gryphon</code> 下，保证 stat.xls 的目录为：<code>nginx-1.7.11.3-Gryphon\nginx-rtmp-module\stat.xsl</code></p>
+<h3 id="7-3-配置文件"><a href="#7-3-配置文件" class="headerlink" title="7.3 配置文件"></a>7.3 配置文件</h3><p>配置文件 <code>conf\nginx-win.conf</code> 与上面第 5 节一致</p>
+<h3 id="7-4-启动服务器"><a href="#7-4-启动服务器" class="headerlink" title="7.4 启动服务器"></a>7.4 启动服务器</h3><p>按住 Windows 键 +R，输入 cmd，进入 cmd 命令窗口，进入 nginx 目录：<code>cd E:\technology\nginx-1.7.11.3-Gryphon</code>，然后启动 nginx rtmp 服务器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx.exe -c conf\nginx-win.conf</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="八、RTMP-推流测试"><a href="#八、RTMP-推流测试" class="headerlink" title="八、RTMP 推流测试"></a>八、RTMP 推流测试</h2><h3 id="8-1-FFmpeg-本地视频推流"><a href="#8-1-FFmpeg-本地视频推流" class="headerlink" title="8.1 FFmpeg 本地视频推流"></a>8.1 FFmpeg 本地视频推流</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg.exe -re -i .\test.mp4 -vcodec libx264 -acodec aac -f flv rtmp://127.0.0.1:1935/live/home</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-VLC-播放器拉流"><a href="#8-2-VLC-播放器拉流" class="headerlink" title="8.2 VLC 播放器拉流"></a>8.2 VLC 播放器拉流</h3><p>使用 VLC 播放器测试，输入网络 URL：<code>rtmp://127.0.0.1:1935/live/home</code></p>
+<p>上面 IP 地址均可换成本地 IP</p>
+<p><img src="/2015/12/17/%E6%9C%AA%E5%88%86%E7%B1%BB/Nginx%E6%90%AD%E5%BB%BARTMP%E6%9C%8D%E5%8A%A1%E5%99%A8/IMG-20260427193356268.png"></p>
+<h3 id="8-3-摄像头推流测试"><a href="#8-3-摄像头推流测试" class="headerlink" title="8.3 摄像头推流测试"></a>8.3 摄像头推流测试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -f dshow -i video=<span class="string">&quot;FHD Camera&quot;</span> -vcodec libx264 -preset:v ultrafast -tune:v zerolatency -f flv rtmp://127.0.0.1:1935/live/home</span><br></pre></td></tr></table></figure>
+
+<p>在设备管理器的”照相机”处，获得摄像头设备名称摄像头为”FHD Camera”。更多推流命令请参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/sntetwt/p/11435564.html">Windows 搭建 nginx rtmp服务器</a></p>
+<hr>
+<h2 id="九、关闭-nginx"><a href="#九、关闭-nginx" class="headerlink" title="九、关闭 nginx"></a>九、关闭 nginx</h2><p>如果使用 cmd 命令窗口启动 nginx，关闭 cmd 窗口是不能结束 nginx 进程的，可使用两种方法关闭 nginx：</p>
+<p>（1）输入 nginx 命令：<code>nginx -s stop</code>（快速停止 nginx）或 <code>nginx -s quit</code>（完整有序的停止 nginx）</p>
+<p>（2）使用 taskkill 命令：<code>taskkill /f /t /im nginx.exe</code></p>
+<hr>
+<h2 id="十、Linux-平台搭建"><a href="#十、Linux-平台搭建" class="headerlink" title="十、Linux 平台搭建"></a>十、Linux 平台搭建</h2><h3 id="10-1-安装-nginx（带-rtmp-模块）"><a href="#10-1-安装-nginx（带-rtmp-模块）" class="headerlink" title="10.1 安装 nginx（带 rtmp 模块）"></a>10.1 安装 nginx（带 rtmp 模块）</h3><p><strong>1. 下载稳定版本的 nginx</strong></p>
+<p>下载地址：<a target="_blank" rel="noopener" href="http://nginx.org/">http://nginx.org</a></p>
+<p><strong>2. 下载 rtmp 模块</strong></p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/arut/nginx-rtmp-module.git</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 解压并编译 nginx</strong></p>
+<p>解压 nginx 的 tar 包，确保 nginx 和 rtmp 模块在同一目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx-1.12.2  nginx-1.12.2.tar.gz  nginx-rtmp-module</span><br></pre></td></tr></table></figure>
+
+<p>进入 nginx 解压目录配置编译参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/local/nginx --add-module=../nginx-rtmp-module --with-http_ssl_module</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 编译安装</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果已安装 nginx 可以在已有 nginx 上面增加模块，参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhangmingda/p/12622590.html">https://www.cnblogs.com/zhangmingda/p/12622590.html</a></p>
+</blockquote>
+<h3 id="10-2-nginx-conf-配置"><a href="#10-2-nginx-conf-配置" class="headerlink" title="10.2 nginx.conf 配置"></a>10.2 nginx.conf 配置</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">user</span> nginx;</span><br><span class="line"><span class="attribute">worker_processes</span> auto;</span><br><span class="line"><span class="attribute">error_log</span> /var/log/nginx/<span class="literal">error</span>.log;</span><br><span class="line"><span class="attribute">pid</span> /run/nginx.pid;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span> <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">log_format</span>  main  <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">access_log</span>  /var/log/nginx/access.log  main;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">sendfile</span>            <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">tcp_nopush</span>          <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">tcp_nodelay</span>         <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span>   <span class="number">65</span>;</span><br><span class="line">    <span class="attribute">types_hash_max_size</span> <span class="number">2048</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">include</span>             /etc/nginx/mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>        application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span> default_server;</span><br><span class="line">        <span class="attribute">server_name</span>  _;</span><br><span class="line">        <span class="attribute">root</span>         /usr/share/nginx/html;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># RTMP 状态页面</span></span><br><span class="line">        <span class="section">location</span> /stat &#123;</span><br><span class="line">            <span class="attribute">rtmp_stat</span> all;</span><br><span class="line">            <span class="attribute">rtmp_stat_stylesheet</span> stat.xsl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="section">location</span> /stat.xsl &#123;</span><br><span class="line">            <span class="attribute">root</span> /opt/rtmp/nginx-rtmp-module/;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># HLS 视频流</span></span><br><span class="line">        <span class="section">location</span> /hls &#123;</span><br><span class="line">            <span class="section">types</span> &#123;</span><br><span class="line">                application/vnd.apple.<span class="attribute">mpegurl</span> m3u8;</span><br><span class="line">                video/<span class="attribute">mp2t</span> ts;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="attribute">autoindex</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">alias</span> /usr/share/nginx/html/hls;</span><br><span class="line">            <span class="attribute">expires</span> -<span class="number">1</span>;</span><br><span class="line">            <span class="attribute">add_header</span> Cache-Control <span class="literal">no</span>-cache;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span> <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Credentials&#x27;</span> <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Methods&#x27;</span> <span class="string">&#x27;GET, POST, OPTIONS&#x27;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Headers&#x27;</span> <span class="string">&#x27;DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">443</span> ssl http2 default_server;</span><br><span class="line">        <span class="attribute">ssl_certificate</span> <span class="string">&quot;/etc/pki/nginx/server.crt&quot;</span>;</span><br><span class="line">        <span class="attribute">ssl_certificate_key</span> <span class="string">&quot;/etc/pki/nginx/private/server.key&quot;</span>;</span><br><span class="line">        <span class="attribute">ssl_session_cache</span> shared:SSL:<span class="number">1m</span>;</span><br><span class="line">        <span class="attribute">ssl_session_timeout</span>  <span class="number">10m</span>;</span><br><span class="line">        <span class="attribute">ssl_ciphers</span> HIGH:!aNULL:!MD5;</span><br><span class="line">        <span class="attribute">ssl_prefer_server_ciphers</span> <span class="literal">on</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># RTMP 直播配置</span></span><br><span class="line"><span class="section">rtmp</span> &#123;</span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span> <span class="number">1935</span>;</span><br><span class="line">        <span class="attribute">chunk_size</span> <span class="number">4000</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 点播</span></span><br><span class="line">        <span class="attribute">application</span> vod &#123;</span><br><span class="line">            <span class="attribute">play</span> /usr/share/nginx/html/vod/flvs/;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 直播</span></span><br><span class="line">        <span class="attribute">application</span> live &#123;</span><br><span class="line">            <span class="attribute">live</span> <span class="literal">on</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># HLS 直播</span></span><br><span class="line">        <span class="attribute">application</span> hls &#123;</span><br><span class="line">            <span class="attribute">live</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls_path</span> /usr/share/nginx/html/hls;</span><br><span class="line">            <span class="attribute">hls_fragment</span> <span class="number">5s</span>;</span><br><span class="line">            <span class="attribute">hls_playlist_length</span> <span class="number">15s</span>;</span><br><span class="line">            <span class="attribute">hls_continuous</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls_cleanup</span> <span class="literal">on</span>;</span><br><span class="line">            <span class="attribute">hls_nested</span> <span class="literal">on</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十一、点播与直播功能"><a href="#十一、点播与直播功能" class="headerlink" title="十一、点播与直播功能"></a>十一、点播与直播功能</h2><h3 id="11-1-点播功能"><a href="#11-1-点播功能" class="headerlink" title="11.1 点播功能"></a>11.1 点播功能</h3><p><strong>1. 创建点播目录</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /usr/share/nginx/html/vod/flvs/</span><br></pre></td></tr></table></figure>
+
+<p>将 test.flv 视频文件存放到该目录</p>
+<p><strong>2. 使用 VLC 播放器播放</strong></p>
+<p>播放按钮可以输入 rtmp:&#x2F;&#x2F; 的连接，步骤为：播放 &gt; 播放 &gt; 网络媒体</p>
+<p><strong>3. 移动端播放</strong></p>
+<p>安卓手机万能播放器：我的 &gt; 连接播放 &gt; 输入 url 即可播放</p>
+<h3 id="11-2-直播功能"><a href="#11-2-直播功能" class="headerlink" title="11.2 直播功能"></a>11.2 直播功能</h3><p><strong>1. 推流</strong></p>
+<p>电脑端 OBS 可以输入推流地址 <code>rtmp://IP/live/test</code> 进行推流，其中 live 为配置文件中定义的直播应用，test 为自定义流名称</p>
+<p><strong>2. 拉流</strong></p>
+<p>使用 VLC 播放器输入：<code>rtmp://127.0.0.1/live/test</code></p>
+<p><strong>3. HLS 协议</strong></p>
+<ul>
+<li>推流：使用 <code>rtmp://IP/应用名/流名称</code> 进行推流</li>
+<li>拉流：支持 http 协议访问 hls 应用下流名称.m3u8 文件</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span>welcome test nginx-rtmp-module <span class="tag">&lt;<span class="name">br</span>&gt;</span><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">video</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">source</span> <span class="attr">src</span>=<span class="string">&quot;http://127.0.0.1/hls/test/index.m3u8&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">video</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十二、直播录制"><a href="#十二、直播录制" class="headerlink" title="十二、直播录制"></a>十二、直播录制</h2><h3 id="12-1-flv-js-播放直播录制视频"><a href="#12-1-flv-js-播放直播录制视频" class="headerlink" title="12.1 flv.js 播放直播录制视频"></a>12.1 flv.js 播放直播录制视频</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">content</span>=<span class="string">&quot;text/html; charset=utf-8&quot;</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Type&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>flv.js demo<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.mainContainer</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">1024px</span>; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; &#125;</span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.urlInput</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">100%</span>; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; <span class="attribute">margin-top</span>: <span class="number">8px</span>; <span class="attribute">margin-bottom</span>: <span class="number">8px</span>; &#125;</span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.centeredVideo</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">100%</span>; <span class="attribute">height</span>: <span class="number">576px</span>; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; <span class="attribute">margin-bottom</span>: auto; &#125;</span></span><br><span class="line"><span class="language-css">        <span class="selector-class">.controls</span> &#123; <span class="attribute">display</span>: block; <span class="attribute">width</span>: <span class="number">100%</span>; <span class="attribute">text-align</span>: left; <span class="attribute">margin-left</span>: auto; <span class="attribute">margin-right</span>: auto; &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;mainContainer&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">video</span> <span class="attr">id</span>=<span class="string">&quot;videoElement&quot;</span> <span class="attr">class</span>=<span class="string">&quot;centeredVideo&quot;</span> <span class="attr">controls</span> <span class="attr">autoplay</span> <span class="attr">width</span>=<span class="string">&quot;1024&quot;</span> <span class="attr">height</span>=<span class="string">&quot;576&quot;</span>&gt;</span>Your browser is too old which doesn&#x27;t support HTML5 video.<span class="tag">&lt;/<span class="name">video</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">style</span>=<span class="string">&quot;width:500px&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">placeholder</span>=<span class="string">&quot;请输入flv链接&quot;</span> <span class="attr">id</span>=<span class="string">&quot;flvUrl&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;load_flv()&quot;</span>&gt;</span>加载<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;controls&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_start()&quot;</span>&gt;</span>开始<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_pause()&quot;</span>&gt;</span>暂停<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_destroy()&quot;</span>&gt;</span>停止<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">style</span>=<span class="string">&quot;width:100px&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;seekpoint&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&quot;flv_seekto()&quot;</span>&gt;</span>跳转<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;flv.min.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> player = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;videoElement&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">load_flv</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">var</span> flvurl = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;flvUrl&#x27;</span>).<span class="property">value</span>;</span></span><br><span class="line"><span class="language-javascript">            <span class="variable language_">console</span>.<span class="title function_">log</span>(flvurl);</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span> (flvjs.<span class="title function_">isSupported</span>()) &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">var</span> flvPlayer = flvjs.<span class="title function_">createPlayer</span>(&#123;</span></span><br><span class="line"><span class="language-javascript">                    <span class="attr">type</span>: <span class="string">&#x27;flv&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">                    <span class="attr">url</span>: flvurl</span></span><br><span class="line"><span class="language-javascript">                &#125;);</span></span><br><span class="line"><span class="language-javascript">                flvPlayer.<span class="title function_">attachMediaElement</span>(videoElement);</span></span><br><span class="line"><span class="language-javascript">                flvPlayer.<span class="title function_">load</span>();</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_start</span>(<span class="params"></span>) &#123; player.<span class="title function_">play</span>(); &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_pause</span>(<span class="params"></span>) &#123; player.<span class="title function_">pause</span>(); &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_destroy</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">pause</span>();</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">unload</span>();</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">detachMediaElement</span>();</span></span><br><span class="line"><span class="language-javascript">            player.<span class="title function_">destroy</span>();</span></span><br><span class="line"><span class="language-javascript">            player = <span class="literal">null</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">function</span> <span class="title function_">flv_seekto</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            player.<span class="property">currentTime</span> = <span class="built_in">parseFloat</span>(<span class="variable language_">document</span>.<span class="title function_">getElementsByName</span>(<span class="string">&#x27;seekpoint&#x27;</span>)[<span class="number">0</span>].<span class="property">value</span>);</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十三、nginx-rtmp-module-指令详解"><a href="#十三、nginx-rtmp-module-指令详解" class="headerlink" title="十三、nginx-rtmp-module 指令详解"></a>十三、nginx-rtmp-module 指令详解</h2><h3 id="13-1-核心指令"><a href="#13-1-核心指令" class="headerlink" title="13.1 核心指令"></a>13.1 核心指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>语法</th>
+<th>上下文</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rtmp</td>
+<td><code>rtmp &#123; ... &#125;</code></td>
+<td>根</td>
+<td>保存所有 RTMP 配置的块</td>
+</tr>
+<tr>
+<td>server</td>
+<td><code>server &#123; ... &#125;</code></td>
+<td>rtmp</td>
+<td>声明一个 RTMP 实例</td>
+</tr>
+<tr>
+<td>listen</td>
+<td><code>listen (addr[:port]|port|unix:path) [bind]</code></td>
+<td>server</td>
+<td>给 NGINX 添加一个监听端口以接收 RTMP 连接</td>
+</tr>
+<tr>
+<td>application</td>
+<td><code>application name &#123; ... &#125;</code></td>
+<td>server</td>
+<td>创建一个 RTMP 应用</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td><code>timeout value</code></td>
+<td>rtmp, server</td>
+<td>Socket 超时，默认值为 1 分钟</td>
+</tr>
+<tr>
+<td>ping</td>
+<td><code>ping value</code></td>
+<td>rtmp, server</td>
+<td>RTMP ping 间隔，默认值为一分钟</td>
+</tr>
+<tr>
+<td>chunk_size</td>
+<td><code>chunk_size value</code></td>
+<td>rtmp, server, application</td>
+<td>流整合的最大块大小，默认值为 4096</td>
+</tr>
+</tbody></table>
+<h3 id="13-2-直播相关指令"><a href="#13-2-直播相关指令" class="headerlink" title="13.2 直播相关指令"></a>13.2 直播相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>live on</code></td>
+<td>开启直播模式</td>
+</tr>
+<tr>
+<td><code>meta on/off</code></td>
+<td>切换发送元数据到客户端，默认为 on</td>
+</tr>
+<tr>
+<td><code>interleave on/off</code></td>
+<td>切换交叉模式，音频和视频数据会在同一个 RTMP chunk 流中传输</td>
+</tr>
+<tr>
+<td><code>wait_key on/off</code></td>
+<td>使视频流从一个关键帧开始</td>
+</tr>
+<tr>
+<td><code>wait_video on/off</code></td>
+<td>在第一个视频帧发送之前禁用音频</td>
+</tr>
+<tr>
+<td><code>publish_notify on/off</code></td>
+<td>发送 NetStream.Publish.Start 和 NetStream.Publish.Stop 给用户</td>
+</tr>
+<tr>
+<td><code>sync timeout</code></td>
+<td>同步音频和视频流，默认值为 300 ms</td>
+</tr>
+</tbody></table>
+<h3 id="13-3-录制相关指令"><a href="#13-3-录制相关指令" class="headerlink" title="13.3 录制相关指令"></a>13.3 录制相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>record [off|all|audio|video|keyframes|manual]</code></td>
+<td>切换录制模式</td>
+</tr>
+<tr>
+<td><code>record_path path</code></td>
+<td>指定录制的 flv 文件存放目录</td>
+</tr>
+<tr>
+<td><code>record_suffix value</code></td>
+<td>设置录制文件后缀名，默认为 ‘.flv’</td>
+</tr>
+<tr>
+<td><code>record_max_size size</code></td>
+<td>设置录制文件的最大值</td>
+</tr>
+<tr>
+<td><code>record_max_frames nframes</code></td>
+<td>设置每个录制文件的视频帧的最大数量</td>
+</tr>
+<tr>
+<td><code>record_interval time</code></td>
+<td>录制间隔</td>
+</tr>
+<tr>
+<td><code>record_notify on/off</code></td>
+<td>录制状态通知</td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">recorder</span> myrec &#123;</span><br><span class="line">    <span class="attribute">record</span> all manual;</span><br><span class="line">    <span class="attribute">record_path</span> /var/rec;</span><br><span class="line">    <span class="attribute">record_notify</span> <span class="literal">on</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-4-HLS-相关指令"><a href="#13-4-HLS-相关指令" class="headerlink" title="13.4 HLS 相关指令"></a>13.4 HLS 相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>hls on/off</code></td>
+<td>在 application 切换 HLS</td>
+</tr>
+<tr>
+<td><code>hls_path path</code></td>
+<td>设置 HLS 播放列表和分段目录</td>
+</tr>
+<tr>
+<td><code>hls_fragment time</code></td>
+<td>设置 HLS 分段长度，默认为 5 秒钟</td>
+</tr>
+<tr>
+<td><code>hls_playlist_length time</code></td>
+<td>设置 HLS 播放列表长度，默认为 30 秒钟</td>
+</tr>
+<tr>
+<td><code>hls_continuous on/off</code></td>
+<td>切换 HLS 连续模式</td>
+</tr>
+<tr>
+<td><code>hls_nested on/off</code></td>
+<td>切换 HLS 嵌套模式</td>
+</tr>
+<tr>
+<td><code>hls_cleanup on/off</code></td>
+<td>切换 HLS 清理</td>
+</tr>
+</tbody></table>
+<h3 id="13-5-访问控制"><a href="#13-5-访问控制" class="headerlink" title="13.5 访问控制"></a>13.5 访问控制</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 允许/禁止发布</span></span><br><span class="line"><span class="attribute">allow</span> publish <span class="number">127.0.0.1</span>;</span><br><span class="line"><span class="attribute">deny</span> publish all;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许/禁止播放</span></span><br><span class="line"><span class="attribute">allow</span> play <span class="number">192.168.0.0</span>/<span class="number">24</span>;</span><br><span class="line"><span class="attribute">deny</span> play all;</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-6-外部命令执行"><a href="#13-6-外部命令执行" class="headerlink" title="13.6 外部命令执行"></a>13.6 外部命令执行</h3><p>定义每个流发布时要执行的带有参数的外部命令：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">exec</span> ffmpeg -i rtmp://localhost/src/<span class="variable">$name</span> -vcodec libx264 -acodec aac -f flv rtmp://localhost/hls/<span class="variable">$name</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可用变量：</p>
+<ul>
+<li><code>$name</code> - 流的名字</li>
+<li><code>$app</code> - 应用名</li>
+<li><code>$addr</code> - 客户端地址</li>
+<li><code>$flashver</code> - 客户端 flash 版本</li>
+<li><code>$swfurl</code> - 客户端 swf url</li>
+<li><code>$tcurl</code> - 客户端 tc url</li>
+<li><code>$pageurl</code> - 客户端页面 url</li>
+</ul>
+<h3 id="13-7-回调函数"><a href="#13-7-回调函数" class="headerlink" title="13.7 回调函数"></a>13.7 回调函数</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>on_connect url</code></td>
+<td>设置 HTTP 连接回调</td>
+</tr>
+<tr>
+<td><code>on_play url</code></td>
+<td>设置 HTTP 播放回调</td>
+</tr>
+<tr>
+<td><code>on_publish url</code></td>
+<td>设置 HTTP 发布回调</td>
+</tr>
+<tr>
+<td><code>on_done url</code></td>
+<td>设置播放&#x2F;发布禁止回调</td>
+</tr>
+<tr>
+<td><code>on_record_done url</code></td>
+<td>设置录制完成回调</td>
+</tr>
+<tr>
+<td><code>on_update url</code></td>
+<td>设置 update 回调</td>
+</tr>
+</tbody></table>
+<h3 id="13-8-Relay-相关指令"><a href="#13-8-Relay-相关指令" class="headerlink" title="13.8 Relay 相关指令"></a>13.8 Relay 相关指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pull url [key=value]*</code></td>
+<td>创建 pull 中继，流将从远程服务器上拉下来</td>
+</tr>
+<tr>
+<td><code>push url [key=value]*</code></td>
+<td>推送发布流到远程服务器</td>
+</tr>
+<tr>
+<td><code>push_reconnect time</code></td>
+<td>push 重新连接前等待的时间，默认为 3 秒</td>
+</tr>
+<tr>
+<td><code>session_relay on/off</code></td>
+<td>切换会话 relay 模式</td>
+</tr>
+</tbody></table>
+<h3 id="13-9-其他指令"><a href="#13-9-其他指令" class="headerlink" title="13.9 其他指令"></a>13.9 其他指令</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>max_connections number</code></td>
+<td>为 rtmp 引擎设置最大连接数</td>
+</tr>
+<tr>
+<td><code>rtmp_auto_push on/off</code></td>
+<td>切换自动推送（多 worker 直播流）模式</td>
+</tr>
+<tr>
+<td><code>rtmp_control all</code></td>
+<td>设置 RTMP 控制程序</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sntetwt/p/11435564.html">Windows 搭建 nginx rtmp服务器</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangwangxiang/p/8481661.html">windows下nginx的安装及使用</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Contex_A17/article/details/82191050">Windows10下nginx的rtmp服务器搭建</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dong1/p/10200869.html">rtmp服务器以及rtmp推流&#x2F;拉流&#x2F;转发</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/nginx-setup-intro.html">Nginx 配置详解</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/12/07/Linux/gcc4.8%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -782,7 +1619,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
 
   
@@ -914,7 +1751,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1206,7 +2043,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1541,7 +2378,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1650,419 +2487,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws S
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">package com;</span><br><span class="line"></span><br><span class="line">import org.springframework.context.ApplicationContext;</span><br><span class="line">import org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line">public class Demo &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ApplicationContext context = new ClassPathXmlApplicationContext(&quot;applicationContext.xml&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><code>有待补充</code></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/10/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/C#%E4%BD%BF%E7%94%A8EmguCV%E5%AE%9E%E7%8E%B0%E8%A7%86%E9%A2%91%E8%AF%BB%E5%8F%96%E5%92%8C%E6%92%AD%E6%94%BE%EF%BC%8C%E5%8F%8A%E5%A4%9A%E4%B8%AA%E8%A7%86%E9%A2%91%E4%B8%80%E8%B5%B7%E6%92%AD%E6%94%BE%E7%9A%84%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2015/10/24/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/C#%E4%BD%BF%E7%94%A8EmguCV%E5%AE%9E%E7%8E%B0%E8%A7%86%E9%A2%91%E8%AF%BB%E5%8F%96%E5%92%8C%E6%92%AD%E6%94%BE%EF%BC%8C%E5%8F%8A%E5%A4%9A%E4%B8%AA%E8%A7%86%E9%A2%91%E4%B8%80%E8%B5%B7%E6%92%AD%E6%94%BE%E7%9A%84%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">C#使用EmguCV实现视频读取和播放，及多个视频一起播放的问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2015-10-24 00:00:00" itemprop="dateCreated datePublished" datetime="2015-10-24T00:00:00+08:00">2015-10-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <ol>
-<li>WinForm程序</li>
-</ol>
-<p>1）第一种方法，使用委托：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="built_in">delegate</span> <span class="keyword">void</span> <span class="title">SetTextCallback</span>(<span class="params"><span class="built_in">string</span> text</span>)</span>;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">SetText</span>(<span class="params"><span class="built_in">string</span> text</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// InvokeRequired需要比较调用线程ID和创建线程ID</span></span><br><span class="line">    <span class="comment">// 如果它们不相同则返回true</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.txt_Name.InvokeRequired)</span><br><span class="line">    &#123;</span><br><span class="line">        SetTextCallback d = <span class="keyword">new</span> SetTextCallback(SetText);</span><br><span class="line">        <span class="keyword">this</span>.Invoke(d, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; text &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.txt_Name.Text = text;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>2）第二种方法，使用匿名委托</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">SetText</span>(<span class="params">Object obj</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.InvokeRequired)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.Invoke(<span class="keyword">new</span> MethodInvoker(<span class="built_in">delegate</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.txt_Name.Text = obj;</span><br><span class="line">        &#125;));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.txt_Name.Text = obj;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里说一下BeginInvoke和Invoke和区别：BeginInvoke会立即返回，Invoke会等执行完后再返回。</p>
-<ol start="2">
-<li>WPF程序</li>
-</ol>
-<p>1）可以使用Dispatcher线程模型来修改</p>
-<p>如果是窗体本身可使用类似如下的代码：</p>
-<p>this.lblState.Dispatcher.Invoke(new Action(delegate<br>{<br>     this.lblState.Content &#x3D; “状态：” + this._statusText;<br>}));</p>
-<p>那么假如是在一个公共类中弹出一个窗口、播放声音等呢？这里我们可以使用：System.Windows.Application.Current.Dispatcher，如下所示</p>
-<p><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></p>
-<p> System.Windows.Application.Current.Dispatcher.Invoke(new Action(() &#x3D;&gt;<br> {<br>     if (path.EndsWith(“.mp3”) || path.EndsWith(“.wma”) || path.EndsWith(“.wav”))<br>     {<br>        _player.Open(new Uri(path));<br>        _player.Play();<br>    }<br> }));</p>
-<p><strong>关键问题：多个视频同时播放，以上几种方法不足以解决，多个视频播放中主界面卡死和播放显示刷新不了的问题。</strong></p>
-<p>目前笔者的解决方法是</p>
-<p> pinturebox.CreateGraphics().DrawImage(imgSrc.Bitmap, new System.Drawing.Rectangle(0, 0, pinturebox.Width, pinturebox.Height));</p>
-<p>EmguCV中的Capture类可以完成视频文件的读取，并捕捉每一帧，可以利用Capture类完成实现WinForm中视频检测跟踪环境的搭建。本文只实现最简陋的WinForm + EmguCV上的avi文件读取和播放框架，复杂的检测和跟踪算法在之后添加进去。</p>
-<p>        这里使用WinForm实现视频的播放，主要是PictureBox类，它是支持基于事件的异步模式的典型组件，不使用EmguCV自带的UI控件等。</p>
-<p><img src="/%22%22" alt="效果图"></p>
-<p>图1.效果图</p>
-<p>        直接在UI线程中完成视频的播放的话整个程序只有一个线程，由于程序只能同步执行，播放视频的时候UI将停止响应用户的输入，造成界面的假死。所以视频的播放需要实现异步模式。主要有三种方法：第一是使用异步委托；第二种是使用BackgroundWorker组件；最后一种就是使用多线程（不使用CheckForIllegalCrossThreadCalls &#x3D;false的危险做法）。</p>
-<p>        Windows窗体控件，唯一可以从创建它的线程之外的线程中调用的是Invoke()、BegionInvoke()、EndInvoke()方法和InvokeRequired属性。其中BegionInvoke()、EndInvoke()方法是Invoke()方法的异步版本。这些方法会切换到创建控件的线程上，以调用赋予一个委托参数的方法，该委托参数可以传递给这些方法。</p>
-<p>        （一）   使用多线程<br>        首先定义监控的类及其对应的事件参数类和异常类：<br>        判断是否继续执行的布尔型成员会被调用线程改变，因此声名为volatile，不进行优化。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">/// &lt;summary&gt;</span><br><span class="line">/// 红外检测子。</span><br><span class="line">/// &lt;/summary&gt;</span><br><span class="line">public class ThermalSurveillant</span><br><span class="line">&#123;</span><br><span class="line">    #region Private Fields</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 是否停止线程，此变量供多个线程访问。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    private volatile bool shouldStop = false;</span><br><span class="line"> </span><br><span class="line">    #endregion</span><br><span class="line">    #region Public Properties</span><br><span class="line"> </span><br><span class="line">    #endregion</span><br><span class="line">    #region Public Events</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 帧刷新事件。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    public EventHandler&lt;FrameRefreshEventArgs&gt; FrameRefresh;</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 播放完成。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    public EventHandler&lt;CompletedEventArgs&gt; Completed;</span><br><span class="line"> </span><br><span class="line">    #endregion</span><br><span class="line">    #region Protected Methods</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 处理帧刷新事件。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    /// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;</span><br><span class="line">    protected virtual void OnFrameRefresh(FrameRefreshEventArgs e)</span><br><span class="line">    &#123;</span><br><span class="line">        if (this.FrameRefresh != null)</span><br><span class="line">        &#123;</span><br><span class="line">            this.FrameRefresh(this, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 处理视频读完事件。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    /// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;</span><br><span class="line">    protected virtual void OnCompleted(CompletedEventArgs e)</span><br><span class="line">    &#123;</span><br><span class="line">        if (this.Completed != null)</span><br><span class="line">        &#123;</span><br><span class="line">            this.Completed(this, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    #endregion</span><br><span class="line">    #region Public Methods</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 视频监控。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    /// &lt;param name=&quot;capture&quot;&gt;捕捉。&lt;/param&gt;</span><br><span class="line">    public void DoSurveillance(Object oCapture)</span><br><span class="line">    &#123;</span><br><span class="line">        Capture capture = oCapture as Capture;</span><br><span class="line">        int id = 1;</span><br><span class="line">        if (capture == null)</span><br><span class="line">        &#123;</span><br><span class="line">            throw new InvalidCaptureObjectException(&quot;传递的Capture类型无效。&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        while (!shouldStop)</span><br><span class="line">        &#123;</span><br><span class="line">            Image&lt;Bgr, byte&gt; frame = capture.QueryFrame();</span><br><span class="line">            if (frame != null)</span><br><span class="line">            &#123;</span><br><span class="line">                FrameRefreshEventArgs e = new FrameRefreshEventArgs(frame.ToBitmap(), id++);</span><br><span class="line">                // 触发刷新事件</span><br><span class="line">                this.OnFrameRefresh(e);</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        // 触发完成事件</span><br><span class="line">        this.OnCompleted(new CompletedEventArgs(id));</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    /// &lt;summary&gt;</span><br><span class="line">    /// 请求停止线程。</span><br><span class="line">    /// &lt;/summary&gt;</span><br><span class="line">    public void Cancel()</span><br><span class="line">    &#123;</span><br><span class="line">        this.shouldStop = true;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    #endregion</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>        UI线程中启动播放线程：</p>
-<p>声明：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 监控线程。 </span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">private</span> Thread threadSurveillance = <span class="literal">null</span>; </span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 捕获视频帧。 </span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">private</span> Capture captureSurveillance; </span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 监控子。 </span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">private</span> ThermalSurveillant surveillant = <span class="keyword">new</span> ThermalSurveillant();</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-<p>读入视频文件：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">captureSurveillance = <span class="keyword">new</span> Capture(<span class="keyword">this</span>.videoFilePath);</span><br><span class="line">captureSurveillance.SetCaptureProperty(CAP_PROP.CV_CAP_PROP_FRAME_WIDTH, <span class="keyword">this</span>.width);</span><br><span class="line">captureSurveillance.SetCaptureProperty(CAP_PROP.CV_CAP_PROP_FRAME_HEIGHT, <span class="keyword">this</span>.height);</span><br><span class="line">Image&lt;Bgr, <span class="built_in">byte</span>&gt; frame = captureSurveillance.QueryFrame();</span><br><span class="line"><span class="keyword">this</span>.pictureBox.Image = frame.ToBitmap();</span><br></pre></td></tr></table></figure>
-
-<p>播放视频文件：</p>
-<p>        UI线程中响应监控类的事件：</p>
-<p>定义异步调用的委托：</p>
-<p>添加事件委托：</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.surveillant.FrameRefresh += OnRefreshFrame;</span><br><span class="line"><span class="keyword">this</span>.surveillant.Completed += OnCompleted;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>        以下方法中都是由监控线程中的事件委托方法，应该使用BeginInvoke方法，这样可以优雅的结束线程，如果使用Invoke方法，则调用方式为同步调用，此时如果使用Thread.Join()方法终止线程将引发死锁（正常播放没有问题），Thread.Join()方法的使用使调用线程阻塞等待当前线程完成，在这里即UI线程阻塞等待监控线程完成，而监控线程中又触发UI线程中pictureBox的刷新，使用Invoke方法就造成了监控线程等待UI线程刷新结果，而UI线程已经阻塞，形成了死锁。死锁时只能用Thread.Abort()方法才能结束线程。或者直接强制结束应用程序。</p>
-<p>        使用BeginInvoke方法时为异步调用，监控线程不等待刷新结果直接继续执行，可以正常结束。结束后UI才进行刷新，不会造成死锁。</p>
-<p><img src="/%22%22"></p>
-<p>图2.线程关系</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 刷新UI线程的pixtureBox的方法。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;frame&quot;&gt;</span>要刷新的帧。<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">RefreshFrame</span>(<span class="params">Bitmap frame</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.pictureBox.Image = frame;</span><br><span class="line">    <span class="comment">// 这里一定不能刷新！2012年8月2日1:50:16</span></span><br><span class="line">    <span class="comment">//this.pictureBox.Refresh();</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 响应pictureBox刷新。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;sender&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;e&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnRefreshFrame</span>(<span class="params"><span class="built_in">object</span> sender, FrameRefreshEventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 判断是否需要跨线程调用</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.pictureBox.InvokeRequired == <span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        FrameRefreshDelegate fresh = <span class="keyword">this</span>.RefreshFrame;</span><br><span class="line">        <span class="keyword">this</span>.BeginInvoke(fresh, e.Frame);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.RefreshFrame(e.Frame);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 响应Label刷新信息。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;sender&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;e&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnCompleted</span>(<span class="params"><span class="built_in">object</span> sender, CompletedEventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 判断是否需要跨线程调用</span></span><br><span class="line">    CompletedDelegate fresh = <span class="keyword">this</span>.RefreshStatus;</span><br><span class="line">    <span class="built_in">string</span> message = <span class="string">&quot;视频结束，共 &quot;</span> + e.FrameCount + <span class="string">&quot; 帧。&quot;</span>;</span><br><span class="line">    <span class="keyword">this</span>.BeginInvoke(fresh, message);</span><br><span class="line">&#125;</span><br><span class="line">　　</span><br><span class="line"></span><br><span class="line">        关闭时需要中止播放线程之后再退出：</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 关闭窗体时发生。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;sender&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;e&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnFormClosed</span>(<span class="params"><span class="built_in">object</span> sender, FormClosedEventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 检测子算法请求终止</span></span><br><span class="line">    surveillant.Cancel();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 阻塞调用线程直到检测子线程终止</span></span><br><span class="line">    <span class="keyword">if</span> (threadSurveillance != <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (threadSurveillance.IsAlive == <span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            threadSurveillance.Join();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>        （二）   使用异步委托</p>
-<p>        创建线程的一个更简单的方法是定义一个委托，并异步调用它。委托是方法的类型安全的引用。Delegate类还支持异步地调用方法。在后台，Delegate类会创建一个执行任务的线程。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">// asynchronous by using a delegate</span><br><span class="line">PlayVideoDelegate play = this.PlayVideoFile;</span><br><span class="line">IAsyncResult status = play.BeginInvoke(null, null);</span><br><span class="line"> </span><br><span class="line">/// &lt;summary&gt;</span><br><span class="line">/// 播放视频文件。</span><br><span class="line">/// &lt;/summary&gt;</span><br><span class="line">private void PlayVideoFile()</span><br><span class="line">&#123;</span><br><span class="line">    while (true)</span><br><span class="line">    &#123;</span><br><span class="line">        Image&lt;Bgr, byte&gt; frame = capture.QueryFrame();</span><br><span class="line">        if (frame != null)</span><br><span class="line">        &#123;</span><br><span class="line">            Image&lt;Gray, byte&gt; grayFrame = frame.Convert&lt;Gray, byte&gt;();</span><br><span class="line">            grayFrame.Resize(this.width, this.height, INTER.CV_INTER_CUBIC);</span><br><span class="line">            RefreshPictureBoxDelegate fresh = this.RefreshPictureBox;</span><br><span class="line">            try</span><br><span class="line">            &#123;</span><br><span class="line">                this.BeginInvoke(fresh, grayFrame.ToBitmap());</span><br><span class="line">            &#125;</span><br><span class="line">            catch (ObjectDisposedException ex)</span><br><span class="line">            &#123;</span><br><span class="line">                Thread.CurrentThread.Abort();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">/// &lt;summary&gt;</span><br><span class="line">/// 刷新UI线程的pixtureBox的方法。</span><br><span class="line">/// &lt;/summary&gt;</span><br><span class="line">/// &lt;param name=&quot;frame&quot;&gt;要刷新的帧。&lt;/param&gt;</span><br><span class="line">private void RefreshPictureBox(Bitmap frame)</span><br><span class="line">&#123;</span><br><span class="line">    this.pictureBox.Image = frame;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>        （三）   使用BackgroundWorker组件</p>
-<p>        BackgroundWorker类是异步事件的一种实现方案，异步组件可以选择性的支持取消操作，并提供进度信息。RunWorkerAsync()方法启动异步调用。CancelAsync()方法取消。</p>
-<p><img src="/%22%22"></p>
-<p>图3.BackgroundWorker组件</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 播放视频文件。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;sender&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;e&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">detectItemPlay_Click</span>(<span class="params"><span class="built_in">object</span> sender, EventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.videoFilePath != <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// run async</span></span><br><span class="line">        <span class="keyword">this</span>.backgroundWorker.RunWorkerAsync(capture);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 异步调用。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;sender&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;e&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">OnDoWork</span>(<span class="params"><span class="built_in">object</span> sender, DoWorkEventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Emgu.CV.Capture capture = e.Argument <span class="keyword">as</span> Emgu.CV.Capture;</span><br><span class="line">    <span class="keyword">while</span> (!e.Cancel)</span><br><span class="line">    &#123;</span><br><span class="line">        Image&lt;Bgr, <span class="built_in">byte</span>&gt; frame = capture.QueryFrame();</span><br><span class="line">        <span class="keyword">if</span> (frame != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            Image&lt;Gray, <span class="built_in">byte</span>&gt; grayFrame = frame.Convert&lt;Gray, <span class="built_in">byte</span>&gt;();</span><br><span class="line">            grayFrame.Resize(<span class="keyword">this</span>.width, <span class="keyword">this</span>.height, INTER.CV_INTER_CUBIC);</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.backgroundWorker.CancellationPending == <span class="literal">true</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                e.Cancel = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">this</span>.pictureBox.InvokeRequired == <span class="literal">true</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    RefreshPictureBoxDelegate fresh = <span class="keyword">this</span>.RefreshPictureBox;</span><br><span class="line">                    <span class="keyword">this</span>.BeginInvoke(fresh, grayFrame.ToBitmap());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">this</span>.RefreshPictureBox(grayFrame.ToBitmap());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 关闭窗体时发生。</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;sender&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;e&quot;&gt;</span><span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">MainForm_FormClosed</span>(<span class="params"><span class="built_in">object</span> sender, FormClosedEventArgs e</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.backgroundWorker.IsBusy)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.backgroundWorker.CancelAsync();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/10/17/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%9C%A8%20WPF%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Path%20%E8%B7%AF%E5%BE%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2015/10/17/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/%E5%9C%A8%20WPF%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20Path%20%E8%B7%AF%E5%BE%84/" class="post-title-link" itemprop="url">在 WPF 中使用 Path 路径</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2015-10-17 00:00:00" itemprop="dateCreated datePublished" datetime="2015-10-17T00:00:00+08:00">2015-10-17</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在 WPF 中总会修改 Button 的 Style，比如一个自定义的 Close 按钮。刚入门的可能会用一张 PNG 格式的图片来做这个按钮的 Icon，但这个是不优雅的。而且你要改的时候还得去操作文件，想想都痛苦。</p>
-<p>但是很多人苦于不知道去哪里获取 Path，当然网上已经有不少使用 Photoshop 获取图片的 Path ，但如果图片的质量不好，获取的 Path 歪歪曲曲的也不好看，更何况在这之前你还得会使用 Photoshop。</p>
-<p>现在分享一个我经常使用的解决方案，<a target="_blank" rel="noopener" href="http://www.iconfont.cn/">阿里巴巴矢量图</a>，这上面可以说有海量的图标可以用到。</p>
-<p>流程：</p>
-<p>　　1，进入 <a target="_blank" rel="noopener" href="http://www.iconfont.cn/">阿里巴巴矢量图</a> 并搜索你想要的图标</p>
-<p>　　2，下载 Icon 时使用 SVG 下载</p>
-<p>　　3，用记事本或文本编辑器打开，标签 Path 下的 d 属性就是 Path 的 Data 数据（很多复杂一点的 Icon 可能是多个 Data 组成，使用时只要用空格把几个 Data 隔开就行）</p>
-<p>　　例子：</p>
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"\>
-
-<p>　　&lt;svg t=“1491032725422” class=“icon” style=“” viewBox=“0 0 1024 1024” version=“1.1” xmlns=“<a target="_blank" rel="noopener" href="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</a>“ p-id=“2372” xmlns:xlink=“<a target="_blank" rel="noopener" href="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</a>“ width=“248” height=“248”&gt;<br>　　&lt;defs&gt;<br>　　　　&lt;style type=“text&#x2F;css”&gt;&lt;&#x2F;style&gt;<br>　　&lt;&#x2F;defs&gt;<br>　　&lt;path d=“M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z” p-id=“2373”&gt;&lt;&#x2F;path&gt;<br>　　&lt;path d=“M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z” p-id=“2374”&gt;&lt;&#x2F;path&gt;<br>&lt;&#x2F;svg&gt;</p>
-<p>　　在WPF中使用时：</p>
-<p>&lt;Path Data=“M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z”&#x2F;&gt;</p>
-<p>Data 也可以作为资源放在独立的资源字典里，使用的 Geometry 标签</p>
-<p>&lt;Geometry x:Key=“logo”&gt;M503.2868 510.9903m-349.4226 0a341.233 341.233 0 1 0 698.8452 0 341.233 341.233 0 1 0-698.8452 0Z M106.1386 263.9677a110 100 0 1 1 121.6696 248.2668Z&lt;&#x2F;Geometry&gt;</p>
-<p>XAML：</p>
-<p>&lt;Path Data=“{StaticResource logo}” Fill=“White” Stretch=“Fill” Stroke=“White” StrokeThickness=“1.5” &#x2F;&gt;</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">Net作业调度(五)—quartz.net动态添加job设计</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2015-10-10 00:00:00" itemprop="dateCreated datePublished" datetime="2015-10-10T00:00:00+08:00">2015-10-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/" itemprop="url" rel="index"><span itemprop="name">DotNet</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>在实际项目使用中quartz.net中，都希望有一个管理界面可以动态添加job，而避免每次都要上线发布。 </p>
-<p>也看到有园子的同学问过。这里就介绍下实现动态添加job的几种方式， 也是二次开发的核心模块。</p>
-<h4 id="阅读目录："><a href="#阅读目录：" class="headerlink" title="阅读目录："></a>阅读目录：</h4><ol>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#one">传统方式</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#two">框架反射方式</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#three">进程方式</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#four">URL方式</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mushroom/p/4231834.html#five">框架配置方式</a></li>
-</ol>
-<h2 id="传统方式"><a href="#传统方式" class="headerlink" title="传统方式"></a>传统方式</h2><p> 继承IJob，实现业务逻辑，添加到scheduler。</p>
-<p>public class MonitorJob : IJob<br>    { public void Execute(IJobExecutionContext context)<br>        { &#x2F;&#x2F;do something<br>            Console.WriteLine(“test”);<br>        }<br>    } &#x2F;&#x2F;var job &#x3D; JobBuilder.Create<MonitorJob>() &#x2F;&#x2F; .WithIdentity(“test”, “value”) &#x2F;&#x2F; .Build(); &#x2F;&#x2F;var trigger &#x3D; (ICronTrigger) TriggerBuilder.Create() &#x2F;&#x2F; .WithIdentity(“test”, “value”) &#x2F;&#x2F; .WithCronSchedule(“0 0&#x2F;5 * * * ?”) &#x2F;&#x2F; .Build(); &#x2F;&#x2F;scheduler.ScheduleJob(job, trigger);</p>
-<p>也可以使用CrystalQuartz远程管理暂停取消。之前的博客<a target="_blank" rel="noopener" href="http://www.cnblogs.com/mushroom/p/4067558.html">CrystalQuartz远程管理(二)</a>。</p>
-<h2 id="框架反射方式"><a href="#框架反射方式" class="headerlink" title="框架反射方式"></a>框架反射方式</h2><p>这种方式需要定义一套接口框架。 比如：</p>
-<p>  interface IcustomJob<br>    { void Excute(string context); void Failed(string error); void Complete(string msg);<br>    }</p>
-<p>1：当我们写job时同一实现这个框架接口，类库形式。</p>
-<p>2：写完后编译成DLL，上传到我们的作业执行节点。</p>
-<p>3：在执行节点中，通过反射拿到DLL的job信息。</p>
-<p>4：然后构建quartz的job，添加到scheduler。</p>
-<p>这种方式缺点： 耦合性太高，开发量较大。 优点：集中式管理。</p>
-<p>系统结构如图：</p>
-<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181839415731718.png"></p>
-<h2 id="进程方式"><a href="#进程方式" class="headerlink" title="进程方式"></a>进程方式</h2><p>这个方式和windows任务计划类似。</p>
-<p>1：使用方编写自己的job，无需实现任何接口，可执行应用程序形式。</p>
-<p>2：将程序发送到执行节点，由执行节点起进程调用job程序。</p>
-<p>执行节点调用，示例如下：</p>
-<p> public class ConsoleJob:IJob<br>    { public void Execute(IJobExecutionContext context)<br>        {<br>            JobDataMap dataMap = context.JobDetail.JobDataMap; string content &#x3D; dataMap.GetString(“jobData”); var jd &#x3D; new JavaScriptSerializer().Deserialize<ConsoleJobData>(content);</p>
-<pre><code>        Process p \= new Process();
-        p.StartInfo.UseShellExecute \= true;
-        p.StartInfo.FileName \= jd.Path;
-        p.StartInfo.Arguments \= jd.Parameters;   //空格分割
-        p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
-        p.Start();
-    &#125;
-&#125;
-</code></pre>
-<p>这种方式相对来说： 耦合性中等，执行节点和job相互不关心，没有依赖，开发量较小。</p>
-<p>系统结构如图：</p>
-<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181849136677228.png"></p>
-<h2 id="URL方式"><a href="#URL方式" class="headerlink" title="URL方式"></a>URL方式</h2><p>URL方式和第三种类似，不过调用的不在是执行程序，而是URL。</p>
-<p>1： 使用方在网页或服务中，实现业务逻辑。</p>
-<p>2： 然后将Url，交给执行节点post或get执行。</p>
-<p>执行节点调用，示例如下：</p>
-<p> public class HttpJob : IJob<br>    { public void Execute(IJobExecutionContext context)<br>        { var dataMap &#x3D; context.JobDetail.JobDataMap; var content &#x3D; dataMap.GetString(“jobData”); var jd &#x3D; new JavaScriptSerializer().Deserialize<HttpJobData>(content); if (jd.Parameters &#x3D;&#x3D; null)<br>                jd.Parameters = string.Empty; if (jd.Timeout &#x3D;&#x3D; 0)<br>                jd.Timeout = 5*60; var result &#x3D; RequestHelper.Post(jd.Url, jd.ContentType, jd.Timeout, jd.Parameters, jd.heads);<br>        }<br>    }</p>
-<p>这种方式耦合比较低，使用方不需要单独写应用程序了，和平常业务开发一样。</p>
-<p>执行节点的职权，仅仅作为一个触发器。</p>
-<p>有2点需要注意的是：</p>
-<p>1：请求URL时，注意双方约定token加密，防止非执行节点执行调用。</p>
-<p>2：使用方，如果有耗时操作，建议异步执行。 </p>
-<p>系统结构如图：</p>
-<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181853563397152.png"></p>
-<h2 id="框架配置方式"><a href="#框架配置方式" class="headerlink" title="框架配置方式"></a>框架配置方式</h2><p>1：使用方直接使用quartz.net框架，实现自己的job。从管理方拉取执行节点配置，然后自行管理执行节点。</p>
-<p>2：使用方也可以暴露端口给管理方，以实现监控，修改配置。</p>
-<p>这种形式，耦合性最低。是把管理方当成一个配置中心。 ps：几乎和传统方式+CrystalQuartz一样了。</p>
-<p><img src="/2015/10/10/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/DotNet/Net%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6(%E4%BA%94)%E2%80%94quartz.net%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0job%E8%AE%BE%E8%AE%A1/181858070583283.png"></p>
-<p>通过context.JobDetail.JobDataMap，可以保存job的需要的信息。</p>
-<p>本篇介绍主流的几种实现方案，供大家参考使用。</p>
 
       
     </div>

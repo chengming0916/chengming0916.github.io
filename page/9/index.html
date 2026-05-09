@@ -170,7 +170,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">303</span>
+          <span class="site-state-item-count">306</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -181,7 +181,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">296</span>
+        <span class="site-state-item-count">295</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -206,6 +206,191 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E5%AE%9E%E7%8E%B0SM4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/Golang%E5%AE%9E%E7%8E%B0SM4/" class="post-title-link" itemprop="url">Golang实现SM4</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-26 10:27:32" itemprop="dateCreated datePublished" datetime="2025-03-26T10:27:32+08:00">2025-03-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>ECB模式，PKCS5填充</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> sm4</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;encoding/hex&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/tjfoc/gmsm/sm4&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SM4EcbEncrypt</span><span class="params">(key, plaintext []<span class="type">byte</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	block, err := sm4.NewCipher(key)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	plaintext = PKCS5Padding(plaintext, block.BlockSize())</span><br><span class="line">	ciphertext := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>(plaintext))</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">for</span> start := <span class="number">0</span>; start &lt; <span class="built_in">len</span>(plaintext); start += block.BlockSize() &#123;</span><br><span class="line">		block.Encrypt(ciphertext[start:start+block.BlockSize()], plaintext[start:start+block.BlockSize()])</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">return</span> hex.EncodeToString(ciphertext), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SM4EcbDecrypt</span><span class="params">(key []<span class="type">byte</span>, data <span class="type">string</span>)</span></span> ([]<span class="type">byte</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	plaintext, _ := hex.DecodeString(data)</span><br><span class="line">	block, err := sm4.NewCipher(key)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	ciphertext := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>(plaintext))</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">for</span> start := <span class="number">0</span>; start &lt; <span class="built_in">len</span>(plaintext); start += block.BlockSize() &#123;</span><br><span class="line">		block.Decrypt(ciphertext[start:start+block.BlockSize()], plaintext[start:start+block.BlockSize()])</span><br><span class="line">	&#125;</span><br><span class="line">	ciphertext = PKCS5Unpadding(ciphertext)</span><br><span class="line">	<span class="keyword">return</span> ciphertext, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PKCS5Padding</span><span class="params">(ciphertext []<span class="type">byte</span>, blockSize <span class="type">int</span>)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	padding := blockSize - <span class="built_in">len</span>(ciphertext)%blockSize</span><br><span class="line">	padtext := bytes.Repeat([]<span class="type">byte</span>&#123;<span class="type">byte</span>(padding)&#125;, padding)</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">append</span>(ciphertext, padtext...)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PKCS5Unpadding</span><span class="params">(origData []<span class="type">byte</span>)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	length := <span class="built_in">len</span>(origData)</span><br><span class="line">	unpadding := <span class="type">int</span>(origData[length<span class="number">-1</span>])</span><br><span class="line">	<span class="keyword">return</span> origData[:(length - unpadding)]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/Python%E5%88%A4%E6%96%AD%E5%BD%93%E5%89%8D%E8%BF%90%E8%A1%8C%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/03/26/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/Python%E5%88%A4%E6%96%AD%E5%BD%93%E5%89%8D%E8%BF%90%E8%A1%8C%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83/" class="post-title-link" itemprop="url">Python判断当前运行系统环境</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-03-26 09:38:54" itemprop="dateCreated datePublished" datetime="2025-03-26T09:38:54+08:00">2025-03-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">编程技术</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h4 id="使用sys模块"><a href="#使用sys模块" class="headerlink" title="使用sys模块"></a>使用<code>sys</code>模块</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> sys.platform.startwith(<span class="string">&quot;win&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> sys.platform.startwith(<span class="string">&quot;linux&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> sys.platform.startwith(<span class="string">&quot;darwin&quot;</span>):</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是MAC OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用platform模块"><a href="#使用platform模块" class="headerlink" title="使用platform模块"></a>使用<code>platform</code>模块</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> platform</span><br><span class="line"></span><br><span class="line">system=platform.system()</span><br><span class="line"><span class="keyword">if</span> system==<span class="string">&quot;Windows&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system==<span class="string">&quot;Linux&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system==<span class="string">&quot;Darwin&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是MAC OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)	</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用os模块"><a href="#使用os模块" class="headerlink" title="使用os模块"></a>使用<code>os</code>模块</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">system = os.name</span><br><span class="line"><span class="keyword">if</span> system == <span class="string">&quot;nt&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Windows&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> system == <span class="string">&quot;posix&quot;</span>:</span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是Linux或Mac OS&quot;</span>)</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">print</span>(<span class="string">&quot;当前系统是其他操作系统&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -251,7 +436,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -352,7 +537,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -459,7 +644,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -563,7 +748,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
 
   
@@ -744,6 +929,8 @@
 <h3 id="私有-CA-签名"><a href="#私有-CA-签名" class="headerlink" title="私有 CA 签名"></a>私有 CA 签名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out ca.key 2048</span><br><span class="line">openssl req -subj <span class="string">&quot;/C=CN/ST=Tianjin/O=Mocha/CN=Server CA&quot;</span> -new -x509 -days 3650 -key ca.key -out ca.crt</span><br><span class="line">openssl genrsa -out server.key 2048</span><br><span class="line">openssl req -subj <span class="string">&quot;/C=CN/ST=Tianjin/O=Mocha/CN=example.io&quot;</span> -new -key server.key -out server.csr</span><br><span class="line">openssl x509 -req -days 3650 -<span class="keyword">in</span> server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt</span><br></pre></td></tr></table></figure>
 
 
+
+
       
     </div>
 
@@ -805,7 +992,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
 
   
@@ -952,7 +1139,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:37" itemprop="dateModified" datetime="2026-04-27T18:12:37+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1047,7 +1234,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1157,7 +1344,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
+      <time title="修改时间：2026-05-09 17:26:50" itemprop="dateModified" datetime="2026-05-09T17:26:50+08:00">2026-05-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1184,187 +1371,6 @@
     
     <div class="post-body" itemprop="articleBody">
           
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Golang/Golang%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Golang/Golang%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/" class="post-title-link" itemprop="url">GoLang学习笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-03-19 14:51:24" itemprop="dateCreated datePublished" datetime="2025-03-19T14:51:24+08:00">2025-03-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Qt/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1-Qt%E5%85%A5%E9%97%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Chemmy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Chemmy's Blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/03/19/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Qt/Qt%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1-Qt%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">Qt学习笔记-1</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-03-19 14:51:24" itemprop="dateCreated datePublished" datetime="2025-03-19T14:51:24+08:00">2025-03-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-04-27 18:12:38" itemprop="dateModified" datetime="2026-04-27T18:12:38+08:00">2026-04-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Qt/" itemprop="url" rel="index"><span itemprop="name">Qt</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="1-第一个Qt程序"><a href="#1-第一个Qt程序" class="headerlink" title="1. 第一个Qt程序"></a>1. 第一个Qt程序</h2><h4 id="1-1-Hello-Qt"><a href="#1-1-Hello-Qt" class="headerlink" title="1.1 Hello Qt"></a>1.1 Hello Qt</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QApplication&gt;</span>          <span class="comment">// 头文件引用, 每个Qt类都有对应的头文件，类的定义</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QLabel&gt;</span>                <span class="comment">// 包含了对该类的定义</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	QApplication <span class="title function_">app</span><span class="params">(argc, argv)</span>; <span class="comment">// 创建QApplication对象，管理整个应用       </span></span><br><span class="line">	QLabel *label = new QLabel(<span class="string">&quot;Hello Qt&quot;</span>); <span class="comment">// QLabel部件，用于显示</span></span><br><span class="line">	label-&gt;show();                <span class="comment">// # 使QLabel部件可见</span></span><br><span class="line">	<span class="keyword">return</span> app.exec();            <span class="comment">// 将应用程序的控制权传递给Qt,程序等待用户操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试程序</p>
-<p><img src="/" alt="图片占位"></p>
-<p>在源码根目录打开命令提示符执行<code>qmake -project</code>生成<code>hello.pro</code>项目文件,然后执行<code>qmake hello.pro</code>从这个项目文件生成<code>makefile</code>文件，在输入<code>make</code>命令就可以构建该应用。</p>
-
       
     </div>
 

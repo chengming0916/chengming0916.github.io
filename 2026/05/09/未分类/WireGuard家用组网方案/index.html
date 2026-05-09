@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"chengming0916.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在家庭组网与远程访问场景中，WireGuard凭借轻量、高效、安全的特性，成为VPN组网的首选方案。本文结合家用核心需求——稳定访问内网NAS&#x2F;家庭电脑、云服务器可自由替换（哪家便宜用哪家），设计一套以家庭软路由为核心的WireGuard组网方案，配置简单可落地，兼顾访问稳定性与云服务器灵活性。 方案核心目标：以家庭软路由为WireGuard服务端，构建稳定的家庭组网，云服务器仅作为普通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WireGuard家用组网方案">
+<meta property="og:url" content="http://chengming0916.github.io/2026/05/09/%E6%9C%AA%E5%88%86%E7%B1%BB/WireGuard%E5%AE%B6%E7%94%A8%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="Chemmy&#39;s Blog">
+<meta property="og:description" content="在家庭组网与远程访问场景中，WireGuard凭借轻量、高效、安全的特性，成为VPN组网的首选方案。本文结合家用核心需求——稳定访问内网NAS&#x2F;家庭电脑、云服务器可自由替换（哪家便宜用哪家），设计一套以家庭软路由为核心的WireGuard组网方案，配置简单可落地，兼顾访问稳定性与云服务器灵活性。 方案核心目标：以家庭软路由为WireGuard服务端，构建稳定的家庭组网，云服务器仅作为普通">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-09T00:28:54.000Z">
+<meta property="article:modified_time" content="2026-05-09T09:26:50.370Z">
+<meta property="article:author" content="Chemmy">
+<meta property="article:tag" content="VPN">
+<meta property="article:tag" content="WireGuard">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://chengming0916.github.io/2026/05/09/%E6%9C%AA%E5%88%86%E7%B1%BB/WireGuard%E5%AE%B6%E7%94%A8%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://chengming0916.github.io/2026/05/09/%E6%9C%AA%E5%88%86%E7%B1%BB/WireGuard%E5%AE%B6%E7%94%A8%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88/","path":"2026/05/09/未分类/WireGuard家用组网方案/","title":"WireGuard家用组网方案"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>WireGuard家用组网方案 | Chemmy's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chemmy's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">chengming0916@outlook.com</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%96%B9%E6%A1%88%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、方案核心设计理念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%BB%9F%E4%B8%80%E7%BD%91%E6%AE%B5%E8%A7%84%E5%88%92%EF%BC%88%E7%BB%88%E8%BA%AB%E4%B8%8D%E5%8F%98%EF%BC%8C%E4%BE%BF%E4%BA%8E%E7%BB%B4%E6%8A%A4%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、统一网段规划（终身不变，便于维护）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%AF%A6%E7%BB%86%E9%85%8D%E7%BD%AE%EF%BC%88%E5%8F%AF%E7%9B%B4%E6%8E%A5%E5%A4%8D%E5%88%B6%E9%83%A8%E7%BD%B2%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、详细配置（可直接复制部署）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.1.</span> <span class="nav-text">1. 适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%BB%84%E7%BD%91%E6%8B%93%E6%89%91"><span class="nav-number">3.2.</span> <span class="nav-text">2. 组网拓扑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">3. 核心配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%AE%B6%E5%BA%AD%E8%BD%AF%E8%B7%AF%E7%94%B1%EF%BC%88WG%E6%9C%8D%E5%8A%A1%E7%AB%AF%EF%BC%89%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.1.</span> <span class="nav-text">（1）家庭软路由（WG服务端）配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%EF%BC%88WG%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%89%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.2.</span> <span class="nav-text">（2）云服务器（WG客户端）配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E7%BB%88%E7%AB%AF%E8%AE%BE%E5%A4%87%EF%BC%88%E6%89%8B%E6%9C%BA-%E7%94%B5%E8%84%91%EF%BC%89%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.3.</span> <span class="nav-text">（3）终端设备（手机&#x2F;电脑）配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%AE%BF%E9%97%AE%E9%80%BB%E8%BE%91%E4%B8%8E%E5%AE%9E%E6%93%8D%E8%A6%81%E7%82%B9"><span class="nav-number">3.4.</span> <span class="nav-text">4. 访问逻辑与实操要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%BD%AF%E8%B7%AF%E7%94%B1%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%A1%AC%E4%BB%B6%E9%80%89%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">四、软路由系统与硬件选型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%BD%AF%E8%B7%AF%E7%94%B1%E7%B3%BB%E7%BB%9F%E6%8E%A8%E8%8D%90"><span class="nav-number">4.1.</span> <span class="nav-text">1. 软路由系统推荐</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%A1%AC%E4%BB%B6%E5%BB%BA%E8%AE%AE"><span class="nav-number">4.2.</span> <span class="nav-text">2. 硬件建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%96%B9%E6%A1%88%E4%BC%98%E5%8A%BF%E4%B8%8E%E5%AE%9E%E6%93%8D%E5%BB%BA%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">五、方案优势与实操建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="nav-number">5.1.</span> <span class="nav-text">1. 核心优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%9E%E6%93%8D%E5%BB%BA%E8%AE%AE"><span class="nav-number">5.2.</span> <span class="nav-text">2. 实操建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chemmy"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chemmy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">306</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">295</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chengming0916" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chengming0916" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/chengming0916@outlook.com" title="E-Mail → chengming0916@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chengming0916.github.io/2026/05/09/%E6%9C%AA%E5%88%86%E7%B1%BB/WireGuard%E5%AE%B6%E7%94%A8%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Chemmy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="WireGuard家用组网方案 | Chemmy's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          WireGuard家用组网方案
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-05-09 08:28:54 / 修改时间：17:26:50" itemprop="dateCreated datePublished" datetime="2026-05-09T08:28:54+08:00">2026-05-09</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在家庭组网与远程访问场景中，WireGuard凭借轻量、高效、安全的特性，成为VPN组网的首选方案。本文结合家用核心需求——稳定访问内网NAS&#x2F;家庭电脑、云服务器可自由替换（哪家便宜用哪家），设计一套以家庭软路由为核心的WireGuard组网方案，配置简单可落地，兼顾访问稳定性与云服务器灵活性。</p>
+<p>方案核心目标：以家庭软路由为WireGuard服务端，构建稳定的家庭组网，云服务器仅作为普通客户端提供代理服务，可随时替换厂商、重建机器，不影响整体组网，实现内网低延迟访问与云服务灵活选用。</p>
+<h2 id="一、方案核心设计理念"><a href="#一、方案核心设计理念" class="headerlink" title="一、方案核心设计理念"></a>一、方案核心设计理念</h2><p>本次方案的核心是“解耦”与“便捷”，将家庭内网组网与云服务器角色彻底分离，确保组网稳定且维护成本低，具体设计理念如下：</p>
+<ul>
+<li><p>固定家庭组网根基：以家庭软路由作为WireGuard服务端，家庭内网、NAS、家庭电脑IP永久固定，一次配置终身不动，避免频繁调整。</p>
+</li>
+<li><p>云服务器自由化：所有云服务器（不限厂商，阿里云、腾讯云等均可）均作为WireGuard普通客户端，仅负责代理服务，换云机时无需改动家庭路由、终端任何配置，仅需重新部署客户端接入即可。</p>
+</li>
+<li><p>统一网段规划：固定内网与虚拟网段，终端配置永久不变，换云机或切换场景时无需修改IP，操作便捷。</p>
+</li>
+</ul>
+<h2 id="二、统一网段规划（终身不变，便于维护）"><a href="#二、统一网段规划（终身不变，便于维护）" class="headerlink" title="二、统一网段规划（终身不变，便于维护）"></a>二、统一网段规划（终身不变，便于维护）</h2><p>网段规划是组网稳定的核心，提前固定IP段，避免后期调整导致的配置混乱，贴合家用场景、易记无冲突，具体规划如下：</p>
+<table>
+<thead>
+<tr>
+<th>设备&#x2F;网段类型</th>
+<th>IP地址&#x2F;网段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>家庭物理内网</td>
+<td>192.168.123.0&#x2F;24</td>
+<td>固定家庭内网网段，包含所有内网设备</td>
+</tr>
+<tr>
+<td>家庭路由器（网关）</td>
+<td>192.168.123.1</td>
+<td>家庭内网网关，同时作为WireGuard服务端</td>
+</tr>
+<tr>
+<td>家庭电脑</td>
+<td>192.168.123.2</td>
+<td>固定内网IP，便于远程访问</td>
+</tr>
+<tr>
+<td>NAS存储设备</td>
+<td>192.168.123.200</td>
+<td>NAS设备固定IP段，避免IP变动导致访问失败</td>
+</tr>
+<tr>
+<td>WireGuard虚拟网段</td>
+<td>10.100.100.0&#x2F;24</td>
+<td>虚拟隧道网段，确保组网无冲突</td>
+</tr>
+<tr>
+<td>WireGuard服务端（路由）</td>
+<td>10.100.100.1</td>
+<td>路由作为WireGuard服务端的虚拟IP</td>
+</tr>
+<tr>
+<td>云服务器（WG客户端）</td>
+<td>10.100.100.2</td>
+<td>所有云机统一分配此虚拟IP，代理服务监听该IP</td>
+</tr>
+<tr>
+<td>终端设备（手机&#x2F;办公电脑&#x2F;笔记本）</td>
+<td>10.100.100.3~5</td>
+<td>每台终端固定虚拟IP，无需频繁改动</td>
+</tr>
+</tbody></table>
+<h2 id="三、详细配置（可直接复制部署）"><a href="#三、详细配置（可直接复制部署）" class="headerlink" title="三、详细配置（可直接复制部署）"></a>三、详细配置（可直接复制部署）</h2><p>本方案配置围绕“简单可落地”设计，无需复杂命令，适合家用用户与入门级技术爱好者，全程确保内网访问低延迟、云服务器可自由替换。</p>
+<h3 id="1-适用场景"><a href="#1-适用场景" class="headerlink" title="1. 适用场景"></a>1. 适用场景</h3><p>家庭宽带拥有公网IP（或可通过DDNS解析）、运营商未封锁WireGuard默认端口（51820），适合日常远程访问内网、搭配云服务器使用代理服务的场景。</p>
+<h3 id="2-组网拓扑"><a href="#2-组网拓扑" class="headerlink" title="2. 组网拓扑"></a>2. 组网拓扑</h3><figure class="highlight plaintext"><figcaption><span>text</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">终端设备（手机/办公电脑/笔记本）</span><br><span class="line">        ↓ WireGuard公网隧道（直连家庭路由）</span><br><span class="line">家庭软路由（WG Server：10.100.100.1 / 内网网关：192.168.123.1）</span><br><span class="line">        ├─ 家庭内网（192.168.123.0/24）→ 家庭电脑（192.168.123.2）、NAS（192.168.123.200+）</span><br><span class="line">        ↓ WireGuard客户端接入</span><br><span class="line">任意云服务器（WG Client：10.100.100.2，仅提供代理服务）</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-核心配置"><a href="#3-核心配置" class="headerlink" title="3. 核心配置"></a>3. 核心配置</h3><p>重点：路由开启IP转发与流量放行，云服务器仅作为普通客户端接入，终端配置永久固定，换云机时无需改动路由与终端设置。</p>
+<h4 id="（1）家庭软路由（WG服务端）配置"><a href="#（1）家庭软路由（WG服务端）配置" class="headerlink" title="（1）家庭软路由（WG服务端）配置"></a>（1）家庭软路由（WG服务端）配置</h4><p>以主流家用软路由系统（ImmortalWrt&#x2F;iStoreOS&#x2F;OpenWrt）为例，配置文件（&#x2F;etc&#x2F;wireguard&#x2F;wg0.conf）如下，可直接复制替换密钥：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[Interface]</span></span><br><span class="line"><span class="attr">PrivateKey</span> = 家庭路由WG私钥（自行生成）</span><br><span class="line"><span class="attr">Address</span> = <span class="number">10.100</span>.<span class="number">100.1</span>/<span class="number">24</span></span><br><span class="line"><span class="attr">ListenPort</span> = <span class="number">51820</span></span><br><span class="line"><span class="comment"># 开启IP转发，允许虚拟网段访问家庭内网（核心配置，不可省略）</span></span><br><span class="line"><span class="attr">PostUp</span> = iptables -A FORWARD -s <span class="number">10.100</span>.<span class="number">100.0</span>/<span class="number">24</span> -d <span class="number">192.168</span>.<span class="number">123.0</span>/<span class="number">24</span> -j ACCEPT</span><br><span class="line"><span class="attr">PostDown</span> = iptables -D FORWARD -s <span class="number">10.100</span>.<span class="number">100.0</span>/<span class="number">24</span> -d <span class="number">192.168</span>.<span class="number">123.0</span>/<span class="number">24</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端：云服务器（可随时新增/删除，换云机仅改公钥）</span></span><br><span class="line"><span class="section">[Peer]</span></span><br><span class="line"><span class="attr">PublicKey</span> = 云服务器WG公钥</span><br><span class="line"><span class="attr">AllowedIPs</span> = <span class="number">10.100</span>.<span class="number">100.2</span>/<span class="number">32</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端：办公电脑</span></span><br><span class="line"><span class="section">[Peer]</span></span><br><span class="line"><span class="attr">PublicKey</span> = 办公电脑WG公钥</span><br><span class="line"><span class="attr">AllowedIPs</span> = <span class="number">10.100</span>.<span class="number">100.3</span>/<span class="number">32</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端：手机</span></span><br><span class="line"><span class="section">[Peer]</span></span><br><span class="line"><span class="attr">PublicKey</span> = 手机WG公钥</span><br><span class="line"><span class="attr">AllowedIPs</span> = <span class="number">10.100</span>.<span class="number">100.4</span>/<span class="number">32</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端：笔记本</span></span><br><span class="line"><span class="section">[Peer]</span></span><br><span class="line"><span class="attr">PublicKey</span> = 笔记本WG公钥</span><br><span class="line"><span class="attr">AllowedIPs</span> = <span class="number">10.100</span>.<span class="number">100.5</span>/<span class="number">32</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）云服务器（WG客户端）配置"><a href="#（2）云服务器（WG客户端）配置" class="headerlink" title="（2）云服务器（WG客户端）配置"></a>（2）云服务器（WG客户端）配置</h4><p>云服务器无需复杂配置，仅作为客户端接入家庭路由，配置文件如下，替换密钥与路由公网IP&#x2F;DDNS即可，换云机时直接复用此模板：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[Interface]</span></span><br><span class="line"><span class="attr">PrivateKey</span> = 云服务器WG私钥</span><br><span class="line"><span class="attr">Address</span> = <span class="number">10.100</span>.<span class="number">100.2</span>/<span class="number">32</span></span><br><span class="line"></span><br><span class="line"><span class="section">[Peer]</span></span><br><span class="line"><span class="attr">PublicKey</span> = 家庭路由WG公钥</span><br><span class="line"><span class="attr">Endpoint</span> = 家庭路由公网IP:<span class="number">51820</span> 或 DDNS域名:<span class="number">51820</span></span><br><span class="line"><span class="attr">AllowedIPs</span> = <span class="number">10.100</span>.<span class="number">100.0</span>/<span class="number">24</span>,<span class="number">192.168</span>.<span class="number">123.0</span>/<span class="number">24</span></span><br><span class="line"><span class="attr">PersistentKeepalive</span> = <span class="number">25</span></span><br></pre></td></tr></table></figure>
+
+<p>说明：云服务器部署完成后，仅需在其上搭建代理服务（如V2Ray、Clash等），监听虚拟IP 10.100.100.2，终端切换代理即可使用。换云机时，仅需在新云机上部署此配置与代理服务，删除旧云机的WG Peer配置，其他设备无需任何改动。</p>
+<h4 id="（3）终端设备（手机-电脑）配置"><a href="#（3）终端设备（手机-电脑）配置" class="headerlink" title="（3）终端设备（手机&#x2F;电脑）配置"></a>（3）终端设备（手机&#x2F;电脑）配置</h4><p>所有终端配置永久固定，无需随云机替换而改动，配置文件如下，手机、笔记本仅需替换对应虚拟IP即可：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[Interface]</span></span><br><span class="line"><span class="attr">PrivateKey</span> = 终端WG私钥</span><br><span class="line"><span class="attr">Address</span> = <span class="number">10.100</span>.<span class="number">100.3</span>/<span class="number">32</span>（办公电脑，手机/笔记本替换对应IP）</span><br><span class="line"></span><br><span class="line"><span class="section">[Peer]</span></span><br><span class="line"><span class="attr">PublicKey</span> = 家庭路由WG公钥</span><br><span class="line"><span class="attr">Endpoint</span> = 家庭路由公网IP:<span class="number">51820</span> 或 DDNS域名:<span class="number">51820</span></span><br><span class="line"><span class="attr">AllowedIPs</span> = <span class="number">10.100</span>.<span class="number">100.0</span>/<span class="number">24</span>,<span class="number">192.168</span>.<span class="number">123.0</span>/<span class="number">24</span></span><br><span class="line"><span class="attr">PersistentKeepalive</span> = <span class="number">25</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-访问逻辑与实操要点"><a href="#4-访问逻辑与实操要点" class="headerlink" title="4. 访问逻辑与实操要点"></a>4. 访问逻辑与实操要点</h3><ul>
+<li><p>远程访问内网：终端连入WG后，直接用内网IP访问（如ping 192.168.123.2、访问NAS地址192.168.123.200），无需云服务器中转，延迟最低。</p>
+</li>
+<li><p>代理使用：终端手动切换代理至云服务器虚拟IP（10.100.100.2），流量通过云服务器代理，内网流量与代理流量分离，互不冲突。</p>
+</li>
+<li><p>云机替换流程：① 新云机部署WG客户端配置（复用模板，替换密钥）；② 新云机搭建代理服务，监听10.100.100.2；③ 家庭路由添加新云机Peer配置，删除旧云机Peer；④ 终端代理切换至新云机（IP不变），全程无需改动终端与路由核心配置。</p>
+</li>
+</ul>
+<h2 id="四、软路由系统与硬件选型"><a href="#四、软路由系统与硬件选型" class="headerlink" title="四、软路由系统与硬件选型"></a>四、软路由系统与硬件选型</h2><p>方案的稳定运行依赖软路由对WireGuard的良好支持，按“易用性+稳定性”排序，推荐以下系统与硬件，适合家用场景：</p>
+<h3 id="1-软路由系统推荐"><a href="#1-软路由系统推荐" class="headerlink" title="1. 软路由系统推荐"></a>1. 软路由系统推荐</h3><ul>
+<li><p>首选（零门槛）：ImmortalWrt、iStoreOS，均为中文界面，预集成WireGuard，一键安装，开箱即用，适合新手。</p>
+</li>
+<li><p>次选（可定制）：OpenWrt官方原版、Padavan（老毛子），适合喜欢折腾、有自定义需求或使用老路由的用户。</p>
+</li>
+<li><p>进阶（专业级）：OPNsense、RouterOS（ROS），稳定性强、性能高，适合有进阶需求的用户，新手不推荐。</p>
+</li>
+</ul>
+<h3 id="2-硬件建议"><a href="#2-硬件建议" class="headerlink" title="2. 硬件建议"></a>2. 硬件建议</h3><ul>
+<li><p>x86架构（N100&#x2F;J4125）：性能强劲，适合千兆及以上宽带，可同时运行WG与代理服务，升级无压力。</p>
+</li>
+<li><p>ARM架构（RK3568&#x2F;MT7621）：性价比高、功耗低，适合百兆&#x2F;千兆宽带，满足日常组网需求。</p>
+</li>
+</ul>
+<h2 id="五、方案优势与实操建议"><a href="#五、方案优势与实操建议" class="headerlink" title="五、方案优势与实操建议"></a>五、方案优势与实操建议</h2><h3 id="1-核心优势"><a href="#1-核心优势" class="headerlink" title="1. 核心优势"></a>1. 核心优势</h3><ul>
+<li><p>云机灵活替换：不绑定组网中枢，可灵活选择云服务器厂商，切换过程丝滑顺畅，无需担心云厂商变动影响组网，大幅降低使用成本。</p>
+</li>
+<li><p>访问稳定低延迟：内网直连无中转，远程访问NAS、家庭电脑体验与本地一致。</p>
+</li>
+<li><p>配置简单易维护：一次部署终身可用，换云机、升级设备无需频繁调整配置。</p>
+</li>
+<li><p>安全性更强：云服务器仅作为WireGuard客户端接入家庭组网，无需放通防火墙端口，减少端口暴露带来的安全风险，提升整体组网安全性。</p>
+</li>
+</ul>
+<h3 id="2-实操建议"><a href="#2-实操建议" class="headerlink" title="2. 实操建议"></a>2. 实操建议</h3><ul>
+<li><p>优先完成软路由配置，测试内网访问与云服务器接入，确保日常使用稳定。</p>
+</li>
+<li><p>备份所有配置文件，避免换设备或重装系统后重新配置。</p>
+</li>
+<li><p>访问异常时，优先检查IP转发、AllowedIPs配置、51820端口放行情况。</p>
+</li>
+</ul>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>本文介绍的家用WireGuard组网方案，以家庭软路由为核心服务端，彻底实现云服务器与组网中枢的解耦，既保证了远程访问内网的稳定性与低延迟，还能实现云服务器的灵活选择与丝滑切换，无需绑定固定厂商，且云服务器无需放通防火墙端口，安全性更强，配置简单、维护成本低，适合大多数家用场景。</p>
+<p>作为补充，若家庭宽带无公网IP、运营商封端口等场景无法使用本方案，可将任意云服务器作为WireGuard服务端，终端与路由仅需切换配置即可正常组网，进一步提升方案的适配性。整体而言，该方案兼顾实用性与灵活性，新手与进阶用户均可快速落地使用。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="Chemmy 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Chemmy 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/VPN/" rel="tag"># VPN</a>
+              <a href="/tags/WireGuard/" rel="tag"># WireGuard</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/27/%E5%A4%A7%E6%A8%A1%E5%9E%8B/llama.cpp%E6%9C%AC%E5%9C%B0%E5%8C%96%E9%83%A8%E7%BD%B2%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="prev" title="llama.cpp本地化部署大模型">
+                  <i class="fa fa-angle-left"></i> llama.cpp本地化部署大模型
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/05/09/Linux/Ubuntu%20Snap%20%E5%85%BC%E5%AE%B9%E6%80%A7%E4%B8%8E%E7%A6%81%E7%94%A8%E5%AE%9E%E6%93%8D/" rel="next" title="Ubuntu Snap 兼容性与禁用实操">
+                  Ubuntu Snap 兼容性与禁用实操 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2015 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Chemmy</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"chengming0916/chengming0916.github.io","repo_id":"R_kgDOLemcag","category":"Announcements","category_id":"DIC_kwDOLemcas4CupMn","mapping":"title","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>
